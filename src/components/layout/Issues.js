@@ -1,0 +1,270 @@
+import React, { useState, useEffect } from "react";
+import { withStyles, makeStyles } from "@material-ui/core/styles";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableHead from "@material-ui/core/TableHead";
+import TablePagination from '@material-ui/core/TablePagination';
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
+import issueService from "../../services/issueService";
+import "../../App.css";
+import moment from 'moment';
+import Link from '@material-ui/core/Link';
+
+import { Redirect } from 'react-router-dom';
+import { findUserProfile } from '../utils/api-user';
+import auth from '../auth/auth-helper';
+import useReactRouter from 'use-react-router';
+
+
+const dudUrl = 'javascript:;';
+
+const formattedDate = (value) => moment(value).format('DD/MM-YYYY HH:SS');
+
+const columns = [
+  { id: 'priority', label: 'Prioritet', minWidth: 35, align: 'left' },
+  { id: '_id', label: 'ID', minWidth: 20 },
+  {
+    id: 'kommentar',
+    label: 'Kommentarer',
+    minWidth: 20,
+    width: 20,
+    align: 'left',
+    format: value => value.toLocaleString(),
+  },
+  {
+    id: 'category',
+    label: 'Kategori',
+    minWidth: 20,
+    align: 'left',
+    format: value => value.toLocaleString(),
+  },
+  {
+    id: 'severity',
+    label: 'Alvorlighetsgrad',
+    minWidth: 60,
+    align: 'center',
+    format: value => value.toLocaleString(),
+  },
+  {
+    id: 'status',
+    label: 'Status',
+    minWidth: 50,
+    align: 'left',
+    format: value => value.toLocaleString(),
+  },
+  {
+    id: 'updatedAt',
+    label: 'Oppdatert',
+    minWidth: 120,
+    align: 'left',
+    format: value => formattedDate(value),
+  },
+  {
+    id: 'summary',
+    label: 'Oppsummering',
+    minWidth: 50,
+    align: 'left',
+    format: value => value.toLocaleString(),
+  },
+];
+
+const StyledTableCell = withStyles(theme => ({
+  head: {
+    backgroundColor: "#712e5e",
+    //width: 1700,
+    fontFamily: "Nunito",
+    fontWeight: 700,
+    color: theme.palette.common.white,
+    fontSize: 16,
+    lineHeight: "1.0rem",
+    
+  },
+  body: {
+    fontSize: 14,
+    fontFamily: "Nunito"
+  }
+}))(TableCell);
+
+const StyledTableRow = withStyles(theme => ({
+  root: {
+    fontSize: 12,
+    fontFamily: "Nunito",
+    "&:nth-of-type(odd)": {
+      backgroundColor: "#6d004c21"
+    }
+  },
+  body: {
+    fontSize: 12,
+    fontFamily: "Nunito"
+  }
+}))(TableRow);
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    width: "70%",
+    marginTop: theme.spacing(12),
+    marginLeft: 290,
+    overflowX: "auto",
+    borderRadius: 14,
+  },
+  table: {
+    minWidth: 500,
+  },
+  tableWrapper: {
+    maxHeight: 900,
+    overflow: 'auto',
+  },
+  label: {
+    display: "inline",
+    padding: ".2em .6em .3em",
+    fontSize: "75%",
+    fontWeight: 700,
+    lineHeight: 1,
+    backgroundColor: "lightblue",
+    color: "#000",
+    textAlign: "center",
+    whiteSpace: "nowrap",
+    verticalAlign: "baseline",
+    borderRadius: ".25em",
+}
+}));
+
+export default function Issues(props) {
+  const classes = useStyles();
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [dataset, setData] = useState([]);
+  const { history, location, match } = useReactRouter();
+	const state = {
+			user: '',
+			redirectToSignin: false
+    };
+    
+  const [values, setValues] = useState(state);
+
+    const init = userId => {
+		const jwt = auth.isAuthenticated();
+		findUserProfile(
+			{
+				userId: userId
+			},
+			{ t: jwt.token }
+		).then(data => {
+			if (data.error) {
+				setValues({ redirectToSignin: true });
+			} else {
+				setValues({ user: data });
+			}
+		});
+  };
+
+  useEffect(() => {
+		console.log("USERID :::>>>" + match.params.userId);
+    	init(props.match.params.userId);
+  }, []);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = event => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+   useEffect(() => {
+      getIssues();
+  }, [!dataset])
+
+  
+  const getIssues = async () => {
+    let res = await issueService.getAll();
+    setData(res);
+  }
+
+
+  const renderIssues = issues => {
+    const value = issues[columns.id];
+    return (
+        <TableCell style={{ minWidth: columns.minWidth }} key={issues._id} align={columns.align} >  
+          {(dataset && dataset.length > 0) ? (
+                dataset.map(dataset => renderIssues(dataset))
+              ) : (
+                <p>Ingen saker registrert.</p>
+          )}      
+        </TableCell>
+    );
+  };
+  
+  return (
+    <Paper className={classes.root}>
+      <div className={classes.tableWrapper}>
+     <React.Fragment>
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 100]}
+          component="div"
+          count={dataset.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          backIconButtonProps={{
+            'aria-label': 'previous page',
+          }}
+          nextIconButtonProps={{
+            'aria-label': 'next page',
+          }}
+          onChangePage={handleChangePage}
+          onChangeRowsPerPage={handleChangeRowsPerPage}
+        />
+      <Table className={classes.table}>
+        <TableHead>
+          <TableRow>
+              {columns.map(column => (
+                <StyledTableCell
+                  key={column.id}
+                  align={column.align}
+                  style={{ minWidth: column.minWidth }}
+                >
+                  {column.label}
+                </StyledTableCell>
+              ))}
+            </TableRow>
+        </TableHead>
+          <TableBody>
+            {dataset.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+              return (
+                <StyledTableRow hover role="checkbox" tabIndex={-1} key={index}>
+                  {columns.map((column, index) => {
+                    const value = row[column.id];
+                    return (
+                      <TableCell style={{ fontWeight: 600, fontFamily: 'Nunito', fontSize: "1.1em" }} key={index} align={column.align}>
+                       {column.format && typeof value === 'string' ? column.format(value) : value}
+                      </TableCell>
+                    );
+                  })}
+                </StyledTableRow>
+              );
+            })}
+          </TableBody>
+      </Table>
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 100]}
+          component="div"
+          count={dataset.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          backIconButtonProps={{
+            'aria-label': 'previous page',
+          }}
+          nextIconButtonProps={{
+            'aria-label': 'next page',
+          }}
+          onChangePage={handleChangePage}
+          onChangeRowsPerPage={handleChangeRowsPerPage}
+        />
+      </React.Fragment>
+      </div>
+    </Paper>
+  );
+}

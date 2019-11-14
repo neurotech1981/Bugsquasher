@@ -1,13 +1,111 @@
 body {
+  margin-top: 100px;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 300;
+  line-height: 1.42em;
+  color:rgb(65, 53, 80);
+  /* background-color:#1F2739; */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: -webkit-gradient(linear, left top, left bottom, from(rgb(208, 249, 255)), to(#f7f8ff)) fixed;
+  /*background-image: linear-gradient(90deg,#d7d5dd 0,#eee 30%,#eee 70%,#d7d5dd);*/
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+
+.makeStyles-root-187 {
+    width: 80%;
+    margin-top: 74px;
+    margin-left: 251px;
+}
+
+.makeStyles-root-200 {
+    max-width: 850px;
+    width: 850px;
+    margin-top: 24px;
+    margin: 0 auto;
+}
+
+.makeStyles-root-395 {
+    max-width: 850px;
+    width: 850px;
+    margin-top: 24px;
+    margin: 0 auto;
+}
+
+.svgLogoIcon {
+  fill: rgb(255, 255, 255);
+}
+
+ .sideBarIcon {
+   color: blue;
+   fill: rgb(255, 255, 255);
+ }
+
+
+@media (min-width: 1280px){
+.MuiContainer-maxWidthLg {
+    padding-left: 292px;
+    padding-right: 32px;
+    max-width: 770px;
+    right: 120px;
+}}
+
+@media (min-width: 600px) {
+.makeStyles-container-189 {
+    padding-left: 212px;
+    padding-right: 32px;
+}
+}
+
+.dropzone {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    border-width: 2px;
+    border-radius: 2px;
+    border-color: #eeeeee;
+    border-style: dashed;
+    background-color: #fafafa;
+    color: #bdbdbd;
+    outline: none;
+    transition: border .24s ease-in-out;
+    margin: 20px;
+}
+
+.aside {
+    display: flex;
+    flex-flow: row wrap;
+    margin-top: 16px;
+    margin: 20px;
+}
+
+a {
+  font-family: 'Montserrat', sans-serif;
+  color: rgb(49, 49, 49);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.4em;
+  outline: none;
+  border-bottom: 2px solid transparent;
+  -webkit-transition: border 300ms linear;
+  -moz-transition: border 300ms linear;
+  transition: border 300ms linear
+}
+
+a:visited {
+  color: rgb(26, 56, 30);
+  text-decoration: none;
+  font-weight: 600;
+  outline: none;
+}
+
+a:hover,
+a:focus {
+  transition: all ease-in-out 0.3s;
+  color: #ffffff;
+  text-decoration: none;
+  border-end-end-radius: 4px solid rgb(73, 248, 152);
 }

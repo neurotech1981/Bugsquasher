@@ -19,24 +19,40 @@ module.exports = function validateInput(data) {
     errors.name = "Fornavn og etternavn påkrevd";
   }
 
-  if (validator.isEmpty(data.description)) {
-    errors.description = "En beskrivelse av hendelse er påkrevd";
-  }
-
-  if (validator.matches(data.severity, "Ingen valgt")) {
-    errors.severity = "En alvorlighetsgrad er påkrevd";
+  if (validator.isEmpty(data.category)) {
+    errors.category = "Velg en kategori på hendelse";
   }
 
   if (validator.matches(data.category, "Ingen valgt")) {
     errors.category = "Velg en kategori på hendelse";
   }
 
+  if (validator.isEmpty(data.severity)) {
+    errors.severity = "En alvorlighetsgrad er påkrevd";
+  }
+
+  if (validator.matches(data.severity, "Ingen valgt")) {
+    errors.severity = "En alvorlighetsgrad er påkrevd";
+  }
+
+  if (validator.isEmpty(data.priority)) {
+    errors.priority = "Prioritet må angis";
+  }
+
   if (validator.matches(data.priority, "Ingen valgt")) {
     errors.priority = "Prioritet må angis";
   }
 
+  if (validator.isEmpty(data.reproduce)) {
+    errors.reproduce = "Reproduksjon må angis";
+  }
+
   if (validator.matches(data.reproduce, "Ingen valgt")) {
     errors.reproduce = "Reproduksjon må angis";
+  }
+
+  if (validator.isEmpty(data.description)) {
+    errors.description = "En beskrivelse av hendelse er påkrevd";
   }
 
   if (validator.isEmpty(data.summary)) {

@@ -10,15 +10,7 @@ import Paper from "@material-ui/core/Paper";
 import issueService from "../../services/issueService";
 import "../../App.css";
 import moment from 'moment';
-import Link from '@material-ui/core/Link';
-
-import { Redirect } from 'react-router-dom';
 import { findUserProfile } from '../utils/api-user';
-import auth from '../auth/auth-helper';
-import useReactRouter from 'use-react-router';
-
-
-const dudUrl = 'javascript:;';
 
 const formattedDate = (value) => moment(value).format('DD/MM-YYYY HH:SS');
 
@@ -136,34 +128,6 @@ export default function Issues(props) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [dataset, setData] = useState([]);
-  const { history, location, match } = useReactRouter();
-	const state = {
-			user: '',
-			redirectToSignin: false
-    };
-    
-  const [values, setValues] = useState(state);
-
-    const init = userId => {
-		const jwt = auth.isAuthenticated();
-		findUserProfile(
-			{
-				userId: userId
-			},
-			{ t: jwt.token }
-		).then(data => {
-			if (data.error) {
-				setValues({ redirectToSignin: true });
-			} else {
-				setValues({ user: data });
-			}
-		});
-  };
-
-  useEffect(() => {
-		console.log("USERID :::>>>" + match.params.userId);
-    	init(props.match.params.userId);
-  }, []);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -197,7 +161,8 @@ export default function Issues(props) {
         </TableCell>
     );
   };
-  
+
+
   return (
     <Paper className={classes.root}>
       <div className={classes.tableWrapper}>

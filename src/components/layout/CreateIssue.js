@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
+import useReactRouter from 'use-react-router';
 import { makeStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
@@ -12,7 +12,9 @@ import Previews from './ImageUploader';
 import { useSelector } from 'react-redux';
 import classnames from "classnames";
 import Box from '@material-ui/core/Box';
-
+import auth from '../auth/auth-helper';
+import { findUserProfile } from '../utils/api-user';
+import { Redirect, Link } from 'react-router-dom';
 
 const alvorlighetsGrad = [
   {
@@ -225,6 +227,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function CreateIssue() {
+  const { history, location, match } = useReactRouter();
   const initialState = {
     data: [''],
     setID: 0,
@@ -239,13 +242,35 @@ export default function CreateIssue() {
     setTillegg: '',
     setStatus: 'Åpen',
     setImageName: [''],
-    errors: ''
+    user: '',
+		redirectToSignin: false
   };
 
   const classes = useStyles();
   const [values, setValues] = useState(initialState);
+  const [errors, setErrors] = useState('');
 
   const images = useSelector(state => state);
+
+    const init = userId => {
+		const jwt = auth.isAuthenticated();
+		findUserProfile(
+			{
+				userId: userId
+			},
+			{ t: jwt.token }
+		).then(data => {
+			if (data.error) {
+				setValues({ redirectToSignin: true });
+			} else {
+				setValues({ user: data });
+			}
+		});
+  };
+
+  useEffect(() => {
+      init(match.params.userId);
+  }, []);
 
   const handleChange = name => event => {
     setValues({
@@ -282,16 +307,17 @@ export default function CreateIssue() {
         status: values.setStatus,
         imageName: values.setImageName
       })
-      .then(data => {
-        if (data.status === 200) {
-          alert('Issue successfully posted');
-          setValues({errors: ''})
+      .then(response => {
+        if (response.status === 200) {
+          alert('Sak ble lagt til');
           clearState();
           //imageFormObj = new FormData();
           //setDefaultImage('baseImage');
         }
       })
-      .catch(err => setValues({ errors: err.response.data }));
+      .catch(err => {
+        setErrors(err.response.data)
+      });
     // clear errors on submit if any present, before correcting old error
     
   }
@@ -355,6 +381,7 @@ export default function CreateIssue() {
     putDataToDB();
   };
 
+	
   return (
     <Container>
       <form
@@ -370,7 +397,7 @@ export default function CreateIssue() {
           name='navn'
           //className={classes.textField}
           className={classnames([classes.textField], {
-            "is-invalid": values.errors.name
+            "is-invalid": errors.name
           })}
           value={[values.setNavn]}
           onChange={handleChange('setNavn')}
@@ -379,8 +406,8 @@ export default function CreateIssue() {
           }}
           margin='normal'
           variant='outlined'
-        />{values.errors && (
-           <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{values.errors.name} ⚠️</Box>
+        />{errors.name && (
+           <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.name} ⚠️</Box>
           )}
         <TextField
           id='outlined-select-alvorlighetsgrad'
@@ -408,8 +435,8 @@ export default function CreateIssue() {
             </MenuItem>
           ))}
         </TextField>
-        {values.errors && (
-            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{values.errors.category} ⚠️</Box>
+        {errors.category && (
+            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.category} ⚠️</Box>
           )}
         <TextField
           id='outlined-select-alvorlighetsgrad'
@@ -437,8 +464,8 @@ export default function CreateIssue() {
             </MenuItem>
           ))}
         </TextField>
-        {values.errors && (
-            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{values.errors.severity} ⚠️</Box>
+        {errors.severity && (
+            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.severity} ⚠️</Box>
           )}
         <TextField
           id='outlined-select-prioritet'
@@ -466,8 +493,8 @@ export default function CreateIssue() {
             </MenuItem>
           ))}
         </TextField>
-          {values.errors && (
-            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{values.errors.priority} ⚠️</Box>
+          {errors.priority && (
+            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.priority} ⚠️</Box>
           )}
         <TextField
           id='outlined-select-prioritet'
@@ -503,8 +530,8 @@ export default function CreateIssue() {
             </MenuItem>
           ))}
         </TextField>
-        {values.errors && (
-            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{values.errors.reproduce} ⚠️</Box>
+        {errors.reproduce && (
+            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.reproduce} ⚠️</Box>
         )}
         <TextField
           id='outlined-oppsummering'
@@ -519,8 +546,8 @@ export default function CreateIssue() {
           margin='normal'
           variant='outlined'
         />
-        {values.errors && (
-          <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{values.errors.summary} ⚠️</Box>
+        {errors.summary && (
+          <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.summary} ⚠️</Box>
          )}
         <TextField
           id='outlined-beskrivelse-input'
@@ -537,8 +564,8 @@ export default function CreateIssue() {
           margin='normal'
           variant='outlined'
         />
-        {values.errors && (
-           <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{values.errors.description} ⚠️</Box>
+        {errors.description && (
+           <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.description} ⚠️</Box>
         )}
         <TextField
           id='outlined-reprodusere-input'
@@ -555,8 +582,8 @@ export default function CreateIssue() {
           margin='normal'
           variant='outlined'
         />
-        {values.errors && (
-            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{values.errors.step_reproduce} ⚠️</Box>
+        {errors.step_reproduce && (
+            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.step_reproduce} ⚠️</Box>
         )}
         <TextField
           id='outlined-multiline-static'
@@ -573,8 +600,8 @@ export default function CreateIssue() {
           margin='normal'
           variant='outlined'
         />
-        {values.errors && (
-            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{values.errors.additional_info} ⚠️</Box>
+        {errors.additional_info && (
+            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.additional_info} ⚠️</Box>
         )}
         <Previews />
         <Button

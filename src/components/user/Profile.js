@@ -56,9 +56,7 @@ export default function Profile(props) {
   };
 
   useEffect(() => {
-		console.log("USERID :::>>>" + match.params.userId);
-			console.log(match.params.userId);
-    	init(match.params.userId);
+			init(match.params.userId);
   }, []);
 
   const classes = useStyles();

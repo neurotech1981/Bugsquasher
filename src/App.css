@@ -15,4 +15,15 @@
     border-radius: .25em;
 }
 
+.div-issues {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    -ms-flex-direction: row;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
 .error { border: 3px solid red; }

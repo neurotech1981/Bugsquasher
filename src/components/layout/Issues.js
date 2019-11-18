@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import issueService from "../../services/issueService";
 import "../../App.css";
 import moment from 'moment';
-import { findUserProfile } from '../utils/api-user';
+import MaterialTable from 'material-table';
 
 const formattedDate = (value) => moment(value).format('DD/MM-YYYY HH:SS');
+
 
 const columns = [
   { id: 'priority', label: 'Prioritet', minWidth: 35, align: 'left' },
@@ -62,37 +57,6 @@ const columns = [
   },
 ];
 
-const StyledTableCell = withStyles(theme => ({
-  head: {
-    backgroundColor: "#712e5e",
-    //width: 1700,
-    fontFamily: "Nunito",
-    fontWeight: 700,
-    color: theme.palette.common.white,
-    fontSize: 16,
-    lineHeight: "1.0rem",
-    
-  },
-  body: {
-    fontSize: 14,
-    fontFamily: "Nunito"
-  }
-}))(TableCell);
-
-const StyledTableRow = withStyles(theme => ({
-  root: {
-    fontSize: 12,
-    fontFamily: "Nunito",
-    "&:nth-of-type(odd)": {
-      backgroundColor: "#6d004c21"
-    }
-  },
-  body: {
-    fontSize: 12,
-    fontFamily: "Nunito"
-  }
-}))(TableRow);
-
 const useStyles = makeStyles(theme => ({
   root: {
     width: "70%",
@@ -125,109 +89,50 @@ const useStyles = makeStyles(theme => ({
 
 export default function Issues(props) {
   const classes = useStyles();
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [dataset, setData] = useState([]);
+  const [dataset, setData] = useState([
+      { field: 'priority' },
+      { field: '_id',  type: 'numeric' },
+      { field: 'kommentar' },
+      { field: 'category' },
+      { field: 'severity' },
+      { field: 'status' },
+      { field: value => formattedDate(value), type: 'numeric' },
+      { field: 'summary' },      
+    ]);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = event => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
+  const [state] = useState({
+    columns: [
+      { title: 'Prioritet', field: 'priority' },
+      { title: 'ID', field: '_id',  type: 'numeric' },
+      { title: 'Kommentar', field: 'kommentar' },
+      { title: 'Kategori', field: 'category' },
+      { title: 'Alvorlighetsgrad', field: 'severity' },
+      { title: 'Status', field: 'status' },
+      { title: 'Oppdatert', field: 'updatedAt', type: 'numeric' },
+      { title: 'Oppsummering', field: 'summary' },
+    ]
+  });
 
    useEffect(() => {
       getIssues();
   }, [!dataset])
 
-  
   const getIssues = async () => {
     let res = await issueService.getAll();
+    console.log("DATASET >>>>" + dataset);
     setData(res);
   }
-
-
-  const renderIssues = issues => {
-    const value = issues[columns.id];
-    return (
-        <TableCell style={{ minWidth: columns.minWidth }} key={issues._id} align={columns.align} >  
-          {(dataset && dataset.length > 0) ? (
-                dataset.map(dataset => renderIssues(dataset))
-              ) : (
-                <p>Ingen saker registrert.</p>
-          )}      
-        </TableCell>
-    );
-  };
 
 
   return (
     <Paper className={classes.root}>
       <div className={classes.tableWrapper}>
      <React.Fragment>
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 100]}
-          component="div"
-          count={dataset.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          backIconButtonProps={{
-            'aria-label': 'previous page',
-          }}
-          nextIconButtonProps={{
-            'aria-label': 'next page',
-          }}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-        />
-      <Table className={classes.table}>
-        <TableHead>
-          <TableRow>
-              {columns.map(column => (
-                <StyledTableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth }}
-                >
-                  {column.label}
-                </StyledTableCell>
-              ))}
-            </TableRow>
-        </TableHead>
-          <TableBody>
-            {dataset.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-              return (
-                <StyledTableRow hover role="checkbox" tabIndex={-1} key={index}>
-                  {columns.map((column, index) => {
-                    const value = row[column.id];
-                    return (
-                      <TableCell style={{ fontWeight: 600, fontFamily: 'Nunito', fontSize: "1.1em" }} key={index} align={column.align}>
-                       {column.format && typeof value === 'string' ? column.format(value) : value}
-                      </TableCell>
-                    );
-                  })}
-                </StyledTableRow>
-              );
-            })}
-          </TableBody>
-      </Table>
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 100]}
-          component="div"
-          count={dataset.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          backIconButtonProps={{
-            'aria-label': 'previous page',
-          }}
-          nextIconButtonProps={{
-            'aria-label': 'next page',
-          }}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-        />
+      <MaterialTable 
+      columns={state.columns} 
+      data={dataset} 
+      title="Registrerte saker" 
+      />
       </React.Fragment>
       </div>
     </Paper>

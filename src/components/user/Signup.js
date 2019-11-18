@@ -86,6 +86,7 @@ export default function Signup() {
             Registrer bruker
           </Typography>
 					<TextField
+						autocomplete="off"
 						id="name"
 						type="text"
 						label="Navn"
@@ -97,6 +98,7 @@ export default function Signup() {
 					/>
 						<br />
 					<TextField
+						autocomplete="off"
 						id="email"
 						type="email"
 						label="E-Post"
@@ -108,6 +110,7 @@ export default function Signup() {
 					/>
 						<br />
 					<TextField
+						autocomplete="off"
 						id="password"
 						type="password"
 						label="Passord"
@@ -130,25 +133,25 @@ export default function Signup() {
 					<CardActions>
 						<Button
 							color="primary"
-							variant="text"
+							variant="contained"
 							onClick={e => clickSubmit()}
 							className={classes.submit}
 						>
-							Submit
+							Registrer bruker
 						</Button>
 					</CardActions>
 				</Card>
 				<Dialog open={values.open} disableBackdropClick={true}>
-					<DialogTitle>New Account</DialogTitle>
+					<DialogTitle>Ny bruker</DialogTitle>
 					<DialogContent>
 						<DialogContentText>
-							New account successfully created.
+							Ny bruker lagt til.
 						</DialogContentText>
 					</DialogContent>
 					<DialogActions>
 						<Link to="/signin">
-							<Button color="primary" autoFocus="autoFocus" variant="raised">
-								Sign In
+							<Button color="primary" variant="contained" autoFocus="autoFocus">
+								Logg inn
 							</Button>
 						</Link>
 					</DialogActions>

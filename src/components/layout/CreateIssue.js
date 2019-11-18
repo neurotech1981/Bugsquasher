@@ -317,6 +317,7 @@ export default function CreateIssue() {
       })
       .catch(err => {
         setErrors(err.response.data)
+        window.scrollTo(0, 0);
       });
     // clear errors on submit if any present, before correcting old error
     

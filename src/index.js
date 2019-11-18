@@ -18,7 +18,7 @@ ReactDOM.render(
 
 WebFont.load({
   google: {
-    families: ["Nunito:300,400,700", "Lobster", "Montserrat", "sans-serif"]
+    families: ["Nunito Sans:300,400,700", "Lobster", "Montserrat", "Roboto", "sans-serif"]
   }
 });
 

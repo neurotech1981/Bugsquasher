@@ -6,7 +6,7 @@ import "../../App.css";
 import moment from 'moment';
 import MaterialTable from 'material-table';
 
-const formattedDate = (value) => moment(value).format('DD/MM-YYYY HH:SS');
+const formattedDate = (value) => moment(value).format('DD/MM-YYYY');
 
 
 const columns = [
@@ -89,16 +89,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Issues(props) {
   const classes = useStyles();
-  const [dataset, setData] = useState([
-      { field: 'priority' },
-      { field: '_id',  type: 'numeric' },
-      { field: 'kommentar' },
-      { field: 'category' },
-      { field: 'severity' },
-      { field: 'status' },
-      { field: value => formattedDate(value), type: 'numeric' },
-      { field: 'summary' },      
-    ]);
+  const [dataset, setData] = useState([]);
 
   const [state] = useState({
     columns: [
@@ -108,18 +99,21 @@ export default function Issues(props) {
       { title: 'Kategori', field: 'category' },
       { title: 'Alvorlighetsgrad', field: 'severity' },
       { title: 'Status', field: 'status' },
-      { title: 'Oppdatert', field: 'updatedAt', type: 'numeric' },
+      { title: 'Oppdatert',
+            field: 'updatedAt',
+            render: dateFormat => (
+              <div>{formattedDate(dateFormat.updatedAt)}</div>
+            )
+      },
       { title: 'Oppsummering', field: 'summary' },
-    ]
-  });
+    ]});
 
    useEffect(() => {
       getIssues();
   }, [!dataset])
 
   const getIssues = async () => {
-    let res = await issueService.getAll();
-    console.log("DATASET >>>>" + dataset);
+    let res = await issueService.getAll();  
     setData(res);
   }
 
@@ -129,9 +123,9 @@ export default function Issues(props) {
       <div className={classes.tableWrapper}>
      <React.Fragment>
       <MaterialTable 
+      title="Registrerte saker" 
       columns={state.columns} 
       data={dataset} 
-      title="Registrerte saker" 
       />
       </React.Fragment>
       </div>

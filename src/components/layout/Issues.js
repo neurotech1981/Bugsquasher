@@ -66,7 +66,7 @@ const useStyles = makeStyles(theme => ({
     borderRadius: 14,
   },
   table: {
-    minWidth: 500,
+    minWidth: 500
   },
   tableWrapper: {
     maxHeight: 900,
@@ -93,7 +93,16 @@ export default function Issues(props) {
 
   const [state] = useState({
     columns: [
-      { title: 'Prioritet', field: 'priority' },
+      { title: 'Prioritet', field: 'priority',
+        render: data => ( 
+          <div 
+          className="priority" 
+          style={{color: data.priority === 'Høy' ? 'red' : '' || 
+                         data.priority === 'Normal' ? 'blue' : '' ||
+                         data.priority === 'Haster' ? 'green' : ''
+          }}>{data.priority}</div>
+        )
+      },
       { title: 'ID', field: '_id',  type: 'numeric' },
       { title: 'Kommentar', field: 'kommentar' },
       { title: 'Kategori', field: 'category' },
@@ -101,8 +110,8 @@ export default function Issues(props) {
       { title: 'Status', field: 'status' },
       { title: 'Oppdatert',
             field: 'updatedAt',
-            render: dateFormat => (
-              <div>{formattedDate(dateFormat.updatedAt)}</div>
+            render: data => (
+              <div>{formattedDate(data.updatedAt)}</div>
             )
       },
       { title: 'Oppsummering', field: 'summary' },
@@ -122,7 +131,18 @@ export default function Issues(props) {
     <Paper className={classes.root}>
       <div className={classes.tableWrapper}>
      <React.Fragment>
-      <MaterialTable 
+      <MaterialTable
+       options={{
+          headerStyle: {
+            backgroundColor: '#01579b',
+            color: '#FFF'
+          },
+          row: {
+              '&:nth-of-type(odd)': {
+            backgroundColor: "red",
+        },
+          }
+        }}
       title="Registrerte saker" 
       columns={state.columns} 
       data={dataset} 

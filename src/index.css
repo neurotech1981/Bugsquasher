@@ -19,6 +19,13 @@ body {
     margin-left: 251px;
 }
 
+.priority {
+    background-image: linear-gradient(to top, rgb(164, 216, 236) 0%, rgb(248, 240, 240) 100%);
+    border-radius: 0.4em;
+    font-weight: 500;
+    text-align: center;
+}
+
 .makeStyles-root-200 {
     max-width: 850px;
     width: 850px;
@@ -41,7 +48,6 @@ body {
    color: blue;
    fill: rgb(255, 255, 255);
  }
-
 
 @media (min-width: 1280px){
 .MuiContainer-maxWidthLg {

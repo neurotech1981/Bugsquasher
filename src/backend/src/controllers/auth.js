@@ -7,12 +7,12 @@ export const signin = (req, res) => {
 	User.findOne({ email: req.body.email }, (err, user) => {
 		if (err || !user) {
 			return res.status(401).json({
-				error: 'User not found'
+				error: 'Bruker ikke funnet'
 			});
 		}
 		if (!user.authenticate(req.body.password)) {
 			return res.status(401).json({
-				error: 'Wrong Email or Password!'
+				error: 'Feil E-post eller Passord!'
 			});
 		}
 
@@ -37,7 +37,7 @@ export const signin = (req, res) => {
 export const signout = (req, res) => {
 	res.clearCookie('t');
 	return res.status(200).json({
-		message: 'Sign out successful!'
+		message: 'Du ble logget ut!'
 	});
 };
 
@@ -50,7 +50,7 @@ export const hasAuthorization = (req, res) => {
 	const authorized = req.profile && req.auth && req.profile._id == req.auth._id;
 	if (!authorized) {
 		return res.status(403).json({
-			error: 'User is not authorized!'
+			error: 'Bruker er ikke autorisert!'
 		});
 	}
 };

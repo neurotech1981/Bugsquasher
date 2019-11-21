@@ -6,18 +6,18 @@ let userSchema = new Schema({
 	name: {
 		type: String,
 		trim: true,
-		required: 'User Name is required'
+		required: 'Brukernavn er påkrevd'
 	},
 	email: {
 		type: String,
 		trim: true,
-		unique: 'Email already exists',
-		match: [/.+\@.+\..+/, 'Please fill a valid email address'],
-		required: 'Email is required'
+		unique: 'E-posten eksisterer allerede',
+		match: [/.+\@.+\..+/, 'Vennligst fyll ut en gyldig e-post'],
+		required: 'E-post er påkrevd'
 	},
 	hashedPassword: {
 		type: String,
-		required: 'Password is required'
+		required: 'Passord er påkrevd'
 	},
 	salt: {
 		type: String
@@ -57,10 +57,10 @@ userSchema.methods = {
 
 userSchema.path('hashedPassword').validate(function(v) {
 	if (this.hashedPassword && this._password.length < 6) {
-		this.invalidate('password', 'Password must be at least 6 characters long.');
+		this.invalidate('password', 'Passord må være minst 6 bokstaver langt.');
 	}
 	if (this.isNew && !this._password) {
-		this.invalidate('password', 'Password is required.');
+		this.invalidate('password', 'Passord er påkrevd.');
 	}
 }, null);
 

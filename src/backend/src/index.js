@@ -162,6 +162,35 @@ router.get("/getData", (req, res) => {
   });
 });
 
+router.put("/getDataByID/:id", function(req, res, next) {
+  Data.findById(req.params.id, req.body, function(err, post) {
+    if (err) return next(err);
+    //res.json(post);
+     return res.json({
+       success: true,
+       data: post
+     });
+  });
+});
+
+// this is our get method
+// this method fetches data by received ID in our database
+//router.get("/getDataByID/:id", (req, res) => {
+//  console.log(req.params);
+//  const { id, result } = req.params;
+//  Data.findByIdAndUpdate(id, result, err => {
+//    if (err)
+//      return res.json({
+//        success: false,
+//        error: err
+//      });
+//    return res.json({
+//      success: true,
+//      data: result
+//    });
+//  });
+//});
+
 /*router.post("/updateData", (req, res) => {
   let data = new Data();
 

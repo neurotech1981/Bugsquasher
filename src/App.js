@@ -3,6 +3,7 @@ import NavBar from "./components/layout/NavBar";
 import Landing from "./components/layout/Landing";
 import Issues from "./components/layout/Issues";
 import CreateIssue from "./components/layout/CreateIssue";
+import ViewIssue from "./components/layout/ViewIssue";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import PrivateRoutes from './components/auth/PrivateRoute';
 import Signin from './components/auth/Signin';
@@ -21,10 +22,11 @@ class App extends Component {
             <PrivateRoutes path="/user/edit/:userId" />
             <Route path="/user/:userId" component={Profile} />
             <Route path="/signup" component={Signup} />
-					  <Route path="/signin" component={Signin} />
+            <Route path="/signin" component={Signin} />
             <Route exact path="/" component={Landing} />
-            <PrivateRoutes path="/legg-til-sak" component={CreateIssue} />
+            <PrivateRoutes path="/legg-til-sak/:userId" component={CreateIssue} />
             <PrivateRoutes path="/saker" component={Issues} />
+            <PrivateRoutes path="/vis-sak" component={ViewIssue} />
           </Router>
         </div>
       </Provider>

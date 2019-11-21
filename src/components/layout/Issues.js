@@ -4,6 +4,7 @@ import Paper from "@material-ui/core/Paper";
 import issueService from "../../services/issueService";
 import "../../App.css";
 import moment from 'moment';
+import { Redirect, Link } from 'react-router-dom';
 import MaterialTable from 'material-table';
 
 const formattedDate = (value) => moment(value).format('DD/MM-YYYY');
@@ -97,13 +98,20 @@ export default function Issues(props) {
         render: data => ( 
           <div 
           className="priority" 
-          style={{color: data.priority === 'Høy' ? 'red' : '' || 
-                         data.priority === 'Normal' ? 'blue' : '' ||
-                         data.priority === 'Haster' ? 'green' : ''
+          style={{color: data.priority === 'Øyeblikkelig' ? 'darkred' : '' ||
+                         data.priority === 'Høy' ? 'red' : '' ||
+                         data.priority === 'Normal' ? 'white' : '' ||
+                         data.priority === 'Haster' ? 'yellow' : '' ||
+                         data.priority === 'Lav' ? 'grey' : ''
           }}>{data.priority}</div>
         )
       },
-      { title: 'ID', field: '_id',  type: 'numeric' },
+      { title: 'Oppsummering', field: 'summary' },
+      { title: 'ID', field: '_id',  type: 'numeric',align: 'left',
+      render: data => ( 
+          <span><Link to="#" className="link underline">{data._id}</Link></span>
+        )
+      },
       { title: 'Kommentar', field: 'kommentar' },
       { title: 'Kategori', field: 'category' },
       { title: 'Alvorlighetsgrad', field: 'severity' },
@@ -113,8 +121,7 @@ export default function Issues(props) {
             render: data => (
               <div>{formattedDate(data.updatedAt)}</div>
             )
-      },
-      { title: 'Oppsummering', field: 'summary' },
+      }
     ]});
 
    useEffect(() => {
@@ -126,7 +133,6 @@ export default function Issues(props) {
     setData(res);
   }
 
-
   return (
     <Paper className={classes.root}>
       <div className={classes.tableWrapper}>
@@ -134,13 +140,8 @@ export default function Issues(props) {
       <MaterialTable
        options={{
           headerStyle: {
-            backgroundColor: '#01579b',
+            backgroundColor: 'rgb(156, 145, 242)',
             color: '#FFF'
-          },
-          row: {
-              '&:nth-of-type(odd)': {
-            backgroundColor: "red",
-        },
           }
         }}
       title="Registrerte saker" 

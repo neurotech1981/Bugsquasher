@@ -252,21 +252,22 @@ export default function CreateIssue() {
 
   const images = useSelector(state => state);
 
-    const init = userId => {
-		const jwt = auth.isAuthenticated();
-		findUserProfile(
-			{
-				userId: userId
-			},
-			{ t: jwt.token }
-		).then(data => {
-			if (data.error) {
-				setValues({ redirectToSignin: true });
-			} else {
-				setValues({ user: data });
-			}
-		});
-  };
+   const init = userId => {
+     const jwt = auth.isAuthenticated();
+     findUserProfile(
+       {
+         userId: userId
+       },
+       { t: jwt.token }
+     ).then(data => {
+       if (data.error) {
+         setValues({ redirectToSignin: true });
+       } else {
+         setValues({ user: data });
+       }
+     });
+   };
+
 
   useEffect(() => {
       init(match.params.userId);
@@ -381,43 +382,46 @@ export default function CreateIssue() {
     e.preventDefault();
     putDataToDB();
   };
-
 	
   return (
     <Container>
       <form
-        encType='multipart/form-data'
+        encType="multipart/form-data"
         className={classes.container}
-        autoComplete='off'
+        autoComplete="off"
         onSubmit={e => handleSubmit(e)}
       >
         <h1 className={classes.headerOne}>Skriv inn saksdetaljer</h1>
         <TextField
-          id='outlined-navn-input'
-          label='Navn'
-          name='navn'
+          id="outlined-navn-input"
+          label="Registrert av"
+          name="Registrert av"
+          defaultValue="Registrert av"
           //className={classes.textField}
           className={classnames([classes.textField], {
             "is-invalid": errors.name
           })}
-          value={[values.setNavn]}
-          onChange={handleChange('setNavn')}
+          value={values.user.name}
+          onChange={handleChange("setNavn")}
           InputProps={{
             className: classes.input
           }}
-          margin='normal'
-          variant='outlined'
-        />{errors.name && (
-           <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.name} ⚠️</Box>
-          )}
+          margin="normal"
+          variant="outlined"
+        />
+        {errors.name && (
+          <Box fontFamily="Monospace" color="error.main" p={1} m={1}>
+            {errors.name} ⚠️
+          </Box>
+        )}
         <TextField
-          id='outlined-select-alvorlighetsgrad'
+          id="outlined-select-alvorlighetsgrad"
           select
-          label='Kategori'
-          name='kategori'
+          label="Kategori"
+          name="kategori"
           className={classes.textField}
           value={values.setKategori || "Ingen valgt"}
-          onChange={handleChange('setKategori')}
+          onChange={handleChange("setKategori")}
           InputProps={{
             className: classes.input
           }}
@@ -426,9 +430,9 @@ export default function CreateIssue() {
               className: classes.menu
             }
           }}
-          helperText='Velg alvorlighet på sak'
-          margin='normal'
-          variant='outlined'
+          helperText="Velg alvorlighet på sak"
+          margin="normal"
+          variant="outlined"
         >
           {Kategori.map((option, index) => (
             <MenuItem key={index} value={option.label}>
@@ -437,16 +441,18 @@ export default function CreateIssue() {
           ))}
         </TextField>
         {errors.category && (
-            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.category} ⚠️</Box>
-          )}
+          <Box fontFamily="Monospace" color="error.main" p={1} m={1}>
+            {errors.category} ⚠️
+          </Box>
+        )}
         <TextField
-          id='outlined-select-alvorlighetsgrad'
+          id="outlined-select-alvorlighetsgrad"
           select
-          name='alvorlighetsgrad'
-          label='Alvorlighetsgrad'
-          value={values.setAlvorlighetsgrad  || "Ingen valgt"}
+          name="alvorlighetsgrad"
+          label="Alvorlighetsgrad"
+          value={values.setAlvorlighetsgrad || "Ingen valgt"}
           className={classes.textField}
-          onChange={handleChange('setAlvorlighetsgrad')}
+          onChange={handleChange("setAlvorlighetsgrad")}
           InputProps={{
             className: classes.input
           }}
@@ -455,9 +461,9 @@ export default function CreateIssue() {
               className: classes.menu
             }
           }}
-          helperText='Velg alvorlighet på sak'
-          margin='normal'
-          variant='outlined'
+          helperText="Velg alvorlighet på sak"
+          margin="normal"
+          variant="outlined"
         >
           {alvorlighetsGrad.map((option, index) => (
             <MenuItem key={index} value={option.label}>
@@ -466,16 +472,18 @@ export default function CreateIssue() {
           ))}
         </TextField>
         {errors.severity && (
-            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.severity} ⚠️</Box>
-          )}
+          <Box fontFamily="Monospace" color="error.main" p={1} m={1}>
+            {errors.severity} ⚠️
+          </Box>
+        )}
         <TextField
-          id='outlined-select-prioritet'
+          id="outlined-select-prioritet"
           select
-          name='prioritet'
-          label='Prioritet'
+          name="prioritet"
+          label="Prioritet"
           className={classes.textField}
           value={values.setPrioritet || "Ingen valgt"}
-          onChange={handleChange('setPrioritet')}
+          onChange={handleChange("setPrioritet")}
           InputProps={{
             className: classes.input
           }}
@@ -484,9 +492,9 @@ export default function CreateIssue() {
               className: classes.menu
             }
           }}
-          helperText='Velg prioritet på sak'
-          margin='normal'
-          variant='outlined'
+          helperText="Velg prioritet på sak"
+          margin="normal"
+          variant="outlined"
         >
           {prioritet.map((option, index) => (
             <MenuItem key={index} value={option.label}>
@@ -494,17 +502,19 @@ export default function CreateIssue() {
             </MenuItem>
           ))}
         </TextField>
-          {errors.priority && (
-            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.priority} ⚠️</Box>
-          )}
+        {errors.priority && (
+          <Box fontFamily="Monospace" color="error.main" p={1} m={1}>
+            {errors.priority} ⚠️
+          </Box>
+        )}
         <TextField
-          id='outlined-select-prioritet'
+          id="outlined-select-prioritet"
           select
-          name='reprodusere'
-          label='Mulighet for å reprodusere	'
+          name="reprodusere"
+          label="Mulighet for å reprodusere	"
           className={classes.textField}
           value={values.setReprodusere || "Ingen valgt"}
-          onChange={handleChange('setReprodusere')}
+          onChange={handleChange("setReprodusere")}
           InputProps={{
             className: classes.input
           }}
@@ -513,9 +523,9 @@ export default function CreateIssue() {
               className: classes.menu
             }
           }}
-          helperText='Mulighet for å reprodusere'
-          margin='normal'
-          variant='outlined'
+          helperText="Mulighet for å reprodusere"
+          margin="normal"
+          variant="outlined"
         >
           {reprodusere.map((option, index) => (
             <MenuItem
@@ -524,7 +534,7 @@ export default function CreateIssue() {
               selected
               style={{
                 backgroundColor: option.color,
-                color: 'white'
+                color: "white"
               }}
             >
               {option.label}
@@ -532,94 +542,104 @@ export default function CreateIssue() {
           ))}
         </TextField>
         {errors.reproduce && (
-            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.reproduce} ⚠️</Box>
+          <Box fontFamily="Monospace" color="error.main" p={1} m={1}>
+            {errors.reproduce} ⚠️
+          </Box>
         )}
         <TextField
-          id='outlined-oppsummering'
-          label='Oppsummering'
-          name='oppsummering'
+          id="outlined-oppsummering"
+          label="Oppsummering"
+          name="oppsummering"
           value={[values.setOppsummering]}
-          onChange={handleChange('setOppsummering')}
+          onChange={handleChange("setOppsummering")}
           className={classes.textField}
           InputProps={{
             className: classes.input
           }}
-          margin='normal'
-          variant='outlined'
+          margin="normal"
+          variant="outlined"
         />
         {errors.summary && (
-          <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.summary} ⚠️</Box>
-         )}
+          <Box fontFamily="Monospace" color="error.main" p={1} m={1}>
+            {errors.summary} ⚠️
+          </Box>
+        )}
         <TextField
-          id='outlined-beskrivelse-input'
-          label='Beskrivelse'
-          name='beskrivelse'
+          id="outlined-beskrivelse-input"
+          label="Beskrivelse"
+          name="beskrivelse"
           value={[values.setBeskrivelse]}
-          onChange={handleChange('setBeskrivelse')}
+          onChange={handleChange("setBeskrivelse")}
           className={classes.textField}
           InputProps={{
             className: classes.input
           }}
           multiline
-          rows='8'
-          margin='normal'
-          variant='outlined'
+          rows="8"
+          margin="normal"
+          variant="outlined"
         />
         {errors.description && (
-           <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.description} ⚠️</Box>
+          <Box fontFamily="Monospace" color="error.main" p={1} m={1}>
+            {errors.description} ⚠️
+          </Box>
         )}
         <TextField
-          id='outlined-reprodusere-input'
-          label='Steg for å reprodusere	'
+          id="outlined-reprodusere-input"
+          label="Steg for å reprodusere	"
           className={classes.textField}
           value={values.setStegReprodusere}
-          onChange={handleChange('setStegReprodusere')}
+          onChange={handleChange("setStegReprodusere")}
           InputProps={{
             className: classes.input
           }}
-          name='reprodusere'
+          name="reprodusere"
           multiline
-          rows='8'
-          margin='normal'
-          variant='outlined'
+          rows="8"
+          margin="normal"
+          variant="outlined"
         />
         {errors.step_reproduce && (
-            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.step_reproduce} ⚠️</Box>
+          <Box fontFamily="Monospace" color="error.main" p={1} m={1}>
+            {errors.step_reproduce} ⚠️
+          </Box>
         )}
         <TextField
-          id='outlined-multiline-static'
-          label='Tilleggsinformasjon'
-          name='tilleggsinformasjon'
+          id="outlined-multiline-static"
+          label="Tilleggsinformasjon"
+          name="tilleggsinformasjon"
           multiline
-          rows='8'
+          rows="8"
           className={classes.textField}
           value={values.setTillegg}
-          onChange={handleChange('setTillegg')}
+          onChange={handleChange("setTillegg")}
           InputProps={{
             className: classes.input
           }}
-          margin='normal'
-          variant='outlined'
+          margin="normal"
+          variant="outlined"
         />
         {errors.additional_info && (
-            <Box fontFamily="Monospace" color="error.main" p={1} m={1}>{errors.additional_info} ⚠️</Box>
+          <Box fontFamily="Monospace" color="error.main" p={1} m={1}>
+            {errors.additional_info} ⚠️
+          </Box>
         )}
         <Previews />
         <Button
           disabled={!images.imageupload[1] > 0}
-          variant='contained'
-          color='default'
+          variant="contained"
+          color="default"
           className={classes.button}
           onClick={e => uploadToServer(e)}
         >
           Last opp bilder
           <Icon className={classes.rightIcon}>cloud_upload</Icon>
-        </Button>        
+        </Button>
         <Button
-          type='submit'
-          value='Submit'
-          variant='contained'
-          color='primary'
+          type="submit"
+          value="Submit"
+          variant="contained"
+          color="primary"
           className={classes.button}
           //onClick={e => handleSubmit(e)}
         >

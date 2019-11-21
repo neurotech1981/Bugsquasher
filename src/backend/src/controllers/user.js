@@ -10,8 +10,8 @@ export const registerUser = (req, res, next) => {
 			});
 		}
 		res.status(200).json({
-			message: 'New user registered successfully!'
-		});
+      message: "Ny bruker registrert!"
+    });
 	});
 };
 
@@ -19,8 +19,8 @@ export const findUserById = (req, res, next, id) => {
 	User.findById(id).exec((err, user) => {
 		if (err || !user) {
 			return res.status(400).json({
-				error: 'No user found with that credentials!'
-			});
+        error: "Ingen brukere funnet med det brukernavnet"
+      });
 		}
 		req.profile = user;
 		next();

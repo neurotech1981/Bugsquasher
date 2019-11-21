@@ -278,21 +278,27 @@ function NavBar(props) {
     </Menu>
   );
 
-  return ( 
-    <div className={classes.grow} >
-      <AppBar position="fixed" style={{ backgroundImage: "linear-gradient(to right, rgb(124, 47, 99) 0%, rgb(31, 39, 57) 100%)" }}>
+  return (
+    <div className={classes.grow}>
+      <AppBar
+        position="fixed"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgb(124, 47, 99) 0%, rgb(31, 39, 57) 100%)"
+        }}
+      >
         <Toolbar>
-        {auth.isAuthenticated() && (
-          <IconButton
-            color="inherit"
-            aria-label="Open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            className={clsx(classes.menuButton, open && classes.hide)}
-          >
-            <MenuIcon />
-          </IconButton>
-        )}
+          {auth.isAuthenticated() && (
+            <IconButton
+              color="inherit"
+              aria-label="Open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              className={clsx(classes.menuButton, open && classes.hide)}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -302,109 +308,128 @@ function NavBar(props) {
           >
             <path d="M20 8h-2.81c-.45-.78-1.07-1.45-1.82-1.96L17 4.41 15.59 3l-2.17 2.17C12.96 5.06 12.49 5 12 5c-.49 0-.96.06-1.41.17L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8zm-6 8h-4v-2h4v2zm0-4h-4v-2h4v2z" />
           </svg>{" "}
-          <Typography className={classes.title} variant="h6" noWrap style={{ fontFamily: "Lobster" }}>
+          <Typography
+            className={classes.title}
+            variant="h6"
+            noWrap
+            style={{ fontFamily: "Lobster" }}
+          >
             Bug Squasher
           </Typography>
           <div className={classes.buttons}>
-    {!auth.isAuthenticated() && (
-				<span>
-					<Link to="/signup">
-            <Button
-                color="primary"
-                variant="outlined"
-                style={{ color: "white" }}
-                aria-label="Registrer bruker"
-                className={classes.button}>
-          <PersonAddRoundedIcon className={classes.extendedIcon} />
-                Registrer bruker
-            </Button>
-					</Link>
-					<Link to="/signin">
-            <Button
-              color="primary"
-              variant="outlined"
-              style={{ color: "white" }}
-              aria-label="Logg inn"
-              className={classes.button}>
-          <VpnKeyRoundedIcon className={classes.extendedIcon} />
-              Logg inn
-          </Button>
-
-					</Link>
-				</span>
-			)}
-    {auth.isAuthenticated() && (
-      <Fragment>
-      <div className={classes.grow}>
-          <Link to="/legg-til-sak">
-            <Button
-              color="primary"
-              variant="contained"
-              aria-label="Legg til sak"
-              className={classes.button}
-              centered
-            >
-              <AddIssue className={classes.extendedIcon} />
-              Legg til sak
-            </Button>
-          </Link>
-					<Link to={'/saker/' + auth.isAuthenticated().user._id}>
-						<Button
-              color="primary"
-              variant="contained"
-              aria-label="Bruker Profil"
-              className={classes.button}
-						><ViewListTwoToneIcon className={classes.extendedIcon} />
-							Vis saker
-						</Button>
-					</Link>
-					<Link to={'/user/' + auth.isAuthenticated().user._id}>
-						<Button
-              color="primary"
-              variant="contained"
-              aria-label="Bruker Profil"
-              className={classes.button}
-						><AccountCircle className={classes.extendedIcon} />
-							Min profil
-						</Button>
-					</Link>
-          <Link to={'/'}>
-            <Button
-              color="secondary"
-              variant="contained"
-              aria-label="Legg til sak"
-              className={classes.button}
-              onClick={() => {
-                auth.signout(() => history.push('/'));
-              }}
-            >
-            <ExitToAppIcon className={classes.extendedIcon} />
-              Logg ut
-            </Button>
-          </Link>
-          <nav className={classes.drawer} aria-label="Issues">
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-        <Hidden smUp implementation="css">
-          <Drawer
-            container={container}
-            variant="temporary"
-            anchor={theme.direction === "rtl" ? "right" : "left"}
-            open={open}
-            onClose={handleDrawerToggle}
-            classes={{
-              paper: classes.drawerPaper
-            }}
-            ModalProps={{
-              keepMounted: true // Better open performance on mobile.
-            }}
-          >
-            {drawer}
-          </Drawer>
-        </Hidden>
-      </nav>
+            {!auth.isAuthenticated() && (
+              <span>
+                <Link to="/signup">
+                  <Button
+                    color="primary"
+                    variant="outlined"
+                    style={{ color: "white" }}
+                    aria-label="Registrer bruker"
+                    className={classes.button}
+                  >
+                    <PersonAddRoundedIcon className={classes.extendedIcon} />
+                    Registrer bruker
+                  </Button>
+                </Link>
+                <Link to="/signin">
+                  <Button
+                    color="primary"
+                    variant="outlined"
+                    style={{ color: "white" }}
+                    aria-label="Logg inn"
+                    className={classes.button}
+                  >
+                    <VpnKeyRoundedIcon className={classes.extendedIcon} />
+                    Logg inn
+                  </Button>
+                </Link>
+              </span>
+            )}
+            {auth.isAuthenticated() && (
+              <Fragment>
+                <div className={classes.grow}>
+                  <Link to={"/legg-til-sak/" + auth.isAuthenticated().user._id}>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      aria-label="Legg til sak"
+                      className={classes.button}
+                    >
+                      <AddIssue className={classes.extendedIcon} />
+                      Legg til sak
+                    </Button>
+                  </Link>
+                  <Link to={"/saker/" + auth.isAuthenticated().user._id}>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      aria-label="Bruker Profil"
+                      className={classes.button}
+                    >
+                      <ViewListTwoToneIcon className={classes.extendedIcon} />
+                      Vis saker
+                    </Button>
+                  </Link>
+                  <Link to={"/vis-sak/" + auth.isAuthenticated().user._id}>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      aria-label="Bruker Profil"
+                      className={classes.button}
+                    >
+                      <ViewListTwoToneIcon className={classes.extendedIcon} />
+                      Vis sak
+                    </Button>
+                  </Link>
+                  <Link to={"/user/" + auth.isAuthenticated().user._id}>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      aria-label="Bruker Profil"
+                      className={classes.button}
+                    >
+                      <AccountCircle className={classes.extendedIcon} />
+                      Min profil
+                    </Button>
+                  </Link>
+                  <Link to={"/"}>
+                    <Button
+                      color="secondary"
+                      variant="contained"
+                      aria-label="Legg til sak"
+                      className={classes.button}
+                      onClick={() => {
+                        auth.signout(() => history.push("/"));
+                      }}
+                    >
+                      <ExitToAppIcon className={classes.extendedIcon} />
+                      Logg ut
+                    </Button>
+                  </Link>
+                  <nav className={classes.drawer} aria-label="Issues">
+                    {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+                    <Hidden smUp implementation="css">
+                      <Drawer
+                        container={container}
+                        variant="temporary"
+                        anchor={theme.direction === "rtl" ? "right" : "left"}
+                        open={open}
+                        onClose={handleDrawerToggle}
+                        classes={{
+                          paper: classes.drawerPaper
+                        }}
+                        ModalProps={{
+                          keepMounted: true // Better open performance on mobile.
+                        }}
+                      >
+                        {drawer}
+                      </Drawer>
+                    </Hidden>
+                  </nav>
+                </div>
+              </Fragment>
+            )}
           </div>
-        </Fragment>
-			)}</div>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
             <IconButton color="inherit">

@@ -9,7 +9,8 @@ import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import { Redirect, Link } from 'react-router-dom';
 import MaterialTable from 'material-table';
-
+import InputLabel from "@material-ui/core/InputLabel";
+import Select from "@material-ui/core/Select";
 import Avatar from "@material-ui/core/Avatar";
 import { deepOrange, deepPurple } from "@material-ui/core/colors";
 import Grid from "@material-ui/core/Grid";
@@ -92,7 +93,25 @@ export default function ViewIssue() {
               }}
             />
           </div>
-          <div className="item4">Vedlegg</div>
+          <div className="item4">
+            <InputLabel shrink htmlFor="select-multiple-native">
+              Vedlegg
+            </InputLabel>
+            <Select
+              multiple
+              native
+              value={[dataset.imageName]}
+              inputProps={{
+                id: "select-multiple-native"
+              }}
+            >
+              {[dataset].map(result => (
+                <option key={result._id} value={result.imageName}>
+                  {[result.imageName]}
+                </option>
+              ))}
+            </Select>
+          </div>
           <div className="item5">Kategori</div>
           <div className="item6">
             <Grid container justify="center" alignItems="center">

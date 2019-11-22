@@ -156,40 +156,40 @@ const reprodusere = [
 ];
 const useStyles = makeStyles(theme => ({
   headerOne: {
-    margin: '0 auto',
-    padding: '16px',
-    fontSize: '3em',
-    color: 'darkslategray',
-    textTransform: 'uppercase'
+    margin: "0 auto",
+    padding: "16px",
+    fontSize: "3em",
+    color: "darkslategray",
+    textTransform: "uppercase"
   },
   active: {
-    backgroundColor: 'rgba(255, 255, 255, 0.12)'
+    backgroundColor: "rgba(255, 255, 255, 0.12)"
   },
   container: {
-    paddingTop: '50px',
-    marginTop: '100px',
-    marginBottom: '100px',
-    padding: '50px',
-    paddingBottom: '50px',
-    display: 'grid',
-    flexWrap: 'wrap',
-    maxWidth: '700px',
-    borderRadius: '25px',
-    backgroundImage: 'linear-gradient(to bottom, #dffff8 0%, #6fffca0f 100%)',
-    boxShadow: '1px 1px 15px 0 rgba(0,0,0,.14)',
-    backgroundRepeat: 'no-repeat',
-    backgroundAttachment: 'fixed',
-    height: '100%',
-    margin: '0 auto',
-    marginLeft: '200px'
+    paddingTop: "50px",
+    marginTop: "100px",
+    marginBottom: "100px",
+    padding: "50px",
+    paddingBottom: "50px",
+    display: "grid",
+    flexWrap: "wrap",
+    maxWidth: "700px",
+    borderRadius: "25px",
+    backgroundImage: "linear-gradient(to bottom, #dffff8 0%, #6fffca0f 100%)",
+    boxShadow: "1px 1px 15px 0 rgba(0,0,0,.14)",
+    backgroundRepeat: "no-repeat",
+    backgroundAttachment: "fixed",
+    height: "100%",
+    margin: "0 auto",
+    marginLeft: "200px"
   },
   input: {
-    backgroundColor: 'white',
-    boxShadow: 'inset 3px 3px 4px rgba(0, 0, 0, 0.15)',
-    webkitTransition: '0.18s ease-out',
-    mozTransition: '0.18s ease-out',
-    oTransition: '0.18s ease-out',
-    transition: '0.18s ease-out'
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: "inset 3px 3px 4px rgba(0, 0, 0, 0.15)",
+    webkitTransition: "0.18s ease-out",
+    mozTransition: "0.18s ease-out",
+    oTransition: "0.18s ease-out",
+    transition: "0.18s ease-out"
   },
   textField: {
     marginLeft: theme.spacing(2),
@@ -202,10 +202,10 @@ const useStyles = makeStyles(theme => ({
     width: 200
   },
   button: {
-    marginTop: '20px',
-    width: '40%',
-    height: '50px',
-    margin: '0 auto',
+    marginTop: "20px",
+    width: "40%",
+    height: "50px",
+    margin: "0 auto",
     fontSize: 20,
     borderRadius: 15
   },
@@ -216,12 +216,12 @@ const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(1)
   },
   iconSmall: {
-    fontSize: '1.2em'
+    fontSize: "1.2em"
   },
   selected: {
-    '&:hover': {
-      backgroundColor: 'green',
-      color: 'green'
+    "&:hover": {
+      backgroundColor: "green",
+      color: "green"
     }
   }
 }));
@@ -396,6 +396,9 @@ export default function CreateIssue() {
           id="outlined-navn-input"
           label="Registrert av"
           name="Registrert av"
+          InputProps={{
+            readOnly: true
+          }}
           defaultValue="Registrert av"
           //className={classes.textField}
           className={classnames([classes.textField], {

@@ -5,7 +5,7 @@
 /src/backend/node_modules
 /src/backend/uploads
 /.pnp
-/src/backend/config
+
 .pnp.js
 .env
 

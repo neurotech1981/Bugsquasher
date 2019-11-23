@@ -229,7 +229,6 @@ const useStyles = makeStyles(theme => ({
 export default function CreateIssue() {
   const { history, location, match } = useReactRouter();
   const initialState = {
-    data: [''],
     setID: 0,
     setNavn: '',
     setKategori: 'Ingen valgt',
@@ -242,13 +241,15 @@ export default function CreateIssue() {
     setTillegg: '',
     setStatus: 'Åpen',
     setImageName: [''],
-    user: '',
-		redirectToSignin: false
   };
 
   const classes = useStyles();
   const [values, setValues] = useState(initialState);
   const [errors, setErrors] = useState('');
+  const [userinfo, setUserinfo] = useState({
+      user: [""],
+      redirectToSignin: false
+  });
 
   const images = useSelector(state => state);
 
@@ -261,9 +262,9 @@ export default function CreateIssue() {
        { t: jwt.token }
      ).then(data => {
        if (data.error) {
-         setValues({ redirectToSignin: true });
+         setUserinfo({ redirectToSignin: true });
        } else {
-         setValues({ user: data });
+         setUserinfo({ user: data });
        }
      });
    };
@@ -296,7 +297,7 @@ export default function CreateIssue() {
   function putDataToDB() {
     axios
       .post('/api/putData', {
-        name: values.setNavn,
+        name: userinfo.user.name,
         category: values.setKategori,
         description: values.setBeskrivelse,
         reproduce: values.setReprodusere,
@@ -306,7 +307,8 @@ export default function CreateIssue() {
         step_reproduce: values.setStegReprodusere,
         additional_info: values.setTillegg,
         status: values.setStatus,
-        imageName: values.setImageName
+        imageName: values.setImageName,
+        userid: userinfo.user._id,
       })
       .then(response => {
         if (response.status === 200) {
@@ -388,7 +390,7 @@ export default function CreateIssue() {
       <form
         encType="multipart/form-data"
         className={classes.container}
-        autoComplete="off"
+        autoComplete="disabled"
         onSubmit={e => handleSubmit(e)}
       >
         <h1 className={classes.headerOne}>Skriv inn saksdetaljer</h1>
@@ -404,8 +406,8 @@ export default function CreateIssue() {
           className={classnames([classes.textField], {
             "is-invalid": errors.name
           })}
-          value={values.user.name}
-          onChange={handleChange("setNavn")}
+          value={userinfo.user.name}
+          //onChange={handleChange("setNavn")}
           InputProps={{
             className: classes.input
           }}

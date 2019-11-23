@@ -24,6 +24,7 @@ const DataSchema = new Schema(
         assigned: String,
         additional_info: String,
         status: String,
+        userid: Number,
         imageName: {
           type: [String],
           default: "none",

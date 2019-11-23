@@ -131,19 +131,13 @@ app.use((err, req, res, next) => {
 
 router.route("/uploadimage", multipartMiddleware)
   .post(upload.array('imageData', 10), function(req, res, next) {
-    const newImage = new Data({
-      imageName: req.body.setImageName,
-      //imageData: req.body.imageData
-    });
-   //newImage.save()
-   //  .then((result) => {
-   //    console.log(result);
-   //    res.status(200).json({
-   //      success: true,
-   //      document: result
-   //    });
-   //  })
-   //  .catch((err) => next(err));
+      const file = req.files;
+      if (!file) {
+        const error = new Error("Vennligst velg en fil å laste opp");
+        error.httpStatusCode = 400;
+        return next(error);
+      }
+      res.send(file);
   });
 
 // this is our get method
@@ -289,6 +283,7 @@ router.post("/putData", (req, res) => {
     data.priority = req.body.priority;
     data.additional_info = req.body.additional_info;
     data.status = req.body.status;
+    data.userid = req.body.userid;
     //data.attached_photo = req.body.attached_photo;
     data.imageName = req.body.imageName[0];
     //data.imageData = req.body.imageData;

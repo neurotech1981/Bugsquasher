@@ -262,7 +262,7 @@ a:focus {
 .item2 { grid-area: prioritet; }
 .item3 { grid-area: oppdatert; }
 .item4 { grid-area: kategori; }
-.item5 { grid-area: vedlegg; }
+.item5 { grid-area: tilleggsinfo; }
 .item6 { grid-area: profile; }
 .item7 { grid-area: alvorlighet; }
 .item8 { grid-area: reprodusere; }
@@ -271,7 +271,7 @@ a:focus {
 .item11 { grid-area: oppsummering; }
 .item12 { grid-area: beskrivelse; }
 .item13 { grid-area: stegreprodusere; }
-.item14 { grid-area: tilleggsinfo; }
+.item14 { grid-area: vedlegg; }
 
 
 .grid-container {
@@ -279,13 +279,14 @@ a:focus {
   grid-template-areas:
     'profile header header header header header'
     'prioritet prioritet prioritet oppdatert oppdatert oppdatert'
-    'vedlegg vedlegg vedlegg kategori kategori kategori'
+    'kategori kategori kategori kategori kategori kategori'
     'alvorlighet alvorlighet alvorlighet reprodusere reprodusere reprodusere'
     'status status status delegert delegert delegert'
     'oppsummering oppsummering oppsummering oppsummering oppsummering oppsummering'
     'beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse'
     'stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere'
-    'tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo';
+    'tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo'
+    'vedlegg vedlegg vedlegg vedlegg vedlegg vedlegg';
 
   grid-gap: 15px;
   background-color: rgba(33, 149, 243, 0);

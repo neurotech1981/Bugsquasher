@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { withStyles, makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import issueService from "../../services/issueService";
 import "../../App.css";
@@ -7,12 +7,9 @@ import moment from 'moment';
 import Container from "@material-ui/core/Container";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
-import { Redirect, Link } from 'react-router-dom';
-import MaterialTable from 'material-table';
 import InputLabel from "@material-ui/core/InputLabel";
-import Select from "@material-ui/core/Select";
 import Avatar from "@material-ui/core/Avatar";
-import { deepOrange, deepPurple } from "@material-ui/core/colors";
+import { deepPurple } from "@material-ui/core/colors";
 import Grid from "@material-ui/core/Grid";
 
 const formattedDate = (value) => moment(value).format('DD/MM-YYYY');
@@ -48,6 +45,7 @@ const useStyles = makeStyles(theme => ({
 export default function ViewIssue() {
   const classes = useStyles();
   const [dataset, setData] = useState([]);
+  const [images, setImages] = useState([]);
 
    useEffect(() => {
       getIssueByID();
@@ -56,14 +54,17 @@ export default function ViewIssue() {
   const getIssueByID = async () => {
     let res = await issueService.getIssueByID('5da56028220aeb4adcdf8e44');  
     setData(res);
+    setImages(res.imageName)
   }
+
+    var imgList = images.map(function(item) {
+      return <img key={item} style={ { width: "250px", height: "250px" } } src={process.env.PUBLIC_URL + "/uploads/" + item}></img>;
+    });
 
   return (
     <div className={classes.root}>
       <Container>
-        <Typography variant="h4" gutterBottom>
-          {dataset.summary}
-        </Typography>
+        <Typography variant="h4" gutterBottom></Typography>
 
         <div className="grid-container">
           <div className="item1">{dataset.name}</div>
@@ -71,8 +72,7 @@ export default function ViewIssue() {
             <TextField
               id="standard-read-only-input"
               label="Prioritet"
-              defaultValue="Prioritet"
-              value={dataset.priority}
+              value={[dataset.priority]}
               className={classes.textField}
               margin="normal"
               InputProps={{
@@ -84,8 +84,7 @@ export default function ViewIssue() {
             <TextField
               id="standard-read-only-input"
               label="Sist oppdatert"
-              defaultValue="Sist oppdatert"
-              value={formattedDate(dataset.updatedAt)}
+              value={[formattedDate(dataset.updatedAt)]}
               className={classes.textField}
               margin="normal"
               InputProps={{
@@ -93,24 +92,11 @@ export default function ViewIssue() {
               }}
             />
           </div>
-          <div className="item4">
+          <div className="item14">
             <InputLabel shrink htmlFor="select-multiple-native">
               Vedlegg
             </InputLabel>
-            <Select
-              multiple
-              native
-              value={[dataset.imageName]}
-              inputProps={{
-                id: "select-multiple-native"
-              }}
-            >
-              {[dataset].map(result => (
-                <option key={result._id} value={result.imageName}>
-                  {[result.imageName]}
-                </option>
-              ))}
-            </Select>
+            {imgList}
           </div>
           <div className="item5">Kategori</div>
           <div className="item6">
@@ -128,7 +114,7 @@ export default function ViewIssue() {
           <div className="item11">Oppsummering</div>
           <div className="item12">Beskrivelse</div>
           <div className="item13">Steg for å reprodusere</div>
-          <div className="item14">Tilleggsinformasjon</div>
+          <div className="item4">Tilleggsinformasjon</div>
         </div>
       </Container>
     </div>

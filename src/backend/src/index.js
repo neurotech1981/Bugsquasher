@@ -135,15 +135,15 @@ router.route("/uploadimage", multipartMiddleware)
       imageName: req.body.setImageName,
       //imageData: req.body.imageData
     });
-    newImage.save()
-      .then((result) => {
-        console.log(result);
-        res.status(200).json({
-          success: true,
-          document: result
-        });
-      })
-      .catch((err) => next(err));
+   //newImage.save()
+   //  .then((result) => {
+   //    console.log(result);
+   //    res.status(200).json({
+   //      success: true,
+   //      document: result
+   //    });
+   //  })
+   //  .catch((err) => next(err));
   });
 
 // this is our get method

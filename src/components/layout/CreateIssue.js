@@ -399,11 +399,12 @@ export default function CreateIssue() {
           InputProps={{
             readOnly: true
           }}
+          defaultValue="Registrert av"
           //className={classes.textField}
           className={classnames([classes.textField], {
             "is-invalid": errors.name
           })}
-          value={[values.user.name]}
+          value={values.user.name}
           onChange={handleChange("setNavn")}
           InputProps={{
             className: classes.input

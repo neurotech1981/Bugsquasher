@@ -1,16 +1,16 @@
 // /backend/data.js
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-
+//{ 
+//        type: String,
+//        trim: true,
+//	      required: 'Navn påkrevd'
+//      },
 // this will be our data base's data structure
 const DataSchema = new Schema(
   {
         id: Number,
-        name: { 
-          type: String,
-          trim: true,
-		      required: 'Navn påkrevd'
-        },
+        name: String,
         description: String,
         category: String,
         environment: String,

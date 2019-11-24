@@ -290,7 +290,7 @@ a:focus {
   grid-gap: 10px;
   background-color: rgba(33, 149, 243, 0);
   padding: 10px;
-  font-family: '';
+  font-family: 'IBM Plex Sans';
 }
 
 .grid-container > div {
@@ -303,6 +303,7 @@ a:focus {
 .item1 {
     grid-area: header;
     align-self: center;
+    font-family: 'IBM Plex Sans';
     font-weight: 600;
 }
 

@@ -4,6 +4,7 @@ import issueService from "../../services/issueService";
 import "../../App.css";
 import moment from 'moment';
 import Container from "@material-ui/core/Container";
+import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import InputLabel from "@material-ui/core/InputLabel";
@@ -67,9 +68,14 @@ export default function ViewIssue(props) {
         <div style={{ display: "inline-flex", margin: "1em" }}>
           <img
             key={item}
-            style={{ width: "150px", height: "150px", borderRadius: "1em" }}
+            style={{ width: "150px", height: "150px", borderRadius: "0.5em" }}
             src={process.env.PUBLIC_URL + "/uploads/" + item}
           ></img>
+          <div style={{ display: "inline-flex", margin: "1em" }}>
+            <Button variant="contained" color="default">
+              Download
+            </Button>
+          </div>
         </div>
       );
     });
@@ -82,7 +88,7 @@ export default function ViewIssue(props) {
           <div className="item1">
             {dataset.name}
             <p style={{ fontSize: "0.6em", marginTop: "0.3em" }}>
-              {formattedDate(dataset.createdAt)}
+              Opprettet: {formattedDate(dataset.createdAt)}
             </p>
           </div>
           <div className="item2">

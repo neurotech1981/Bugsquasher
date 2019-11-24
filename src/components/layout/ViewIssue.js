@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
   textField: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
-    width: 350
+    width: "100%"
   },
   avatar: {
     margin: 10
@@ -58,16 +58,28 @@ export default function ViewIssue() {
   }
 
     var imgList = images.map(function(item) {
-      return <img key={item} style={ { width: "250px", height: "250px" } } src={process.env.PUBLIC_URL + "/uploads/" + item}></img>;
+      return (
+        <div style={{ display: "inline-flex", margin: "1em" }}>
+          <img
+            key={item}
+            style={{ width: "150px", height: "150px", borderRadius: "1em" }}
+            src={process.env.PUBLIC_URL + "/uploads/" + item}
+          ></img>
+        </div>
+      );
     });
 
   return (
     <div className={classes.root}>
       <Container>
         <Typography variant="h4" gutterBottom></Typography>
-
         <div className="grid-container">
-          <div className="item1">{dataset.name}</div>
+          <div className="item1">
+            {dataset.name}
+            <p style={{ fontSize: "0.6em", marginTop: "0.3em" }}>
+              {formattedDate(dataset.createdAt)}
+            </p>
+          </div>
           <div className="item2">
             <TextField
               id="standard-read-only-input"
@@ -98,7 +110,20 @@ export default function ViewIssue() {
             </InputLabel>
             {imgList}
           </div>
-          <div className="item5">Kategori</div>
+          <div className="item4">
+            {" "}
+            <TextField
+              id="standard-read-only-input"
+              label="Kategori"
+              value={dataset.category}
+              defaultValue="Kategori"
+              className={classes.textField}
+              margin="normal"
+              InputProps={{
+                readOnly: true
+              }}
+            />
+          </div>
           <div className="item6">
             <Grid container justify="center" alignItems="center">
               <Avatar
@@ -107,14 +132,122 @@ export default function ViewIssue() {
               ></Avatar>
             </Grid>
           </div>
-          <div className="item7">Alvorlighetsgrad</div>
-          <div className="item8">Mulighet å reprodusere</div>
-          <div className="item9">Status</div>
-          <div className="item10">Delegert til</div>
-          <div className="item11">Oppsummering</div>
-          <div className="item12">Beskrivelse</div>
-          <div className="item13">Steg for å reprodusere</div>
-          <div className="item4">Tilleggsinformasjon</div>
+          <div className="item7">
+            {" "}
+            <TextField
+              id="standard-read-only-input"
+              label="Alvorlighetsgrad"
+              value={dataset.severity}
+              defaultValue="Alvorlighetsgrad"
+              className={classes.textField}
+              margin="normal"
+              InputProps={{
+                readOnly: true
+              }}
+            />
+          </div>
+          <div className="item8">
+            {" "}
+            <TextField
+              id="standard-read-only-input"
+              label="Mulighet å reprodusere"
+              value={dataset.reproduce}
+              defaultValue="Mulighet å reprodusere"
+              className={classes.textField}
+              margin="normal"
+              InputProps={{
+                readOnly: true
+              }}
+            />
+          </div>
+          <div className="item9">
+            {" "}
+            <TextField
+              id="standard-read-only-input"
+              label="Status"
+              value={dataset.status}
+              defaultValue="Status"
+              className={classes.textField}
+              margin="normal"
+              InputProps={{
+                readOnly: true
+              }}
+            />
+          </div>
+          <div className="item5">
+            {" "}
+            <TextField
+              id="standard-read-only-input"
+              label="Delegert til"
+              value={dataset.delegated}
+              defaultValue="Ingen"
+              className={classes.textField}
+              margin="normal"
+              InputProps={{
+                readOnly: true
+              }}
+            />
+          </div>
+          <div className="item11">
+            {" "}
+            <TextField
+              multiline
+              id="standard-read-only-input"
+              label="Oppsummering"
+              value={dataset.summary}
+              defaultValue="Oppsummering"
+              className={classes.textField}
+              margin="normal"
+              InputProps={{
+                readOnly: true
+              }}
+            />
+          </div>
+          <div className="item12">
+            {" "}
+            <TextField
+              multiline
+              id="standard-read-only-input"
+              label="Beskrivelse"
+              value={dataset.description}
+              defaultValue="Beskrivelse"
+              className={classes.textField}
+              margin="normal"
+              InputProps={{
+                readOnly: true
+              }}
+            />
+          </div>
+          <div className="item13">
+            {" "}
+            <TextField
+              multiline
+              id="standard-read-only-input"
+              label="Steg for å reprodusere"
+              value={dataset.step_reproduce}
+              defaultValue="Steg for å reprodusere"
+              className={classes.textField}
+              margin="normal"
+              InputProps={{
+                readOnly: true
+              }}
+            />
+          </div>
+          <div className="item10">
+            {" "}
+            <TextField
+              multiline
+              id="standard-read-only-input"
+              label="Tilleggsinformasjon"
+              value={dataset.additional_info}
+              defaultValue="Tilleggsinformasjon"
+              className={classes.textField}
+              margin="normal"
+              InputProps={{
+                readOnly: true
+              }}
+            />
+          </div>
         </div>
       </Container>
     </div>

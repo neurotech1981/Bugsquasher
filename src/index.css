@@ -262,17 +262,16 @@ a:focus {
 .item2 { grid-area: prioritet; }
 .item3 { grid-area: oppdatert; }
 .item4 { grid-area: kategori; }
-.item5 { grid-area: tilleggsinfo; }
+.item5 { grid-area: delegert; }
 .item6 { grid-area: profile; }
 .item7 { grid-area: alvorlighet; }
 .item8 { grid-area: reprodusere; }
 .item9 { grid-area: status; }
-.item10 { grid-area: delegert; }
+.item10 { grid-area: tilleggsinfo; }
 .item11 { grid-area: oppsummering; }
 .item12 { grid-area: beskrivelse; }
 .item13 { grid-area: stegreprodusere; }
 .item14 { grid-area: vedlegg; }
-
 
 .grid-container {
   display: grid;
@@ -288,7 +287,7 @@ a:focus {
     'tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo'
     'vedlegg vedlegg vedlegg vedlegg vedlegg vedlegg';
 
-  grid-gap: 15px;
+  grid-gap: 10px;
   background-color: rgba(33, 149, 243, 0);
   padding: 10px;
 }
@@ -298,4 +297,12 @@ a:focus {
   padding: 20px 10px;
   font-size: 20px;
   border-radius: 4px;
+  padding: 5px 20px;
 }
+
+.item1 {
+    grid-area: header;
+    align-self: center;
+    font-weight: 600;
+}
+

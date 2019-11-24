@@ -175,7 +175,7 @@ const useStyles = makeStyles(theme => ({
     flexWrap: "wrap",
     maxWidth: "700px",
     borderRadius: "25px",
-    backgroundImage: "linear-gradient(to bottom, #dffff8 0%, #6fffca0f 100%)",
+    backgroundImage: "linear-gradient(to top, #dffff8 0%, #3329420a 100%)",
     boxShadow: "1px 1px 15px 0 rgba(0,0,0,.14)",
     backgroundRepeat: "no-repeat",
     backgroundAttachment: "fixed",

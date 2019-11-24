@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
 import issueService from "../../services/issueService";
 import "../../App.css";
 import moment from 'moment';
@@ -11,6 +10,8 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Avatar from "@material-ui/core/Avatar";
 import { deepPurple } from "@material-ui/core/colors";
 import Grid from "@material-ui/core/Grid";
+import useReactRouter from "use-react-router";
+
 
 const formattedDate = (value) => moment(value).format('DD/MM-YYYY');
 
@@ -36,23 +37,27 @@ const useStyles = makeStyles(theme => ({
     margin: 10
   },
   purpleAvatar: {
-    margin: 10,
+    margin: 5,
     color: "#fff",
     backgroundColor: deepPurple[500]
   }
 }));
 
-export default function ViewIssue() {
+export default function ViewIssue(props) {
+  const { history, location, match } = useReactRouter();
   const classes = useStyles();
   const [dataset, setData] = useState([]);
   const [images, setImages] = useState([]);
 
+  const { id } = props.match.params;
+
    useEffect(() => {
-      getIssueByID();
+      getIssueByID(id);
+      console.log(id);
   }, [!dataset])
 
-  const getIssueByID = async () => {
-    let res = await issueService.getIssueByID('5da56028220aeb4adcdf8e44');  
+  const getIssueByID = async (id) => {
+    let res = await issueService.getIssueByID(id);  
     setData(res);
     setImages(res.imageName)
   }

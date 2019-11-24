@@ -24,9 +24,12 @@ class App extends Component {
             <Route path="/signup" component={Signup} />
             <Route path="/signin" component={Signin} />
             <Route exact path="/" component={Landing} />
-            <PrivateRoutes path="/legg-til-sak/:userId" component={CreateIssue} />
+            <PrivateRoutes
+              path="/legg-til-sak/:userId"
+              component={CreateIssue}
+            />
             <PrivateRoutes path="/saker" component={Issues} />
-            <PrivateRoutes path="/vis-sak" component={ViewIssue} />
+            <PrivateRoutes path="/vis-sak/:id" component={ViewIssue} />
           </Router>
         </div>
       </Provider>

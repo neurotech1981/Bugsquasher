@@ -6,7 +6,6 @@ import "../../App.css";
 import moment from 'moment';
 import { Redirect, Link } from 'react-router-dom';
 import MaterialTable from 'material-table';
-
 const formattedDate = (value) => moment(value).format('DD/MM-YYYY');
 
 
@@ -94,35 +93,56 @@ export default function Issues(props) {
 
   const [state] = useState({
     columns: [
-      { title: 'Prioritet', field: 'priority',
-        render: data => ( 
-          <div 
-          className="priority" 
-          style={{color: data.priority === 'Øyeblikkelig' ? 'darkred' : '' ||
-                         data.priority === 'Høy' ? 'red' : '' ||
-                         data.priority === 'Normal' ? 'white' : '' ||
-                         data.priority === 'Haster' ? 'yellow' : '' ||
-                         data.priority === 'Lav' ? 'grey' : ''
-          }}>{data.priority}</div>
+      {
+        title: "Prioritet",
+        field: "priority",
+        render: data => (
+          <div
+            className="priority"
+            style={{
+              color:
+                data.priority === "Øyeblikkelig"
+                  ? "darkred"
+                  : "" || data.priority === "Høy"
+                  ? "red"
+                  : "" || data.priority === "Normal"
+                  ? "white"
+                  : "" || data.priority === "Haster"
+                  ? "yellow"
+                  : "" || data.priority === "Lav"
+                  ? "grey"
+                  : ""
+            }}
+          >
+            {data.priority}
+          </div>
         )
       },
-      { title: 'Oppsummering', field: 'summary' },
-      { title: 'ID', field: '_id',  type: 'numeric',align: 'left',
-      render: data => ( 
-          <span><Link to="#" className="link underline">{data._id}</Link></span>
+      { title: "Oppsummering", field: "summary" },
+      {
+        title: "ID",
+        field: "_id",
+        type: "numeric",
+        align: "left",
+        render: data => (
+          <span>
+            <Link to={"/vis-sak/" + data._id} className="link underline">
+              {data._id}
+            </Link>
+          </span>
         )
       },
-      { title: 'Kommentar', field: 'kommentar' },
-      { title: 'Kategori', field: 'category' },
-      { title: 'Alvorlighetsgrad', field: 'severity' },
-      { title: 'Status', field: 'status' },
-      { title: 'Oppdatert',
-            field: 'updatedAt',
-            render: data => (
-              <div>{formattedDate(data.updatedAt)}</div>
-            )
+      { title: "Kommentar", field: "kommentar" },
+      { title: "Kategori", field: "category" },
+      { title: "Alvorlighetsgrad", field: "severity" },
+      { title: "Status", field: "status" },
+      {
+        title: "Oppdatert",
+        field: "updatedAt",
+        render: data => <div>{formattedDate(data.updatedAt)}</div>
       }
-    ]});
+    ]
+  });
 
    useEffect(() => {
       getIssues();

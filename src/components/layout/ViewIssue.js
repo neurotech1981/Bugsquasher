@@ -12,6 +12,7 @@ import Avatar from "@material-ui/core/Avatar";
 import { deepPurple } from "@material-ui/core/colors";
 import Grid from "@material-ui/core/Grid";
 import useReactRouter from "use-react-router";
+import { Link } from "react-router-dom";
 
 
 const formattedDate = (value) => moment(value).format('DD/MM-YYYY');
@@ -64,20 +65,41 @@ export default function ViewIssue(props) {
   }
 
     var imgList = images.map(function(item) {
-      return (
-        <div style={{ display: "inline-flex", margin: "1em" }}>
-          <img
-            key={item}
-            style={{ width: "150px", height: "150px", borderRadius: "0.5em" }}
-            src={process.env.PUBLIC_URL + "/uploads/" + item}
-          ></img>
-          <div style={{ display: "inline-flex", margin: "1em" }}>
-            <Button variant="contained" color="default">
-              Download
-            </Button>
-          </div>
-        </div>
-      );
+              if(!item) {
+                return (
+                  <div>Ingen vedlegg</div>
+                )
+              }
+               return (
+                 <div style={{ display: "inline-flex", margin: "1em" }}>
+                   <img
+                     key={item}
+                     style={{
+                       width: "150px",
+                       height: "150px",
+                       borderRadius: "0.5em"
+                     }}
+                     src={process.env.PUBLIC_URL + "/uploads/" + item}
+                   ></img>
+                   <div
+                     style={{
+                       display: "inline-flex",
+                       margin: "1em",
+                       height: "40px"
+                     }}
+                   >
+                     <Link
+                       to={process.env.PUBLIC_URL + "/uploads/" + item}
+                       target="_blank"
+                       download
+                     >
+                       <Button variant="contained" color="default">
+                         Download
+                       </Button>
+                     </Link>
+                   </div>
+                 </div>
+               );
     });
 
   return (
@@ -218,6 +240,8 @@ export default function ViewIssue(props) {
             {" "}
             <TextField
               multiline
+              rowsMax="8"
+              variant="outlined"
               id="standard-read-only-input"
               label="Beskrivelse"
               value={dataset.description}
@@ -233,6 +257,8 @@ export default function ViewIssue(props) {
             {" "}
             <TextField
               multiline
+              variant="outlined"
+              rowsMax="8"
               id="standard-read-only-input"
               label="Steg for å reprodusere"
               value={dataset.step_reproduce}
@@ -248,6 +274,8 @@ export default function ViewIssue(props) {
             {" "}
             <TextField
               multiline
+              rowsMax="8"
+              variant="outlined"
               id="standard-read-only-input"
               label="Tilleggsinformasjon"
               value={dataset.additional_info}

@@ -370,17 +370,6 @@ function NavBar(props) {
                       Vis saker
                     </Button>
                   </Link>
-                  <Link to={"/vis-sak/" + auth.isAuthenticated().user._id}>
-                    <Button
-                      color="primary"
-                      variant="contained"
-                      aria-label="Bruker Profil"
-                      className={classes.button}
-                    >
-                      <ViewListTwoToneIcon className={classes.extendedIcon} />
-                      Vis sak
-                    </Button>
-                  </Link>
                   <Link to={"/user/" + auth.isAuthenticated().user._id}>
                     <Button
                       color="primary"

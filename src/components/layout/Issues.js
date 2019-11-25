@@ -156,19 +156,22 @@ export default function Issues(props) {
   return (
     <Paper className={classes.root}>
       <div className={classes.tableWrapper}>
-     <React.Fragment>
-      <MaterialTable
-       options={{
-          headerStyle: {
-            backgroundColor: 'rgb(156, 145, 242)',
-            color: '#FFF'
-          }
-        }}
-      title="Registrerte saker" 
-      columns={state.columns} 
-      data={dataset} 
-      />
-      </React.Fragment>
+        <React.Fragment>
+          <MaterialTable
+            options={{
+              headerStyle: {
+                backgroundColor: "rgb(37, 30, 51)",
+                color: "#FFF"
+              },
+              rowStyle: {
+                boxShadow: "0 3px 10px rgba(51, 51, 51, 0.1)"
+              }
+            }}
+            title="Registrerte saker"
+            columns={state.columns}
+            data={dataset}
+          />
+        </React.Fragment>
       </div>
     </Paper>
   );

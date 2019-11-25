@@ -284,7 +284,7 @@ function NavBar(props) {
         position="fixed"
         style={{
           backgroundImage:
-            "linear-gradient(to right, rgb(124, 47, 99) 0%, rgb(31, 39, 57) 100%)"
+            "linear-gradient(to bottom, rgb(49, 7, 36) 0%, rgb(31, 39, 57) 100%)"
         }}
       >
         <Toolbar>
@@ -323,7 +323,6 @@ function NavBar(props) {
                   <Button
                     color="primary"
                     variant="outlined"
-                    style={{ color: "white" }}
                     aria-label="Registrer bruker"
                     className={classes.button}
                   >
@@ -335,7 +334,6 @@ function NavBar(props) {
                   <Button
                     color="primary"
                     variant="outlined"
-                    style={{ color: "white" }}
                     aria-label="Logg inn"
                     className={classes.button}
                   >
@@ -363,7 +361,7 @@ function NavBar(props) {
                     <Button
                       color="primary"
                       variant="contained"
-                      aria-label="Bruker Profil"
+                      aria-label="Vis saker"
                       className={classes.button}
                     >
                       <ViewListTwoToneIcon className={classes.extendedIcon} />
@@ -384,8 +382,8 @@ function NavBar(props) {
                   <Link to={"/"}>
                     <Button
                       color="secondary"
-                      variant="contained"
-                      aria-label="Legg til sak"
+                      variant="outlined"
+                      aria-label="Logg ut"
                       className={classes.button}
                       onClick={() => {
                         auth.signout(() => history.push("/"));

@@ -1,7 +1,7 @@
 body {
   margin-top: 100px;
   margin: 0;
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 300;
   line-height: 1.42em;
   color:rgb(65, 53, 80);
@@ -36,10 +36,22 @@ body {
 .priority {
     border-radius: 0.5em;
     padding: 0.3em;
-    font-family: "IBM Plex Sans", monospace;
+    font-family: "Poppins", monospace;
     font-weight: 500;
     font-size: 1em;
     background: -webkit-linear-gradient(90deg, #2f0a26, #414767);
+    box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.21);
+    transition: all 0.2s ease-in-out;
+    text-align: center;
+}
+
+.status {
+    border-radius: 0.5em;
+    padding: 0.3em;
+    font-family: "Poppins", monospace;
+    font-weight: 500;
+    font-size: 1em;
+    background: -webkit-linear-gradient(90deg, #000000, #1d1918);
     box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.21);
     transition: all 0.2s ease-in-out;
     text-align: center;
@@ -150,7 +162,7 @@ body {
 }
 
 a {
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: 'Poppins', sans-serif;
   color: rgb(49, 49, 49);
   text-decoration: none;
   font-weight: 600;
@@ -290,7 +302,7 @@ a:focus {
   grid-gap: 10px;
   background-color: rgba(33, 149, 243, 0);
   padding: 10px;
-  font-family: 'IBM Plex Sans';
+  font-family: 'Poppins';
 }
 
 .grid-container > div {
@@ -303,7 +315,7 @@ a:focus {
 .item1 {
     grid-area: header;
     align-self: center;
-    font-family: 'IBM Plex Sans';
+    font-family: 'Poppins';
     font-weight: 600;
 }
 

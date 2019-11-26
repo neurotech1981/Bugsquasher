@@ -84,7 +84,7 @@ const useStyles = makeStyles(theme => ({
     whiteSpace: "nowrap",
     verticalAlign: "baseline",
     borderRadius: ".25em",
-}
+},
 }));
 
 export default function Issues(props) {
@@ -111,9 +111,7 @@ export default function Issues(props) {
                   ? "yellow"
                   : "" || data.priority === "Lav"
                   ? "grey"
-                  : ""
-            }}
-          >
+                  : "" }}>
             {data.priority}
           </div>
         )
@@ -135,7 +133,25 @@ export default function Issues(props) {
       { title: "Kommentar", field: "kommentar" },
       { title: "Kategori", field: "category" },
       { title: "Alvorlighetsgrad", field: "severity" },
-      { title: "Status", field: "status" },
+      {
+        title: "Status",
+        field: "status",
+        render: data => (
+          <div
+            className="status"
+            style={{
+              color:
+                data.status === "Åpen"
+                  ? "lightgreen"
+                  : "" || data.status === "Lukket"
+                  ? "gray"
+                  : ""
+            }}
+          >
+            {data.status}
+          </div>
+        )
+      },
       {
         title: "Oppdatert",
         field: "updatedAt",

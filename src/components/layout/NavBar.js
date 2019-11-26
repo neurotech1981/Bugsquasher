@@ -43,76 +43,76 @@ const isActive = (history, path) => {
 
 const useStyles = makeStyles(theme => ({
   palette: {
-    type: "dark",
+    type: "dark"
   },
   buttons: {
-    position: 'relative',
+    position: "relative",
     borderRadius: theme.shape.borderRadius,
     marginRight: theme.spacing(2),
     alignItems: "center",
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
       marginLeft: "20px",
-      width: 'auto',
-    },
+      width: "auto"
+    }
   },
   root: {
     display: "flex"
   },
   grow: {
-    flexGrow: 1,
+    flexGrow: 1
   },
-    drawer: {
+  drawer: {
     width: drawerWidth,
-    flexShrink: 0,
+    flexShrink: 0
   },
   drawerPaper: {
-    width: drawerWidth,
+    width: drawerWidth
   },
   drawerHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '0 8px',
+    display: "flex",
+    alignItems: "center",
+    padding: "0 8px",
     ...theme.mixins.toolbar,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end"
   },
   flexContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center"
   },
   hide: {
-    display: 'none',
+    display: "none"
   },
   appBar: {
-    transition: theme.transitions.create(['margin', 'width'], {
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
+      duration: theme.transitions.duration.leavingScreen
+    })
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
-    transition: theme.transitions.create(['margin', 'width'], {
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
+      duration: theme.transitions.duration.enteringScreen
+    })
   },
   fab: {
     margin: theme.spacing(1)
   },
   extendedIcon: {
-    marginRight: theme.spacing(1),
+    marginRight: theme.spacing(1)
   },
   content: {
     flexGrow: 1,
     padding: theme.spacing(3)
   },
   contentShift: {
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
+      duration: theme.transitions.duration.enteringScreen
     }),
-    marginLeft: 0,
+    marginLeft: 0
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -122,6 +122,14 @@ const useStyles = makeStyles(theme => ({
   },
   button: {
     margin: theme.spacing(1),
+    "&:hover": {
+      transition: theme.transitions.create("margin", {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen
+      }),
+      backgroundColor: "lightgray",
+      color: "black"
+    }
   },
   title: {
     display: "none",
@@ -382,7 +390,7 @@ function NavBar(props) {
                   <Link to={"/"}>
                     <Button
                       color="secondary"
-                      variant="outlined"
+                      variant="contained"
                       aria-label="Logg ut"
                       className={classes.button}
                       onClick={() => {

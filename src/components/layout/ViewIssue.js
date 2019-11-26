@@ -20,7 +20,8 @@ const formattedDate = (value) => moment(value).format('DD/MM-YYYY');
 const useStyles = makeStyles(theme => ({
   root: {
     display: "flex",
-    padding: "7em"
+    padding: "7em",
+    fontFamily: 'Poppins'
   },
   content: {
     flexGrow: 1,
@@ -64,14 +65,14 @@ export default function ViewIssue(props) {
     setImages(res.imageName)
   }
 
-    var imgList = images.map(function(item) {
+    var imgList = images.map(function(item, _id) {
               if(!item) {
                 return (
                   <div>Ingen vedlegg</div>
                 )
               }
                return (
-                 <div style={{ display: "inline-flex", margin: "1em" }}>
+                 <div style={{ display: "inline-flex", margin: "1em" }} key={item}>
                    <img
                      key={item}
                      style={{

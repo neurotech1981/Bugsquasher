@@ -6,21 +6,21 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 var Data = require("./models/data");
-import userRoutes from './routes/user';
-import authRoutes from './routes/auth';
+import userRoutes from "./routes/user";
+import authRoutes from "./routes/auth";
 const path = require("path");
 const logger = require("morgan");
 const multer = require("multer");
 var multipart = require("connect-multiparty");
 const cookieParser = require("cookie-parser");
-import config from '../config/index';
+import config from "../config/index";
 
 var multipartMiddleware = multipart();
 
 // Multer image storage settings
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    cb(null, '../../public/uploads');
+    cb(null, "../../public/uploads");
   },
   filename: function(req, file, cb) {
     cb(null, file.originalname);
@@ -35,13 +35,13 @@ const storage = multer.diskStorage({
 //  }
 //});
 const fileFilter = (req, file, cb) => {
-  if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
     cb(null, true);
   } else {
     // rejects storing a file
     cb(null, false);
   }
-}
+};
 
 var upload = multer({
   storage: storage,
@@ -52,7 +52,8 @@ var upload = multer({
 });
 
 // MongoDB database
-const dbRoute = "mongodb://neurotech:946Dypew!@ds127376.mlab.com:27376/bugsquasher";
+const dbRoute =
+  "mongodb://neurotech:946Dypew!@ds127376.mlab.com:27376/bugsquasher";
 const API_PORT = 3001;
 
 const validateInput = require("../../validation/input-validation");
@@ -61,18 +62,15 @@ const validateInput = require("../../validation/input-validation");
 Data.find(Data);
 // Make Mongoose use `findOneAndUpdate()`. Note that this option is `true`
 // by default, you need to set it to false.
-mongoose.set('useFindAndModify', false);
+mongoose.set("useFindAndModify", false);
 // connects our back end code with the database
 const URI = config.mongoURI;
 try {
-  mongoose.connect(
-    URI,
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true
-    }
-  );
+  mongoose.connect(URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+  });
 } catch (error) {
   console.log(error);
 }
@@ -86,7 +84,6 @@ db.once("open", function() {
 // checks if connection with the database is successful
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-
 // define the Express app
 const app = express();
 const router = express.Router();
@@ -95,12 +92,12 @@ const router = express.Router();
 app.use(
   bodyParser.urlencoded({
     extended: true,
-    limit: '50mb'
+    limit: "50mb"
   })
 );
 app.use(logger("dev"));
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use("/uploads", express.static('uploads'));
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use("/uploads", express.static("uploads"));
 // Redirect to react build
 app.use(express.static(path.join(__dirname, "../build")));
 app.get("/", function(req, res, next) {
@@ -119,25 +116,25 @@ app.use(cors());
 app.use(morgan("combined"));
 
 // ADD routes
-app.use('/', userRoutes);
-app.use('/', authRoutes);
+app.use("/", userRoutes);
+app.use("/", authRoutes);
 
 app.use((err, req, res, next) => {
-	if (err.name === 'UnauthorizedError') {
-		res.status(401).json({ error: err.name + ':' + err.message });
-	}
+  if (err.name === "UnauthorizedError") {
+    res.status(401).json({ error: err.name + ":" + err.message });
+  }
 });
 
-
-router.route("/uploadimage", multipartMiddleware)
-  .post(upload.array('imageData', 10), function(req, res, next) {
-      const file = req.files;
-      if (!file) {
-        const error = new Error("Vennligst velg en fil å laste opp");
-        error.httpStatusCode = 400;
-        return next(error);
-      }
-      res.send(file);
+router
+  .route("/uploadimage", multipartMiddleware)
+  .post(upload.array("imageData", 10), function(req, res, next) {
+    const file = req.files;
+    if (!file) {
+      const error = new Error("Vennligst velg en fil å laste opp");
+      error.httpStatusCode = 400;
+      return next(error);
+    }
+    res.send(file);
   });
 
 // this is our get method
@@ -156,14 +153,14 @@ router.get("/getData", (req, res) => {
   });
 });
 
-router.put("/getDataByID/:id", function(req, res, next) {
+router.put("/getDataByID/:id", function async(req, res, next) {
   Data.findById(req.params.id, req.body, function(err, post) {
     if (err) return next(err);
     //res.json(post);
-     return res.json({
-       success: true,
-       data: post
-     });
+    return res.json({
+      success: true,
+      data: post
+    });
   });
 });
 
@@ -223,7 +220,7 @@ router.put("/getDataByID/:id", function(req, res, next) {
 
 // this is our old update method
 // this method overwrites existing data in our database
-router.post("/updateData", (req, res) => {
+router.post("/updateData", function async(req, res) {
   const { id, update } = req.body;
   Data.findByIdAndUpdate(id, update, err => {
     if (err)
@@ -251,8 +248,7 @@ router.delete("/deleteData", (req, res) => {
 
 // this is our create method
 // this method adds new data in our database
-router.post("/putData", (req, res) => {
-  
+router.post("/putData", function async(req, res) {
   const { errors, isValid } = validateInput(req.body);
 
   // Check Validation
@@ -261,38 +257,37 @@ router.post("/putData", (req, res) => {
     return res.status(400).json(errors);
   }
 
-
-// if (!req.body.name && req.body.name !== 0) {
-//   return res.json({
-//     success: false,
-//     error: "INVALID INPUTS"
-//   });
-//  }
-    let data = new Data();
-    data.id = req.body.id;
-    data.name = req.body.name;
-    data.description = req.body.description;
-    data.category = req.body.category;
-    data.environment = req.body.environment;
-    data.step_reproduce = req.body.step_reproduce;
-    data.summary = req.body.summary;
-    data.browser = req.body.browser;
-    data.visual = req.body.visual;
-    data.reproduce = req.body.reproduce;
-    data.severity = req.body.severity;
-    data.priority = req.body.priority;
-    data.additional_info = req.body.additional_info;
-    data.status = req.body.status;
-    data.userid = req.body.userid;
-    //data.attached_photo = req.body.attached_photo;
-    data.imageName = req.body.imageName[0];
-    //data.imageData = req.body.imageData;
-    //data.reporter = req.body.reporter;
-    //data.assigned = req.body.assigned;
+  // if (!req.body.name && req.body.name !== 0) {
+  //   return res.json({
+  //     success: false,
+  //     error: "INVALID INPUTS"
+  //   });
+  //  }
+  let data = new Data();
+  data.id = req.body.id;
+  data.name = req.body.name;
+  data.description = req.body.description;
+  data.category = req.body.category;
+  data.environment = req.body.environment;
+  data.step_reproduce = req.body.step_reproduce;
+  data.summary = req.body.summary;
+  data.browser = req.body.browser;
+  data.visual = req.body.visual;
+  data.reproduce = req.body.reproduce;
+  data.severity = req.body.severity;
+  data.priority = req.body.priority;
+  data.additional_info = req.body.additional_info;
+  data.status = req.body.status;
+  data.userid = req.body.userid;
+  //data.attached_photo = req.body.attached_photo;
+  data.imageName = req.body.imageName[0];
+  //data.imageData = req.body.imageData;
+  //data.reporter = req.body.reporter;
+  //data.assigned = req.body.assigned;
 
   data.save(err => {
     if (err)
-    return res.status(400).json({
+      return res.status(400).json({
         success: false,
         error: err
       });

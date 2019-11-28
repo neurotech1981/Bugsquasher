@@ -127,8 +127,8 @@ const useStyles = makeStyles(theme => ({
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen
       }),
-      backgroundColor: "lightgray",
-      color: "black"
+      backgroundColor: "#FFF00",
+      color: "white",
     }
   },
   title: {

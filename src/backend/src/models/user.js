@@ -1,67 +1,72 @@
-import mongoose from 'mongoose';
-import crypto from 'crypto';
+import mongoose from "mongoose";
+import crypto from "crypto";
 let Schema = mongoose.Schema;
 
 let userSchema = new Schema({
-	name: {
-		type: String,
-		trim: true,
-		required: 'Brukernavn er påkrevd'
-	},
-	email: {
-		type: String,
-		trim: true,
-		unique: 'E-posten eksisterer allerede',
-		match: [/.+\@.+\..+/, 'Vennligst fyll ut en gyldig e-post'],
-		required: 'E-post er påkrevd'
-	},
-	hashedPassword: {
-		type: String,
-		required: 'Passord er påkrevd'
-	},
-	salt: {
-		type: String
-	}
+  name: {
+    type: String,
+    trim: true,
+    required: "Brukernavn er påkrevd"
+  },
+  email: {
+    type: String,
+    trim: true,
+    unique: "E-posten eksisterer allerede",
+    match: [/.+\@.+\..+/, "Vennligst fyll ut en gyldig e-post"],
+    required: "E-post er påkrevd"
+  },
+  hashedPassword: {
+    type: String,
+    required: "Passord er påkrevd"
+  },
+  role: {
+    type: String,
+    default: "bruker",
+    enum: ["bruker", "supervisor", "admin"]
+  },
+  salt: {
+    type: String
+  }
 });
 
 userSchema
-	.virtual('password')
-	.set(function(password) {
-		this._password = password;
-		this.salt = this.makeSalt();
-		this.hashedPassword = this.encryptedPassword(password);
-	})
-	.get(function() {
-		return this._password;
-	});
+  .virtual("password")
+  .set(function(password) {
+    this._password = password;
+    this.salt = this.makeSalt();
+    this.hashedPassword = this.encryptedPassword(password);
+  })
+  .get(function() {
+    return this._password;
+  });
 
 userSchema.methods = {
-	authenticate: function(plainText) {
-		return this.encryptedPassword(plainText) === this.hashedPassword;
-	},
-	encryptedPassword: function(password) {
-		if (!password) return '';
-		try {
-			return crypto
-				.createHmac('sha1', this.salt)
-				.update(password)
-				.digest('hex');
-		} catch (err) {
-			return '';
-		}
-	},
-	makeSalt: function() {
-		return Math.round(new Date().valueOf() * Math.random()) + '';
-	}
+  authenticate: function(plainText) {
+    return this.encryptedPassword(plainText) === this.hashedPassword;
+  },
+  encryptedPassword: function(password) {
+    if (!password) return "";
+    try {
+      return crypto
+        .createHmac("sha1", this.salt)
+        .update(password)
+        .digest("hex");
+    } catch (err) {
+      return "";
+    }
+  },
+  makeSalt: function() {
+    return Math.round(new Date().valueOf() * Math.random()) + "";
+  }
 };
 
-userSchema.path('hashedPassword').validate(function(v) {
-	if (this.hashedPassword && this._password.length < 6) {
-		this.invalidate('password', 'Passord må være minst 6 bokstaver langt.');
-	}
-	if (this.isNew && !this._password) {
-		this.invalidate('password', 'Passord er påkrevd.');
-	}
+userSchema.path("hashedPassword").validate(function(v) {
+  if (this.hashedPassword && this._password.length < 6) {
+    this.invalidate("password", "Passord må være minst 6 bokstaver langt.");
+  }
+  if (this.isNew && !this._password) {
+    this.invalidate("password", "Passord er påkrevd.");
+  }
 }, null);
 
-module.exports = mongoose.model('User', userSchema); 
+module.exports = mongoose.model("User", userSchema);

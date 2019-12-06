@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 var Data = require("./models/data");
+const User = require("./models/user");
 import userRoutes from "./routes/user";
 import authRoutes from "./routes/auth";
 const path = require("path");
@@ -26,14 +27,7 @@ const storage = multer.diskStorage({
     cb(null, file.originalname);
   }
 });
-//var storage = multer.diskStorage({
-//  destination: function(req, file, cb) {
-//    cb(null, "./uploads");
-//  },
-//  filename: function(req, file, cb) {
-//    cb(null, Date.now() + "-" + file.originalname);
-//  }
-//});
+
 const fileFilter = (req, file, cb) => {
   if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
     cb(null, true);
@@ -156,7 +150,6 @@ router.get("/getData", (req, res) => {
 router.put("/getDataByID/:id", function async(req, res, next) {
   Data.findById(req.params.id, req.body, function(err, post) {
     if (err) return next(err);
-    //res.json(post);
     return res.json({
       success: true,
       data: post
@@ -164,65 +157,11 @@ router.put("/getDataByID/:id", function async(req, res, next) {
   });
 });
 
-// this is our get method
-// this method fetches data by received ID in our database
-//router.get("/getDataByID/:id", (req, res) => {
-//  console.log(req.params);
-//  const { id, result } = req.params;
-//  Data.findByIdAndUpdate(id, result, err => {
-//    if (err)
-//      return res.json({
-//        success: false,
-//        error: err
-//      });
-//    return res.json({
-//      success: true,
-//      data: result
-//    });
-//  });
-//});
-
-/*router.post("/updateData", (req, res) => {
-  let data = new Data();
-
-  if (!data.req.body && data.req.body !== 0) 
-  {
-    return res.json({
-      success: false,
-      error: "INVALID INPUTS"
-    });
-  }
-
-  data.id = id.req.body;
-  data.name = name.req.body;
-  data.description = description.req.body;
-  data.environment = environment.req.body;
-  data.browser = browser.req.body;
-  data.visual = visual.req.body;
-  data.reproduce = reproduce.req.body;
-  data.severity = severity.req.body;
-  data.priority = priority.req.body; 
-  data.date = date.req.body;
-  data.reporter = reporter.req.body;
-  data.assigned = assigned.req.body;
-
-  save(err => {
-    if (err)
-      return res.json({
-        success: false,
-        error: err
-      });
-    return res.json({
-      success: true
-    });
-  });
-});*/
-
 // this is our old update method
 // this method overwrites existing data in our database
-router.post("/updateData", function async(req, res) {
-  const { id, update } = req.body;
-  Data.findByIdAndUpdate(id, update, err => {
+router.post("/edituser", function async(req, res) {
+  const { _id, update } = req.body;
+  User.findByIdAndUpdate(_id, update, err => {
     if (err)
       return res.json({
         success: false,
@@ -233,6 +172,23 @@ router.post("/updateData", function async(req, res) {
     });
   });
 });
+
+//router.post("/edituser/:id").put((req, res, next) => {
+//  User.findByIdAndUpdate(
+//    req.params.id,
+//    {
+//      $set: req.body
+//    },
+//    (error, data) => {
+//      if (error) {
+//        return next(error);
+//      } else {
+//        res.json(data);
+//        console.log("User updated successfully !");
+//      }
+//    }
+//  );
+//});
 
 // this is our delete method
 // this method removes existing data in our database
@@ -257,12 +213,6 @@ router.post("/putData", function async(req, res) {
     return res.status(400).json(errors);
   }
 
-  // if (!req.body.name && req.body.name !== 0) {
-  //   return res.json({
-  //     success: false,
-  //     error: "INVALID INPUTS"
-  //   });
-  //  }
   let data = new Data();
   data.id = req.body.id;
   data.name = req.body.name;
@@ -279,11 +229,7 @@ router.post("/putData", function async(req, res) {
   data.additional_info = req.body.additional_info;
   data.status = req.body.status;
   data.userid = req.body.userid;
-  //data.attached_photo = req.body.attached_photo;
   data.imageName = req.body.imageName[0];
-  //data.imageData = req.body.imageData;
-  //data.reporter = req.body.reporter;
-  //data.assigned = req.body.assigned;
 
   data.save(err => {
     if (err)

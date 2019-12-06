@@ -2,15 +2,16 @@ import React, { Component } from "react";
 import NavBar from "./components/layout/NavBar";
 import Landing from "./components/layout/Landing";
 import Issues from "./components/layout/Issues";
+import Users from "./components/user/Users";
 import CreateIssue from "./components/layout/CreateIssue";
 import ViewIssue from "./components/layout/ViewIssue";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import PrivateRoutes from './components/auth/PrivateRoute';
-import Signin from './components/auth/Signin';
-import Profile from './components/user/Profile';
-import Signup from './components/user/Signup';
-import { Provider } from 'react-redux';
-import { store } from './redux/store';
+import PrivateRoutes from "./components/auth/PrivateRoute";
+import Signin from "./components/auth/Signin";
+import Profile from "./components/user/Profile";
+import Signup from "./components/user/Signup";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
 
 class App extends Component {
   render() {
@@ -30,6 +31,7 @@ class App extends Component {
             />
             <PrivateRoutes path="/saker" component={Issues} />
             <PrivateRoutes path="/vis-sak/:id" component={ViewIssue} />
+            <PrivateRoutes path="/bruker-admin/:userId" component={Users} />
           </Router>
         </div>
       </Provider>

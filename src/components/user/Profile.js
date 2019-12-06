@@ -35,11 +35,11 @@ const useStyles = makeStyles(theme => ({
 export default function Profile(props) {
   const { history, location, match } = useReactRouter();
   const state = {
-    user: "",
     redirectToSignin: false
   };
 
   const [values, setValues] = useState(state);
+  const [user, setUser] = useState([]);
 
   const init = userId => {
     const jwt = auth.isAuthenticated();
@@ -52,7 +52,8 @@ export default function Profile(props) {
       if (data.error) {
         setValues({ redirectToSignin: true });
       } else {
-        setValues({ user: data });
+        console.log("UUUUUUUUUUUUSER::::: " + data);
+        setUser(data);
       }
     });
   };
@@ -78,14 +79,14 @@ export default function Profile(props) {
               <Person />
             </Avatar>
           </ListItemAvatar>
-          <ListItemText primary={values.user.name} secondary={values.email} />{" "}
+          <ListItemText primary={user.name} secondary={user.email} />{" "}
           {auth.isAuthenticated().user &&
-            auth.isAuthenticated().user._id == values.user._id && (
+            auth.isAuthenticated().user._id == user._id && (
               <ListItemSecondaryAction>
-                <DeleteUser userId={values.user._id} />
+                <DeleteUser userId={user._id} />
               </ListItemSecondaryAction>
             )}
-          <ListItemText primary={values.user.role} secondary={values.email} />{" "}
+          <ListItemText primary={user.role} secondary={user.email} />{" "}
         </ListItem>
         <Divider />
       </List>

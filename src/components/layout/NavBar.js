@@ -1,44 +1,44 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import auth from '../auth/auth-helper';
-import { Link } from 'react-router-dom';
-import clsx from 'clsx';
+import React, { Fragment, useState, useEffect } from "react";
+import auth from "../auth/auth-helper";
+import { Link } from "react-router-dom";
+import clsx from "clsx";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import useReactRouter from 'use-react-router';
+import useReactRouter from "use-react-router";
 import Divider from "@material-ui/core/Divider";
 import Drawer from "@material-ui/core/Drawer";
 import Hidden from "@material-ui/core/Hidden";
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import InputBase from '@material-ui/core/InputBase';
-import Badge from '@material-ui/core/Badge';
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography";
+import InputBase from "@material-ui/core/InputBase";
+import Badge from "@material-ui/core/Badge";
 import List from "@material-ui/core/List";
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
-import { fade } from '@material-ui/core/styles/colorManipulator';
-import MenuIcon from '@material-ui/icons/Menu';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import MoreIcon from '@material-ui/icons/MoreVert';
+import MenuItem from "@material-ui/core/MenuItem";
+import Menu from "@material-ui/core/Menu";
+import { fade } from "@material-ui/core/styles/colorManipulator";
+import MenuIcon from "@material-ui/icons/Menu";
+import AccountCircle from "@material-ui/icons/AccountCircle";
+import NotificationsIcon from "@material-ui/icons/Notifications";
+import MoreIcon from "@material-ui/icons/MoreVert";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import MailIcon from "@material-ui/icons/Mail";
 import { BugReport, Dashboard, Settings } from "@material-ui/icons";
-import PersonAddRoundedIcon from '@material-ui/icons/PersonAddRounded';
+import PersonAddRoundedIcon from "@material-ui/icons/PersonAddRounded";
 
 import AddIssue from "@material-ui/icons/NoteAdd";
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import VpnKeyRoundedIcon from '@material-ui/icons/VpnKeyRounded';
-import ViewListTwoToneIcon from '@material-ui/icons/ViewListTwoTone';
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import VpnKeyRoundedIcon from "@material-ui/icons/VpnKeyRounded";
+import ViewListTwoToneIcon from "@material-ui/icons/ViewListTwoTone";
 
 const drawerWidth = 240;
 
 const isActive = (history, path) => {
-	if (history.location.pathname == path) return { color: '#F44336' };
-	else return { color: '#ffffff' };
+  if (history.location.pathname == path) return { color: "#F44336" };
+  else return { color: "#ffffff" };
 };
 
 const useStyles = makeStyles(theme => ({
@@ -128,7 +128,7 @@ const useStyles = makeStyles(theme => ({
         duration: theme.transitions.duration.enteringScreen
       }),
       backgroundColor: "#FFF00",
-      color: "white",
+      color: "white"
     }
   },
   title: {
@@ -171,17 +171,17 @@ const items = [
 ];
 
 function NavBar(props) {
-    const { history, location, match } = useReactRouter();
-    const { container } = props;
-    const [mobileOpen, setMobileOpen] = React.useState(false);
-    const [open, setOpen] = React.useState(false);
-    
-    const classes = useStyles();
-    const theme = useTheme();
-    function handleDrawerToggle() {
-      setOpen(!open);
-    }
-   
+  const { history, location, match } = useReactRouter();
+  const { container } = props;
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
+
+  const classes = useStyles();
+  const theme = useTheme();
+  function handleDrawerToggle() {
+    setOpen(!open);
+  }
+
   function handleDrawerOpen() {
     setOpen(true);
   }
@@ -190,39 +190,38 @@ function NavBar(props) {
     setOpen(false);
   }
 
-    const drawer = (
-      <div>
-        <Drawer
-          className={classes.drawer}
-          variant="permanent"
-          classes={{
-            paper: classes.drawerPaper
-          }}
-        >
-          <div className={classes.toolbar} />
-          <Divider />
-          <List>
-            {items.map((items, index) => (
-              <Link to={items.path} key={index}>
-                <ListItem button key={items.key} to={items.path}>
-                  <ListItemIcon>{items.icon}</ListItemIcon>
-                  <ListItemText primary={items.label} />
-                </ListItem>
-              </Link>
-            ))}
-          </List>
-          <Divider />
-        </Drawer>
-      </div>
-    );
-
+  const drawer = (
+    <div>
+      <Drawer
+        className={classes.drawer}
+        variant="permanent"
+        classes={{
+          paper: classes.drawerPaper
+        }}
+      >
+        <div className={classes.toolbar} />
+        <Divider />
+        <List>
+          {items.map((items, index) => (
+            <Link to={items.path} key={index}>
+              <ListItem button key={items.key} to={items.path}>
+                <ListItemIcon>{items.icon}</ListItemIcon>
+                <ListItemText primary={items.label} />
+              </ListItem>
+            </Link>
+          ))}
+        </List>
+        <Divider />
+      </Drawer>
+    </div>
+  );
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-  
+
   function handleProfileMenuOpen(event) {
     setAnchorEl(event.currentTarget);
   }
@@ -243,8 +242,8 @@ function NavBar(props) {
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
@@ -256,8 +255,8 @@ function NavBar(props) {
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
@@ -385,6 +384,17 @@ function NavBar(props) {
                     >
                       <AccountCircle className={classes.extendedIcon} />
                       Min profil
+                    </Button>
+                  </Link>
+                  <Link to={"/bruker-admin/" + auth.isAuthenticated().user._id}>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      aria-label="Bruker administrasjon"
+                      className={classes.button}
+                    >
+                      <AccountCircle className={classes.extendedIcon} />
+                      Bruker administrasjon
                     </Button>
                   </Link>
                   <Link to={"/"}>

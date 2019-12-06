@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import issueService from "../../services/issueService";
 import "../../App.css";
-import moment from 'moment';
+import moment from "moment";
 import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
@@ -14,14 +14,13 @@ import Grid from "@material-ui/core/Grid";
 import useReactRouter from "use-react-router";
 import { Link } from "react-router-dom";
 
-
-const formattedDate = (value) => moment(value).format('DD/MM-YYYY');
+const formattedDate = value => moment(value).format("DD/MM-YYYY");
 
 const useStyles = makeStyles(theme => ({
   root: {
     display: "flex",
     padding: "7em",
-    fontFamily: 'Poppins'
+    fontFamily: "Poppins"
   },
   content: {
     flexGrow: 1,
@@ -54,54 +53,51 @@ export default function ViewIssue(props) {
 
   const { id } = props.match.params;
 
-   useEffect(() => {
-      getIssueByID(id);
-      console.log(id);
-  }, [!dataset])
+  useEffect(() => {
+    getIssueByID(id);
+  }, [!dataset]);
 
-  const getIssueByID = async (id) => {
-    let res = await issueService.getIssueByID(id);  
+  const getIssueByID = async id => {
+    let res = await issueService.getIssueByID(id);
     setData(res);
-    setImages(res.imageName)
-  }
+    setImages(res.imageName);
+  };
 
-    var imgList = images.map(function(item, _id) {
-              if(!item) {
-                return (
-                  <div>Ingen vedlegg</div>
-                )
-              }
-               return (
-                 <div style={{ display: "inline-flex", margin: "1em" }} key={item}>
-                   <img
-                     key={item}
-                     style={{
-                       width: "150px",
-                       height: "150px",
-                       borderRadius: "0.5em"
-                     }}
-                     src={process.env.PUBLIC_URL + "/uploads/" + item}
-                   ></img>
-                   <div
-                     style={{
-                       display: "inline-flex",
-                       margin: "1em",
-                       height: "40px"
-                     }}
-                   >
-                     <Link
-                       to={process.env.PUBLIC_URL + "/uploads/" + item}
-                       target="_blank"
-                       download
-                     >
-                       <Button variant="contained" color="default">
-                         Download
-                       </Button>
-                     </Link>
-                   </div>
-                 </div>
-               );
-    });
+  var imgList = images.map((item, _id) => {
+    if (!item) {
+      return <div>Ingen vedlegg</div>;
+    }
+    return (
+      <div style={{ display: "inline-flex", margin: "1em" }} key={_id}>
+        <img
+          key={_id}
+          style={{
+            width: "150px",
+            height: "150px",
+            borderRadius: "0.5em"
+          }}
+          src={process.env.PUBLIC_URL + "/uploads/" + item}
+        ></img>
+        <div
+          style={{
+            display: "inline-flex",
+            margin: "1em",
+            height: "40px"
+          }}
+        >
+          <Link
+            to={process.env.PUBLIC_URL + "/uploads/" + item}
+            target="_blank"
+            download
+          >
+            <Button variant="contained" color="default">
+              Download
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  });
 
   return (
     <div className={classes.root}>

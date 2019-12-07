@@ -45,6 +45,10 @@ const useStyles = makeStyles(theme => ({
   palette: {
     type: "dark"
   },
+  colorPrimary: {
+    backgroundImage:
+      "linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)"
+  },
   buttons: {
     position: "relative",
     borderRadius: theme.shape.borderRadius,
@@ -73,7 +77,6 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     alignItems: "center",
     padding: "0 8px",
-    ...theme.mixins.toolbar,
     justifyContent: "flex-end"
   },
   flexContainer: {
@@ -287,13 +290,7 @@ function NavBar(props) {
 
   return (
     <div className={classes.grow}>
-      <AppBar
-        position="fixed"
-        style={{
-          backgroundImage:
-            "linear-gradient(to bottom, rgb(49, 7, 36) 0%, rgb(31, 39, 57) 100%)"
-        }}
-      >
+      <AppBar position="fixed" className={classes.colorPrimary}>
         <Toolbar>
           {auth.isAuthenticated() && (
             <IconButton
@@ -329,7 +326,7 @@ function NavBar(props) {
                 <Link to="/signup">
                   <Button
                     color="primary"
-                    variant="outlined"
+                    variant="contained"
                     aria-label="Registrer bruker"
                     className={classes.button}
                   >
@@ -340,7 +337,7 @@ function NavBar(props) {
                 <Link to="/signin">
                   <Button
                     color="primary"
-                    variant="outlined"
+                    variant="contained"
                     aria-label="Logg inn"
                     className={classes.button}
                   >

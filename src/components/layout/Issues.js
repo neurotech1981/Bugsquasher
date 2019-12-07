@@ -64,6 +64,10 @@ const useStyles = makeStyles(theme => ({
     overflowX: "auto",
     borderRadius: 14
   },
+  colorPrimary: {
+    backgroundImage:
+      "linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)"
+  },
   table: {
     minWidth: 500
   },
@@ -103,7 +107,7 @@ export default function Issues(props) {
                 data.priority === "Øyeblikkelig"
                   ? "darkred"
                   : "" || data.priority === "Høy"
-                  ? "red"
+                  ? "orange"
                   : "" || data.priority === "Normal"
                   ? "white"
                   : "" || data.priority === "Haster"
@@ -143,7 +147,7 @@ export default function Issues(props) {
             style={{
               color:
                 data.status === "Åpen"
-                  ? "lightgreen"
+                  ? "white"
                   : "" || data.status === "Lukket"
                   ? "gray"
                   : ""
@@ -177,7 +181,8 @@ export default function Issues(props) {
           <MaterialTable
             options={{
               headerStyle: {
-                backgroundColor: "rgb(37, 30, 51)",
+                backgroundImage:
+                  "linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)",
                 color: "#FFF"
               },
               rowStyle: {

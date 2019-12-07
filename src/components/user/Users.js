@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import useReactRouter from "use-react-router";
 import Paper from "@material-ui/core/Paper";
 import auth from "../auth/auth-helper";
-import { getUsers, editUser } from "../utils/api-user";
+import { getUsers, deleteUser } from "../utils/api-user";
 import MaterialTable from "material-table";
 import axios from "axios";
 
@@ -17,6 +17,10 @@ const useStyles = makeStyles(theme => ({
   },
   table: {
     minWidth: 500
+  },
+  colorPrimary: {
+    backgroundImage:
+      "linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)"
   },
   tableWrapper: {
     maxHeight: 900,
@@ -41,7 +45,17 @@ export default function Users(props) {
   const [userList] = useState({
     columns: [
       { title: "ID", field: "_id", editable: "never" },
-      { title: "Navn", field: "name" },
+      {
+        title: "Navn",
+        field: "name",
+        editComponent: props => (
+          <input
+            type="text"
+            value={props.value}
+            onChange={e => props.onChange(e.target.value)}
+          />
+        )
+      },
       {
         title: "Rolle",
         field: "role",
@@ -66,8 +80,6 @@ export default function Users(props) {
     redirectToSignin: false
   };
 
-  const { id } = props.match.params;
-
   const [values, setValues] = useState(state);
   const [users, setUsers] = useState([]);
 
@@ -87,9 +99,17 @@ export default function Users(props) {
     init();
   }, []);
 
+  // Slette metode for fjerning av varelinje i database med backend API
+  const deleteFromDB = idTodelete => {
+    axios.delete("/api/removeUser", {
+      data: {
+        _id: idTodelete
+      }
+    });
+  };
+
   // Rediger varelinje og oppdater database
   const updateUser = (idToBeUpdated, name, role, email) => {
-    console.log("STUFF: " + idToBeUpdated, name, role, email);
     axios.post("/api/edituser", {
       _id: idToBeUpdated,
       update: {
@@ -109,7 +129,8 @@ export default function Users(props) {
           <MaterialTable
             options={{
               headerStyle: {
-                backgroundColor: "rgb(37, 30, 51)",
+                backgroundImage:
+                  "linear-gradient(to top, rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)",
                 color: "#FFF"
               },
               rowStyle: {
@@ -133,7 +154,7 @@ export default function Users(props) {
                 }),
               onRowUpdate: (newData, oldData) =>
                 new Promise((resolve, reject) => {
-                  setTimeout(e => {
+                  setTimeout(() => {
                     {
                       const jwt = auth.isAuthenticated();
                       const data = users;
@@ -146,8 +167,9 @@ export default function Users(props) {
                         data[index].role,
                         data[index].email
                       );
-                      resolve();
                     }
+                    resolve();
+                    init();
                   }, 1000);
                 }),
               onRowDelete: oldData =>
@@ -156,10 +178,12 @@ export default function Users(props) {
                     {
                       let data = users;
                       const index = data.indexOf(oldData);
-                      data.splice(index, 1);
-                      setUsers({ data }, () => resolve());
+                      console.log("ID : " + data[index]._id);
+                      deleteFromDB(data[index]._id);
+                      //deleteUser(data[index]._id, jwt.token);
                     }
                     resolve();
+                    init();
                   }, 1000);
                 })
             }}

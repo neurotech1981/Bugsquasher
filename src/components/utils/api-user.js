@@ -50,13 +50,14 @@ export const findUserProfile = async (params, credentials) => {
 
 export const deleteUser = async (params, credentials) => {
   try {
-    const response = await fetch("/api/users/" + params.userId, {
+    const response = await fetch("/api/delete/" + params.userId, {
       method: "DELETE",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: "Bearer " + credentials.t
-      }
+      },
+      body: JSON.stringify()
     });
     return response.json();
   } catch (err) {

@@ -173,22 +173,15 @@ router.post("/edituser", function async(req, res) {
   });
 });
 
-//router.post("/edituser/:id").put((req, res, next) => {
-//  User.findByIdAndUpdate(
-//    req.params.id,
-//    {
-//      $set: req.body
-//    },
-//    (error, data) => {
-//      if (error) {
-//        return next(error);
-//      } else {
-//        res.json(data);
-//        console.log("User updated successfully !");
-//      }
-//    }
-//  );
-//});
+router.delete("/removeUser", (req, res) => {
+  const { _id } = req.body;
+  User.findByIdAndRemove(_id, err => {
+    if (err) return res.send(err);
+    return res.json({
+      success: true
+    });
+  });
+});
 
 // this is our delete method
 // this method removes existing data in our database

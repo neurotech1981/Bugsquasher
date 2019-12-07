@@ -39,7 +39,7 @@ export default function Profile(props) {
   };
 
   const [values, setValues] = useState(state);
-  const [user, setUser] = useState([]);
+  const [users, setUsers] = useState([]);
 
   const init = userId => {
     const jwt = auth.isAuthenticated();
@@ -52,8 +52,7 @@ export default function Profile(props) {
       if (data.error) {
         setValues({ redirectToSignin: true });
       } else {
-        console.log("UUUUUUUUUUUUSER::::: " + data);
-        setUser(data);
+        setUsers(data);
       }
     });
   };
@@ -79,14 +78,14 @@ export default function Profile(props) {
               <Person />
             </Avatar>
           </ListItemAvatar>
-          <ListItemText primary={user.name} secondary={user.email} />{" "}
+          <ListItemText primary={users.name} secondary={users.email} />{" "}
           {auth.isAuthenticated().user &&
-            auth.isAuthenticated().user._id == user._id && (
+            auth.isAuthenticated().user._id == users._id && (
               <ListItemSecondaryAction>
-                <DeleteUser userId={user._id} />
+                <DeleteUser userId={users._id} />
               </ListItemSecondaryAction>
             )}
-          <ListItemText primary={user.role} secondary={user.email} />{" "}
+          <ListItemText primary={"Rolle"} secondary={users.role} />
         </ListItem>
         <Divider />
       </List>

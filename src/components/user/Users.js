@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import useReactRouter from "use-react-router";
 import Paper from "@material-ui/core/Paper";
 import auth from "../auth/auth-helper";
-import { getUsers, deleteUser } from "../utils/api-user";
+import { getUsers, findUserProfile } from "../utils/api-user";
 import MaterialTable from "material-table";
 import axios from "axios";
 
@@ -17,10 +17,6 @@ const useStyles = makeStyles(theme => ({
   },
   table: {
     minWidth: 500
-  },
-  colorPrimary: {
-    backgroundImage:
-      "linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)"
   },
   tableWrapper: {
     maxHeight: 900,
@@ -62,6 +58,11 @@ export default function Users(props) {
         lookup: { bruker: "bruker", admin: "admin" }
       },
       {
+        title: "Rettigheter",
+        field: "rights",
+        lookup: { Les: "les", Skriv: "skriv" }
+      },
+      {
         title: "E-Post",
         field: "email",
         editComponent: props => (
@@ -82,24 +83,39 @@ export default function Users(props) {
 
   const [values, setValues] = useState(state);
   const [users, setUsers] = useState([]);
+  const [myself, setMyself] = useState([]);
 
-  const init = () => {
+  const init = userId => {
     const jwt = auth.isAuthenticated();
+    findUserProfile(
+      {
+        userId: userId
+      },
+      { t: jwt.token }
+    ).then(myself => {
+      if (myself.error) {
+        setValues({ redirectToSignin: true });
+      } else {
+        setMyself(myself);
+      }
+    });
+
     getUsers({ t: jwt.token }).then(data => {
       if (data.error) {
         setValues({ redirectToSignin: true });
       } else {
         setUsers(data.data);
-        console.log(data.data);
       }
     });
   };
 
   useEffect(() => {
-    init();
-  }, []);
+    if (!users.length) {
+      init(match.params.userId);
+    }
+  }, [match.params.userId]);
 
-  // Slette metode for fjerning av varelinje i database med backend API
+  // Slett bruker
   const deleteFromDB = idTodelete => {
     axios.delete("/api/removeUser", {
       data: {
@@ -108,13 +124,15 @@ export default function Users(props) {
     });
   };
 
-  // Rediger varelinje og oppdater database
-  const updateUser = (idToBeUpdated, name, role, email) => {
+  // Rediger bruker
+  const updateUser = (idToBeUpdated, name, role, rights, email) => {
     axios.post("/api/edituser", {
       _id: idToBeUpdated,
+      role: myself.role,
       update: {
         name: name,
         role: role,
+        rights: rights,
         email: email
       }
     });
@@ -134,10 +152,10 @@ export default function Users(props) {
                 color: "#FFF"
               },
               rowStyle: {
-                boxShadow: "0 3px 10px rgba(51, 51, 51, 0.1)"
+                boxShadow: "0 3px 5px rgba(51, 51, 51, 0.1)"
               }
             }}
-            title="Bruker Administrasjon"
+            title="Bruker administrasjon"
             columns={userList.columns}
             data={users}
             editable={{
@@ -156,7 +174,6 @@ export default function Users(props) {
                 new Promise((resolve, reject) => {
                   setTimeout(() => {
                     {
-                      const jwt = auth.isAuthenticated();
                       const data = users;
                       const index = data.indexOf(oldData);
                       data[index] = newData;
@@ -165,11 +182,13 @@ export default function Users(props) {
                         data[index]._id,
                         data[index].name,
                         data[index].role,
+                        data[index].rights,
                         data[index].email
                       );
                     }
-                    resolve();
+                    resolve(newData);
                     init();
+                    reject(new Error("Noe gikk galt!"));
                   }, 1000);
                 }),
               onRowDelete: oldData =>
@@ -178,9 +197,7 @@ export default function Users(props) {
                     {
                       let data = users;
                       const index = data.indexOf(oldData);
-                      console.log("ID : " + data[index]._id);
                       deleteFromDB(data[index]._id);
-                      //deleteUser(data[index]._id, jwt.token);
                     }
                     resolve();
                     init();

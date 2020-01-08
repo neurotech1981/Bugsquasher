@@ -21,12 +21,12 @@ const useStyles = makeStyles(theme => ({
   root: theme.mixins.gutters({
     maxWidth: 600,
     margin: "auto",
-    padding: theme.spacing.unit * 3,
-    marginTop: theme.spacing.unit * 15,
+    padding: theme.spacing(3),
+    marginTop: theme.spacing(15),
     borderRadius: "15px"
   }),
   title: {
-    margin: `${theme.spacing.unit * 3}px 0 ${theme.spacing.unit * 2}px`,
+    margin: `${theme.spacing(3)}px 0 ${theme.spacing(2)}px`,
     color: theme.palette.protectedTitle,
     fontWeight: 500
   }
@@ -59,7 +59,7 @@ export default function Profile(props) {
 
   useEffect(() => {
     init(match.params.userId);
-  }, []);
+  }, [match.params.userId]);
 
   const classes = useStyles();
 
@@ -79,13 +79,13 @@ export default function Profile(props) {
             </Avatar>
           </ListItemAvatar>
           <ListItemText primary={users.name} secondary={users.email} />{" "}
+          <ListItemText primary={"Rolle"} secondary={users.role} />
           {auth.isAuthenticated().user &&
-            auth.isAuthenticated().user._id == users._id && (
+            auth.isAuthenticated().user._id === users._id && (
               <ListItemSecondaryAction>
                 <DeleteUser userId={users._id} />
               </ListItemSecondaryAction>
             )}
-          <ListItemText primary={"Rolle"} secondary={users.role} />
         </ListItem>
         <Divider />
       </List>

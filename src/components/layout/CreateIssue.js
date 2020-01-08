@@ -1,33 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import useReactRouter from 'use-react-router';
-import { makeStyles } from '@material-ui/core/styles';
-import MenuItem from '@material-ui/core/MenuItem';
-import TextField from '@material-ui/core/TextField';
-import Icon from '@material-ui/core/Icon';
-import Button from '@material-ui/core/Button';
-import Select from '@material-ui/core/Select';
-import Container from '@material-ui/core/Container';
-import axios from 'axios';
-import Previews from './ImageUploader';
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect } from "react";
+import useReactRouter from "use-react-router";
+import { makeStyles } from "@material-ui/core/styles";
+import MenuItem from "@material-ui/core/MenuItem";
+import TextField from "@material-ui/core/TextField";
+import Icon from "@material-ui/core/Icon";
+import Button from "@material-ui/core/Button";
+import Select from "@material-ui/core/Select";
+import Container from "@material-ui/core/Container";
+import axios from "axios";
+import Previews from "./ImageUploader";
+import { useSelector } from "react-redux";
 import classnames from "classnames";
-import Box from '@material-ui/core/Box';
-import auth from '../auth/auth-helper';
-import { findUserProfile } from '../utils/api-user';
-import { Redirect, Link } from 'react-router-dom';
+import Box from "@material-ui/core/Box";
+import auth from "../auth/auth-helper";
+import { findUserProfile } from "../utils/api-user";
+import { Redirect, Link } from "react-router-dom";
 
 const alvorlighetsGrad = [
   {
     value: 0,
-    label: 'Ingen valgt'
+    label: "Ingen valgt"
   },
   {
     value: 1,
-    label: 'Tekst'
+    label: "Tekst"
   },
   {
     value: 2,
-    label: 'Justering'
+    label: "Justering"
   },
   {
     value: 3,
@@ -35,123 +35,123 @@ const alvorlighetsGrad = [
   },
   {
     value: 4,
-    label: 'Mindre alvorlig',
+    label: "Mindre alvorlig"
   },
   {
     value: 5,
-    label: 'Alvorlig'
+    label: "Alvorlig"
   },
   {
     value: 6,
-    label: 'Kræsj'
+    label: "Kræsj"
   },
   {
     value: 7,
-    label: 'Blokkering'
+    label: "Blokkering"
   }
 ];
 
 const Kategori = [
   {
     value: 0,
-    label: 'Ingen valgt'
+    label: "Ingen valgt"
   },
   {
     value: 1,
-    label: 'Triviell'
+    label: "Triviell"
   },
   {
     value: 2,
-    label: 'Tekst'
+    label: "Tekst"
   },
   {
     value: 3,
-    label: 'Justering'
+    label: "Justering"
   },
   {
     value: 4,
-    label: 'Mindre alvorlig'
+    label: "Mindre alvorlig"
   },
   {
     value: 5,
-    label: 'Alvorlig'
+    label: "Alvorlig"
   },
   {
     value: 6,
-    label: 'Kræsj'
+    label: "Kræsj"
   },
   {
     value: 7,
-    label: 'Blokkering'
+    label: "Blokkering"
   }
 ];
 
 const prioritet = [
   {
     value: 0,
-    label: 'Ingen valgt'
+    label: "Ingen valgt"
   },
   {
     value: 1,
-    label: 'Ingen'
+    label: "Ingen"
   },
   {
     value: 2,
-    label: 'Lav'
+    label: "Lav"
   },
   {
     value: 3,
-    label: 'Normal'
+    label: "Normal"
   },
   {
     value: 4,
-    label: 'Høy'
+    label: "Høy"
   },
   {
     value: 5,
-    label: 'Haster'
+    label: "Haster"
   },
   {
     value: 6,
-    label: 'Øyeblikkelig'
+    label: "Øyeblikkelig"
   }
 ];
 
 const reprodusere = [
   {
     value: 0,
-    label: 'Ingen valgt',
-    color: '#F2CBD1'
+    label: "Ingen valgt",
+    color: "#F2CBD1"
   },
   {
     value: 2,
-    label: 'Alltid',
-    color: '#F2CBD1'
+    label: "Alltid",
+    color: "#F2CBD1"
   },
   {
     value: 3,
-    label: 'Noen ganger',
-    color: '#F49CA9'
+    label: "Noen ganger",
+    color: "#F49CA9"
   },
   {
     value: 4,
-    label: 'Tilfeldig',
-    color: '#F26A7E'
+    label: "Tilfeldig",
+    color: "#F26A7E"
   },
   {
     value: 5,
-    label: 'Har ikke forsøkt',
-    color: '#F20024'
+    label: "Har ikke forsøkt",
+    color: "#F20024"
   },
   {
     value: 6,
-    label: 'Kan ikke reprodusere',
-    color: '#870D1F'
+    label: "Kan ikke reprodusere",
+    color: "#870D1F"
   },
   {
     value: 7,
-    label: 'Ingen',
-    color: '#7B0C1D'
+    label: "Ingen",
+    color: "#7B0C1D"
   }
 ];
 const useStyles = makeStyles(theme => ({
@@ -230,73 +230,73 @@ export default function CreateIssue() {
   const { history, location, match } = useReactRouter();
   const initialState = {
     setID: 0,
-    setNavn: '',
-    setKategori: 'Ingen valgt',
-    setAlvorlighetsgrad: 'Ingen valgt',
-    setPrioritet: 'Ingen valgt',
-    setReprodusere: 'Ingen valgt',
-    setOppsummering: '',
-    setBeskrivelse: '',
-    setStegReprodusere: '',
-    setTillegg: '',
-    setStatus: 'Åpen',
-    setImageName: [''],
+    setNavn: "",
+    setKategori: "Ingen valgt",
+    setAlvorlighetsgrad: "Ingen valgt",
+    setPrioritet: "Ingen valgt",
+    setReprodusere: "Ingen valgt",
+    setOppsummering: "",
+    setBeskrivelse: "",
+    setStegReprodusere: "",
+    setTillegg: "",
+    setStatus: "Åpen",
+    setImageName: [""]
   };
 
   const classes = useStyles();
   const [values, setValues] = useState(initialState);
-  const [errors, setErrors] = useState('');
+  const [errors, setErrors] = useState("");
   const [userinfo, setUserinfo] = useState({
-      user: [""],
-      redirectToSignin: false
+    user: [""],
+    redirectToSignin: false
   });
 
   const images = useSelector(state => state);
 
-   const init = userId => {
-     const jwt = auth.isAuthenticated();
-     findUserProfile(
-       {
-         userId: userId
-       },
-       { t: jwt.token }
-     ).then(data => {
-       if (data.error) {
-         setUserinfo({ redirectToSignin: true });
-       } else {
-         setUserinfo({ user: data });
-       }
-     });
-   };
-
+  const init = userId => {
+    const jwt = auth.isAuthenticated();
+    findUserProfile(
+      {
+        userId: userId
+      },
+      { t: jwt.token }
+    ).then(data => {
+      if (data.error) {
+        setUserinfo({ redirectToSignin: true });
+      } else {
+        setUserinfo({ user: data });
+        setValues({ setNavn: data.name });
+      }
+    });
+  };
 
   useEffect(() => {
-      init(match.params.userId);
-  }, []);
+    init(match.params.userId);
+  }, [match.params.userId]);
 
   const handleChange = name => event => {
     setValues({
       ...values,
-      [name]: event.target.value,
+      [name]: event.target.value
     });
   };
 
   function setDefaultImage(uploadType) {
-    if (uploadType === 'baseImage') {
+    if (uploadType === "baseImage") {
       setValues({
-        baseImage: 'no image'
+        baseImage: "no image"
       });
     } else {
       setValues({
-        baseImage: ''
+        baseImage: ""
       });
     }
   }
 
   // Legg inn ny query / varelinje i database med backend API
-  function putDataToDB() {
+  const putDataToDB = () => {
     axios
-      .post('/api/putData', {
+      .post("/api/putData", {
         name: userinfo.user.name,
         category: values.setKategori,
         description: values.setBeskrivelse,
@@ -307,26 +307,25 @@ export default function CreateIssue() {
         step_reproduce: values.setStegReprodusere,
         additional_info: values.setTillegg,
         status: values.setStatus,
-        imageName: values.setImageName,
-        userid: userinfo.user._id,
+        imageName: values.setImageName
+        //userid: userinfo.user._id
       })
       .then(response => {
         if (response.status === 200) {
-          alert('Sak ble lagt til');
+          alert("Sak ble lagt til");
           clearState();
           //imageFormObj = new FormData();
           //setDefaultImage('baseImage');
         }
       })
       .catch(err => {
-        setErrors(err.response.data)
+        setErrors(err.response.data);
         window.scrollTo(0, 0);
       });
     // clear errors on submit if any present, before correcting old error
-    
-  }
+  };
 
-    const handleChangeMulter = e => {
+  const handleChangeMulter = e => {
     let imageFormObj = new FormData();
     //setDisabled({ value: false });
     for (var x = 0; x < e.target.files.length; x++) {
@@ -348,43 +347,44 @@ export default function CreateIssue() {
 
   function uploadToServer(e) {
     return new Promise((resolve, reject) => {
+      e.preventDefault();
       setTimeout(resolve);
       let imageFormObj = new FormData();
       let imageDataSave = [];
       //setDisabled({ value: false });
       for (let x = 0; x < images.imageupload[1].name.length; x++) {
-        imageDataSave = {...images.imageupload[1].name};
-        imageFormObj.append(
-          "imageName", images.imageupload[1].name[x].path[x]
-        );
+        imageDataSave = { ...images.imageupload[1].name };
+        imageFormObj.append("imageName", images.imageupload[1].name[x].path[x]);
         imageFormObj.append("imageData", images.imageupload[1].name[x]);
         // store a readable instance of
         // the image being uploaded using multer
       }
-      setValues({ ...values, setImageName: [images.imageupload[1].name.map(file => file.path)] });
-      e.preventDefault();
+      setValues({
+        ...values,
+        setImageName: [images.imageupload[1].name.map(file => file.path)]
+      });
       // store a readable instance of
       // the image being uploaded using multer
 
-        axios.post('/api/uploadImage', imageFormObj).then(data => {
-          if (data.status === 200) {
-            alert('Image was uploaded successfully');
-            //setDefaultImage('multer');
-            //setDisabled({ value: true });     
-            }
-        });
+      axios.post("/api/uploadImage", imageFormObj).then(data => {
+        if (data.status === 200) {
+          alert("Image was uploaded successfully");
+          //setDefaultImage('multer');
+          //setDisabled({ value: true });
+        }
+      });
     }, 3000);
   }
-  
+
   const clearState = () => {
-    setValues({...initialState});
+    setValues({ ...initialState });
   };
 
   const handleSubmit = e => {
     e.preventDefault();
     putDataToDB();
   };
-	
+
   return (
     <Container>
       <form
@@ -399,18 +399,15 @@ export default function CreateIssue() {
           label="Registrert av"
           name="Registrert av"
           InputProps={{
-            readOnly: true
+            readOnly: true,
+            className: classes.input
           }}
-          defaultValue="Registrert av"
           //className={classes.textField}
           className={classnames([classes.textField], {
             "is-invalid": errors.name
           })}
-          value={userinfo.user.name}
-          //onChange={handleChange("setNavn")}
-          InputProps={{
-            className: classes.input
-          }}
+          value={userinfo.user.name || ""}
+          onChange={handleChange("setNavn")}
           margin="normal"
           variant="outlined"
         />

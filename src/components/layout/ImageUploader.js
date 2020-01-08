@@ -6,10 +6,10 @@ import DeleteForeverRoundedIcon from "@material-ui/icons/DeleteForeverRounded";
 
 import { makeStyles } from "@material-ui/styles";
 import { useDispatch } from "react-redux";
-import { addImageAction } from '../../redux/store';
+import { addImageAction } from "../../redux/store";
 import { deleteImageAction } from "../../redux/store";
 import { clearAction } from "../../redux/store";
-import uuid from 'uuid/v4';
+import uuid from "uuid/v4";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -65,15 +65,15 @@ const img = {
 };
 
 function Previews(props) {
-   const classes = useStyles();
+  const classes = useStyles();
   //const [imageData, setDataImage] = useState([""]);
   const [files, setFiles] = useState([]);
   const dispatch = useDispatch();
-  const addImage = (files) => dispatch(addImageAction(files));
-  const deleteImage = (files) => dispatch(deleteImageAction(files));
-  const clearStoreImage = (files) => dispatch(clearAction(files));
+  const addImage = files => dispatch(addImageAction(files));
+  const deleteImage = files => dispatch(deleteImageAction(files));
+  const clearStoreImage = files => dispatch(clearAction(files));
 
-  const removeImage = (imageIndex) => {
+  const removeImage = imageIndex => {
     let array = [...files];
     if (imageIndex !== -1) {
       array = files.filter((_, index) => index !== imageIndex);
@@ -102,7 +102,7 @@ function Previews(props) {
       });
     }
   });
-  
+
   const thumbs = files.map((file, index) => (
     <div style={thumb} key={index}>
       <div style={thumbInner}>
@@ -143,14 +143,14 @@ function Previews(props) {
     });
   };
 
-    const onSubmit = event => {
-      event.preventDefault();
-      addImage({
-        id: uuid(),
-        name: files
-      });
-      setFiles("");
-    };
+  const onSubmit = event => {
+    event.preventDefault();
+    addImage({
+      id: uuid(),
+      name: files
+    });
+    setFiles("");
+  };
 
   const handleChange = event => {
     setFiles(event.target.value);
@@ -158,14 +158,14 @@ function Previews(props) {
 
   return (
     <section>
-      <div {...getRootProps({ className: "dropzone" })}>          
-      <input
-            {...getInputProps()}
-            multiple
-            name="imageData"
-            encType="multipart/form-data"
-            onDrop={handleChange}
-          />
+      <div {...getRootProps({ className: "dropzone" })}>
+        <input
+          {...getInputProps()}
+          multiple
+          name="imageData"
+          encType="multipart/form-data"
+          onDrop={handleChange}
+        />
         <UploadIcon className="iconSmall" />
         <p>Dra og slipp filer her, eller klikk for å velge fil(er)</p>
       </div>

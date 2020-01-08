@@ -55,7 +55,7 @@ export default function ViewIssue(props) {
 
   useEffect(() => {
     getIssueByID(id);
-  }, [!dataset]);
+  }, [id]);
 
   const getIssueByID = async id => {
     let res = await issueService.getIssueByID(id);

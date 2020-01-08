@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import issueService from "../../services/issueService";
@@ -178,21 +178,23 @@ export default function Issues(props) {
     <Paper className={classes.root}>
       <div className={classes.tableWrapper}>
         <React.Fragment>
-          <MaterialTable
-            options={{
-              headerStyle: {
-                backgroundImage:
-                  "linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)",
-                color: "#FFF"
-              },
-              rowStyle: {
-                boxShadow: "0 3px 10px rgba(51, 51, 51, 0.1)"
-              }
-            }}
-            title="Registrerte saker"
-            columns={state.columns}
-            data={dataset}
-          />
+          <Suspense fallback={<h1>Henter saker...</h1>}>
+            <MaterialTable
+              options={{
+                headerStyle: {
+                  backgroundImage:
+                    "linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)",
+                  color: "#FFF"
+                },
+                rowStyle: {
+                  boxShadow: "0 3px 10px rgba(51, 51, 51, 0.1)"
+                }
+              }}
+              title="Registrerte saker"
+              columns={state.columns}
+              data={dataset}
+            />
+          </Suspense>
         </React.Fragment>
       </div>
     </Paper>

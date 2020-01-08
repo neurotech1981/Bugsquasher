@@ -1,7 +1,7 @@
 // /backend/data.js
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-//{ 
+//{
 //        type: String,
 //        trim: true,
 //	      required: 'Navn påkrevd'
@@ -9,28 +9,31 @@ const Schema = mongoose.Schema;
 // this will be our data base's data structure
 const DataSchema = new Schema(
   {
-        id: Number,
-        name: String,
-        description: String,
-        category: String,
-        environment: String,
-        browser: String,
-        reproduce: String,
-        severity: String,
-        priority: String,
-        reporter: String,
-        step_reproduce: String,
-        summary: String,
-        assigned: String,
-        additional_info: String,
-        status: String,
-        userid: Number,
-        imageName: {
-          type: [String],
-          default: "none",
-          required: false
-        },
-      },
+    id: Number,
+    name: String,
+    description: String,
+    category: String,
+    environment: String,
+    browser: String,
+    reproduce: String,
+    severity: String,
+    priority: String,
+    reporter: String,
+    step_reproduce: String,
+    summary: String,
+    assigned: String,
+    additional_info: String,
+    status: {
+      type: String,
+      default: "Åpen"
+    },
+    userid: Number,
+    imageName: {
+      type: [String],
+      default: "none",
+      required: false
+    }
+  },
   { timestamps: true }
 );
 

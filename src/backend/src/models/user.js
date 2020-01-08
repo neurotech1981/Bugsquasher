@@ -24,6 +24,11 @@ let userSchema = new Schema({
     default: "bruker",
     enum: ["bruker", "supervisor", "admin"]
   },
+  rights: {
+    type: String,
+    default: "les",
+    enum: ["les", "skriv"]
+  },
   salt: {
     type: String
   }

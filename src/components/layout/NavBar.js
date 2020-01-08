@@ -37,7 +37,7 @@ import ViewListTwoToneIcon from "@material-ui/icons/ViewListTwoTone";
 const drawerWidth = 240;
 
 const isActive = (history, path) => {
-  if (history.location.pathname == path) return { color: "#F44336" };
+  if (history.location.pathname === path) return { color: "#F44336" };
   else return { color: "#ffffff" };
 };
 
@@ -370,17 +370,6 @@ function NavBar(props) {
                     >
                       <ViewListTwoToneIcon className={classes.extendedIcon} />
                       Vis saker
-                    </Button>
-                  </Link>
-                  <Link to={"/user/" + auth.isAuthenticated().user._id}>
-                    <Button
-                      color="primary"
-                      variant="contained"
-                      aria-label="Bruker Profil"
-                      className={classes.button}
-                    >
-                      <AccountCircle className={classes.extendedIcon} />
-                      Min profil
                     </Button>
                   </Link>
                   <Link to={"/bruker-admin/" + auth.isAuthenticated().user._id}>

@@ -15,6 +15,41 @@ const multer = require("multer");
 var multipart = require("connect-multiparty");
 const cookieParser = require("cookie-parser");
 import config from "../config/index";
+const AccessControl = require("accesscontrol");
+
+// This is actually how the grants are maintained internally.
+let grants = {
+  admin: {
+    issues: {
+      "create:any": ["*"],
+      "read:any": ["*"],
+      "update:any": ["*"],
+      "delete:any": ["*"]
+    },
+    editusers: {
+      "create:any": ["*"],
+      "read:any": ["*"],
+      "update:any": ["*"],
+      "delete:any": ["*"]
+    }
+  },
+  bruker: {
+    issues: {
+      "create:own": ["*", "!views"],
+      "read:own": ["*"],
+      "update:own": ["*", "!views"],
+      "delete:own": ["*"]
+    },
+    editusers: {
+      "create:own": ["*", "!email", "!rights"],
+      "read:own": ["*"],
+      "update:own": ["*", "!role", "!email", "!rights"],
+      "delete:own": ["*", "!email", "!rights"]
+    }
+  }
+};
+
+const ac = new AccessControl(grants);
 
 var multipartMiddleware = multipart();
 
@@ -160,17 +195,18 @@ router.put("/getDataByID/:id", function async(req, res, next) {
 // this is our old update method
 // this method overwrites existing data in our database
 router.post("/edituser", function async(req, res) {
-  const { _id, update } = req.body;
-  User.findByIdAndUpdate(_id, update, err => {
-    if (err)
-      return res.json({
-        success: false,
-        error: err
-      });
-    return res.json({
-      success: true
+  const { _id, update, role } = req.body;
+  const permission = ac.can(role).readAny("editusers");
+  if (permission.granted) {
+    User.findByIdAndUpdate(_id, update, err => {
+      if (err || !update) return res.status(400).json(err);
+      // filter data by permission attributes and send.
+      res.json(permission.filter(update));
     });
-  });
+  } else {
+    // resource is forbidden for this user/role
+    res.status(403).end();
+  }
 });
 
 router.delete("/removeUser", (req, res) => {
@@ -199,7 +235,6 @@ router.delete("/deleteData", (req, res) => {
 // this method adds new data in our database
 router.post("/putData", function async(req, res) {
   const { errors, isValid } = validateInput(req.body);
-
   // Check Validation
   if (!isValid) {
     // If any errors, send 400 with errors object
@@ -221,8 +256,10 @@ router.post("/putData", function async(req, res) {
   data.priority = req.body.priority;
   data.additional_info = req.body.additional_info;
   data.status = req.body.status;
-  data.userid = req.body.userid;
-  data.imageName = req.body.imageName[0];
+  //data.userid = req.body.userid;
+  if (req.body.imageName > 0) {
+    data.imageName = req.body.imageName[0];
+  }
 
   data.save(err => {
     if (err)

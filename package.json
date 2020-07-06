@@ -31,13 +31,16 @@
     "use-react-router": "^1.0.7",
     "uuid": "^3.3.3",
     "validator": "^11.1.0",
-    "webfontloader": "^1.6.28"
+    "webfontloader": "^1.6.28",
+    "snyk": "^1.360.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "proxy": "http://localhost:3001",
   "eslintConfig": {
@@ -61,5 +64,6 @@
     "@babel/node": "^7.6.3",
     "@babel/preset-env": "^7.6.3",
     "redux-devtools": "^3.5.0"
-  }
+  },
+  "snyk": true
 }

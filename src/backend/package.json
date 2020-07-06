@@ -17,21 +17,21 @@
     "babel-watch": "^7.0.0",
     "body-parser": "^1.19.0",
     "connect-multiparty": "^2.2.0",
-    "cookie-parser": "^1.4.4",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-graphql": "^0.9.0",
-    "express-jwt": "^5.3.1",
-    "graphql": "^15.1.0",
-    "helmet": "^3.21.2",
+    "express-jwt": "^5.3.3",
+    "graphql": "^15.3.0",
+    "helmet": "^3.23.3",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.7.12",
-    "morgan": "^1.9.1",
+    "mongoose": "^5.9.21",
+    "morgan": "^1.10.0",
     "multer": "^1.4.2",
-    "node": "^13.7.0"
+    "node": "^13.14.0"
   },
   "devDependencies": {
-    "concurrently": "^5.0.0",
+    "concurrently": "^5.2.0",
     "nodemon": "^1.19.4"
   }
 }

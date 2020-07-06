@@ -72,7 +72,7 @@ const StyledTableCell = withStyles(theme => ({
     color: theme.palette.common.white,
     fontSize: 16,
     lineHeight: "1.0rem",
-    
+
   },
   body: {
     fontSize: 14,
@@ -142,7 +142,7 @@ export default function Issues(props) {
    useEffect(() => {
       getIssues();
   }, [!dataset])
-  
+
   const getIssues = async () => {
     let res = await issueService.getAll();
     setData(res);
@@ -151,12 +151,12 @@ export default function Issues(props) {
   const renderIssues = issues => {
     const value = issues[columns.id];
     return (
-        <TableCell style={{ minWidth: columns.minWidth }} key={issues._id} align={columns.align} >  
+        <TableCell style={{ minWidth: columns.minWidth }} key={issues._id} align={columns.align} >
           {(dataset && dataset.length > 0) ? (
                 dataset.map(dataset => renderIssues(dataset))
               ) : (
                 <p>Ingen saker registrert.</p>
-          )}      
+          )}
         </TableCell>
     );
   };
@@ -201,7 +201,7 @@ export default function Issues(props) {
                   {columns.map((column, index) => {
                     const value = row[column.id];
                     return (
-                      <TableCell style={{ fontWeight: 500, fontFamily: 'Roboto', fontSize: "1.2em" }} key={index} align={column.align}>
+                      <TableCell style={{ fontWeight: 500, fontSize: "1.2em" }} key={index} align={column.align}>
                        {column.format && typeof value === 'string' ? column.format(value) : value}
                       </TableCell>
                     );

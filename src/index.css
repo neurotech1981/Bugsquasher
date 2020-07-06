@@ -1,21 +1,12 @@
 body {
-  margin-top: 100px;
   margin: 0;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Work Sans', sans-serif;
   font-weight: 300;
   line-height: 1.42em;
-  color: rgb(65, 53, 80);
-  /* background-color:#1F2739; */
+  color: rgb(0, 0, 0);
+  background-color: #f1f1f1 !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /*background: -webkit-gradient(linear, left top, left bottom, from(rgb(208, 249, 255)), to(#f7f8ff)) fixed;*/
-  background-image: linear-gradient(
-    90deg,
-    #d7d5dd 0,
-    #eee 30%,
-    #eee 70%,
-    #d7d5dd
-  );
 }
 
 .makeStyles-root-187 {
@@ -33,6 +24,10 @@ body {
   background: #dceeffd5;
 }
 
+.MuiToolbar-regular {
+    min-height: 74px !important;
+}
+
 .Component-paginationToolbar-194 {
   width: 100%;
   padding: 0;
@@ -42,7 +37,6 @@ body {
 .priority {
   border-radius: 0.5em;
   padding: 0.3em;
-  font-family: "Poppins", monospace;
   font-weight: 500;
   font-size: 1em;
   background: -webkit-linear-gradient(90deg, #2f0a26, #414767);
@@ -54,7 +48,6 @@ body {
 .status {
   border-radius: 0.5em;
   padding: 0.3em;
-  font-family: "Poppins", monospace;
   font-weight: 500;
   font-size: 1em;
   background: -webkit-linear-gradient(90deg, #0a0606, #340542);
@@ -71,7 +64,7 @@ body {
   line-height: 36px;
   text-transform: uppercase;
   text-decoration: none;
-  color: #fff;
+  color: rgb(0, 0, 0);
   letter-spacing: 0.1em;
   text-align: center;
   font-size: 0.8rem;
@@ -87,7 +80,7 @@ body {
   height: 2px;
   display: block;
   background-color: rgb(60, 34, 121);
-  content: " ";
+  content: ' ';
   position: absolute;
   top: 34px;
   left: 50%;
@@ -101,7 +94,7 @@ body {
   height: 2px;
   display: block;
   background-color: rgb(95, 97, 172);
-  content: " ";
+  content: ' ';
   position: absolute;
   top: 34px;
   left: 0;
@@ -122,12 +115,26 @@ body {
 }
 
 .svgLogoIcon {
-  fill: rgb(255, 255, 255);
+  width: 48px;
+  height: 48px;
+  margin-right: 15px;
+  fill: rgb(255, 255, 255, 0.8);
+}
+
+.MuiListItemIcon-root {
+  display: inline-flex;
+  min-width: 44px !important;
+  flex-shrink: 0;
+  color: rgb(255, 255, 255) !important;
 }
 
 .sideBarIcon {
   color: blue;
   fill: rgb(255, 255, 255);
+}
+
+.makeStyles-toolbar-24 {
+    min-height: 73px !important;
 }
 
 @media (min-width: 1280px) {
@@ -171,7 +178,6 @@ body {
 }
 
 a {
-  font-family: "Poppins", sans-serif;
   color: rgb(49, 49, 49);
   text-decoration: none;
   font-weight: 600;
@@ -231,6 +237,14 @@ a:focus {
 .button:hover,
 .button:focus {
   text-decoration: none;
+}
+
+.makeStyles-drawerPaper-7 {
+  background-color: #48305f !important;
+}
+
+.MuiListItemText-root {
+  color: white !important;
 }
 
 .sweepButton {
@@ -301,11 +315,9 @@ a:focus {
 .item4 {
   grid-area: kategori;
 }
-.item5 {
-  grid-area: delegert;
-}
 .item6 {
   grid-area: profile;
+  text-align: right;
 }
 .item7 {
   grid-area: alvorlighet;
@@ -331,25 +343,27 @@ a:focus {
 .item14 {
   grid-area: vedlegg;
 }
+.item15 {
+  grid-area: delegated;
+}
 
 .grid-container {
   display: grid;
   grid-template-areas:
-    "profile header header header header header"
-    "prioritet prioritet prioritet oppdatert oppdatert oppdatert"
-    "kategori kategori kategori kategori kategori kategori"
-    "alvorlighet alvorlighet alvorlighet reprodusere reprodusere reprodusere"
-    "status status status delegert delegert delegert"
-    "oppsummering oppsummering oppsummering oppsummering oppsummering oppsummering"
-    "beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse"
-    "stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere"
-    "tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo"
-    "vedlegg vedlegg vedlegg vedlegg vedlegg vedlegg";
+    'profile header header header header header'
+    'prioritet prioritet prioritet oppdatert oppdatert oppdatert'
+    'kategori kategori kategori delegated delegated delegated'
+    'alvorlighet alvorlighet alvorlighet reprodusere reprodusere reprodusere'
+    'status status status status status status'
+    'oppsummering oppsummering oppsummering oppsummering oppsummering oppsummering'
+    'beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse'
+    'stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere'
+    'tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo'
+    'vedlegg vedlegg vedlegg vedlegg vedlegg vedlegg';
 
   grid-gap: 10px;
   background-color: rgba(33, 149, 243, 0);
   padding: 10px;
-  font-family: "Poppins";
 }
 
 .grid-container > div {
@@ -362,6 +376,5 @@ a:focus {
 .item1 {
   grid-area: header;
   align-self: center;
-  font-family: "Poppins";
   font-weight: 600;
 }

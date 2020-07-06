@@ -14,15 +14,19 @@ export const store = createStore(
 function reducer(state, { type, payload }) {
   switch(type){
     case 'ADD_IMAGE':
+      console.log("PAYLOAD ADD IMAGE: ", payload);
+
       return {
         ...state,
         imageupload: [...state.imageupload, payload]
       };
     case 'DELETE_IMAGE':
-      return {
-        ...state,                
-        imageupload: state.imageupload.filter((_, images) => images.id !== payload) //filter(images => images.id !== payload)
-      };
+      console.log("ImageloadUpload DELETE_IMAGE: ", state.imageupload);
+      console.log("PAYLOAD DELETE IMAGE: ", payload);
+       return {
+         ...state,
+         imageupload: [...state.imageupload, payload] //filter(images => images.id !== payload)
+    };
     case 'CLEAR_STORE':
       return initialState;
     default:
@@ -35,9 +39,9 @@ export const addImageAction = imageupload => ({
          payload: imageupload
        });
 
-export const deleteImageAction = imageId => ({
+export const deleteImageAction = imageupload => ({
           type: "DELETE_IMAGE",
-          payload: imageId
+          payload: imageupload
         });
 
 export const clearAction = storeClear => ({

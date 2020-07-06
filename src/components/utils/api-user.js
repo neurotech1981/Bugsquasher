@@ -1,6 +1,7 @@
 // api-user.js
 
 export const registerUser = async user => {
+  console.log(JSON.stringify(user));
   try {
     const response = await fetch("/api/users/", {
       method: "POST",

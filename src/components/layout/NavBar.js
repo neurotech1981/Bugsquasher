@@ -1,176 +1,197 @@
-import React, { Fragment, useState, useEffect } from "react";
-import auth from "../auth/auth-helper";
-import { Link } from "react-router-dom";
-import clsx from "clsx";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import useReactRouter from "use-react-router";
-import Divider from "@material-ui/core/Divider";
-import Drawer from "@material-ui/core/Drawer";
-import Hidden from "@material-ui/core/Hidden";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
-import InputBase from "@material-ui/core/InputBase";
-import Badge from "@material-ui/core/Badge";
-import List from "@material-ui/core/List";
-import MenuItem from "@material-ui/core/MenuItem";
-import Menu from "@material-ui/core/Menu";
-import { fade } from "@material-ui/core/styles/colorManipulator";
-import MenuIcon from "@material-ui/icons/Menu";
-import AccountCircle from "@material-ui/icons/AccountCircle";
-import NotificationsIcon from "@material-ui/icons/Notifications";
-import MoreIcon from "@material-ui/icons/MoreVert";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import MailIcon from "@material-ui/icons/Mail";
-import { BugReport, Dashboard, Settings } from "@material-ui/icons";
-import PersonAddRoundedIcon from "@material-ui/icons/PersonAddRounded";
+import React, { Fragment, useState, useEffect } from 'react';
+import auth from '../auth/auth-helper';
+import { Link } from 'react-router-dom';
+import clsx from 'clsx';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import useReactRouter from 'use-react-router';
+import Divider from '@material-ui/core/Divider';
+import Drawer from '@material-ui/core/Drawer';
+import Hidden from '@material-ui/core/Hidden';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+import InputBase from '@material-ui/core/InputBase';
+import Badge from '@material-ui/core/Badge';
+import List from '@material-ui/core/List';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
+import { fade } from '@material-ui/core/styles/colorManipulator';
+import MenuIcon from '@material-ui/icons/MenuTwoTone';
+import AccountCircle from '@material-ui/icons/AccountCircleTwoTone';
+import NotificationsIcon from '@material-ui/icons/NotificationsTwoTone';
+import MoreIcon from '@material-ui/icons/MoreVertTwoTone';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import MailIcon from '@material-ui/icons/MailTwoTone';
+import Dashboard from '@material-ui/icons/DashboardTwoTone';
+import Settings from '@material-ui/icons/SettingsTwoTone';
+import PersonAddRoundedIcon from '@material-ui/icons/PersonAddTwoTone';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import BugIcon from '../../images/bug.svg';
+import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppTwoTone';
+import VpnKeyRoundedIcon from '@material-ui/icons/VpnKeyTwoTone';
+import NoteAddRoundedIcon from '@material-ui/icons/NoteAddTwoTone';
+import PageviewRoundedIcon from '@material-ui/icons/PageviewTwoTone';
+import GroupRoundedIcon from '@material-ui/icons/GroupTwoTone';
 
-import AddIssue from "@material-ui/icons/NoteAdd";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import VpnKeyRoundedIcon from "@material-ui/icons/VpnKeyRounded";
-import ViewListTwoToneIcon from "@material-ui/icons/ViewListTwoTone";
-
-const drawerWidth = 240;
+const drawerWidth = 250;
 
 const isActive = (history, path) => {
-  if (history.location.pathname === path) return { color: "#F44336" };
-  else return { color: "#ffffff" };
+  if (history.location.pathname === path) return { color: '#F44336' };
+  else return { color: '#ffffff' };
 };
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   palette: {
-    type: "dark"
+    type: 'dark',
   },
   colorPrimary: {
     backgroundImage:
-      "linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)"
+      'linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)',
   },
   buttons: {
-    position: "relative",
+    position: 'relative',
     borderRadius: theme.shape.borderRadius,
     marginRight: theme.spacing(2),
-    alignItems: "center",
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      marginLeft: "20px",
-      width: "auto"
-    }
+    alignItems: 'center',
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: '0px',
+      width: 'auto',
+    },
   },
   root: {
-    display: "flex"
+    display: 'flex',
   },
   grow: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   drawer: {
-    width: drawerWidth,
-    flexShrink: 0
+    [theme.breakpoints.up('sm')]: {
+      width: drawerWidth,
+      flexShrink: 0,
+    },
   },
   drawerPaper: {
-    width: drawerWidth
+    width: drawerWidth,
+    flexShrink: 0,
   },
   drawerHeader: {
-    display: "flex",
-    alignItems: "center",
-    padding: "0 8px",
-    justifyContent: "flex-end"
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0 8px',
+    justifyContent: 'flex-end',
   },
   flexContainer: {
-    justifyContent: "center",
-    alignItems: "center"
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   hide: {
-    display: "none"
+    display: 'none',
   },
   appBar: {
-    transition: theme.transitions.create(["margin", "width"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
-    })
+    [theme.breakpoints.up('sm')]: {
+      width: `calc(100% - ${drawerWidth}px)`,
+      marginLeft: drawerWidth,
+      backgroundColor: '#2C1C3A',
+    },
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
-    transition: theme.transitions.create(["margin", "width"], {
+    transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    })
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
   fab: {
-    margin: theme.spacing(1)
+    margin: theme.spacing(1),
   },
   extendedIcon: {
-    marginRight: theme.spacing(1)
+    marginRight: theme.spacing(1),
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3)
+    padding: theme.spacing(3),
   },
   contentShift: {
-    transition: theme.transitions.create("margin", {
+    transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
+      duration: theme.transitions.duration.enteringScreen,
     }),
-    marginLeft: 0
+    marginLeft: 0,
   },
   menuButton: {
     marginRight: theme.spacing(2),
-    [theme.breakpoints.up("sm")]: {
-      display: "inline"
-    }
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
   },
   button: {
     margin: theme.spacing(1),
-    "&:hover": {
-      transition: theme.transitions.create("margin", {
+    '&:hover': {
+      transition: theme.transitions.create('margin', {
         easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen
+        duration: theme.transitions.duration.enteringScreen,
       }),
-      backgroundColor: "#FFF00",
-      color: "white"
-    }
+      backgroundColor: '#FFF00',
+      color: 'white',
+    },
   },
   title: {
-    display: "none",
-    [theme.breakpoints.up("sm")]: {
-      display: "block"
-    }
+    display: 'none',
+    textShadow: '0 1px 1px rgba(0,0,0,0.25)',
+    [theme.breakpoints.up('sm')]: {
+      display: 'block',
+    },
   },
   inputRoot: {
-    color: "inherit"
+    color: 'inherit',
   },
   inputInput: {
     padding: theme.spacing(1, 1, 1, 7),
-    transition: theme.transitions.create("width"),
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      width: 200
-    }
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('md')]: {
+      width: 200,
+    },
   },
   sectionDesktop: {
-    display: "none",
-    [theme.breakpoints.up("md")]: {
-      display: "flex"
-    }
+    display: 'none',
+    [theme.breakpoints.up('md')]: {
+      display: 'flex',
+    },
   },
   sectionMobile: {
-    display: "flex",
-    [theme.breakpoints.up("md")]: {
-      display: "none"
-    }
+    display: 'flex',
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
   },
-  toolbar: theme.mixins.toolbar
+  toolbar: theme.mixins.toolbar,
 }));
 
 const items = [
-  { label: "Min oversikt", icon: <Dashboard />, path: "/" },
-  { label: "Vis saker", icon: <BugReport />, path: "/saker" },
-  { label: "Brukere", icon: <MailIcon />, path: "/brukere" },
-  { label: "Innstillinger", icon: <Settings />, path: "/innstillinger" }
+  { label: 'Min oversikt', icon: <Dashboard />, path: '/' },
+  {
+    label: 'Legg til sak',
+    icon: <NoteAddRoundedIcon />,
+    path: !auth.isAuthenticated()
+      ? '/legg-til-sak'
+      : '/legg-til-sak/' + auth.isAuthenticated().user._id,
+  },
+  { label: 'Vis saker', icon: <PageviewRoundedIcon />, path: '/saker' },
+  {
+    label: 'Bruker administrasjon',
+    icon: <GroupRoundedIcon />,
+    path: !auth.isAuthenticated()
+      ? '/bruker-admin/'
+      : '/bruker-admin/' + auth.isAuthenticated().user._id,
+  },
+  { label: 'Innstillinger', icon: <Settings />, path: '/innstillinger' },
 ];
 
 function NavBar(props) {
@@ -199,7 +220,7 @@ function NavBar(props) {
         className={classes.drawer}
         variant="permanent"
         classes={{
-          paper: classes.drawerPaper
+          paper: classes.drawerPaper,
         }}
       >
         <div className={classes.toolbar} />
@@ -219,8 +240,8 @@ function NavBar(props) {
     </div>
   );
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState(false);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(false);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -242,24 +263,50 @@ function NavBar(props) {
     setMobileMoreAnchorEl(event.currentTarget);
   }
 
-  const renderMenu = (
+  const renderMenu = auth.isAuthenticated() && (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      transformOrigin={{ vertical: "top", horizontal: "right" }}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem>
+        <IconButton color="inherit">
+          <Badge badgeContent={4} color="secondary">
+            <MailIcon />
+          </Badge>
+        </IconButton>
+        <p>Messages</p>
+      </MenuItem>
+      <MenuItem
+        component={Link}
+        to={'/user/' + auth.isAuthenticated().user._id}
+      >
+        <IconButton color="inherit">
+          <AccountCircle />
+        </IconButton>
+        <p>Min profil</p>
+      </MenuItem>
+
+      <MenuItem
+        onClick={() => {
+          auth.signout(() => history.push('/'));
+        }}
+      >
+        <IconButton color="inherit">
+          <ExitToAppRoundedIcon />
+        </IconButton>
+        <p>Logg ut</p>
+      </MenuItem>
     </Menu>
   );
 
-  const renderMobileMenu = (
+  const renderMobileMenu = auth.isAuthenticated() && (
     <Menu
       anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      transformOrigin={{ vertical: "top", horizontal: "right" }}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
@@ -271,54 +318,51 @@ function NavBar(props) {
         </IconButton>
         <p>Messages</p>
       </MenuItem>
-      <MenuItem>
-        <IconButton color="inherit">
-          <Badge badgeContent={11} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
-      <MenuItem onClick={handleProfileMenuOpen}>
+      <MenuItem onClick={handleMenuClose}>
         <IconButton color="inherit">
           <AccountCircle />
         </IconButton>
-        <p>Profile</p>
+        <p>Min profil</p>
       </MenuItem>
+      {auth.isAuthenticated() && (
+        <MenuItem
+          onClick={() => {
+            auth.signout(() => history.push('/'));
+          }}
+        >
+          <IconButton color="inherit">
+            <ExitToAppRoundedIcon />
+          </IconButton>
+          <p>Logg ut</p>
+        </MenuItem>
+      )}
     </Menu>
   );
 
   return (
-    <div className={classes.grow}>
-      <AppBar position="fixed" className={classes.colorPrimary}>
+    <div className={classes.root}>
+      <CssBaseline />
+      <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
           {auth.isAuthenticated() && (
             <IconButton
               color="inherit"
-              aria-label="Open drawer"
-              onClick={handleDrawerOpen}
+              aria-label="open drawer"
               edge="start"
-              className={clsx(classes.menuButton, open && classes.hide)}
+              onClick={handleDrawerToggle}
+              className={classes.menuButton}
             >
               <MenuIcon />
             </IconButton>
           )}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            className="svgLogoIcon"
-          >
-            <path d="M20 8h-2.81c-.45-.78-1.07-1.45-1.82-1.96L17 4.41 15.59 3l-2.17 2.17C12.96 5.06 12.49 5 12 5c-.49 0-.96.06-1.41.17L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8zm-6 8h-4v-2h4v2zm0-4h-4v-2h4v2z" />
-          </svg>{" "}
+          <img className="svgLogoIcon" src={BugIcon} type="image/svg+xml" />
           <Typography
             className={classes.title}
             variant="h6"
             noWrap
-            style={{ fontFamily: "Lobster" }}
+            style={{ fontFamily: 'Poppins' }}
           >
-            Bug Squasher
+            BugSquasher
           </Typography>
           <div className={classes.buttons}>
             {!auth.isAuthenticated() && (
@@ -350,68 +394,33 @@ function NavBar(props) {
             {auth.isAuthenticated() && (
               <Fragment>
                 <div className={classes.grow}>
-                  <Link to={"/legg-til-sak/" + auth.isAuthenticated().user._id}>
-                    <Button
-                      color="primary"
-                      variant="contained"
-                      aria-label="Legg til sak"
-                      className={classes.button}
-                    >
-                      <AddIssue className={classes.extendedIcon} />
-                      Legg til sak
-                    </Button>
-                  </Link>
-                  <Link to={"/saker/" + auth.isAuthenticated().user._id}>
-                    <Button
-                      color="primary"
-                      variant="contained"
-                      aria-label="Vis saker"
-                      className={classes.button}
-                    >
-                      <ViewListTwoToneIcon className={classes.extendedIcon} />
-                      Vis saker
-                    </Button>
-                  </Link>
-                  <Link to={"/bruker-admin/" + auth.isAuthenticated().user._id}>
-                    <Button
-                      color="primary"
-                      variant="contained"
-                      aria-label="Bruker administrasjon"
-                      className={classes.button}
-                    >
-                      <AccountCircle className={classes.extendedIcon} />
-                      Bruker administrasjon
-                    </Button>
-                  </Link>
-                  <Link to={"/"}>
-                    <Button
-                      color="secondary"
-                      variant="contained"
-                      aria-label="Logg ut"
-                      className={classes.button}
-                      onClick={() => {
-                        auth.signout(() => history.push("/"));
-                      }}
-                    >
-                      <ExitToAppIcon className={classes.extendedIcon} />
-                      Logg ut
-                    </Button>
-                  </Link>
                   <nav className={classes.drawer} aria-label="Issues">
                     {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
                     <Hidden smUp implementation="css">
                       <Drawer
                         container={container}
                         variant="temporary"
-                        anchor={theme.direction === "rtl" ? "right" : "left"}
+                        anchor={theme.direction === 'rtl' ? 'right' : 'left'}
                         open={open}
+                        edge="start"
                         onClose={handleDrawerToggle}
                         classes={{
-                          paper: classes.drawerPaper
+                          paper: classes.drawerPaper,
                         }}
                         ModalProps={{
-                          keepMounted: true // Better open performance on mobile.
+                          keepMounted: true, // Better open performance on mobile.
                         }}
+                      >
+                        {drawer}
+                      </Drawer>
+                    </Hidden>
+                    <Hidden xsDown implementation="css">
+                      <Drawer
+                        classes={{
+                          paper: classes.drawerPaper,
+                        }}
+                        variant="permanent"
+                        open
                       >
                         {drawer}
                       </Drawer>
@@ -435,7 +444,7 @@ function NavBar(props) {
             </IconButton>
             <IconButton
               edge="end"
-              aria-owns={isMenuOpen ? "material-appbar" : undefined}
+              aria-owns={isMenuOpen ? 'material-appbar' : undefined}
               aria-haspopup="true"
               onClick={handleProfileMenuOpen}
               color="inherit"

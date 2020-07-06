@@ -1,5 +1,5 @@
 // /backend/data.js
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 //{
 //        type: String,
@@ -11,6 +11,7 @@ const DataSchema = new Schema(
   {
     id: Number,
     name: String,
+    delegated: String,
     description: String,
     category: String,
     environment: String,
@@ -25,17 +26,17 @@ const DataSchema = new Schema(
     additional_info: String,
     status: {
       type: String,
-      default: "Åpen"
+      default: 'Åpen',
     },
-    userid: Number,
+    userid: String,
     imageName: {
-      type: [String],
-      default: "none",
-      required: false
-    }
+      type: { String },
+      default: 'none',
+      required: false,
+    },
   },
   { timestamps: true }
 );
 
 // export the new Schema so we could modify it using Node.js
-module.exports = mongoose.model("Data", DataSchema);
+module.exports = mongoose.model('Data', DataSchema);

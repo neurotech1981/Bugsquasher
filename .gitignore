@@ -32,3 +32,4 @@ yarn-error.log*
 *.db
 *.sfl
 package-lock.json
+src/backend/config/index.js

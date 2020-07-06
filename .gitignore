@@ -1,0 +1,35 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/src/backend/node_modules
+/src/backend/uploads
+/.pnp
+/src/backend/config
+.pnp.js
+.env
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.jpg
+*.jpg
+*.png
+*.rpf
+*.db
+*.sfl
+package-lock.json
+src/backend/config/index.js

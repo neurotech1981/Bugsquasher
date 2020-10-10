@@ -3,6 +3,7 @@ import userRoutes from './routes/user'
 import authRoutes from './routes/auth'
 import config from '../config/index'
 const express = require('express')
+const mongoSanitize = require('express-mongo-sanitize');
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const helmet = require('helmet')
@@ -151,6 +152,7 @@ app.get('/', function (req, res, next) {
 app.use(helmet())
 // Middleware
 app.use(express.json())
+app.use(mongoSanitize());
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 // enable all CORS requests

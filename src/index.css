@@ -25,7 +25,7 @@ body {
 }
 
 .MuiToolbar-regular {
-    min-height: 74px !important;
+    min-height: 64px !important;
 }
 
 .Component-paginationToolbar-194 {
@@ -70,6 +70,12 @@ body {
   font-size: 0.8rem;
   margin: 10px;
   position: relative;
+}
+
+/* NavBar main menu hover */
+.MuiListItem-button:hover {
+    text-decoration: none;
+    background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
 .underline {

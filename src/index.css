@@ -118,7 +118,7 @@ body {
   width: 48px;
   height: 48px;
   margin-right: 15px;
-  fill: rgb(255, 255, 255, 0.8);
+  fill: rgb(44, 28, 58, 0.8);
 }
 
 .MuiListItemIcon-root {
@@ -240,7 +240,7 @@ a:focus {
 }
 
 .makeStyles-drawerPaper-7 {
-  background-color: #48305f !important;
+  background-color: #2C1C3A !important;
 }
 
 .MuiListItemText-root {

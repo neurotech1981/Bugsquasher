@@ -28,8 +28,9 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: '5px'
   },
   colorPrimary: {
-    backgroundImage:
-      'linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)'
+    //backgroundImage:
+    //  'linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)'
+    backgroundColor: '#48305F'
   },
   label: {
     display: 'inline',
@@ -137,8 +138,7 @@ export default function Issues (props) {
       <MaterialTable
         options={{
           headerStyle: {
-            backgroundImage:
-              'linear-gradient(rgb(15, 76, 129) 0%, rgb(44, 28, 58) 100%)',
+            backgroundColor: '#2C1C3A',
             color: '#FFF',
             textAlign: 'left'
           },

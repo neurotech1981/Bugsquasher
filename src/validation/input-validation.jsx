@@ -5,17 +5,17 @@ const _isEmpty = require('./is-empty')
 module.exports = function validateInput (data) {
   const errors = {}
 
-  this.data.name = !_isEmpty(data.name) ? data.name : ''
-  this.data.description = !_isEmpty(data.description) ? data.description : ''
-  this.data.category = !_isEmpty(data.category) ? data.category : ''
-  this.data.step_reproduce = !_isEmpty(data.step_reproduce)
+  data.name = !_isEmpty(data.name) ? data.name : ''
+  data.description = !_isEmpty(data.description) ? data.description : ''
+  data.category = !_isEmpty(data.category) ? data.category : ''
+  data.step_reproduce = !_isEmpty(data.step_reproduce)
     ? data.step_reproduce
     : ''
-  this.data.summary = !_isEmpty(data.summary) ? data.summary : ''
-  this.data.reproduce = !_isEmpty(data.reproduce) ? data.reproduce : ''
-  this.data.severity = !_isEmpty(data.severity) ? data.severity : ''
-  this.data.priority = !_isEmpty(data.priority) ? data.priority : ''
-  this.data.additional_info = !_isEmpty(data.additional_info)
+  data.summary = !_isEmpty(data.summary) ? data.summary : ''
+  data.reproduce = !_isEmpty(data.reproduce) ? data.reproduce : ''
+  data.severity = !_isEmpty(data.severity) ? data.severity : ''
+  data.priority = !_isEmpty(data.priority) ? data.priority : ''
+  data.additional_info = !_isEmpty(data.additional_info)
     ? data.additional_info
     : ''
 

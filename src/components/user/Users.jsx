@@ -176,8 +176,7 @@ export default function Users (props) {
           <MaterialTable
             options={{
               headerStyle: {
-                backgroundImage:
-                  'linear-gradient(to top, rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)',
+                backgroundColor: '#48305F',
                 color: '#FFF'
               },
               rowStyle: {

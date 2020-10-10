@@ -49,8 +49,7 @@ const useStyles = makeStyles((theme) => ({
     type: 'dark'
   },
   colorPrimary: {
-    backgroundImage:
-      'linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)'
+    backgroundColor: '#2C1C3A',
   },
   buttons: {
     position: 'relative',

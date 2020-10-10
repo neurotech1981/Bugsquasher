@@ -16,9 +16,20 @@ const multer = require('multer')
 var multipart = require('connect-multiparty')
 const cookieParser = require('cookie-parser')
 const AccessControl = require('accesscontrol')
+const rateLimit = require("express-rate-limit")
 
 var graphqlHTTP = require('express-graphql')
 var { buildSchema } = require('graphql')
+
+// Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
+// see https://expressjs.com/en/guide/behind-proxies.html
+// app.set('trust proxy', 1);
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+
 
 // This is actually how the grants are maintained internally.
 const grants = {
@@ -120,7 +131,9 @@ const app = express()
 const router = express.Router()
 // (optional) only made for logging and
 // bodyParser, parses the request body to be a readable json format
+//  apply limiter to all requests
 app.use(
+  limiter,
   bodyParser.urlencoded({
     extended: true,
     limit: '50mb'

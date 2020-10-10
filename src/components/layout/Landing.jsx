@@ -1,31 +1,31 @@
-import React from "react";
-import PropTypes from "prop-types";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
+import React from 'react'
+import PropTypes from 'prop-types'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import Typography from '@material-ui/core/Typography'
+import { makeStyles } from '@material-ui/core/styles'
 
-const drawerWidth = 240;
+const drawerWidth = 240
 
 const useStyles = makeStyles(theme => ({
   root: {
-    display: "flex"
+    display: 'flex'
   },
   drawer: {
-    [theme.breakpoints.up("sm")]: {
+    [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
       flexShrink: 0
     }
   },
   appBar: {
     marginLeft: drawerWidth,
-    [theme.breakpoints.up("sm")]: {
+    [theme.breakpoints.up('sm')]: {
       width: `calc(100% - ${drawerWidth}px)`
     }
   },
   menuButton: {
     marginRight: theme.spacing(2),
-    [theme.breakpoints.up("sm")]: {
-      display: "none"
+    [theme.breakpoints.up('sm')]: {
+      display: 'none'
     }
   },
   toolbar: theme.mixins.toolbar,
@@ -36,10 +36,10 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     padding: theme.spacing(3)
   }
-}));
+}))
 
-function ResponsiveDrawer(props) {
-  const classes = useStyles();
+function ResponsiveDrawer (props) {
+  const classes = useStyles()
 
   return (
     <div className={classes.root}>
@@ -47,9 +47,9 @@ function ResponsiveDrawer(props) {
       <nav className={classes.drawer} aria-label="Mailbox folders" />
       <main className={classes.content}>
         <div className={classes.toolbar} />
-      <Typography variant="h2" gutterBottom>
+        <Typography variant="h2" gutterBottom>
         Oversikt over saker
-      </Typography>
+        </Typography>
         <Typography paragraph>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
           eiusmod tempor incididunt ut labore et dolore magna aliqua. Rhoncus
@@ -187,13 +187,13 @@ function ResponsiveDrawer(props) {
         </Typography>
       </main>
     </div>
-  );
+  )
 }
 
 ResponsiveDrawer.propTypes = {
   // Injected by the documentation to work in an iframe.
   // You won't need it on your project.
   container: PropTypes.object
-};
+}
 
-export default ResponsiveDrawer;
+export default ResponsiveDrawer

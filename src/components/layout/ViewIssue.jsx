@@ -1,67 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import issueService from '../../services/issueService';
-import '../../App.css';
-import moment from 'moment';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Container from '@material-ui/core/Container';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
-import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
-import InputLabel from '@material-ui/core/InputLabel';
-import Avatar from '@material-ui/core/Avatar';
-import { deepPurple } from '@material-ui/core/colors';
-import Grid from '@material-ui/core/Grid';
-import useReactRouter from 'use-react-router';
-import { Link } from 'react-router-dom';
-import EditIcon from '@material-ui/icons/Edit';
+import React, { useState, useEffect } from 'react'
+import { makeStyles } from '@material-ui/core/styles'
+import issueService from '../../services/issueService'
+import '../../App.css'
+import moment from 'moment'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import Container from '@material-ui/core/Container'
+import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography'
+import TextField from '@material-ui/core/TextField'
+import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded'
+import InputLabel from '@material-ui/core/InputLabel'
+import Avatar from '@material-ui/core/Avatar'
+import { deepPurple } from '@material-ui/core/colors'
+import Grid from '@material-ui/core/Grid'
+import useReactRouter from 'use-react-router'
+import { Link } from 'react-router-dom'
+import EditIcon from '@material-ui/icons/Edit'
 
-const drawerWidth = 240;
+const drawerWidth = 240
 
-const formattedDate = (value) => moment(value).format('DD/MM-YYYY');
+const formattedDate = (value) => moment(value).format('DD/MM-YYYY')
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: 'flex',
+    display: 'flex'
   },
   drawer: {
     [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
-      flexShrink: 0,
-    },
+      flexShrink: 0
+    }
   },
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
-    paddingTop: '90px',
+    paddingTop: '90px'
   },
   container: {
     display: 'flex',
-    flexWrap: 'wrap',
+    flexWrap: 'wrap'
   },
   textField: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: '100%',
-    backgroundColor: 'white',
+    backgroundColor: 'white'
   },
   avatar: {
-    margin: 10,
+    margin: 10
   },
   purpleAvatar: {
     margin: 5,
     color: '#fff',
-    backgroundColor: deepPurple[500],
-  },
-}));
+    backgroundColor: deepPurple[500]
+  }
+}))
 
 const thumbsContainer = {
   display: 'flex',
   flexDirection: 'row',
   flexWrap: 'wrap',
-  marginTop: 16,
-};
+  marginTop: 16
+}
 
 const thumb = {
   display: 'inline-flex',
@@ -74,60 +74,60 @@ const thumb = {
   height: 150,
   padding: 4,
   boxSizing: 'border-box',
-  margin: '0 auto',
-};
+  margin: '0 auto'
+}
 
 const thumbInner = {
   display: 'flex',
   minWidth: 0,
-  overflow: 'hidden',
-};
+  overflow: 'hidden'
+}
 
 const img = {
   display: 'block',
   width: 'auto',
-  height: '100%',
-};
+  height: '100%'
+}
 
-export default function ViewIssue(props) {
-  const { history, location, match } = useReactRouter();
-  const classes = useStyles();
-  const [dataset, setData] = useState(['']);
-  const [images, setImages] = useState([]);
-  const [value, setValue] = useState('');
-  const [edit, setEdit] = useState(false);
+export default function ViewIssue (props) {
+  const { history, location, match } = useReactRouter()
+  const classes = useStyles()
+  const [dataset, setData] = useState([''])
+  const [images, setImages] = useState([])
+  const [value, setValue] = useState('')
+  const [edit, setEdit] = useState(false)
 
-  const [selectedDate, setSelectedDate] = React.useState(dataset.updatedAt);
+  const [selectedDate, setSelectedDate] = React.useState(dataset.updatedAt)
 
   const handleChange = (event) => {
-    setData(event.target.value);
-  };
+    setData(event.target.value)
+  }
 
   const handleDateChange = (date) => {
-    setSelectedDate(date);
-  };
+    setSelectedDate(date)
+  }
 
   const onEditClick = () => {
-    setEdit(true);
-  };
+    setEdit(true)
+  }
 
-  const { id } = props.match.params;
+  const { id } = props.match.params
 
   useEffect(() => {
-    getIssueByID(id);
-  }, [id]);
+    getIssueByID(id)
+  }, [id])
 
   const getIssueByID = async (id) => {
-    let res = await issueService.getIssueByID(id);
-    setData(res);
+    const res = await issueService.getIssueByID(id)
+    setData(res)
     if (res.imageName === null) {
-      setImages(['none']);
+      setImages(['none'])
     } else {
-      setImages(res.imageName[0]);
+      setImages(res.imageName[0])
     }
 
-    console.log(res);
-  };
+    console.log(res)
+  }
 
   const thumbs = images.map((file, index) => (
     <div style={thumb} key={index}>
@@ -136,19 +136,19 @@ export default function ViewIssue(props) {
         <img alt={file.name} src={file.path} style={img} />
       </div>
     </div>
-  ));
+  ))
 
   useEffect(
     () => {
       // Make sure to revoke the data uris to avoid memory leaks
-      images.forEach((file) => URL.revokeObjectURL(file.path));
+      images.forEach((file) => URL.revokeObjectURL(file.path))
     },
-    [] //files
-  );
+    [] // files
+  )
 
   const imgList = images.map((file, index) => {
     if (file === 'none') {
-      return <div key={index}>Ingen vedlegg</div>;
+      return <div key={index}>Ingen vedlegg</div>
     }
     return (
       <div style={{ display: 'grid', margin: '1em' }} key={index}>
@@ -162,7 +162,7 @@ export default function ViewIssue(props) {
             style={{
               width: '150px',
               height: '150px',
-              borderRadius: '0.5em',
+              borderRadius: '0.5em'
             }}
             src={process.env.PUBLIC_URL + '/uploads/' + file.path}
           ></img>
@@ -171,7 +171,7 @@ export default function ViewIssue(props) {
           style={{
             display: 'inline-flex',
             margin: '1em',
-            height: '40px',
+            height: '40px'
           }}
         >
           <Link
@@ -185,8 +185,8 @@ export default function ViewIssue(props) {
           </Link>
         </div>
       </div>
-    );
-  });
+    )
+  })
 
   return (
     <div className={classes.root}>
@@ -219,7 +219,7 @@ export default function ViewIssue(props) {
               variant="outlined"
               onChange={handleChange}
               InputProps={{
-                readOnly: true,
+                readOnly: true
               }}
             />
           </div>
@@ -232,7 +232,7 @@ export default function ViewIssue(props) {
               variant="outlined"
               onChange={handleChange}
               InputProps={{
-                readOnly: true,
+                readOnly: true
               }}
             />
           </div>
@@ -251,7 +251,7 @@ export default function ViewIssue(props) {
               margin="normal"
               variant="outlined"
               InputProps={{
-                readOnly: true,
+                readOnly: true
               }}
             />
           </div>
@@ -272,7 +272,7 @@ export default function ViewIssue(props) {
               margin="normal"
               variant="outlined"
               InputProps={{
-                readOnly: true,
+                readOnly: true
               }}
             />
           </div>
@@ -285,7 +285,7 @@ export default function ViewIssue(props) {
               margin="normal"
               variant="outlined"
               InputProps={{
-                readOnly: true,
+                readOnly: true
               }}
             />
           </div>
@@ -298,7 +298,7 @@ export default function ViewIssue(props) {
               margin="normal"
               variant="outlined"
               InputProps={{
-                readOnly: true,
+                readOnly: true
               }}
             />
           </div>
@@ -311,7 +311,7 @@ export default function ViewIssue(props) {
               margin="normal"
               variant="outlined"
               InputProps={{
-                readOnly: true,
+                readOnly: true
               }}
             />
           </div>
@@ -325,7 +325,7 @@ export default function ViewIssue(props) {
               margin="normal"
               variant="outlined"
               InputProps={{
-                readOnly: true,
+                readOnly: true
               }}
             />
           </div>
@@ -340,7 +340,7 @@ export default function ViewIssue(props) {
               className={classes.textField}
               margin="normal"
               InputProps={{
-                readOnly: true,
+                readOnly: true
               }}
             />
           </div>
@@ -355,7 +355,7 @@ export default function ViewIssue(props) {
               className={classes.textField}
               margin="normal"
               InputProps={{
-                readOnly: true,
+                readOnly: true
               }}
             />
           </div>
@@ -370,12 +370,12 @@ export default function ViewIssue(props) {
               className={classes.textField}
               margin="normal"
               InputProps={{
-                readOnly: true,
+                readOnly: true
               }}
             />
           </div>
         </div>
       </main>
     </div>
-  );
+  )
 }

@@ -1,180 +1,183 @@
-import React, { useState, useEffect } from 'react';
-import useReactRouter from 'use-react-router';
-import { makeStyles } from '@material-ui/core/styles';
-import MenuItem from '@material-ui/core/MenuItem';
-import TextField from '@material-ui/core/TextField';
-import Icon from '@material-ui/core/Icon';
-import Button from '@material-ui/core/Button';
-import Container from '@material-ui/core/Container';
-import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
-import { AlertTitle } from '@material-ui/lab';
-import axios from 'axios';
-import Previews from './ImageUploader';
-import { useSelector } from 'react-redux';
-import classnames from 'classnames';
-import Box from '@material-ui/core/Box';
-import auth from '../auth/auth-helper';
-import { findUserProfile, getUsers } from '../utils/api-user';
+/* eslint-disable no-underscore-dangle */
+import React, { useState, useEffect } from 'react'
+import useReactRouter from 'use-react-router'
+import { makeStyles } from '@material-ui/core/styles'
+import MenuItem from '@material-ui/core/MenuItem'
+import TextField from '@material-ui/core/TextField'
+import Icon from '@material-ui/core/Icon'
+import Button from '@material-ui/core/Button'
+import Container from '@material-ui/core/Container'
+import Snackbar from '@material-ui/core/Snackbar'
+// eslint-disable-next-line no-unused-vars
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
+import { AlertTitle } from '@material-ui/lab'
+import axios from 'axios'
+import { useSelector } from 'react-redux'
+import classnames from 'classnames'
+import Box from '@material-ui/core/Box'
+import Previews from './ImageUploader'
+import auth from '../auth/auth-helper'
+import { findUserProfile, getUsers } from '../utils/api-user'
 
-function Alert(props) {
-  return <MuiAlert elevation={1} variant="filled" {...props} />;
+function Alert (props) {
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <MuiAlert elevation={1} variant="filled" {...props} />
 }
 
 const alvorlighetsGrad = [
   {
     value: 0,
-    label: 'Ingen valgt',
+    label: 'Ingen valgt'
   },
   {
     value: 1,
-    label: 'Tekst',
+    label: 'Tekst'
   },
   {
     value: 2,
-    label: 'Justering',
+    label: 'Justering'
   },
   {
     value: 3,
-    label: 'Triviell',
+    label: 'Triviell'
   },
   {
     value: 4,
-    label: 'Mindre alvorlig',
+    label: 'Mindre alvorlig'
   },
   {
     value: 5,
-    label: 'Alvorlig',
+    label: 'Alvorlig'
   },
   {
     value: 6,
-    label: 'Kræsj',
+    label: 'Kræsj'
   },
   {
     value: 7,
-    label: 'Blokkering',
-  },
-];
+    label: 'Blokkering'
+  }
+]
 
 const Kategori = [
   {
     value: 0,
-    label: 'Ingen valgt',
+    label: 'Ingen valgt'
   },
   {
     value: 1,
-    label: 'Triviell',
+    label: 'Triviell'
   },
   {
     value: 2,
-    label: 'Tekst',
+    label: 'Tekst'
   },
   {
     value: 3,
-    label: 'Justering',
+    label: 'Justering'
   },
   {
     value: 4,
-    label: 'Mindre alvorlig',
+    label: 'Mindre alvorlig'
   },
   {
     value: 5,
-    label: 'Alvorlig',
+    label: 'Alvorlig'
   },
   {
     value: 6,
-    label: 'Kræsj',
+    label: 'Kræsj'
   },
   {
     value: 7,
-    label: 'Blokkering',
-  },
-];
+    label: 'Blokkering'
+  }
+]
 
 const prioritet = [
   {
     value: 0,
-    label: 'Ingen valgt',
+    label: 'Ingen valgt'
   },
   {
     value: 1,
-    label: 'Ingen',
+    label: 'Ingen'
   },
   {
     value: 2,
-    label: 'Lav',
+    label: 'Lav'
   },
   {
     value: 3,
-    label: 'Normal',
+    label: 'Normal'
   },
   {
     value: 4,
-    label: 'Høy',
+    label: 'Høy'
   },
   {
     value: 5,
-    label: 'Haster',
+    label: 'Haster'
   },
   {
     value: 6,
-    label: 'Øyeblikkelig',
-  },
-];
+    label: 'Øyeblikkelig'
+  }
+]
 
 const reprodusere = [
   {
     value: 0,
     label: 'Ingen valgt',
-    color: '#F2CBD1',
+    color: '#F2CBD1'
   },
   {
     value: 2,
     label: 'Alltid',
-    color: '#F2CBD1',
+    color: '#F2CBD1'
   },
   {
     value: 3,
     label: 'Noen ganger',
-    color: '#F49CA9',
+    color: '#F49CA9'
   },
   {
     value: 4,
     label: 'Tilfeldig',
-    color: '#F26A7E',
+    color: '#F26A7E'
   },
   {
     value: 5,
     label: 'Har ikke forsøkt',
-    color: '#F20024',
+    color: '#F20024'
   },
   {
     value: 6,
     label: 'Kan ikke reprodusere',
-    color: '#870D1F',
+    color: '#870D1F'
   },
   {
     value: 7,
     label: 'Ingen',
-    color: '#7B0C1D',
-  },
-];
+    color: '#7B0C1D'
+  }
+]
 const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
     margin: '0 auto',
     '& > * + *': {
-      marginTop: theme.spacing(2),
-    },
+      marginTop: theme.spacing(2)
+    }
   },
   headerOne: {
     margin: '0 auto',
     padding: '0.5em',
     fontSize: '3em',
-    color: 'darkslategray',
+    color: 'darkslategray'
   },
   active: {
-    backgroundColor: 'rgba(155, 205, 155, 0.12)',
+    backgroundColor: 'rgba(155, 205, 155, 0.12)'
   },
   container: {
     paddingTop: '20px',
@@ -193,8 +196,8 @@ const useStyles = makeStyles((theme) => ({
     margin: '0 auto',
     [theme.breakpoints.up('sm')]: {
       maxWidth: '100%',
-      width: '100%',
-    },
+      width: '100%'
+    }
   },
 
   input: {
@@ -203,21 +206,21 @@ const useStyles = makeStyles((theme) => ({
     webkitTransition: '0.18s ease-out',
     mozTransition: '0.18s ease-out',
     oTransition: '0.18s ease-out',
-    transition: '0.18s ease-out',
+    transition: '0.18s ease-out'
   },
   textField: {
     marginLeft: theme.spacing(2),
-    marginRight: theme.spacing(2),
+    marginRight: theme.spacing(2)
   },
   BoxErrorField: {
     backgroundColor: '#ffe4e7',
-    color: 'red',
+    color: 'red'
   },
   dense: {
-    marginTop: theme.spacing(2),
+    marginTop: theme.spacing(2)
   },
   menu: {
-    width: 200,
+    width: 200
   },
   button: {
     marginTop: '20px',
@@ -225,27 +228,27 @@ const useStyles = makeStyles((theme) => ({
     height: '50px',
     margin: '0 auto',
     fontSize: 20,
-    borderRadius: 15,
+    borderRadius: 15
   },
   leftIcon: {
-    marginRight: theme.spacing(1),
+    marginRight: theme.spacing(1)
   },
   rightIcon: {
-    marginLeft: theme.spacing(1),
+    marginLeft: theme.spacing(1)
   },
   iconSmall: {
-    fontSize: '1.2em',
+    fontSize: '1.2em'
   },
   selected: {
     '&:hover': {
       backgroundColor: 'green',
-      color: 'green',
-    },
-  },
-}));
+      color: 'green'
+    }
+  }
+}))
 
-export default function CreateIssue() {
-  const { history, location, match } = useReactRouter();
+export default function CreateIssue () {
+  const { match } = useReactRouter()
   const initialState = {
     setID: 0,
     setNavn: '',
@@ -259,89 +262,89 @@ export default function CreateIssue() {
     setStegReprodusere: '',
     setTillegg: '',
     setStatus: 'Åpen',
-    setImageName: [''],
-  };
+    setImageName: ['']
+  }
 
-  const classes = useStyles();
-  const [values, setValues] = useState(initialState);
-  const [errors, setErrors] = useState('');
-  const [imagesredux, setImages] = useState(['']);
-  const [users, setUsers] = useState([]);
+  const classes = useStyles()
+  const [values, setValues] = useState(initialState)
+  const [errors, setErrors] = useState('')
+  const [users, setUsers] = useState([])
   const [userinfo, setUserinfo] = useState({
     user: [''],
-    redirectToSignin: false,
-  });
-  const [open, setOpen] = React.useState(false);
+    redirectToSignin: false
+  })
+  const [open, setOpen] = React.useState(false)
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
-      return;
+      return
     }
 
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
-  const images = useSelector((state) => state);
+  const images = useSelector((state) => state)
 
   const init = (userId) => {
-    const jwt = auth.isAuthenticated();
+    const jwt = auth.isAuthenticated()
 
     findUserProfile(
       {
-        userId: userId,
+        userId
       },
       { t: jwt.token }
     ).then((data) => {
       if (data.error) {
-        setUserinfo({ redirectToSignin: true });
+        setUserinfo({ redirectToSignin: true })
       } else {
-        setUserinfo({ user: data });
-        setValues({ setNavn: data.name });
+        setUserinfo({ user: data })
+        setValues({ setNavn: data.name })
       }
-    });
+    })
 
     getUsers({ t: jwt.token }).then((data) => {
       if (data.error) {
-        setValues({ redirectToSignin: true });
+        setValues({ redirectToSignin: true })
       } else {
-        setUsers(data.data);
+        setUsers(data.data)
       }
-    });
-  };
+    })
+  }
 
   useEffect(() => {
-    init(match.params.userId);
-  }, [match.params.userId]);
+    init(match.params.userId)
+  }, [match.params.userId])
 
   const handleChange = (name) => (event) => {
     setValues({
       ...values,
-      [name]: event.target.value,
-    });
-  };
+      [name]: event.target.value
+    })
+  }
 
-  const errorAlert = (error) => {
-    return (
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="error" variant="standard">
-          <AlertTitle>Feil</AlertTitle>
-          Noe gikk galt - {error}!
-        </Alert>
-      </Snackbar>
-    );
-  };
+  const errorAlert = (error) => (
+    <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+      <Alert onClose={handleClose} severity="error" variant="standard">
+        <AlertTitle>Feil</AlertTitle>
+        Noe gikk galt -
+        {' '}
+        {error}
+        !
+      </Alert>
+    </Snackbar>
+  )
 
-  const onChangeImageDrop = (event) => {
-    console.log('DATA: ', images.imageupload[1].name);
+  const onChangeImageDrop = () => {
+    console.log('DATA: ', images.imageupload[1].name)
     setValues((prevState) => ({
       ...prevState,
-      setImageName: [...images.imageupload[1].name],
-    }));
-  };
+      setImageName: [...images.imageupload[1].name]
+    }))
+  }
 
   // Legg inn ny query / varelinje i database med backend API
   const putDataToDB = () => {
-    let imageNameValue = !images ? [images.imageupload[1].name] : null;
+    const imageNameValue = !images ? [images.imageupload[1].name] : null
     axios
       .post('/api/putData', {
         name: userinfo.user.name,
@@ -356,31 +359,32 @@ export default function CreateIssue() {
         additional_info: values.setTillegg,
         status: values.setStatus,
         imageName: imageNameValue,
-        userid: userinfo.user._id,
+        // eslint-disable-next-line no-underscore-dangle
+        userid: userinfo.user._id
       })
       .then((response) => {
         if (response.status === 200) {
-          setOpen(true);
-          clearState();
+          setOpen(true)
+          clearState()
         }
       })
       .catch((err) => {
-        setErrors(err.response.data);
-        errorAlert(err.response.data);
-        window.scrollTo(0, 0);
-      });
+        setErrors(err.response.data)
+        errorAlert(err.response.data)
+        window.scrollTo(0, 0)
+      })
     // clear errors on submit if any present, before correcting old error
-  };
+  }
 
   const clearState = () => {
-    setValues({ ...initialState });
-  };
+    setValues({ ...initialState })
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    //setImages(prevState => ({...prevState, setImageName: [...images.imageupload[1].name]}));
-    putDataToDB();
-  };
+    e.preventDefault()
+    // setImages(prevState => ({...prevState, setImageName: [...images.imageupload[1].name]}));
+    putDataToDB()
+  }
 
   return (
     <div className={classes.root}>
@@ -398,11 +402,11 @@ export default function CreateIssue() {
             name="Registrert av"
             InputProps={{
               readOnly: true,
-              className: classes.input,
+              className: classes.input
             }}
-            //className={classes.textField}
+            // className={classes.textField}
             className={classnames([classes.textField], {
-              'is-invalid': errors.name,
+              'is-invalid': errors.name
             })}
             value={userinfo.user.name || ''}
             onChange={handleChange('setNavn')}
@@ -417,7 +421,9 @@ export default function CreateIssue() {
               p={1}
               m={1}
             >
-              {errors.name} ⚠️
+              {errors.name}
+              {' '}
+              ⚠️
             </Box>
           ) : (
             ''
@@ -431,18 +437,18 @@ export default function CreateIssue() {
             value={values.setDelegated || 'Ingen valgt'}
             onChange={handleChange('setDelegated')}
             InputProps={{
-              className: classes.input,
+              className: classes.input
             }}
             SelectProps={{
               MenuProps: {
-                className: classes.menu,
-              },
+                className: classes.menu
+              }
             }}
             margin="normal"
             variant="outlined"
           >
-            {users.map((option, index) => (
-              <MenuItem key={index} value={option.name}>
+            {users.map((option) => (
+              <MenuItem key={option._id} value={option.name}>
                 {option.name}
               </MenuItem>
             ))}
@@ -455,7 +461,9 @@ export default function CreateIssue() {
               p={1}
               m={1}
             >
-              {errors.delegated} ⚠️
+              {errors.delegated}
+              {' '}
+              ⚠️
             </Box>
           ) : (
             ''
@@ -469,18 +477,18 @@ export default function CreateIssue() {
             value={values.setKategori || 'Ingen valgt'}
             onChange={handleChange('setKategori')}
             InputProps={{
-              className: classes.input,
+              className: classes.input
             }}
             SelectProps={{
               MenuProps: {
-                className: classes.menu,
-              },
+                className: classes.menu
+              }
             }}
             margin="normal"
             variant="outlined"
           >
-            {Kategori.map((option, index) => (
-              <MenuItem key={index} value={option.label}>
+            {Kategori.map((option) => (
+              <MenuItem key={option.id} value={option.label}>
                 {option.label}
               </MenuItem>
             ))}
@@ -493,7 +501,9 @@ export default function CreateIssue() {
               p={1}
               m={1}
             >
-              {errors.category} ⚠️
+              {errors.category}
+              {' '}
+              ⚠️
             </Box>
           ) : (
             ''
@@ -507,18 +517,18 @@ export default function CreateIssue() {
             className={classes.textField}
             onChange={handleChange('setAlvorlighetsgrad')}
             InputProps={{
-              className: classes.input,
+              className: classes.input
             }}
             SelectProps={{
               MenuProps: {
-                className: classes.menu,
-              },
+                className: classes.menu
+              }
             }}
             margin="normal"
             variant="outlined"
           >
-            {alvorlighetsGrad.map((option, index) => (
-              <MenuItem key={index} value={option.label}>
+            {alvorlighetsGrad.map((option) => (
+              <MenuItem key={option.id} value={option.label}>
                 {option.label}
               </MenuItem>
             ))}
@@ -531,7 +541,9 @@ export default function CreateIssue() {
               p={1}
               m={1}
             >
-              {errors.severity} ⚠️
+              {errors.severity}
+              {' '}
+              ⚠️
             </Box>
           ) : (
             ''
@@ -545,18 +557,18 @@ export default function CreateIssue() {
             value={values.setPrioritet || 'Ingen valgt'}
             onChange={handleChange('setPrioritet')}
             InputProps={{
-              className: classes.input,
+              className: classes.input
             }}
             SelectProps={{
               MenuProps: {
-                className: classes.menu,
-              },
+                className: classes.menu
+              }
             }}
             margin="normal"
             variant="outlined"
           >
-            {prioritet.map((option, index) => (
-              <MenuItem key={index} value={option.label}>
+            {prioritet.map((option) => (
+              <MenuItem key={option.id} value={option.label}>
                 {option.label}
               </MenuItem>
             ))}
@@ -569,7 +581,9 @@ export default function CreateIssue() {
               p={1}
               m={1}
             >
-              {errors.priority} ⚠️
+              {errors.priority}
+              {' '}
+              ⚠️
             </Box>
           ) : (
             ''
@@ -583,12 +597,12 @@ export default function CreateIssue() {
             value={values.setReprodusere || 'Ingen valgt'}
             onChange={handleChange('setReprodusere')}
             InputProps={{
-              className: classes.input,
+              className: classes.input
             }}
             SelectProps={{
               MenuProps: {
-                className: classes.menu,
-              },
+                className: classes.menu
+              }
             }}
             margin="normal"
             variant="outlined"
@@ -600,7 +614,7 @@ export default function CreateIssue() {
                 selected
                 style={{
                   backgroundColor: option.color,
-                  color: 'white',
+                  color: 'white'
                 }}
               >
                 {option.label}
@@ -615,7 +629,9 @@ export default function CreateIssue() {
               p={1}
               m={1}
             >
-              {errors.reproduce} ⚠️
+              {errors.reproduce}
+              {' '}
+              ⚠️
             </Box>
           ) : (
             ''
@@ -628,7 +644,7 @@ export default function CreateIssue() {
             onChange={handleChange('setOppsummering')}
             className={classes.textField}
             InputProps={{
-              className: classes.input,
+              className: classes.input
             }}
             margin="normal"
             variant="outlined"
@@ -641,7 +657,9 @@ export default function CreateIssue() {
               p={1}
               m={1}
             >
-              {errors.summary} ⚠️
+              {errors.summary}
+              {' '}
+              ⚠️
             </Box>
           ) : (
             ''
@@ -654,7 +672,7 @@ export default function CreateIssue() {
             onChange={handleChange('setBeskrivelse')}
             className={classes.textField}
             InputProps={{
-              className: classes.input,
+              className: classes.input
             }}
             multiline
             rows="8"
@@ -669,7 +687,9 @@ export default function CreateIssue() {
               p={1}
               m={1}
             >
-              {errors.description} ⚠️
+              {errors.description}
+              {' '}
+              ⚠️
             </Box>
           ) : (
             ''
@@ -681,7 +701,7 @@ export default function CreateIssue() {
             value={values.setStegReprodusere}
             onChange={handleChange('setStegReprodusere')}
             InputProps={{
-              className: classes.input,
+              className: classes.input
             }}
             name="reprodusere"
             multiline
@@ -697,7 +717,9 @@ export default function CreateIssue() {
               p={1}
               m={1}
             >
-              {errors.step_reproduce} ⚠️
+              {errors.step_reproduce}
+              {' '}
+              ⚠️
             </Box>
           ) : (
             ''
@@ -712,7 +734,7 @@ export default function CreateIssue() {
             value={values.setTillegg}
             onChange={handleChange('setTillegg')}
             InputProps={{
-              className: classes.input,
+              className: classes.input
             }}
             margin="normal"
             variant="outlined"
@@ -725,7 +747,9 @@ export default function CreateIssue() {
               p={1}
               m={1}
             >
-              {errors.additional_info} ⚠️
+              {errors.additional_info}
+              {' '}
+              ⚠️
             </Box>
           ) : (
             ''
@@ -750,5 +774,5 @@ export default function CreateIssue() {
         </form>
       </Container>
     </div>
-  );
+  )
 }

@@ -1,6 +1,6 @@
 // api-auth.js
 export const signin = async user => {
-	try {
+  try {
     const response = await fetch('/auth/signin/', {
       method: 'POST',
       headers: {
@@ -9,22 +9,20 @@ export const signin = async user => {
       },
       credentials: 'include',
       body: JSON.stringify(user)
-    });
-    return response.json();
+    })
+    return response.json()
+  } catch (err) {
+    return console.log(err)
   }
-  catch (err) {
-    return console.log(err);
-  }
-};
+}
 
 export const signout = async () => {
-	try {
+  try {
     const response = await fetch('/auth/signout/', {
       method: 'GET'
-    });
-    return response.json();
+    })
+    return response.json()
+  } catch (err) {
+    return console.log(err)
   }
-  catch (err) {
-    return console.log(err);
-  }
-};
+}

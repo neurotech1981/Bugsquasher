@@ -1,35 +1,35 @@
-import React, { useState, useEffect, Suspense } from 'react';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import issueService from '../../services/issueService';
-import '../../App.css';
-import moment from 'moment';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import { Redirect, Link } from 'react-router-dom';
-import MaterialTable from 'material-table';
-import CircularProgress from '@material-ui/core/CircularProgress';
-const formattedDate = (value) => moment(value).format('DD/MM-YYYY');
+/* eslint-disable react/display-name */
+import React, { useState, useEffect, Suspense } from 'react'
+import { makeStyles } from '@material-ui/core/styles'
+import issueService from '../../services/issueService'
+import '../../App.css'
+import moment from 'moment'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import { Link } from 'react-router-dom'
+import MaterialTable from 'material-table'
+import CircularProgress from '@material-ui/core/CircularProgress'
+const formattedDate = (value) => moment(value).format('DD/MM-YYYY')
 
-const drawerWidth = 240;
+const drawerWidth = 240
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: 'flex',
+    display: 'flex'
   },
   drawer: {
     [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
-      flexShrink: 0,
-    },
+      flexShrink: 0
+    }
   },
   content: {
     flexGrow: 1,
     paddingTop: '65px',
-    paddingLeft: '5px',
+    paddingLeft: '5px'
   },
   colorPrimary: {
     backgroundImage:
-      'linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)',
+      'linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)'
   },
   label: {
     display: 'inline',
@@ -42,13 +42,13 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     whiteSpace: 'nowrap',
     verticalAlign: 'baseline',
-    borderRadius: '.25em',
-  },
-}));
+    borderRadius: '.25em'
+  }
+}))
 
-export default function Issues(props) {
-  const classes = useStyles();
-  const [dataset, setData] = useState([]);
+export default function Issues (props) {
+  const classes = useStyles()
+  const [dataset, setData] = useState([])
 
   const [state] = useState({
     columns: [
@@ -56,6 +56,7 @@ export default function Issues(props) {
         title: 'Prioritet',
         field: 'priority',
         width: 20,
+        // eslint-disable-next-line react/display-name
         render: (data) => (
           <div
             className="priority"
@@ -64,19 +65,19 @@ export default function Issues(props) {
                 data.priority === 'Øyeblikkelig'
                   ? 'darkred'
                   : '' || data.priority === 'Høy'
-                  ? 'orange'
-                  : '' || data.priority === 'Normal'
-                  ? 'white'
-                  : '' || data.priority === 'Haster'
-                  ? 'yellow'
-                  : '' || data.priority === 'Lav'
-                  ? 'grey'
-                  : '',
+                    ? 'orange'
+                    : '' || data.priority === 'Normal'
+                      ? 'white'
+                      : '' || data.priority === 'Haster'
+                        ? 'yellow'
+                        : '' || data.priority === 'Lav'
+                          ? 'grey'
+                          : ''
             }}
           >
             {data.priority}
           </div>
-        ),
+        )
       },
       {
         title: 'ID',
@@ -89,7 +90,7 @@ export default function Issues(props) {
               {data._id}
             </Link>
           </span>
-        ),
+        )
       },
       { title: 'Oppsummering', field: 'summary' },
       { title: 'Kategori', field: 'category' },
@@ -105,33 +106,33 @@ export default function Issues(props) {
                 data.status === 'Åpen'
                   ? 'white'
                   : '' || data.status === 'Lukket'
-                  ? 'gray'
-                  : '',
+                    ? 'gray'
+                    : ''
             }}
           >
             {data.status}
           </div>
-        ),
+        )
       },
       {
         title: 'Oppdatert',
         width: 20,
         field: 'updatedAt',
-        render: (data) => <div>{formattedDate(data.updatedAt)}</div>,
-      },
-    ],
-  });
+        render: (data) => <div>{formattedDate(data.updatedAt)}</div>
+      }
+    ]
+  })
 
   useEffect(() => {
-    getIssues();
-  }, [!dataset]);
+    getIssues()
+  }, [!dataset])
 
   const getIssues = async () => {
-    let res = await issueService.getAll();
-    setData(res);
-  };
+    const res = await issueService.getAll()
+    setData(res)
+  }
 
-  function MaterialCustomTable() {
+  function MaterialCustomTable () {
     return (
       <MaterialTable
         options={{
@@ -139,23 +140,23 @@ export default function Issues(props) {
             backgroundImage:
               'linear-gradient(rgb(15, 76, 129) 0%, rgb(44, 28, 58) 100%)',
             color: '#FFF',
-            textAlign: 'left',
+            textAlign: 'left'
           },
           rowStyle: {
-            boxShadow: '0 6px 12px rgba(51, 51, 51, 0.1)',
+            boxShadow: '0 6px 12px rgba(51, 51, 51, 0.1)'
           },
           search: true,
           exportButton: true,
           pageSize: 10,
           loadingType: 'linear',
           tableLayout: 'auto',
-          columnsButton: true,
+          columnsButton: true
         }}
         title="Registrerte saker"
         columns={state.columns}
         data={dataset}
       />
-    );
+    )
   }
 
   return (
@@ -170,5 +171,5 @@ export default function Issues(props) {
         </React.Fragment>
       </main>
     </div>
-  );
+  )
 }

@@ -1,56 +1,56 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import auth from '../auth/auth-helper';
-import { Link } from 'react-router-dom';
-import clsx from 'clsx';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import useReactRouter from 'use-react-router';
-import Divider from '@material-ui/core/Divider';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import InputBase from '@material-ui/core/InputBase';
-import Badge from '@material-ui/core/Badge';
-import List from '@material-ui/core/List';
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
-import { fade } from '@material-ui/core/styles/colorManipulator';
-import MenuIcon from '@material-ui/icons/MenuTwoTone';
-import AccountCircle from '@material-ui/icons/AccountCircleTwoTone';
-import NotificationsIcon from '@material-ui/icons/NotificationsTwoTone';
-import MoreIcon from '@material-ui/icons/MoreVertTwoTone';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import MailIcon from '@material-ui/icons/MailTwoTone';
-import Dashboard from '@material-ui/icons/DashboardTwoTone';
-import Settings from '@material-ui/icons/SettingsTwoTone';
-import PersonAddRoundedIcon from '@material-ui/icons/PersonAddTwoTone';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import BugIcon from '../../images/bug.svg';
-import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppTwoTone';
-import VpnKeyRoundedIcon from '@material-ui/icons/VpnKeyTwoTone';
-import NoteAddRoundedIcon from '@material-ui/icons/NoteAddTwoTone';
-import PageviewRoundedIcon from '@material-ui/icons/PageviewTwoTone';
-import GroupRoundedIcon from '@material-ui/icons/GroupTwoTone';
+import React, { Fragment, useState, useEffect } from 'react'
+import auth from '../auth/auth-helper'
+import { Link } from 'react-router-dom'
+import clsx from 'clsx'
+import { makeStyles, useTheme } from '@material-ui/core/styles'
+import useReactRouter from 'use-react-router'
+import Divider from '@material-ui/core/Divider'
+import Drawer from '@material-ui/core/Drawer'
+import Hidden from '@material-ui/core/Hidden'
+import AppBar from '@material-ui/core/AppBar'
+import Toolbar from '@material-ui/core/Toolbar'
+import IconButton from '@material-ui/core/IconButton'
+import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography'
+import InputBase from '@material-ui/core/InputBase'
+import Badge from '@material-ui/core/Badge'
+import List from '@material-ui/core/List'
+import MenuItem from '@material-ui/core/MenuItem'
+import Menu from '@material-ui/core/Menu'
+import { fade } from '@material-ui/core/styles/colorManipulator'
+import MenuIcon from '@material-ui/icons/MenuTwoTone'
+import AccountCircle from '@material-ui/icons/AccountCircleTwoTone'
+import NotificationsIcon from '@material-ui/icons/NotificationsTwoTone'
+import MoreIcon from '@material-ui/icons/MoreVertTwoTone'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemText from '@material-ui/core/ListItemText'
+import MailIcon from '@material-ui/icons/MailTwoTone'
+import Dashboard from '@material-ui/icons/DashboardTwoTone'
+import Settings from '@material-ui/icons/SettingsTwoTone'
+import PersonAddRoundedIcon from '@material-ui/icons/PersonAddTwoTone'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import BugIcon from '../../images/bug.svg'
+import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppTwoTone'
+import VpnKeyRoundedIcon from '@material-ui/icons/VpnKeyTwoTone'
+import NoteAddRoundedIcon from '@material-ui/icons/NoteAddTwoTone'
+import PageviewRoundedIcon from '@material-ui/icons/PageviewTwoTone'
+import GroupRoundedIcon from '@material-ui/icons/GroupTwoTone'
 
-const drawerWidth = 250;
+const drawerWidth = 250
 
 const isActive = (history, path) => {
-  if (history.location.pathname === path) return { color: '#F44336' };
-  else return { color: '#ffffff' };
-};
+  if (history.location.pathname === path) return { color: '#F44336' }
+  else return { color: '#ffffff' }
+}
 
 const useStyles = makeStyles((theme) => ({
   palette: {
-    type: 'dark',
+    type: 'dark'
   },
   colorPrimary: {
     backgroundImage:
-      'linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)',
+      'linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)'
   },
   buttons: {
     position: 'relative',
@@ -60,119 +60,119 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     [theme.breakpoints.up('sm')]: {
       marginLeft: '0px',
-      width: 'auto',
-    },
+      width: 'auto'
+    }
   },
   root: {
-    display: 'flex',
+    display: 'flex'
   },
   grow: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   drawer: {
     [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
-      flexShrink: 0,
-    },
+      flexShrink: 0
+    }
   },
   drawerPaper: {
     width: drawerWidth,
-    flexShrink: 0,
+    flexShrink: 0
   },
   drawerHeader: {
     display: 'flex',
     alignItems: 'center',
     padding: '0 8px',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-end'
   },
   flexContainer: {
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   hide: {
-    display: 'none',
+    display: 'none'
   },
   appBar: {
     [theme.breakpoints.up('sm')]: {
       width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: drawerWidth,
-      backgroundColor: '#2C1C3A',
-    },
+      backgroundColor: '#2C1C3A'
+    }
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
+      duration: theme.transitions.duration.enteringScreen
+    })
   },
   fab: {
-    margin: theme.spacing(1),
+    margin: theme.spacing(1)
   },
   extendedIcon: {
-    marginRight: theme.spacing(1),
+    marginRight: theme.spacing(1)
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3),
+    padding: theme.spacing(3)
   },
   contentShift: {
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
+      duration: theme.transitions.duration.enteringScreen
     }),
-    marginLeft: 0,
+    marginLeft: 0
   },
   menuButton: {
     marginRight: theme.spacing(2),
     [theme.breakpoints.up('sm')]: {
-      display: 'none',
-    },
+      display: 'none'
+    }
   },
   button: {
     margin: theme.spacing(1),
     '&:hover': {
       transition: theme.transitions.create('margin', {
         easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
+        duration: theme.transitions.duration.enteringScreen
       }),
       backgroundColor: '#FFF00',
-      color: 'white',
-    },
+      color: 'white'
+    }
   },
   title: {
     display: 'none',
     textShadow: '0 1px 1px rgba(0,0,0,0.25)',
     [theme.breakpoints.up('sm')]: {
-      display: 'block',
-    },
+      display: 'block'
+    }
   },
   inputRoot: {
-    color: 'inherit',
+    color: 'inherit'
   },
   inputInput: {
     padding: theme.spacing(1, 1, 1, 7),
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('md')]: {
-      width: 200,
-    },
+      width: 200
+    }
   },
   sectionDesktop: {
     display: 'none',
     [theme.breakpoints.up('md')]: {
-      display: 'flex',
-    },
+      display: 'flex'
+    }
   },
   sectionMobile: {
     display: 'flex',
     [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
+      display: 'none'
+    }
   },
-  toolbar: theme.mixins.toolbar,
-}));
+  toolbar: theme.mixins.toolbar
+}))
 
 const items = [
   { label: 'Min oversikt', icon: <Dashboard />, path: '/' },
@@ -181,7 +181,7 @@ const items = [
     icon: <NoteAddRoundedIcon />,
     path: !auth.isAuthenticated()
       ? '/legg-til-sak'
-      : '/legg-til-sak/' + auth.isAuthenticated().user._id,
+      : '/legg-til-sak/' + auth.isAuthenticated().user._id
   },
   { label: 'Vis saker', icon: <PageviewRoundedIcon />, path: '/saker' },
   {
@@ -189,29 +189,29 @@ const items = [
     icon: <GroupRoundedIcon />,
     path: !auth.isAuthenticated()
       ? '/bruker-admin/'
-      : '/bruker-admin/' + auth.isAuthenticated().user._id,
+      : '/bruker-admin/' + auth.isAuthenticated().user._id
   },
-  { label: 'Innstillinger', icon: <Settings />, path: '/innstillinger' },
-];
+  { label: 'Innstillinger', icon: <Settings />, path: '/innstillinger' }
+]
 
-function NavBar(props) {
-  const { history, location, match } = useReactRouter();
-  const { container } = props;
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [open, setOpen] = React.useState(false);
+function NavBar (props) {
+  const { history, location, match } = useReactRouter()
+  const { container } = props
+  const [mobileOpen, setMobileOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false)
 
-  const classes = useStyles();
-  const theme = useTheme();
-  function handleDrawerToggle() {
-    setOpen(!open);
+  const classes = useStyles()
+  const theme = useTheme()
+  function handleDrawerToggle () {
+    setOpen(!open)
   }
 
-  function handleDrawerOpen() {
-    setOpen(true);
+  function handleDrawerOpen () {
+    setOpen(true)
   }
 
-  function handleDrawerClose() {
-    setOpen(false);
+  function handleDrawerClose () {
+    setOpen(false)
   }
 
   const drawer = (
@@ -220,7 +220,7 @@ function NavBar(props) {
         className={classes.drawer}
         variant="permanent"
         classes={{
-          paper: classes.drawerPaper,
+          paper: classes.drawerPaper
         }}
       >
         <div className={classes.toolbar} />
@@ -238,29 +238,29 @@ function NavBar(props) {
         <Divider />
       </Drawer>
     </div>
-  );
+  )
 
-  const [anchorEl, setAnchorEl] = React.useState(false);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(false)
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(false)
 
-  const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const isMenuOpen = Boolean(anchorEl)
+  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
 
-  function handleProfileMenuOpen(event) {
-    setAnchorEl(event.currentTarget);
+  function handleProfileMenuOpen (event) {
+    setAnchorEl(event.currentTarget)
   }
 
-  function handleMobileMenuClose() {
-    setMobileMoreAnchorEl(null);
+  function handleMobileMenuClose () {
+    setMobileMoreAnchorEl(null)
   }
 
-  function handleMenuClose() {
-    setAnchorEl(null);
-    handleMobileMenuClose();
+  function handleMenuClose () {
+    setAnchorEl(null)
+    handleMobileMenuClose()
   }
 
-  function handleMobileMenuOpen(event) {
-    setMobileMoreAnchorEl(event.currentTarget);
+  function handleMobileMenuOpen (event) {
+    setMobileMoreAnchorEl(event.currentTarget)
   }
 
   const renderMenu = auth.isAuthenticated() && (
@@ -291,7 +291,7 @@ function NavBar(props) {
 
       <MenuItem
         onClick={() => {
-          auth.signout(() => history.push('/'));
+          auth.signout(() => history.push('/'))
         }}
       >
         <IconButton color="inherit">
@@ -300,7 +300,7 @@ function NavBar(props) {
         <p>Logg ut</p>
       </MenuItem>
     </Menu>
-  );
+  )
 
   const renderMobileMenu = auth.isAuthenticated() && (
     <Menu
@@ -327,7 +327,7 @@ function NavBar(props) {
       {auth.isAuthenticated() && (
         <MenuItem
           onClick={() => {
-            auth.signout(() => history.push('/'));
+            auth.signout(() => history.push('/'))
           }}
         >
           <IconButton color="inherit">
@@ -337,7 +337,7 @@ function NavBar(props) {
         </MenuItem>
       )}
     </Menu>
-  );
+  )
 
   return (
     <div className={classes.root}>
@@ -405,10 +405,10 @@ function NavBar(props) {
                         edge="start"
                         onClose={handleDrawerToggle}
                         classes={{
-                          paper: classes.drawerPaper,
+                          paper: classes.drawerPaper
                         }}
                         ModalProps={{
-                          keepMounted: true, // Better open performance on mobile.
+                          keepMounted: true // Better open performance on mobile.
                         }}
                       >
                         {drawer}
@@ -417,7 +417,7 @@ function NavBar(props) {
                     <Hidden xsDown implementation="css">
                       <Drawer
                         classes={{
-                          paper: classes.drawerPaper,
+                          paper: classes.drawerPaper
                         }}
                         variant="permanent"
                         open
@@ -466,7 +466,7 @@ function NavBar(props) {
       {renderMenu}
       {renderMobileMenu}
     </div>
-  );
+  )
 }
 
-export default NavBar;
+export default NavBar

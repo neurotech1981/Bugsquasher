@@ -1,3 +1,4 @@
+// Put in your password and correct link and rename file to index.js
 const config = {
 	port: process.env.PORT || 3001,
 	jwtSecret: process.env.JWT_SECRET || '<Password here>',

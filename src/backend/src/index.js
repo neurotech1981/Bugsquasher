@@ -85,7 +85,6 @@ var upload = multer({
 
 // MongoDB database
 // const dbRoute =
-//  "mongodb://neurotech:946Dypew!@ds127376.mlab.com:27376/bugsquasher";
 const API_PORT = 3001
 
 const validateInput = require('../../validation/input-validation')

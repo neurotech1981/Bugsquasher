@@ -1,7 +1,7 @@
 const config = {
   port: process.env.PORT || 3001,
-  jwtSecret: process.env.JWT_SECRET || '946Dypew!',
-  mongoURI: process.env.MONGODB_URI || 'mongodb://localhost/bugsquasher'
+  jwtSecret: process.env.JWT_SECRET || '',
+  mongoURI: process.env.MONGODB_URI || ''
 }
 
 export default config

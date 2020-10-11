@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-import crypto from 'crypto'
 import bcrypt from 'bcrypt'
 const Schema = mongoose.Schema
 
@@ -58,10 +57,6 @@ userSchema.methods = {
     try {
       var hashed = bcrypt.hashSync(password, this.salt);
       return hashed;
-      //crypto
-      //  .createHmac('sha256', this.salt)
-      //  .update(password)
-      //  .digest('hex')
     } catch (err) {
       return ''
     }

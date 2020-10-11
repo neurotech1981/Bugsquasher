@@ -1,6 +1,9 @@
 import mongoose from 'mongoose'
 import crypto from 'crypto'
+import bcrypt from 'bcrypt'
 const Schema = mongoose.Schema
+
+const saltRounds = 10;
 
 const userSchema = new Schema({
   name: {
@@ -38,7 +41,8 @@ userSchema
   .virtual('password')
   .set(function (password) {
     this._password = password
-    this.salt = this.makeSalt()
+    this.salt = bcrypt.genSaltSync(saltRounds);
+    //this.salt = this.makeSalt()
     this.hashedPassword = this.encryptedPassword(password)
   })
   .get(function () {
@@ -52,10 +56,12 @@ userSchema.methods = {
   encryptedPassword: function (password) {
     if (!password) return ''
     try {
-      return crypto
-        .createHmac('sha256', this.salt)
-        .update(password)
-        .digest('hex')
+      var hashed = bcrypt.hashSync(password, this.salt);
+      return hashed;
+      //crypto
+      //  .createHmac('sha256', this.salt)
+      //  .update(password)
+      //  .digest('hex')
     } catch (err) {
       return ''
     }

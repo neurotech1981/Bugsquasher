@@ -212,10 +212,8 @@ export default function Users (props) {
                 setTimeout(() => {
                   {
                     const data = users
-                    console.log('Users: ', data)
                     const index = data.indexOf(oldData)
                     data[index] = newData
-                    console.log('data: ', data[index])
                     setUsers(data)
                     updateUser(
                       data[index]._id,
@@ -226,7 +224,6 @@ export default function Users (props) {
                     )
                   }
                   init(match.params.userId)
-                  console.log('Update user: ', newData)
                   resolve(newData)
                   reject(new Error('Noe gikk galt!'))
                 }, 1000)

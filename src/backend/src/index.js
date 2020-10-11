@@ -252,7 +252,7 @@ router.post('/edituser', function async(req, res) {
   console.log(ac.can(role).readAny('editusers'))
   const permission = ac.can(role).readAny('editusers');
   if (permission.granted) {
-    User.findByIdAndUpdate(_id, update, (err) => {
+    User.findByIdAndUpdate(_id, req.body.update, (err) => {
       if (err || !update) return res.status(400).json(err);
       // filter data by permission attributes and send.
       res.json(permission.filter(update));

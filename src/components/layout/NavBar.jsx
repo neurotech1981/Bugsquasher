@@ -175,6 +175,13 @@ function NavBar (props) {
 
   const items = [
   { label: 'Min oversikt', icon: <Dashboard />, path: '/landing'},
+
+  { label: 'Prosjekt oversikt', icon: <PageviewRoundedIcon />, path:
+    !auth.isAuthenticated() ? '/prosjekt-oversikt/' : '/prosjekt-oversikt/' + auth.isAuthenticated().user._id
+  },
+  { label: 'Opprett prosjekt', icon: <NoteAddRoundedIcon />, path:
+    !auth.isAuthenticated() ? '/opprett-prosjekt/' : '/opprett-prosjekt/' + auth.isAuthenticated().user._id
+  },
   {
     label: 'Legg til sak',
     icon: <NoteAddRoundedIcon />,

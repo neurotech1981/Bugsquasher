@@ -395,38 +395,6 @@ export default function CreateIssue () {
         >
           <h3 className={classes.headerOne}>Skriv inn saksdetaljer</h3>
           <TextField
-            id="outlined-navn-input"
-            label="Registrert av"
-            name="Registrert av"
-            InputProps={{
-              readOnly: true,
-              className: classes.input
-            }}
-            // className={classes.textField}
-            className={classnames([classes.textField], {
-              'is-invalid': errors.name
-            })}
-            value={userinfo.user.name || ''}
-            onChange={handleChange('setNavn')}
-            margin="normal"
-            variant="outlined"
-          />
-          {errors.name ? (
-            <Box
-              className={classes.BoxErrorField}
-              fontFamily="Monospace"
-              color="error.main"
-              p={1}
-              m={1}
-            >
-              {errors.name}
-              {' '}
-              ⚠️
-            </Box>
-          ) : (
-            ''
-          )}
-          <TextField
             id="outlined-select-delegert"
             select
             label="Deleger til"

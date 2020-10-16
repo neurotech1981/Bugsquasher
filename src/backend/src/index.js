@@ -350,6 +350,8 @@ router.post('/putData', function async (req, res) {
   })
 })
 
+// api routes
+app.use('/accounts', require('./accounts/account.controller'));
 // append /api for our http requests
 app.use('/api', router)
 

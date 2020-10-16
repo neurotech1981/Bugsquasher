@@ -119,10 +119,10 @@ export default function Issues (props) {
         )
       },
       {
-        title: 'Oppdatert',
+        title: 'Opprettet',
         width: 20,
-        field: 'updatedAt',
-        render: (data) => <div>{formattedDate(data.updatedAt)}</div>
+        field: 'createdAt',
+        render: (data) => <div>{formattedDate(data.createdAt)}</div>
       }
     ]
   })
@@ -150,7 +150,7 @@ export default function Issues (props) {
           headerStyle: {
             backgroundColor: '#2C1C3A',
             color: '#FFF',
-            textAlign: 'left'
+            textAlign: 'left',
           },
           rowStyle: {
             boxShadow: '0 6px 12px rgba(51, 51, 51, 0.1)'

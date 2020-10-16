@@ -81,17 +81,17 @@ userSchema.virtual('passwordConfirmation')
   this._passwordConfirmation = value;
 });
 
-userSchema.path('hashedPassword').validate(function (v) {
-  if (this.hashedPassword && this._password.length < 6) {
-    this.invalidate('password', 'Passord må være minst 6 bokstaver langt.')
-  }
-  if (this.isNew && !this._password) {
-    this.invalidate('password', 'Passord er påkrevd.')
-  }
-  if (this._password !== this._passwordConfirmation) {
-    this.invalidate('passwordConfirmation', 'Passord må være like.');
-  }
-}, null)
+//userSchema.path('hashedPassword').validate(function (v) {
+//  if (this.hashedPassword && this._password.length < 6) {
+//    this.invalidate('password', 'Passord må være minst 6 bokstaver langt.')
+//  }
+//  if (this.isNew && !this._password) {
+//    this.invalidate('password', 'Passord er påkrevd.')
+//  }
+//  if (this._password !== this._passwordConfirmation) {
+//    this.invalidate('passwordConfirmation', 'Passord må være like.');
+//  }
+//}, null)
 
 userSchema.virtual('isVerified').get(function () {
     return !!(this.verified || this.passwordReset);
@@ -103,8 +103,8 @@ userSchema.set('toJSON', {
     versionKey: false,
     transform: function (doc, ret) {
         // remove these props when object is serialized
-        delete ret.hashedPassword;
-        //delete ret.salt;
+        //delete ret.hashedPassword;
+        delete ret.salt;
     }
 });
 

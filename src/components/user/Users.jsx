@@ -63,13 +63,13 @@ export default function Users (props) {
         title: 'Rolle',
         field: 'role',
         editable: 'always',
-        lookup: { bruker: 'bruker', admin: 'admin' }
+        lookup: { Bruker: 'Bruker', Admin: 'Admin' }
       },
       {
         title: 'Rettigheter',
         field: 'rights',
         editable: 'always',
-        lookup: { les: 'les', Skriv: 'skriv' }
+        lookup: { Les: 'Les', Skriv: 'Skriv' }
       },
       {
         title: 'E-Post',
@@ -137,10 +137,10 @@ export default function Users (props) {
   }
 
   useEffect(() => {
-    if (!users.length) {
+    if (!myself.length) {
       init(match.params.userId)
     }
-  }, [match.params.userId])
+  }, [myself.length, match.params.userId])
 
   // Slett bruker
   const deleteFromDB = (idTodelete) => {

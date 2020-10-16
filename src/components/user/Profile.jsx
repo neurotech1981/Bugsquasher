@@ -24,12 +24,14 @@ const useStyles = makeStyles((theme) => ({
     margin: 'auto',
     padding: theme.spacing(3),
     marginTop: theme.spacing(15),
-    borderRadius: '15px'
+    borderRadius: '15px',
   }),
   title: {
     margin: `${theme.spacing(3)}px 0 ${theme.spacing(2)}px`,
-    color: theme.palette.protectedTitle,
-    fontWeight: 500
+    fontWeight: 500,
+  },
+  userInfo: {
+    color: 'black !important'
   }
 }))
 
@@ -50,6 +52,7 @@ export default function Profile () {
       },
       { t: jwt.token }
     ).then((data) => {
+      console.log("Data: ", data)
       if (data.error) {
         setValues({ redirectToSignin: true })
       } else {
@@ -79,8 +82,8 @@ export default function Profile () {
               <Person />
             </Avatar>
           </ListItemAvatar>
-          <ListItemText primary={users.name} secondary={users.email} />
-          <ListItemText primary="Rolle" secondary={users.role} />
+          <ListItemText className={classes.userInfo} primary={users.name} secondary={users.email} />
+          <ListItemText className={classes.userInfo} primary="Rolle" secondary={users.role} />
           {auth.isAuthenticated().user &&
             auth.isAuthenticated().user._id === users._id && (
             <ListItemSecondaryAction>

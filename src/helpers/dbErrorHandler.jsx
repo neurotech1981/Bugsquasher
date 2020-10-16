@@ -18,7 +18,6 @@ const getErrorMessage = (err) => {
   return message
 }
 
-// eslint-disable-next-line no-unused-vars
 const getUniqueErrorMessage = (err) => {
   let output
   try {
@@ -33,4 +32,4 @@ const getUniqueErrorMessage = (err) => {
   return output
 }
 
-module.exports = { getErrorMessage }
+module.exports = { getErrorMessage, getUniqueErrorMessage }

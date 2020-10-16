@@ -1,8 +1,19 @@
 const User = require('../models/user')
+const db = require('../index')
 const errorHandler = require('../../../helpers/dbErrorHandler')
+const Role = require('../../../helpers/role');
+const Rights = require('../../../helpers/rights');
 
-export const registerUser = (req, res, next) => {
+
+export const registerUser = async (req, res, next) => {
   const user = new User(req.body)
+  console.log("Controller USER: ", user)
+
+    const isFirstAccount = (await User.countDocuments({})) === 0;
+    user.role = isFirstAccount ? Role.Admin : Role.Bruker;
+    user.rights = isFirstAccount ? Rights.Skriv : Rights.Les;
+    //User.verificationToken = randomTokenString()
+
   user.save((err, result) => {
     if (err) {
       return res.status(400).json({
@@ -33,7 +44,7 @@ export const findUserById = (req, res, next, id) => {
   User.findById(id).exec((err, user) => {
     if (err || !user) {
       return res.status(400).json({
-        error: 'Ingen brukere ble funnet med denne ID!'
+        error: 'Fant ingen brukere med denne ID!'
       })
     }
     req.profile = user

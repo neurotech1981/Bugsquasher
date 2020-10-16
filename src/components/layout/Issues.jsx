@@ -64,7 +64,7 @@ export default function Issues (props) {
             style={{
               color:
                 data.priority === 'Øyeblikkelig'
-                  ? 'darkred'
+                  ? 'rgb(255, 125, 145)'
                   : '' || data.priority === 'Høy'
                     ? 'orange'
                     : '' || data.priority === 'Normal'
@@ -73,7 +73,8 @@ export default function Issues (props) {
                         ? 'yellow'
                         : '' || data.priority === 'Lav'
                           ? 'grey'
-                          : ''
+                          : '',
+                padding: '0.7em'
             }}
           >
             {data.priority}
@@ -105,10 +106,12 @@ export default function Issues (props) {
             style={{
               color:
                 data.status === 'Åpen'
-                  ? 'white'
-                  : '' || data.status === 'Lukket'
-                    ? 'gray'
-                    : ''
+                  ? 'rgb(255, 199, 255)'
+                  : '' || data.status === 'Løst'
+                    ? 'rgb(255, 255, 145)'
+                    : '' || data.status === 'Lukket'
+                    ? 'rgb(255, 125, 145)'
+                    : '',
             }}
           >
             {data.status}
@@ -125,8 +128,15 @@ export default function Issues (props) {
   })
 
   useEffect(() => {
-    getIssues()
-  }, [!dataset])
+    let isSubscribed = true
+
+    if (!dataset.length) {
+        if (isSubscribed) {
+          getIssues()
+        }
+    }
+    return () => isSubscribed = false
+  }, [dataset])
 
   const getIssues = async () => {
     const res = await issueService.getAll()

@@ -1,4 +1,5 @@
 // api-user.js
+import axios from 'axios'
 
 export const registerUser = async user => {
   console.log(JSON.stringify(user))
@@ -42,7 +43,7 @@ export const findUserProfile = async (params, credentials) => {
         Accept: 'application/json',
         'Content-Type': 'application/json',
         Authorization: 'Bearer ' + credentials.t
-      }
+      },
     })
     return response.json()
   } catch (err) {
@@ -50,19 +51,14 @@ export const findUserProfile = async (params, credentials) => {
   }
 }
 
-export const deleteUser = async (params, credentials) => {
+export const deleteUser = async (params) => {
   try {
-    const response = await fetch('/api/delete/' + params.userId, {
-      method: 'DELETE',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + credentials.t
+      await axios.delete('/api/removeUser', {
+      data: {
+        _id: params.userId
       },
-      body: JSON.stringify()
     })
-    return response.json()
   } catch (err) {
-    return console.error(err)
+    return console.error("Something went wrong: ", err)
   }
 }

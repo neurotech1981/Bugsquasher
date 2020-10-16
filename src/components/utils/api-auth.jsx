@@ -1,5 +1,5 @@
 // api-auth.js
-export const signin = async user => {
+export const signin = async (user) => {
   try {
     const response = await fetch('/auth/signin/', {
       method: 'POST',

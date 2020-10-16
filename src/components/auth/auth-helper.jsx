@@ -12,6 +12,7 @@ const auth = {
   },
   signout (cb) {
     if (typeof window !== 'undefined') sessionStorage.removeItem('jwt')
+
     cb()
     // optional
     signout().then(data => {

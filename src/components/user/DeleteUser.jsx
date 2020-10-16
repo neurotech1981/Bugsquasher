@@ -30,14 +30,11 @@ export default function DeleteUser (props) {
         userId: props.userId
       },
       { t: jwt.token }
-    ).then((data) => {
-      if (data.error) {
-        console.log(data.error)
-      } else {
-        auth.signout(() => console.log('deleted'))
-        setValues({ redirect: true })
-      }
-    })
+    )
+
+    auth.signout(() => console.log('deleted'))
+    setValues({ redirect: true })
+
   }
 
   const handleRequestClose = () => {

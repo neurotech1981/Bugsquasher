@@ -1,7 +1,6 @@
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { Fragment, useState } from 'react'
 import auth from '../auth/auth-helper'
 import { Link } from 'react-router-dom'
-import clsx from 'clsx'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import useReactRouter from 'use-react-router'
 import Divider from '@material-ui/core/Divider'
@@ -10,14 +9,11 @@ import Hidden from '@material-ui/core/Hidden'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import IconButton from '@material-ui/core/IconButton'
-import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
-import InputBase from '@material-ui/core/InputBase'
 import Badge from '@material-ui/core/Badge'
 import List from '@material-ui/core/List'
 import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu'
-import { fade } from '@material-ui/core/styles/colorManipulator'
 import MenuIcon from '@material-ui/icons/MenuTwoTone'
 import AccountCircle from '@material-ui/icons/AccountCircleTwoTone'
 import NotificationsIcon from '@material-ui/icons/NotificationsTwoTone'
@@ -28,21 +24,19 @@ import ListItemText from '@material-ui/core/ListItemText'
 import MailIcon from '@material-ui/icons/MailTwoTone'
 import Dashboard from '@material-ui/icons/DashboardTwoTone'
 import Settings from '@material-ui/icons/SettingsTwoTone'
-import PersonAddRoundedIcon from '@material-ui/icons/PersonAddTwoTone'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import BugIcon from '../../images/bug.svg'
 import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppTwoTone'
-import VpnKeyRoundedIcon from '@material-ui/icons/VpnKeyTwoTone'
 import NoteAddRoundedIcon from '@material-ui/icons/NoteAddTwoTone'
 import PageviewRoundedIcon from '@material-ui/icons/PageviewTwoTone'
 import GroupRoundedIcon from '@material-ui/icons/GroupTwoTone'
 
 const drawerWidth = 250
 
-const isActive = (history, path) => {
-  if (history.location.pathname === path) return { color: '#F44336' }
-  else return { color: '#ffffff' }
-}
+//const isActive = (history, path) => {
+//  if (history.location.pathname === path) return { color: '#F44336' }
+//  else return { color: '#ffffff' }
+//}
 
 const useStyles = makeStyles((theme) => ({
   palette: {
@@ -173,16 +167,22 @@ const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar
 }))
 
-const items = [
-  { label: 'Min oversikt', icon: <Dashboard />, path: '/' },
+console.log("USER: ", auth.isAuthenticated().user)
+
+
+
+function NavBar (props) {
+
+  const items = [
+  { label: 'Min oversikt', icon: <Dashboard />, path: '/landing'},
   {
     label: 'Legg til sak',
     icon: <NoteAddRoundedIcon />,
-    path: !auth.isAuthenticated()
-      ? '/legg-til-sak'
-      : '/legg-til-sak/' + auth.isAuthenticated().user._id
+    path: !auth.isAuthenticated() ? '/legg-til-sak/' : '/legg-til-sak/' + auth.isAuthenticated().user._id
   },
-  { label: 'Vis saker', icon: <PageviewRoundedIcon />, path: '/saker' },
+  { label: 'Vis saker', icon: <PageviewRoundedIcon />, path:
+  !auth.isAuthenticated() ? '/saker/' : '/saker/' + auth.isAuthenticated().user._id
+},
   {
     label: 'Bruker administrasjon',
     icon: <GroupRoundedIcon />,
@@ -193,11 +193,10 @@ const items = [
   { label: 'Innstillinger', icon: <Settings />, path: '/innstillinger' }
 ]
 
-function NavBar (props) {
-  const { history, location, match } = useReactRouter()
+  const { history } = useReactRouter()
   const { container } = props
-  const [mobileOpen, setMobileOpen] = React.useState(false)
-  const [open, setOpen] = React.useState(false)
+  //const [mobileOpen, setMobileOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
 
   const classes = useStyles()
   const theme = useTheme()
@@ -205,16 +204,17 @@ function NavBar (props) {
     setOpen(!open)
   }
 
-  function handleDrawerOpen () {
-    setOpen(true)
-  }
+ // function handleDrawerOpen () {
+ //   setOpen(true)
+ // }
 
-  function handleDrawerClose () {
-    setOpen(false)
-  }
+ // function handleDrawerClose () {
+ //   setOpen(false)
+ // }
 
   const drawer = (
     <div>
+      {auth.isAuthenticated() && (
       <Drawer
         className={classes.drawer}
         variant="permanent"
@@ -236,11 +236,12 @@ function NavBar (props) {
         </List>
         <Divider />
       </Drawer>
+      )}
     </div>
   )
 
-  const [anchorEl, setAnchorEl] = React.useState(false)
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(false)
+  const [anchorEl, setAnchorEl] = useState(false)
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(false)
 
   const isMenuOpen = Boolean(anchorEl)
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
@@ -290,7 +291,7 @@ function NavBar (props) {
 
       <MenuItem
         onClick={() => {
-          auth.signout(() => history.push('/'))
+          auth.signout(() => history.push('/signin'))
         }}
       >
         <IconButton color="inherit">
@@ -325,8 +326,9 @@ function NavBar (props) {
       </MenuItem>
       {auth.isAuthenticated() && (
         <MenuItem
+          onClose={handleMobileMenuClose}
           onClick={() => {
-            auth.signout(() => history.push('/'))
+            auth.signout(() => history.push('/signin'))
           }}
         >
           <IconButton color="inherit">
@@ -338,7 +340,7 @@ function NavBar (props) {
     </Menu>
   )
 
-  return (
+  return auth.isAuthenticated() && (
     <div className={classes.root}>
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
@@ -354,7 +356,8 @@ function NavBar (props) {
               <MenuIcon />
             </IconButton>
           )}
-          <img className="svgLogoIcon" src={BugIcon} type="image/svg+xml" />
+
+          <img className="svgLogoIcon" alt="Logo" src={BugIcon} type="image/svg+xml" />
           <Typography
             className={classes.title}
             variant="h6"
@@ -364,32 +367,6 @@ function NavBar (props) {
             BugSquasher
           </Typography>
           <div className={classes.buttons}>
-            {!auth.isAuthenticated() && (
-              <span>
-                <Link to="/signup">
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    aria-label="Registrer bruker"
-                    className={classes.button}
-                  >
-                    <PersonAddRoundedIcon className={classes.extendedIcon} />
-                    Registrer bruker
-                  </Button>
-                </Link>
-                <Link to="/signin">
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    aria-label="Logg inn"
-                    className={classes.button}
-                  >
-                    <VpnKeyRoundedIcon className={classes.extendedIcon} />
-                    Logg inn
-                  </Button>
-                </Link>
-              </span>
-            )}
             {auth.isAuthenticated() && (
               <Fragment>
                 <div className={classes.grow}>

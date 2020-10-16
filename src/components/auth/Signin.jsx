@@ -12,10 +12,24 @@ import { Redirect } from 'react-router-dom'
 import { signin } from '../utils/api-auth'
 import useReactRouter from 'use-react-router'
 import VpnKeyIcon from '@material-ui/icons/VpnKey'
+import Link from '@material-ui/core/Link';
+import Box from '@material-ui/core/Box';
+import PersonAddRoundedIcon from '@material-ui/icons/PersonAddTwoTone'
 
 const useStyles = makeStyles(theme => ({
   root: {
-    margin: '0 auto'
+    margin: '0 auto',
+  },
+  button: {
+    margin: theme.spacing(1),
+    '&:hover': {
+      transition: theme.transitions.create('margin', {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen
+      }),
+      backgroundColor: '#FFF00',
+      color: 'white'
+    }
   },
   extendedIcon: {
     marginRight: theme.spacing(1)
@@ -25,7 +39,7 @@ const useStyles = makeStyles(theme => ({
     margin: 'auto',
     textAlign: 'center',
     marginTop: theme.spacing(15),
-    paddingBottom: theme.spacing(2)
+    paddingBottom: theme.spacing(2),
   },
   error: {
     verticalAlign: 'middle'
@@ -42,6 +56,9 @@ const useStyles = makeStyles(theme => ({
   submit: {
     margin: 'auto',
     marginBottom: theme.spacing(2)
+  },
+  forgottenPassword: {
+    paddingLeft: theme.spacing(2),
   }
 }))
 
@@ -111,7 +128,7 @@ export default function Signin () {
             value={values.email}
             onChange={handleChange('email')}
             margin="normal"
-            autoComplete="username"
+            autoComplete="email"
             variant="outlined"
           />
           <br />
@@ -136,19 +153,42 @@ export default function Signin () {
           )}
         </CardContent>
         <CardActions>
+          <Box justifyContent="center">
           <Button
             color="primary"
             variant="contained"
-            size="large"
-            onClick={e => clickSubmit()}
-            className={classes.submit}
+            onClick={() => clickSubmit()}
+            className={classes.button}
           >
             <VpnKeyIcon className={classes.extendedIcon} />
             Logg inn
           </Button>
+              <Button
+                color="default"
+                variant="contained"
+                aria-label="Registrer bruker"
+                className={classes.button}
+                href="/signup"
+              >
+              <PersonAddRoundedIcon className={classes.extendedIcon} />
+                Ny bruker
+              </Button>
+            <p>
+          <Link
+            className={classes.forgottenPassword}
+            component="button"
+            variant="body2"
+            onClick={() => {
+              console.info("I'm a button.");
+            }}
+          >
+            Glemt passord?
+          </Link>
+          </p>
+        </Box>
         </CardActions>
       </Card>
-    </form>
+      </form>
   )
 }
 

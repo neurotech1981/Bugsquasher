@@ -103,16 +103,14 @@ const validateInput = require('../../validation/input-validation')
 
 // Use the Data object (data) to find all Data records
 Data.find(Data)
-// Make Mongoose use `findOneAndUpdate()`. Note that this option is `true`
-// by default, you need to set it to false.
-mongoose.set('useFindAndModify', false)
 // connects our back end code with the database
 const URI = config.mongoURI
 try {
   mongoose.connect(URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true
+    useCreateIndex: true,
+    useFindAndModify: false
   })
 } catch (error) {
   console.log(error)
@@ -126,6 +124,18 @@ db.once('open', function () {
 
 // checks if connection with the database is successful
 db.on('error', console.error.bind(console, 'MongoDB connection error:'))
+
+mongoose.Promise = global.Promise;
+
+module.exports = {
+    UserAccount: require('../src/models/user'),
+    RefreshToken: require('../src/accounts/refresh-tokens'),
+    isValidId
+};
+
+function isValidId(id) {
+    return mongoose.Types.ObjectId.isValid(id);
+}
 
 // define the Express app
 const app = express()
@@ -234,6 +244,21 @@ router.get('/getData', (req, res) => {
   })
 })
 
+router.put('/upDateIssue/:id', (req, res, next) => {
+  const { update } = req.body;
+  console.log("BODY REQ ISSUE UPDATE: ", req.params.id)
+  Data.findByIdAndUpdate(
+    { _id: req.params.id },
+    { status: req.body.status},
+    function (err, data) {
+    if (err) return next(err)
+      return res.json({
+        success: true,
+        data: data
+      })
+  })
+})
+
 router.put('/getDataByID/:id', function async (req, res, next) {
   Data.findById(req.params.id, req.body, function (err, post) {
     if (err) return next(err)
@@ -247,9 +272,7 @@ router.put('/getDataByID/:id', function async (req, res, next) {
 // this is our old update method
 // this method overwrites existing data in our database
 router.post('/edituser', function async(req, res) {
-  console.log('REQUEST UPDATE: ', req.body)
   const { _id, role, update } = req.body;
-  console.log(ac.can(role).readAny('editusers'))
   const permission = ac.can(role).readAny('editusers');
   if (permission.granted) {
     User.findByIdAndUpdate(_id, req.body.update, (err) => {
@@ -310,7 +333,6 @@ router.post('/putData', function async (req, res) {
   data.severity = req.body.severity
   data.priority = req.body.priority
   data.additional_info = req.body.additional_info
-  data.status = req.body.status
   data.userid = req.body.userid
   data.imageName = req.body.imageName
 

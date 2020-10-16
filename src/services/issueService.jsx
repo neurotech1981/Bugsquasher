@@ -10,5 +10,9 @@ export default {
   getIssueByID: async id => {
     const res = await axios.put('/api/getDataByID/' + id)
     return res.data.data || []
+  },
+  updateIssueByID: async (id, data) => {
+    console.log("ISSUE SERVICE DATA: ", id, data)
+    return await axios.put(`/api/upDateIssue/${id}`, data)
   }
 }

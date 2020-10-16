@@ -261,7 +261,6 @@ export default function CreateIssue () {
     setBeskrivelse: '',
     setStegReprodusere: '',
     setTillegg: '',
-    setStatus: 'Åpen',
     setImageName: ['']
   }
 
@@ -357,7 +356,6 @@ export default function CreateIssue () {
         delegated: values.setDelegated,
         step_reproduce: values.setStegReprodusere,
         additional_info: values.setTillegg,
-        status: values.setStatus,
         imageName: imageNameValue,
         // eslint-disable-next-line no-underscore-dangle
         userid: userinfo.user._id

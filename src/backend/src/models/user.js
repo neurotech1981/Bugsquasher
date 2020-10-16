@@ -23,17 +23,25 @@ const userSchema = new Schema({
   },
   role: {
     type: String,
-    default: 'bruker',
-    enum: ['bruker', 'admin']
+    //default: 'bruker',
+    enum: ['Bruker', 'Admin']
   },
   rights: {
     type: String,
-    default: 'les',
-    enum: ['les', 'skriv']
+    enum: ['Les', 'Skriv']
   },
   salt: {
     type: String
-  }
+  },
+  verificationToken: String,
+  verified: Date,
+  resetToken: {
+        token: String,
+        expires: Date
+   },
+  passwordReset: Date,
+  created: { type: Date, default: Date.now },
+  updated: Date,
 })
 
 userSchema
@@ -41,7 +49,6 @@ userSchema
   .set(function (password) {
     this._password = password
     this.salt = bcrypt.genSaltSync(saltRounds);
-    //this.salt = this.makeSalt()
     this.hashedPassword = this.encryptedPassword(password)
   })
   .get(function () {
@@ -66,6 +73,14 @@ userSchema.methods = {
   }
 }
 
+userSchema.virtual('passwordConfirmation')
+.get(function() {
+  return this._passwordConfirmation;
+})
+.set(function(value) {
+  this._passwordConfirmation = value;
+});
+
 userSchema.path('hashedPassword').validate(function (v) {
   if (this.hashedPassword && this._password.length < 6) {
     this.invalidate('password', 'Passord må være minst 6 bokstaver langt.')
@@ -73,6 +88,24 @@ userSchema.path('hashedPassword').validate(function (v) {
   if (this.isNew && !this._password) {
     this.invalidate('password', 'Passord er påkrevd.')
   }
+  if (this._password !== this._passwordConfirmation) {
+    this.invalidate('passwordConfirmation', 'Passord må være like.');
+  }
 }, null)
+
+userSchema.virtual('isVerified').get(function () {
+    return !!(this.verified || this.passwordReset);
+});
+
+
+userSchema.set('toJSON', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        // remove these props when object is serialized
+        delete ret.hashedPassword;
+        //delete ret.salt;
+    }
+});
 
 module.exports = mongoose.model('User', userSchema)

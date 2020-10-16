@@ -6,7 +6,7 @@ import Icon from '@material-ui/core/Icon'
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded'
 import Snackbar from '@material-ui/core/Snackbar'
 import axios from 'axios'
-import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
+import MuiAlert from '@material-ui/lab/Alert'
 import { makeStyles } from '@material-ui/styles'
 import { useDispatch, useSelector } from 'react-redux'
 import { addImageAction, deleteImageAction, clearAction } from '../../redux/store'
@@ -128,10 +128,8 @@ function Previews (props) {
     return new Promise((resolve, reject) => {
       setTimeout(resolve)
       const imageFormObj = new FormData()
-      let imageDataSave = []
 
       for (let x = 0; x < acceptedFiles.length; x++) {
-        imageDataSave = { ...images.imageupload[1].name }
         imageFormObj.append('imageName', images.imageupload[1].name[x].path)
         imageFormObj.append('imageData', images.imageupload[1].name[x])
       }
@@ -181,17 +179,17 @@ function Previews (props) {
       // Make sure to revoke the data uris to avoid memory leaks
       files.forEach((file) => URL.revokeObjectURL(file.preview))
     },
-    [] // files
+    [files] // files
   )
 
-  const onSubmit = (event) => {
-    event.preventDefault()
-    addImage({
-      id: uuid(),
-      name: files
-    })
-    setFiles('')
-  }
+  //const onSubmit = (event) => {
+  //  event.preventDefault()
+  //  addImage({
+  //    id: uuid(),
+  //    name: files
+  //  })
+  //  setFiles('')
+  //}
 
   const handleChange = (event) => {
     setFiles(event.target.value)

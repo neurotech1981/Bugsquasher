@@ -14,13 +14,14 @@ import DialogContent from '@material-ui/core/DialogContent'
 import Dialog from '@material-ui/core/Dialog'
 import { Link } from 'react-router-dom'
 import { registerUser } from '../utils/api-user'
+import { useHistory } from 'react-router-dom'
 
 const useStyles = makeStyles((theme) => ({
   card: {
     maxWidth: 600,
     margin: 'auto',
     textAlign: 'center',
-    marginTop: theme.spacing.unit * 15,
+    marginTop: theme.spacing(15),
     paddingBottom: theme.spacing(2)
   },
   error: {
@@ -45,12 +46,19 @@ export default function Signup () {
   const initialState = {
     name: '',
     password: '',
+    passwordConfirmation: '',
     email: '',
     open: false,
     error: ''
   }
 
   const [values, setValues] = useState(initialState)
+
+  const history = useHistory();
+  const goHome = () => {
+    history.push("/signin");
+  }
+
 
   const handleChange = (name) => (event) => {
     setValues({
@@ -63,7 +71,8 @@ export default function Signup () {
     const user = {
       name: values.name || undefined,
       email: values.email || undefined,
-      password: values.password || undefined
+      password: values.password || undefined,
+      passwordConfirmation: values.passwordConfirmation || undefined
     }
     registerUser(user).then((data) => {
       if (data.error) {
@@ -84,7 +93,7 @@ export default function Signup () {
             Registrer bruker
           </Typography>
           <TextField
-            autocomplete="off"
+            autoComplete="off"
             id="name"
             type="text"
             label="Navn"
@@ -96,7 +105,7 @@ export default function Signup () {
           />
           <br />
           <TextField
-            autocomplete="off"
+            autoComplete="off"
             id="email"
             type="email"
             label="E-Post"
@@ -108,13 +117,24 @@ export default function Signup () {
           />
           <br />
           <TextField
-            autocomplete="off"
+            autoComplete="off"
             id="password"
             type="password"
             label="Passord"
             className={classes.textField}
             value={values.password}
             onChange={handleChange('password')}
+            margin="normal"
+            variant="outlined"
+          />
+          <TextField
+            autoComplete="off"
+            id="passwordConfirmation"
+            type="password"
+            label="Gjenta passord"
+            className={classes.textField}
+            value={values.passwordConfirmation}
+            onChange={handleChange('passwordConfirmation')}
             margin="normal"
             variant="outlined"
           />
@@ -137,6 +157,14 @@ export default function Signup () {
             className={classes.submit}
           >
             Registrer bruker
+          </Button>
+                    <Button
+            color="default"
+            variant="contained"
+            onClick={goHome}
+            className={classes.submit}
+          >
+            Gå tilbake
           </Button>
         </CardActions>
       </Card>

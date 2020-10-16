@@ -4,18 +4,24 @@ import issueService from '../../services/issueService'
 import '../../App.css'
 import moment from 'moment'
 import CssBaseline from '@material-ui/core/CssBaseline'
-import Container from '@material-ui/core/Container'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import InputLabel from '@material-ui/core/InputLabel'
+import IconButton from '@material-ui/core/IconButton'
+import DeleteIcon from '@material-ui/icons/Delete'
+import SaveIcon from '@material-ui/icons/Save'
 import Avatar from '@material-ui/core/Avatar'
+import MenuItem from '@material-ui/core/MenuItem'
 import { deepPurple } from '@material-ui/core/colors'
 import Grid from '@material-ui/core/Grid'
-import useReactRouter from 'use-react-router'
+import Box from '@material-ui/core/Box'
 import { Link } from 'react-router-dom'
 import EditIcon from '@material-ui/icons/Edit'
+import { useHistory } from 'react-router-dom'
+import auth from '../auth/auth-helper'
 
 const drawerWidth = 240
 
@@ -24,6 +30,9 @@ const formattedDate = (value) => moment(value).format('DD/MM-YYYY')
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex'
+  },
+  button: {
+    margin: theme.spacing(1),
   },
   drawer: {
     [theme.breakpoints.up('sm')]: {
@@ -34,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
-    paddingTop: '90px'
+    paddingTop: '50px'
   },
   container: {
     display: 'flex',
@@ -44,13 +53,22 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: '100%',
-    backgroundColor: 'white'
+    backgroundColor: 'white',
+  },
+  textFieldStatus: {
+    margin: theme.spacing(1),
+    width: '10%',
+    backgroundColor: 'white',
+    marginTop: '0',
   },
   avatar: {
-    margin: 10
+    margin: 10,
   },
   purpleAvatar: {
-    margin: 5,
+    margin: 0,
+    left: 0,
+    width: '70px',
+    height: '70px',
     color: '#fff',
     backgroundColor: deepPurple[500]
   }
@@ -60,7 +78,8 @@ const thumbsContainer = {
   display: 'flex',
   flexDirection: 'row',
   flexWrap: 'wrap',
-  marginTop: 16
+  marginTop: 16,
+  textAlign: 'left'
 }
 
 const thumb = {
@@ -90,25 +109,34 @@ const img = {
 }
 
 export default function ViewIssue (props) {
-  const { history, location, match } = useReactRouter()
   const classes = useStyles()
   const [dataset, setData] = useState([''])
   const [images, setImages] = useState([])
-  const [value, setValue] = useState('')
-  const [edit, setEdit] = useState(false)
+  const [errors, setErrors] = useState('')
+  const [myself, setMyself] = useState([])
 
   const [selectedDate, setSelectedDate] = React.useState(dataset.updatedAt)
+  const history = useHistory();
+
+  const goHome = () => {
+    history.push("/saker/" + auth.isAuthenticated().user._id);
+  }
 
   const handleChange = (event) => {
     setData(event.target.value)
   }
 
-  const handleDateChange = (date) => {
-    setSelectedDate(date)
+  const handleDataChange = (name) => (event) => {
+    setData({
+      ...dataset,
+      [name]: event.target.value
+    })
+    console.log("event handle change: ", event.target.value + " " + myself.role)
+    updateIssueByID(id, event.target.value, myself.role)
   }
 
-  const onEditClick = () => {
-    setEdit(true)
+  const handleDateChange = (date) => {
+    setSelectedDate(date)
   }
 
   const { id } = props.match.params
@@ -125,9 +153,33 @@ export default function ViewIssue (props) {
     } else {
       setImages(res.imageName[0])
     }
-
-    console.log(res)
   }
+
+  const updateIssueByID = async (id, data) => {
+    await issueService.updateIssueByID(id, {"status": data})
+    .then(response => {
+      setData({ ...dataset, status: data });
+      console.log("ISSUE UPDATE RESPONSE: ", response);
+    })
+    .catch(e => {
+      console.log("ISSUE UPDATE: ", e);
+    });
+  }
+
+  const Status = [
+  {
+    value: 0,
+    label: 'Åpen'
+  },
+  {
+    value: 1,
+    label: 'Løst'
+  },
+  {
+    value: 2,
+    label: 'Lukket'
+  }
+]
 
   const thumbs = images.map((file, index) => (
     <div style={thumb} key={index}>
@@ -143,7 +195,7 @@ export default function ViewIssue (props) {
       // Make sure to revoke the data uris to avoid memory leaks
       images.forEach((file) => URL.revokeObjectURL(file.path))
     },
-    [] // files
+    [images] // files
   )
 
   const imgList = images.map((file, index) => {
@@ -179,7 +231,7 @@ export default function ViewIssue (props) {
             target="_blank"
             download
           >
-            <Button variant="contained" color="default">
+            <Button variant="contained" color="default" startIcon={<SaveIcon />}>
               Download
             </Button>
           </Link>
@@ -195,25 +247,83 @@ export default function ViewIssue (props) {
       <main className={classes.content}>
         <Typography variant="h4" gutterBottom></Typography>
         <div className="grid-container">
-          <div className="item1">
+          <div className="item0">
+            <IconButton
+              onClick={goHome}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+          </div>
+          <div className="item1" style={{ paddingLeft: '5rem' }}>
             {dataset.name}
             <p style={{ fontSize: '0.6em', marginTop: '0.3em' }}>
               Opprettet: {formattedDate(dataset.createdAt)}
             </p>
             <Button
               variant="contained"
-              color="default"
+              color="primary"
               className={classes.button}
               startIcon={<EditIcon />}
               size="small"
             >
-              Edit
+              Rediger
             </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              className={classes.button}
+              startIcon={<DeleteIcon />}
+              size="small"
+            >
+              Slett sak
+            </Button>
+          <TextField
+            id="outlined-select-status"
+            select
+            label="Status"
+            name="Status"
+            size="small"
+            className={classes.textFieldStatus}
+            value={[dataset.status ? dataset.status : 'Åpen']}
+            onChange={handleDataChange('status')}
+            InputProps={{
+              className: classes.input
+            }}
+            SelectProps={{
+              MenuProps: {
+                className: classes.menu
+              }
+            }}
+            margin="normal"
+            variant="outlined"
+          >
+            {Status.map((option, key) => (
+              <MenuItem key={key} value={option.label}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
+          {errors.status ? (
+            <Box
+              className={classes.BoxErrorField}
+              fontFamily="Monospace"
+              color="error.main"
+              p={1}
+              m={1}
+            >
+              {errors.status}
+              {' '}
+              ⚠️
+            </Box>
+          ) : (
+            ''
+          )}
+
           </div>
           <div className="item2">
             <TextField
               label="Priority"
-              value={dataset.priority ? dataset.priority : ' '}
+              value={[dataset.priority ? dataset.priority: '']}
               className={classes.textField}
               margin="normal"
               variant="outlined"
@@ -225,7 +335,7 @@ export default function ViewIssue (props) {
           </div>
           <div className="item3">
             <TextField
-              label="Last updated"
+              label="Sist oppdatert"
               value={formattedDate(dataset.updatedAt)}
               className={classes.textField}
               margin="normal"
@@ -245,8 +355,7 @@ export default function ViewIssue (props) {
           <div className="item4">
             <TextField
               label="Kategori"
-              value={[dataset.category] ? props.selectedValue : ' '}
-              defaultValue="Kategori"
+              value={[dataset.category ? dataset.category : '']}
               className={classes.textField}
               margin="normal"
               variant="outlined"
@@ -255,8 +364,8 @@ export default function ViewIssue (props) {
               }}
             />
           </div>
-          <div className="item6">
-            <Grid container justify="center" alignItems="center">
+          <div className="item1">
+            <Grid container alignItems="flex-start">
               <Avatar
                 alt="Profile picture"
                 className={classes.purpleAvatar}
@@ -266,8 +375,7 @@ export default function ViewIssue (props) {
           <div className="item7">
             <TextField
               label="Alvorlighetsgrad"
-              value={[dataset.severity] ? props.selectedValue : ' '}
-              defaultValue="Alvorlighetsgrad"
+              value={[dataset.severity ? dataset.severity : '']}
               className={classes.textField}
               margin="normal"
               variant="outlined"
@@ -279,21 +387,7 @@ export default function ViewIssue (props) {
           <div className="item8">
             <TextField
               label="Mulighet å reprodusere"
-              value={[dataset.reproduce] ? props.selectedValue : ' '}
-              defaultValue="Mulighet å reprodusere"
-              className={classes.textField}
-              margin="normal"
-              variant="outlined"
-              InputProps={{
-                readOnly: true
-              }}
-            />
-          </div>
-          <div className="item9">
-            <TextField
-              label="Status"
-              value={[dataset.status] ? props.selectedValue : ' '}
-              defaultValue="Status"
+              value={[dataset.reproduce ? dataset.reproduce : '']}
               className={classes.textField}
               margin="normal"
               variant="outlined"
@@ -305,8 +399,7 @@ export default function ViewIssue (props) {
           <div className="item15">
             <TextField
               label="Delegert til"
-              value={dataset.delegated}
-              defaultValue="Ingen"
+              value={[dataset.delegated ? dataset.delegated : 'Ingen']}
               className={classes.textField}
               margin="normal"
               variant="outlined"
@@ -319,8 +412,7 @@ export default function ViewIssue (props) {
             <TextField
               multiline
               label="Oppsummering"
-              value={dataset.summary}
-              defaultValue="Oppsummering"
+              value={[dataset.summary ? dataset.summary : '']}
               className={classes.textField}
               margin="normal"
               variant="outlined"
@@ -335,8 +427,7 @@ export default function ViewIssue (props) {
               rowsMax="8"
               variant="outlined"
               label="Beskrivelse"
-              value={dataset.description}
-              defaultValue="Beskrivelse"
+              value={[dataset.description ? dataset.description : '']}
               className={classes.textField}
               margin="normal"
               InputProps={{
@@ -350,8 +441,7 @@ export default function ViewIssue (props) {
               variant="outlined"
               rows="10"
               label="Steg for å reprodusere"
-              value={dataset.step_reproduce}
-              defaultValue="Steg for å reprodusere"
+              value={[dataset.step_reproduce ? dataset.step_reproduce : '']}
               className={classes.textField}
               margin="normal"
               InputProps={{
@@ -365,8 +455,7 @@ export default function ViewIssue (props) {
               rows="10"
               variant="outlined"
               label="Tilleggsinformasjon"
-              value={dataset.additional_info}
-              defaultValue="Tilleggsinformasjon"
+              value={[dataset.additional_info ? dataset.additional_info : '']}
               className={classes.textField}
               margin="normal"
               InputProps={{

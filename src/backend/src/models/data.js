@@ -12,6 +12,11 @@ const DataSchema = new Schema(
     id: Number,
     name: String,
     delegated: String,
+    status: {
+      type: String,
+      default: 'Åpen',
+      required: false
+    },
     description: String,
     category: String,
     environment: String,
@@ -24,10 +29,6 @@ const DataSchema = new Schema(
     summary: String,
     assigned: String,
     additional_info: String,
-    status: {
-      type: String,
-      default: 'Åpen'
-    },
     userid: String,
     imageName: {
       type: { String },

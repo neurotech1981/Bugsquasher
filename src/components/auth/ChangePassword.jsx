@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import auth from './auth-helper'
 import { Redirect } from 'react-router-dom'
-import { forgotPassword } from '../../../src/components/utils/api-user'
+import { changePassword } from '../utils/api-user'
 import useReactRouter from 'use-react-router'
 import VpnKeyIcon from '@material-ui/icons/VpnKey'
 import Box from '@material-ui/core/Box'
@@ -61,13 +61,17 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-export default function ResetPassword () {
+export default function ChangePassword () {
   const { location } = useReactRouter()
   const initialState = {
-    email: '',
+    token: '',
+    password: '',
+    confirmPassword: '',
     error: '',
     message: ''
   }
+
+  const { match } = useReactRouter()
 
   const [values, setValues] = useState(initialState)
   const [open, setOpen] = useState(false)
@@ -95,10 +99,14 @@ export default function ResetPassword () {
 
   const clickSubmit = () => {
     const user = {
-      email: values.email || undefined
+      token: match.params.token || undefined,
+      password: values.password || undefined,
+      confirmPassword: values.confirmPassword || undefined,
     }
 
-    forgotPassword(user).then(data => {
+    console.log("Submit data: ", user)
+
+    changePassword(user).then(data => {
       if (data.error) {
         setValues({ error: data.error })
       } else {
@@ -137,23 +145,30 @@ export default function ResetPassword () {
             gutterBottom
             className={classes.title}
           >
-            Glemt passordet ditt?
-          </Typography>
-          <Typography variant="subtitle1" gutterBottom>
-            En lenke med instruksjoner vil bli sendt til din e-post.
+            Velg nytt passord.
           </Typography>
           <TextField
-            id="email"
-            type="email"
-            label="E-post"
+            id="password"
+            type="password"
+            label="Nytt passord"
             className={classes.textField}
-            value={values.email}
-            onChange={handleChange('email')}
+            value={values.password}
+            onChange={handleChange('password')}
             margin="normal"
-            autoComplete="email"
+            autoComplete="off"
             variant="outlined"
           />
-          <br />
+          <TextField
+            id="confirmPassword"
+            type="password"
+            label="Gjenta nytt passord"
+            className={classes.textField}
+            value={values.confirmPassword}
+            onChange={handleChange('confirmPassword')}
+            margin="normal"
+            autoComplete="off"
+            variant="outlined"
+          />
         </CardContent>
         <CardActions>
           <Box justifyContent="center">
@@ -164,7 +179,7 @@ export default function ResetPassword () {
             className={classes.button}
           >
             <VpnKeyIcon className={classes.extendedIcon} />
-            Tilbakestill passord
+            Sett passord
           </Button>
           <Button
             color="default"

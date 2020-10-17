@@ -10,12 +10,11 @@ const bcrypt = require('bcrypt');
 
 export const registerUser = async (req, res, next) => {
   const user = new User(req.body)
-  console.log("Controller USER: ", user)
+  const isFirstAccount = (await User.countDocuments({})) === 0
 
-    const isFirstAccount = (await User.countDocuments({})) === 0
-    user.role = isFirstAccount ? Role.Admin : Role.Bruker
-    user.rights = isFirstAccount ? Rights.Skriv : Rights.Les
-    user.verificationToken = randomTokenString()
+  user.role = isFirstAccount ? Role.Admin : Role.Bruker
+  user.rights = isFirstAccount ? Rights.Skriv : Rights.Les
+  user.verificationToken = randomTokenString()
 
   user.save((err, result) => {
     if (err) {
@@ -28,7 +27,7 @@ export const registerUser = async (req, res, next) => {
     })
   })
 
-    await sendVerificationEmail(user, "localhost");
+  await sendVerificationEmail(user, "localhost");
 }
 
 export const getUsers = (req, res, next) => {
@@ -137,18 +136,18 @@ export async function sendVerificationEmail(account, origin) {
     let message;
     if (origin) {
         const verifyUrl = `${origin}/account/verify-email?token=${account.verificationToken}`;
-        message = `<p>Please click the below link to verify your email address:</p>
+        message = `<p>Klikk på lenken nedenfor for å bekrefte e-postadressen din:</p>
                    <p><a href="${verifyUrl}">${verifyUrl}</a></p>`;
     } else {
-        message = `<p>Please use the below token to verify your email address with the <code>/account/verify-email</code> api route:</p>
+        message = `<p>Bruk token nedenfor for å bekrefte e-postadressen din med <code>/account/verify-email</code> api route:</p>
                    <p><code>${account.verificationToken}</code></p>`;
     }
 
     await sendEmail({
         to: account.email,
-        subject: 'Sign-up Verification API - Verify Email',
-        html: `<h4>Verify Email</h4>
-               <p>Thanks for registering!</p>
+        subject: 'Registrering på Bugsquasher.no - Bekreft e-post',
+        html: `<h4>Bekreft e-post</h4>
+               <p>Takk for at du registrerte deg!</p>
                ${message}`
     });
 }
@@ -156,16 +155,16 @@ export async function sendVerificationEmail(account, origin) {
 export async function sendAlreadyRegisteredEmail(email, origin) {
     let message;
     if (origin) {
-        message = `<p>If you don't know your password please visit the <a href="${origin}/account/forgot-password">forgot password</a> page.</p>`;
+        message = `<p>Hvis du ikke vet passordet ditt, kan du gå til <a href="${origin}/account/glemt-passord">glemt passord</a> siden.</p>`;
     } else {
-        message = `<p>If you don't know your password you can reset it via the <code>/account/forgot-password</code> api route.</p>`;
+        message = `<p>Hvis du ikke vet passordet ditt, kan du tilbakestille det via <code>/account/glemt-passord</code> api ruten.</p>`;
     }
 
     await sendEmail({
         to: email,
-        subject: 'Sign-up Verification API - Email Already Registered',
-        html: `<h4>Email Already Registered</h4>
-               <p>Your email <strong>${email}</strong> is already registered.</p>
+        subject: 'E-post allerede registrert',
+        html: `<h4>E-post allerede registrert</h4>
+               <p>Din e-post <strong>${email}</strong> er allerede registrert.</p>
                ${message}`
     });
 }
@@ -173,18 +172,18 @@ export async function sendAlreadyRegisteredEmail(email, origin) {
 export async function sendPasswordResetEmail(account, origin) {
     let message;
     if (origin) {
-        const resetUrl = `${origin}/account/reset-password?token=${account.resetToken.token}`;
-        message = `<p>Please click the below link to reset your password, the link will be valid for 1 day:</p>
+        const resetUrl = `${origin}/account/resett-passord?token=${account.resetToken.token}`;
+        message = `<p>Klikk på lenken nedenfor for å tilbakestille passordet ditt, linken vil være gyldig i 1 dag:</p>
                    <p><a href="${resetUrl}">${resetUrl}</a></p>`;
     } else {
-        message = `<p>Please use the below token to reset your password with the <code>/account/reset-password</code> api route:</p>
+        message = `<p>Bruk token nedenfor for å tilbakestille passordet ditt med<code>/account/resett-passord</code> api ruten:</p>
                    <p><code>${account.resetToken.token}</code></p>`;
     }
 
     await sendEmail({
         to: account.email,
-        subject: 'Sign-up Verification API - Reset Password',
-        html: `<h4>Reset Password Email</h4>
+        subject: 'Bugsquasher.no - Tilbakestill passord',
+        html: `<h4>Resett passord e-post</h4>
                ${message}`
     });
 }

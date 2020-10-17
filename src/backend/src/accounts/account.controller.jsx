@@ -7,11 +7,11 @@ const validateRequest = require('../../_middleware/validate-request');
 
 // routes
 router.post('/refresh-token', refreshToken);
-router.post('/register', registerSchema, register);
-router.post('/verify-email', verifyEmailSchema, verifyEmail);
-router.post('/forgot-password', forgotPasswordSchema, forgotPassword);
+router.post('/registrer', registerSchema, register);
+router.post('/bekreft-epost', verifyEmailSchema, verifyEmail);
+router.post('/glemt-passord', forgotPasswordSchema, forgotPassword);
 router.post('/validate-reset-token', validateResetTokenSchema, validateResetToken);
-router.post('/reset-password', resetPasswordSchema, resetPassword);
+router.post('/tilbakestill-passord', resetPasswordSchema, resetPassword);
 module.exports = router;
 
 
@@ -38,7 +38,7 @@ function revokeToken(req, res, next) {
     const token = req.body.token || req.cookies.refreshToken;
     const ipAddress = req.ip;
 
-    if (!token) return res.status(400).json({ message: 'Token is required' });
+    if (!token) return res.status(400).json({ message: 'Token kreves' });
 
     // users can revoke their own tokens and admins can revoke any tokens
     if (!req.user.ownsToken(token) && req.user.role !== Role.Admin) {
@@ -46,7 +46,7 @@ function revokeToken(req, res, next) {
     }
 
     accountService.revokeToken({ token, ipAddress })
-        .then(() => res.json({ message: 'Token revoked' }))
+        .then(() => res.json({ message: 'Token tilbakekalt' }))
         .catch(next);
 }
 
@@ -62,7 +62,7 @@ function registerSchema(req, res, next) {
 
 function register(req, res, next) {
     accountService.register(req.body, req.get('origin'))
-        .then(() => res.json({ message: 'Registration successful, please check your email for verification instructions' }))
+        .then(() => res.json({ message: 'Registreringen var vellykket. Sjekk e-postadressen for bekreftelsesinstruksjoner' }))
         .catch(next);
 }
 
@@ -75,7 +75,7 @@ function verifyEmailSchema(req, res, next) {
 
 function verifyEmail(req, res, next) {
     accountService.verifyEmail(req.body)
-        .then(() => res.json({ message: 'Verification successful, you can now login' }))
+        .then(() => res.json({ message: 'Bekreftelsen er vellykket. Du kan nå logge på' }))
         .catch(next);
 }
 
@@ -101,7 +101,7 @@ function validateResetTokenSchema(req, res, next) {
 
 function validateResetToken(req, res, next) {
     accountService.validateResetToken(req.body)
-        .then(() => res.json({ message: 'Token is valid' }))
+        .then(() => res.json({ message: 'Token er gyldig' }))
         .catch(next);
 }
 
@@ -116,7 +116,7 @@ function resetPasswordSchema(req, res, next) {
 
 function resetPassword(req, res, next) {
     accountService.resetPassword(req.body)
-        .then(() => res.json({ message: 'Password reset successful, you can now login' }))
+        .then(() => res.json({ message: 'Tilbakestilling av passord er vellykket. Du kan nå logge på' }))
         .catch(next);
 }
 
@@ -176,7 +176,7 @@ function _delete(req, res, next) {
     }
 
     accountService.delete(req.params.id)
-        .then(() => res.json({ message: 'Account deleted successfully' }))
+        .then(() => res.json({ message: 'Kontoen ble slettet' }))
         .catch(next);
 }
 

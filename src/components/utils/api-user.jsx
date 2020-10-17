@@ -19,13 +19,29 @@ export const registerUser = async user => {
 
 export const forgotPassword = async email => {
   try {
-    const response = await fetch('/accounts/forgot-password/', {
+    const response = await fetch('/accounts/glemt-passord/', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(email)
+    })
+    return response.json()
+  } catch (err) {
+    return console.log(err)
+  }
+}
+
+export const changePassword = async (token, password, passwordConfirm) => {
+  try {
+    const response = await fetch('/accounts/tilbakestill-passord/', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(token, password, passwordConfirm)
     })
     return response.json()
   } catch (err) {

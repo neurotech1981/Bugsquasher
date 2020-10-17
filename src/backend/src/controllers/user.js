@@ -7,6 +7,7 @@ const sendEmail = require('../../../helpers/send-email');
 const crypto = require("crypto");
 const bcrypt = require('bcrypt');
 
+
 export const registerUser = async (req, res, next) => {
   const user = new User(req.body)
   console.log("Controller USER: ", user)
@@ -117,7 +118,6 @@ export async function resetPassword({ token, password }) {
 
     if (!account) throw 'Invalid token';
 
-    console.log("PASSWORD RESET: ", password)
     // update password and remove reset token
     account.hashedPassword = hash(password, account.salt);
     account.passwordReset =  Date.now();

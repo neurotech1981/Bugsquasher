@@ -10,6 +10,7 @@ import PrivateRoute from './components/auth/PrivateRoute'
 import Signin from './components/auth/Signin'
 import Profile from './components/user/Profile'
 import Signup from './components/user/Signup'
+import ResetPassword from './components/auth/ResetPassword'
 import { Provider } from 'react-redux'
 import { store } from './redux/store'
 import auth from './components/auth/auth-helper'
@@ -29,6 +30,7 @@ class App extends Component {
             <PrivateRoute path="/saker/:userId" component={Issues} />
             <PrivateRoute path="/vis-sak/:id" component={ViewIssue} />
             <PrivateRoute path="/bruker-admin/:userId" component={Users} />
+            <Route path="/resett-passord" component={ResetPassword} />
             <Route path="/signup" component={Signup} />
             <Route path="/signin" component={Signin} />
           </Router>

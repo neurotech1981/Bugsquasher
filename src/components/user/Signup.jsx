@@ -158,7 +158,7 @@ export default function Signup () {
           >
             Registrer bruker
           </Button>
-                    <Button
+          <Button
             color="default"
             variant="contained"
             onClick={goHome}

@@ -733,7 +733,7 @@ export default function CreateIssue () {
           </Button>
           <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
             <Alert onClose={handleClose} severity="success" variant="standard">
-              <AlertTitle>Sussess</AlertTitle>
+              <AlertTitle>Suksess</AlertTitle>
               Sak ble opprettet!
             </Alert>
           </Snackbar>

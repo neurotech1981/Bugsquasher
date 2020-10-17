@@ -2,7 +2,6 @@
 import axios from 'axios'
 
 export const registerUser = async user => {
-  console.log(JSON.stringify(user))
   try {
     const response = await fetch('/api/users/', {
       method: 'POST',
@@ -11,6 +10,22 @@ export const registerUser = async user => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(user)
+    })
+    return response.json()
+  } catch (err) {
+    return console.log(err)
+  }
+}
+
+export const forgotPassword = async email => {
+  try {
+    const response = await fetch('/accounts/forgot-password/', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(email)
     })
     return response.json()
   } catch (err) {

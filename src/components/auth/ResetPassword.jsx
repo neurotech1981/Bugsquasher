@@ -5,16 +5,22 @@ import { CardActions } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
-import Icon from '@material-ui/core/Icon'
 import { makeStyles } from '@material-ui/core/styles'
 import auth from './auth-helper'
 import { Redirect } from 'react-router-dom'
-import { signin } from '../utils/api-auth'
+import { forgotPassword } from '../../../src/components/utils/api-user'
 import useReactRouter from 'use-react-router'
 import VpnKeyIcon from '@material-ui/icons/VpnKey'
-import { Link } from 'react-router-dom'
-import Box from '@material-ui/core/Box';
-import PersonAddRoundedIcon from '@material-ui/icons/PersonAddTwoTone'
+import Box from '@material-ui/core/Box'
+import { useHistory } from 'react-router-dom'
+import Snackbar from '@material-ui/core/Snackbar'
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
+import { AlertTitle } from '@material-ui/lab'
+
+function Alert (props) {
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <MuiAlert elevation={1} variant="filled" {...props} />
+}
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -33,17 +39,6 @@ const useStyles = makeStyles(theme => ({
   },
   extendedIcon: {
     marginRight: theme.spacing(1)
-  },
-  passwordLink: {
-    fontSize: '1em',
-    color: 'black !important',
-      '&:hover': {
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen
-      }),
-      color: 'pink !important'
-    }
   },
   card: {
     maxWidth: 600,
@@ -64,39 +59,53 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(2),
     width: 300
   },
-  submit: {
-    margin: 'auto',
-    marginBottom: theme.spacing(2)
-  },
-  forgottenPassword: {
-    paddingLeft: theme.spacing(2),
-  }
 }))
 
 export default function Signin () {
   const { location } = useReactRouter()
   const initialState = {
     email: '',
-    password: '',
     error: '',
-    redirectToReferrer: false
+    message: ''
   }
 
   const [values, setValues] = useState(initialState)
+  const [open, setOpen] = useState(false)
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setOpen(false)
+  }
+
+  const history = useHistory();
+    const goHome = () => {
+    history.push("/signin");
+  }
+
+   const successAlert = () => (
+    <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+      <Alert onClose={handleClose} severity="success" variant="standard">
+        <AlertTitle>Suksess</AlertTitle>
+        {values.message}
+      </Alert>
+    </Snackbar>
+  )
 
   const clickSubmit = () => {
     const user = {
-      email: values.email || undefined,
-      password: values.password || undefined
+      email: values.email || undefined
     }
 
-    signin(user).then(data => {
+    forgotPassword(user).then(data => {
       if (data.error) {
         setValues({ error: data.error })
       } else {
-        auth.authenticate(data, () => {
-          setValues({ redirectToReferrer: true })
-        })
+        setValues({ message: data.message })
+        setOpen(true)
+        //setValues({ message: data.message})
+        //setValues({ email: '' })
       }
     })
   }
@@ -129,12 +138,15 @@ export default function Signin () {
             gutterBottom
             className={classes.title}
           >
-            Logg inn
+            Bytt passord
+          </Typography>
+          <Typography variant="subtitle1" gutterBottom>
+            En lenke vil bli sendt til din e-post.
           </Typography>
           <TextField
             id="email"
             type="email"
-            label="E-Post"
+            label="Din brukers e-post"
             className={classes.textField}
             value={values.email}
             onChange={handleChange('email')}
@@ -143,25 +155,6 @@ export default function Signin () {
             variant="outlined"
           />
           <br />
-          <TextField
-            id="password"
-            type="password"
-            label="Passord"
-            className={classes.textField}
-            onChange={handleChange('password')}
-            margin="normal"
-            variant="outlined"
-            autoComplete="current-password"
-          />
-          <br />{' '}
-          {values.error && (
-            <Typography component="p" color="error">
-              <Icon color="error" className={classes.error}>
-                error
-              </Icon>
-              {values.error}
-            </Typography>
-          )}
         </CardContent>
         <CardActions>
           <Box justifyContent="center">
@@ -172,23 +165,17 @@ export default function Signin () {
             className={classes.button}
           >
             <VpnKeyIcon className={classes.extendedIcon} />
-            Logg inn
+            Bytt passord
           </Button>
-              <Button
-                color="default"
-                variant="contained"
-                aria-label="Registrer bruker"
-                className={classes.button}
-                href="/signup"
-              >
-              <PersonAddRoundedIcon className={classes.extendedIcon} />
-                Ny bruker
-              </Button>
-            <p>
-          <Link className={classes.passwordLink} to={'/resett-passord/'}>
-            Glemt passord?
-          </Link>
-          </p>
+          <Button
+            color="default"
+            variant="contained"
+            onClick={goHome}
+            className={classes.button}
+          >
+            Gå tilbake
+          </Button>
+          {successAlert()}
         </Box>
         </CardActions>
       </Card>

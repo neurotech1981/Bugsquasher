@@ -52,7 +52,6 @@ export default function Profile () {
       },
       { t: jwt.token }
     ).then((data) => {
-      console.log("Data: ", data)
       if (data.error) {
         setValues({ redirectToSignin: true })
       } else {

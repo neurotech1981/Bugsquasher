@@ -131,7 +131,6 @@ export default function ViewIssue (props) {
       ...dataset,
       [name]: event.target.value
     })
-    console.log("event handle change: ", event.target.value + " " + myself.role)
     updateIssueByID(id, event.target.value, myself.role)
   }
 
@@ -159,7 +158,6 @@ export default function ViewIssue (props) {
     await issueService.updateIssueByID(id, {"status": data})
     .then(response => {
       setData({ ...dataset, status: data });
-      console.log("ISSUE UPDATE RESPONSE: ", response);
     })
     .catch(e => {
       console.log("ISSUE UPDATE: ", e);
@@ -178,7 +176,12 @@ export default function ViewIssue (props) {
   {
     value: 2,
     label: 'Lukket'
+  },
+  {
+    value: 3,
+    label: 'Under arbeid'
   }
+
 ]
 
   const thumbs = images.map((file, index) => (

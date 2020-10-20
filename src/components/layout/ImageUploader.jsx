@@ -101,11 +101,9 @@ function Previews (props) {
   const images = useSelector((state) => state)
 
   const removeImage = (imageIndex) => {
-    console.log('imageIndex', imageIndex)
     let array = [...files]
     if (imageIndex !== -1) {
       array = files.filter((_, index) => index !== imageIndex)
-      console.log('Remove Image function: ', array)
 
       setFiles(
         array.map((file) =>
@@ -115,9 +113,7 @@ function Previews (props) {
           })
         )
       )
-      console.log('Files Remove Image: ', images)
       acceptedFiles.splice(acceptedFiles.indexOf(imageIndex), 1)
-      console.log('ACCEPTED FILES Remove Image Function: ', acceptedFiles)
       deleteImage({ name: array.map((file) => file) })
     }
   }
@@ -146,7 +142,6 @@ function Previews (props) {
     accept: 'image/*',
     onDrop: (acceptedFiles) => {
       setFiles([])
-      console.log('Accepted Files: ', acceptedFiles)
       clearStoreImage(clearAction)
       setFiles(
         acceptedFiles.map((file) =>

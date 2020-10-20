@@ -34,7 +34,7 @@ const limiter = rateLimit({
 
 // This is actually how the grants are maintained internally.
 const grants = {
-  admin: {
+  Admin: {
     issues: {
       'create:any': ['*'],
       'read:any': ['*'],
@@ -48,7 +48,7 @@ const grants = {
       'delete:any': ['*']
     }
   },
-  bruker: {
+  Bruker: {
     issues: {
       'create:own': ['*', '!views'],
       'read:own': ['*'],

@@ -104,8 +104,6 @@ export default function ChangePassword () {
       confirmPassword: values.confirmPassword || undefined,
     }
 
-    console.log("Submit data: ", user)
-
     changePassword(user).then(data => {
       if (data.error) {
         setValues({ error: data.error })

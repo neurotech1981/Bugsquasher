@@ -91,12 +91,14 @@ export default function Users (props) {
         field: 'password',
         editable: 'always',
         editComponent: (props) => (
+          <form>
           <TextField
+            autoComplete="new-password"
             type="password"
             variant="outlined"
             size="small"
             onChange={(e) => props.onChange(e.target.value)}
-          />
+          /></form>
         )
       }
     ]
@@ -154,7 +156,6 @@ export default function Users (props) {
 
   // Rediger bruker
   const updateUser = (idToBeUpdated, _name, _role, _rights, _email) => {
-    console.log('Role bruker: ', myself.role)
     axios.post('/api/edituser', {
       _id: idToBeUpdated,
       role: myself.role,

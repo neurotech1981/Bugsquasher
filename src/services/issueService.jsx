@@ -12,7 +12,6 @@ export default {
     return res.data.data || []
   },
   updateIssueByID: async (id, data) => {
-    console.log("ISSUE SERVICE DATA: ", id, data)
     return await axios.put(`/api/upDateIssue/${id}`, data)
   }
 }

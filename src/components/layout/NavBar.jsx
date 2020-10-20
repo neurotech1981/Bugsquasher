@@ -167,9 +167,6 @@ const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar
 }))
 
-console.log("USER: ", auth.isAuthenticated().user)
-
-
 
 function NavBar (props) {
 

@@ -66,7 +66,6 @@ export const getUsers = async credentials => {
 }
 
 export const findUserProfile = async (params, credentials) => {
-  console.log('Params', params.userId)
   try {
     const response = await fetch('/api/users/' + params.userId, {
       method: 'GET',

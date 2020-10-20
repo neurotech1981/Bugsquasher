@@ -334,7 +334,6 @@ export default function CreateIssue () {
   )
 
   const onChangeImageDrop = () => {
-    console.log('DATA: ', images.imageupload[1].name)
     setValues((prevState) => ({
       ...prevState,
       setImageName: [...images.imageupload[1].name]

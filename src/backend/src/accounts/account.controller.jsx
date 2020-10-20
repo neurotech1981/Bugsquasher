@@ -116,7 +116,7 @@ function resetPasswordSchema(req, res, next) {
 
 function resetPassword(req, res, next) {
     accountService.resetPassword(req.body)
-        .then(() => res.json({ message: 'Tilbakestilling av passord er vellykket. Du kan nå logge på' }))
+        .then(() => res.json({ message: 'Tilbakestilling av passord var vellykket. Du kan nå logge inn igjen.' }))
         .catch(next);
 }
 

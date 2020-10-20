@@ -62,17 +62,17 @@ export default function Issues (props) {
           <div
             className="priority"
             style={{
-              color:
+              backgroundColor:
                 data.priority === 'Øyeblikkelig'
                   ? 'rgb(255, 125, 145)'
                   : '' || data.priority === 'Høy'
-                    ? 'orange'
+                    ? 'rgb(242, 130, 91)'
                     : '' || data.priority === 'Normal'
-                      ? 'white'
+                      ? 'rgb(255, 250, 247)'
                       : '' || data.priority === 'Haster'
-                        ? 'yellow'
+                        ? 'rgb(231, 242, 163)'
                         : '' || data.priority === 'Lav'
-                          ? 'grey'
+                          ? 'rgb(231, 232, 242)'
                           : '',
                 padding: '0.7em'
             }}
@@ -104,14 +104,15 @@ export default function Issues (props) {
           <div
             className="status"
             style={{
-              color:
+              backgroundColor:
                 data.status === 'Åpen'
                   ? 'rgb(255, 199, 255)'
                   : '' || data.status === 'Løst'
                     ? 'rgb(255, 255, 145)'
                     : '' || data.status === 'Lukket'
                     ? 'rgb(255, 125, 145)'
-                    : '',
+                    : '' || data.status === 'Under arbeid'
+                    ? 'rgb(202, 163, 0)' : '',
             }}
           >
             {data.status}

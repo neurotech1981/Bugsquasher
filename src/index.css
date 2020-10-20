@@ -39,10 +39,11 @@ body {
   padding: 0.3em;
   font-weight: 500;
   font-size: 1em;
-  background: -webkit-linear-gradient(90deg, #2f0a26, #414767);
-  box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.21);
+  /*background: -webkit-linear-gradient(90deg, #2f0a26, #414767);*/
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.21);
   transition: all 0.2s ease-in-out;
   text-align: center;
+  color: black;
 }
 
 .status {
@@ -50,8 +51,8 @@ body {
   padding: 0.3em;
   font-weight: 500;
   font-size: 1em;
-  background: -webkit-linear-gradient(90deg, #0a0606, #340542);
-  box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.21);
+  /*background: -webkit-linear-gradient(90deg, #0a0606, #340542);*/
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.21);
   transition: all 0.2s ease-in-out;
   text-align: center;
 }

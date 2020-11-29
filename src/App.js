@@ -14,7 +14,6 @@ import ResetPassword from './components/auth/ResetPassword'
 import ChangePassword from './components/auth/ChangePassword'
 import { Provider } from 'react-redux'
 import { store } from './redux/store'
-import auth from './components/auth/auth-helper'
 
 class App extends Component {
   render () {

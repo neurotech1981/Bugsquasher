@@ -6,15 +6,13 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
-import auth from './auth-helper'
-import { Redirect } from 'react-router-dom'
+import { Redirect, useHistory } from 'react-router-dom'
 import { changePassword } from '../utils/api-user'
 import useReactRouter from 'use-react-router'
 import VpnKeyIcon from '@material-ui/icons/VpnKey'
 import Box from '@material-ui/core/Box'
-import { useHistory } from 'react-router-dom'
 import Snackbar from '@material-ui/core/Snackbar'
-import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
+import MuiAlert from '@material-ui/lab/Alert'
 import { AlertTitle } from '@material-ui/lab'
 
 function Alert (props) {
@@ -24,7 +22,7 @@ function Alert (props) {
 
 const useStyles = makeStyles(theme => ({
   root: {
-    margin: '0 auto',
+    margin: '0 auto'
   },
   button: {
     margin: theme.spacing(1),
@@ -45,7 +43,7 @@ const useStyles = makeStyles(theme => ({
     margin: 'auto',
     textAlign: 'center',
     marginTop: theme.spacing(15),
-    paddingBottom: theme.spacing(2),
+    paddingBottom: theme.spacing(2)
   },
   error: {
     verticalAlign: 'middle'
@@ -58,7 +56,7 @@ const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
     width: 300
-  },
+  }
 }))
 
 export default function ChangePassword () {
@@ -83,12 +81,12 @@ export default function ChangePassword () {
     setOpen(false)
   }
 
-  const history = useHistory();
-    const goHome = () => {
-    history.push("/signin");
+  const history = useHistory()
+  const goHome = () => {
+    history.push('/signin')
   }
 
-   const successAlert = () => (
+  const successAlert = () => (
     <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
       <Alert onClose={handleClose} severity="success" variant="standard">
         <AlertTitle>Suksess</AlertTitle>
@@ -101,7 +99,7 @@ export default function ChangePassword () {
     const user = {
       token: match.params.token || undefined,
       password: values.password || undefined,
-      confirmPassword: values.confirmPassword || undefined,
+      confirmPassword: values.confirmPassword || undefined
     }
 
     changePassword(user).then(data => {

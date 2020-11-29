@@ -13,5 +13,8 @@ export default {
   },
   updateIssueByID: async (id, data) => {
     return await axios.put(`/api/upDateIssue/${id}`, data)
+  },
+  deleteIssueByID: async (id) => {
+    return await axios.put(`/api/deleteIssue/${id}`)
   }
 }

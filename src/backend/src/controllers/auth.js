@@ -25,7 +25,9 @@ export const signin = (req, res) => {
     )
 
     res.cookie('t', token, {
-      expire: new Date() + 9999
+      expire: new Date() + 9999,
+      SameSite: 'None',
+      secure: true
     })
 
     return res.json({
@@ -49,7 +51,7 @@ export const requireSignin = expressJwt({
 })
 
 export const hasAuthorization = (req, res) => {
-  const authorized = req.profile && req.auth && req.profile._id == req.auth._id
+  const authorized = req.profile && req.auth && req.profile._id === req.auth._id
   if (!authorized) {
     return res.status(403).json({
       error: 'Bruker er ikke autorisert!'

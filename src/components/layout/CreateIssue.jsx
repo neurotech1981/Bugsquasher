@@ -13,7 +13,6 @@ import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
 import { AlertTitle } from '@material-ui/lab'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
-import classnames from 'classnames'
 import Box from '@material-ui/core/Box'
 import Previews from './ImageUploader'
 import auth from '../auth/auth-helper'
@@ -224,7 +223,6 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     marginTop: '20px',
-    width: '40%',
     height: '50px',
     margin: '0 auto',
     fontSize: 20,
@@ -252,7 +250,7 @@ export default function CreateIssue () {
   const initialState = {
     setID: 0,
     setNavn: '',
-    setDelegated: 'Ingen valgt',
+    setDelegated: '',
     setKategori: 'Ingen valgt',
     setAlvorlighetsgrad: 'Ingen valgt',
     setPrioritet: 'Ingen valgt',
@@ -278,7 +276,6 @@ export default function CreateIssue () {
     if (reason === 'clickaway') {
       return
     }
-
     setOpen(false)
   }
 
@@ -311,8 +308,10 @@ export default function CreateIssue () {
   }
 
   useEffect(() => {
-    init(match.params.userId)
-  }, [match.params.userId])
+    if (!users.length) {
+      init(match.params.userId)
+    }
+  }, [!users.length])
 
   const handleChange = (name) => (event) => {
     setValues({
@@ -333,8 +332,9 @@ export default function CreateIssue () {
     </Snackbar>
   )
 
-  const onChangeImageDrop = () => {
-    setValues((prevState) => ({
+  const onChangeImageDrop = (event) => {
+    event.preventDefault()
+    setValues(prevState => ({
       ...prevState,
       setImageName: [...images.imageupload[1].name]
     }))
@@ -342,7 +342,7 @@ export default function CreateIssue () {
 
   // Legg inn ny query / varelinje i database med backend API
   const putDataToDB = () => {
-    const imageNameValue = !images ? [images.imageupload[1].name] : null
+    const imageNameValue = images.imageupload[1].name
     axios
       .post('/api/putData', {
         name: userinfo.user.name,
@@ -377,7 +377,7 @@ export default function CreateIssue () {
     setValues({ ...initialState })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     // setImages(prevState => ({...prevState, setImageName: [...images.imageupload[1].name]}));
     putDataToDB()
@@ -398,8 +398,9 @@ export default function CreateIssue () {
             select
             label="Deleger til"
             name="delegert"
+            defaultValue="Ingen valgt"
             className={classes.textField}
-            value={values.setDelegated || 'Ingen valgt'}
+            value={values.setDelegated || initialState.setDelegated}
             onChange={handleChange('setDelegated')}
             InputProps={{
               className: classes.input
@@ -418,7 +419,8 @@ export default function CreateIssue () {
               </MenuItem>
             ))}
           </TextField>
-          {errors.delegated ? (
+          {errors.delegated ?
+          (
             <Box
               className={classes.BoxErrorField}
               fontFamily="Monospace"
@@ -453,7 +455,7 @@ export default function CreateIssue () {
             variant="outlined"
           >
             {Kategori.map((option) => (
-              <MenuItem key={option.id} value={option.label}>
+              <MenuItem key={option.value} value={option.label}>
                 {option.label}
               </MenuItem>
             ))}
@@ -493,7 +495,7 @@ export default function CreateIssue () {
             variant="outlined"
           >
             {alvorlighetsGrad.map((option) => (
-              <MenuItem key={option.id} value={option.label}>
+              <MenuItem key={option.value} value={option.label}>
                 {option.label}
               </MenuItem>
             ))}
@@ -533,7 +535,7 @@ export default function CreateIssue () {
             variant="outlined"
           >
             {prioritet.map((option) => (
-              <MenuItem key={option.id} value={option.label}>
+              <MenuItem key={option.value} value={option.label}>
                 {option.label}
               </MenuItem>
             ))}
@@ -572,9 +574,9 @@ export default function CreateIssue () {
             margin="normal"
             variant="outlined"
           >
-            {reprodusere.map((option, index) => (
+            {reprodusere.map((option) => (
               <MenuItem
-                key={index}
+                key={option.value}
                 value={option.label}
                 selected
                 style={{
@@ -719,7 +721,7 @@ export default function CreateIssue () {
           ) : (
             ''
           )}
-          <Previews onDrop={(event) => onChangeImageDrop(event)} />
+          <Previews onChange={(e) => onChangeImageDrop(e)} />
           <Button
             type="submit"
             value="Submit"
@@ -736,7 +738,7 @@ export default function CreateIssue () {
               Sak ble opprettet!
             </Alert>
           </Snackbar>
-        </form>
+          </form>
       </Container>
     </div>
   )

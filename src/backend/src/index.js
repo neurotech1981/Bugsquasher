@@ -71,7 +71,7 @@ var multipartMiddleware = multipart()
 // Multer image storage settings
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '../../public/uploads')
+    cb(null, '../assets/uploads')
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname)
@@ -152,7 +152,7 @@ app.use(
 )
 app.use(logger('dev'))
 app.use(bodyParser.json({ limit: '50mb' }))
-app.use('/uploads', express.static('uploads'))
+app.use('/uploads', express.static('../assets/uploads'))
 // Redirect to react build
 app.use(express.static(path.join(__dirname, '../build')))
 app.get('/', function (req, res, next) {
@@ -217,7 +217,7 @@ app.listen(4000, () => console.log('Now browse to localhost:4000/graphql'))
 
 router
   .route('/uploadimage', multipartMiddleware)
-  .post(upload.array('imageData', 10), function (req, res, next) {
+  .post(upload.array('imageData', 12), function (req, res, next) {
     const file = req.files
     if (!file) {
       const error = new Error('Vennligst velg en fil å laste opp')

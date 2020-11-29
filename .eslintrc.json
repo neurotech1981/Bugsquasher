@@ -4,8 +4,8 @@
         "es2021": true
     },
     "extends": [
-        "plugin:react/recommended",
-        "standard"
+        "eslint:recommended",
+        "plugin:react/recommended"
     ],
     "parserOptions": {
         "ecmaFeatures": {
@@ -18,5 +18,15 @@
         "react"
     ],
     "rules": {
+        "operator-linebreak": [
+            "error",
+            "after",
+            {
+                "overrides": {
+                    ":": "before"
+                }
+            }
+        ],
+        "react/prop-types": 0
     }
 }

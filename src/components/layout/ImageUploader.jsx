@@ -7,26 +7,54 @@ import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded'
 import Snackbar from '@material-ui/core/Snackbar'
 import axios from 'axios'
 import MuiAlert from '@material-ui/lab/Alert'
+import { AlertTitle } from '@material-ui/lab';
+import LinearProgress from '@material-ui/core/LinearProgress'
 import { makeStyles } from '@material-ui/styles'
 import { useDispatch, useSelector } from 'react-redux'
 import { addImageAction, deleteImageAction, clearAction } from '../../redux/store'
-
-import uuid from 'uuid/v4'
+import Typography from '@material-ui/core/Typography'
+import Box from '@material-ui/core/Box'
+import PropTypes from 'prop-types'
+import { v4 as uuid } from 'uuid'
 
 function Alert (props) {
   return <MuiAlert elevation={1} variant="filled" {...props} />
 }
 
-const useStyles = makeStyles((theme) => ({
+function LinearProgressWithLabel (props) {
+  return (
+    <Box display="flex" alignItems="center" style={{ padding: '1em' }}>
+      <Box width="100%" mr={1}>
+        <LinearProgress variant="determinate" {...props} />
+      </Box>
+      <Box minWidth={25}>
+        <Typography variant="body2" color="textSecondary">{`${Math.round(
+          props.value
+        )}%`}</Typography>
+      </Box>
+    </Box>
+  )
+}
+
+LinearProgressWithLabel.propTypes = {
+  /**
+   * The value of the progress indicator for the determinate and buffer variants.
+   * Value between 0 and 100.
+   */
+  value: PropTypes.number.isRequired
+}
+
+const useStyles = makeStyles(() => ({
   root: {
-    background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
     border: 0,
     borderRadius: 3,
-    boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
     color: 'theme.palette.text.primary',
-    height: 20,
-    width: 20,
     padding: '0 0px'
+  },
+  borderProgress: {
+    borderRadius: 5,
+    width: '95%',
+    margin: '0 auto',
   },
   icon: {
     margin: 'theme.spacing(1)',
@@ -81,20 +109,21 @@ const img = {
   height: '100%'
 }
 
-function Previews (props) {
+function Previews () {
   const classes = useStyles()
   const [files, setFiles] = useState([])
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
   const dispatch = useDispatch()
   const addImage = (files) => dispatch(addImageAction(files))
   const deleteImage = (files) => dispatch(deleteImageAction(files))
   const clearStoreImage = (files) => dispatch(clearAction(files))
+  const [progress, setProgress] = useState(0)
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return
     }
-
+    setProgress(0)
     setOpen(false)
   }
 
@@ -104,7 +133,6 @@ function Previews (props) {
     let array = [...files]
     if (imageIndex !== -1) {
       array = files.filter((_, index) => index !== imageIndex)
-
       setFiles(
         array.map((file) =>
           Object.assign(file, {
@@ -118,33 +146,49 @@ function Previews (props) {
     }
   }
 
-  function uploadToServer (e) {
+  const uploadToServer = async (e) => {
     e.preventDefault()
-
-    return new Promise((resolve, reject) => {
-      setTimeout(resolve)
+    /* eslint-disable no-unused-vars */
+    await new Promise((resolve, reject) => {
       const imageFormObj = new FormData()
-
       for (let x = 0; x < acceptedFiles.length; x++) {
         imageFormObj.append('imageName', images.imageupload[1].name[x].path)
         imageFormObj.append('imageData', images.imageupload[1].name[x])
       }
 
-      axios.post('/api/uploadImage', imageFormObj).then((data) => {
-        if (data.status === 200) {
+      addImage({
+        name: acceptedFiles.map((file) => file.name)
+      })
+
+      axios.post('/api/uploadImage', imageFormObj,
+      {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+      },
+        onUploadProgress: (progressEvent) => {
+        const { loaded, total, lengthComputable } = progressEvent
+        if (lengthComputable && total > 0) {
+          setProgress(Math.round(loaded * 100) / total)
+        }
+      }
+    }
+      ).then((data) => {
+        if (Promise.resolve('Success').then) {
           setOpen(true)
         }
       })
-    }, 3000)
+      setProgress(0)
+    }, 2000)
   }
 
   const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
     accept: 'image/*',
-    onDrop: (acceptedFiles) => {
+    onDrop: acceptedFiles => {
       setFiles([])
+      console.log('Accepted files: ', acceptedFiles)
       clearStoreImage(clearAction)
       setFiles(
-        acceptedFiles.map((file) =>
+        acceptedFiles.map(file =>
           Object.assign(file, {
             id: uuid(),
             preview: URL.createObjectURL(file)
@@ -158,7 +202,7 @@ function Previews (props) {
   })
 
   const thumbs = files.map((file, index) => (
-    <div style={thumb} key={index}>
+    <div style={thumb} key={file.name}>
       <div style={thumbInner}>
         <DeleteForeverRoundedIcon
           onClick={() => removeImage(index)}
@@ -171,62 +215,63 @@ function Previews (props) {
 
   useEffect(
     () => {
+      if (!files) {
       // Make sure to revoke the data uris to avoid memory leaks
-      files.forEach((file) => URL.revokeObjectURL(file.preview))
+        files.forEach(file => URL.revokeObjectURL(file.preview))
+      }
     },
     [files] // files
   )
 
-  //const onSubmit = (event) => {
-  //  event.preventDefault()
-  //  addImage({
-  //    id: uuid(),
-  //    name: files
-  //  })
-  //  setFiles('')
-  //}
 
-  const handleChange = (event) => {
+  const handleChange = async (event) => {
+    event.preventDefault()
     setFiles(event.target.value)
   }
 
   return (
-    <section>
+    <React.Fragment>
+    <section className={classes.root}>
       <div {...getRootProps({ className: 'dropzone' })}>
         <input
           {...getInputProps()}
           multiple
           name="imageData"
           encType="multipart/form-data"
-          onDrop={handleChange}
+          onSubmit={handleChange}
         />
         <UploadIcon className="iconSmall" />
         <p>Dra og slipp filer her, eller klikk for å velge fil(er)</p>
       </div>
       <aside style={thumbsContainer}>{thumbs}</aside>
+      { progress ? <LinearProgressWithLabel autoHideDuration={300} className={classes.borderProgress} value={progress} /> : null }
+      <p>
       <Button
         disabled={!files.length > 0}
         variant="contained"
-        color="default"
-        className={classes.button}
+        color="secondary"
         onClick={(e) => uploadToServer(e)}
         style={{
           margin: '0 auto',
           display: 'flex',
-          padding: '1rem'
+          padding: '1rem',
+          borderRadius: '1em'
         }}
       >
         Last opp bilder
-        <Icon style={{ marginRight: '5px' }} className={classes.rightIcon}>
+        <Icon style={{ marginLeft: '15px' }} className={classes.rightIcon}>
           cloud_upload
         </Icon>
       </Button>
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="success" variant="standard">
-          Bildet ble lastet opp!
+      </p>
+      <Snackbar open={open} onClose={handleClose} autoHideDuration={2000}>
+        <Alert onClose={handleClose} severity="success" variant="filled">
+          <AlertTitle>Suksess</AlertTitle>
+      { files.length } {files.length > 1 ? 'bilder' : 'bilde'} ble lastet opp!
         </Alert>
       </Snackbar>
     </section>
+    </React.Fragment>
   )
 }
 

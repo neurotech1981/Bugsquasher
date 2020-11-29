@@ -30,6 +30,8 @@ import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppTwoTone'
 import NoteAddRoundedIcon from '@material-ui/icons/NoteAddTwoTone'
 import PageviewRoundedIcon from '@material-ui/icons/PageviewTwoTone'
 import GroupRoundedIcon from '@material-ui/icons/GroupTwoTone'
+import LogRocket from 'logrocket';
+import setupLogRocketReact from 'logrocket-react';
 
 const drawerWidth = 250
 
@@ -202,6 +204,15 @@ function NavBar (props) {
   //const [mobileOpen, setMobileOpen] = React.useState(false)
   const [open, setOpen] = useState(false)
 
+// This is an example script - don't forget to change it!
+LogRocket.identify('5f856c24f8a3b2531facddf9', {
+  name: 'Bjørn-Are Jakobsen',
+  email: 'ba.jakobsen@gmail.com',
+
+  // Add your own custom user variables here, ie:
+  subscriptionType: 'admin'
+});
+
   const classes = useStyles()
   const theme = useTheme()
   function handleDrawerToggle () {
@@ -346,6 +357,8 @@ function NavBar (props) {
 
   return auth.isAuthenticated() && (
     <div className={classes.root}>
+      {LogRocket.init('w0hnhq/bugsquasher')}
+      {setupLogRocketReact(LogRocket)}
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
@@ -375,7 +388,6 @@ function NavBar (props) {
               <Fragment>
                 <div className={classes.grow}>
                   <nav className={classes.drawer} aria-label="Issues">
-                    {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
                     <Hidden smUp implementation="css">
                       <Drawer
                         container={container}

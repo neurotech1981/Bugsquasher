@@ -1,4 +1,4 @@
 module.exports = {
-    Les: 'Les',
-    Skriv: 'Skriv'
+  Les: 'Les',
+  Skriv: 'Skriv'
 }

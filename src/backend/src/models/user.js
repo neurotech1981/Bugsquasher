@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import bcrypt from 'bcrypt'
 const Schema = mongoose.Schema
 
-const saltRounds = 10;
+const saltRounds = 10
 
 const userSchema = new Schema({
   name: {
@@ -23,7 +23,7 @@ const userSchema = new Schema({
   },
   role: {
     type: String,
-    //default: 'bruker',
+    // default: 'bruker',
     enum: ['Bruker', 'Admin']
   },
   rights: {
@@ -36,19 +36,19 @@ const userSchema = new Schema({
   verificationToken: String,
   verified: Date,
   resetToken: {
-        token: String,
-        expires: Date
-   },
+    token: String,
+    expires: Date
+  },
   passwordReset: Date,
   created: { type: Date, default: Date.now },
-  updated: Date,
+  updated: Date
 })
 
 userSchema
   .virtual('password')
   .set(function (password) {
     this._password = password
-    this.salt = bcrypt.genSaltSync(saltRounds);
+    this.salt = bcrypt.genSaltSync(saltRounds)
     this.hashedPassword = this.encryptedPassword(password)
   })
   .get(function () {
@@ -62,8 +62,8 @@ userSchema.methods = {
   encryptedPassword: function (password) {
     if (!password) return ''
     try {
-      var hashed = bcrypt.hashSync(password, this.salt);
-      return hashed;
+      const hashed = bcrypt.hashSync(password, this.salt)
+      return hashed
     } catch (err) {
       return ''
     }
@@ -74,14 +74,14 @@ userSchema.methods = {
 }
 
 userSchema.virtual('passwordConfirmation')
-.get(function() {
-  return this._passwordConfirmation;
-})
-.set(function(value) {
-  this._passwordConfirmation = value;
-});
+  .get(function () {
+    return this._passwordConfirmation
+  })
+  .set(function (value) {
+    this._passwordConfirmation = value
+  })
 
-//userSchema.path('hashedPassword').validate(function (v) {
+// userSchema.path('hashedPassword').validate(function (v) {
 //  if (this.hashedPassword && this._password.length < 6) {
 //    this.invalidate('password', 'Passord må være minst 6 bokstaver langt.')
 //  }
@@ -91,21 +91,20 @@ userSchema.virtual('passwordConfirmation')
 //  if (this._password !== this._passwordConfirmation) {
 //    this.invalidate('passwordConfirmation', 'Passord må være like.');
 //  }
-//}, null)
+// }, null)
 
 userSchema.virtual('isVerified').get(function () {
-    return !!(this.verified || this.passwordReset);
-});
-
+  return !!(this.verified || this.passwordReset)
+})
 
 userSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: function (doc, ret) {
-        // remove these props when object is serialized
-        //delete ret.hashedPassword;
-        delete ret.salt;
-    }
-});
+  virtuals: true,
+  versionKey: false,
+  transform: function (doc, ret) {
+    // remove these props when object is serialized
+    // delete ret.hashedPassword;
+    delete ret.salt
+  }
+})
 
 module.exports = mongoose.model('User', userSchema)

@@ -150,7 +150,7 @@ export default function ViewIssue (props) {
     if (res.imageName === null) {
       setImages(['none'])
     } else {
-      setImages(res.imageName[0])
+      setImages(res.imageName) //[0]
     }
   }
 
@@ -158,6 +158,19 @@ export default function ViewIssue (props) {
     await issueService.updateIssueByID(id, {"status": data})
     .then(response => {
       setData({ ...dataset, status: data });
+    })
+    .catch(e => {
+      console.log("ISSUE UPDATE: ", e);
+    });
+  }
+
+    const onDelete = async () => {
+    console.log("ID DELETE", dataset._id)
+    const id = dataset._id
+    await issueService.deleteIssueByID(id)
+    .then(response => {
+      console.log("ISSUE DELETED SUCCESSFULLY")
+      goHome()
     })
     .catch(e => {
       console.log("ISSUE UPDATE: ", e);
@@ -214,6 +227,7 @@ export default function ViewIssue (props) {
         >
           <img
             key={index}
+            alt=""
             style={{
               width: '150px',
               height: '150px',
@@ -277,6 +291,7 @@ export default function ViewIssue (props) {
               className={classes.button}
               startIcon={<DeleteIcon />}
               size="small"
+              onClick={ () => onDelete() }
             >
               Slett sak
             </Button>

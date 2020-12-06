@@ -194,14 +194,9 @@ function Landing () {
               />
             </CardHeader>
             <CardBody>
-              <h4 className={classes.cardTitle}>Email Subscriptions</h4>
-              <p className={classes.cardCategory}>Last Campaign Performance</p>
+              <h4 className={classes.cardTitle}>Saker over ett år</h4>
+              <p className={classes.cardCategory}>Saker over en 12 måneders periode</p>
             </CardBody>
-            <CardFooter chart>
-              <div className={classes.stats}>
-                <AccessTime /> campaign sent 2 days ago
-              </div>
-            </CardFooter>
           </Card>
         </GridItem>
         <GridItem xs={12} sm={12} md={4}>
@@ -216,12 +211,12 @@ function Landing () {
               />
             </CardHeader>
             <CardBody>
-              <h4 className={classes.cardTitle}>Completed Tasks</h4>
-              <p className={classes.cardCategory}>Last Campaign Performance</p>
+              <h4 className={classes.cardTitle}>Løste saker</h4>
+              <p className={classes.cardCategory}>Løste saker i løpet av en dag</p>
             </CardBody>
             <CardFooter chart>
               <div className={classes.stats}>
-                <AccessTime /> campaign sent 2 days ago
+                <AccessTime /> løste saker siste 24 timer
               </div>
             </CardFooter>
           </Card>

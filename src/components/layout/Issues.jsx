@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom'
 import MaterialTable from 'material-table'
 import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import Zoom from '@material-ui/core/Zoom';
+import Zoom from '@material-ui/core/Zoom'
 const formattedDate = (value) => moment(value).format('DD/MM-YYYY')
 
 const drawerWidth = 240
@@ -82,7 +82,7 @@ export default function Issues () {
                   : '' || data.priority === 'Lav' ?
                           'rgb(231, 232, 242)'
                   : '',
-                padding: '0.7em'
+                padding: '0.5em'
             }}
           >
             {data.priority}
@@ -121,6 +121,7 @@ export default function Issues () {
                     'rgb(255, 125, 145)'
                     : '' || data.status === 'Under arbeid' ?
                     'rgb(202, 163, 0)' : '',
+                        padding: '0.5em'
             }}
           >
             {data.status}

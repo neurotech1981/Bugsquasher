@@ -227,6 +227,54 @@ router
     res.send(file)
   })
 
+// this is our count issues method
+// this method count all issues in the data model
+router.route('/countIssues').get(function(req,res){
+    Data.countDocuments( {}, function(err, result){
+        if(err){
+            res.send(err)
+        }
+        else{
+            res.json(result)
+        }
+   })
+})
+
+// this is our count issues method
+// this method count all issues in the data model
+router.route('/getTodaysIssues').get(function(req,res){
+    var yesterday = new Date(new Date().getTime() - (24 * 60 * 60 * 1000));
+
+    Data.countDocuments( { "createdAt": { "$gte": yesterday } }, function(err, result){
+        if(err){
+            res.send(err)
+        }
+        else{
+            res.json(result)
+        }
+   })
+})
+
+router.route("/countSolvedIssues").get(function(req, res) {
+  Data.countDocuments({ status: "Løst" }, function(err, result) {
+    if (err) {
+      res.send(err);
+    } else {
+      res.json(result);
+    }
+  });
+});
+
+router.route("/countOpenIssues").get(function(req, res) {
+  Data.countDocuments({ status: "Åpen" }, function(err, result) {
+    if (err) {
+      res.send(err);
+    } else {
+      res.json(result);
+    }
+  });
+});
+
 // this is our get method
 // this method fetches all available data in our database
 router.get('/getData', (req, res) => {

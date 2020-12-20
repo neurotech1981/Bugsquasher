@@ -1,13 +1,16 @@
 /* eslint-disable react/display-name */
-import React, { useState, useEffect, Suspense } from 'react'
+import React, { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import issueService from '../../services/issueService'
 import '../../App.css'
 import moment from 'moment'
 import CssBaseline from '@material-ui/core/CssBaseline'
+import Grid from '@material-ui/core/Grid'
 import { Link } from 'react-router-dom'
 import MaterialTable from 'material-table'
+import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import Zoom from '@material-ui/core/Zoom';
 const formattedDate = (value) => moment(value).format('DD/MM-YYYY')
 
 const drawerWidth = 240
@@ -32,6 +35,10 @@ const useStyles = makeStyles((theme) => ({
     //  'linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)'
     backgroundColor: '#48305F'
   },
+  alignItemsAndJustifyContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   label: {
     display: 'inline',
     padding: '.5em .6em .3em',
@@ -47,9 +54,10 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default function Issues (props) {
+export default function Issues () {
   const classes = useStyles()
   const [dataset, setData] = useState([])
+  const [checked, setChecked] = useState(false);
 
   const [state] = useState({
     columns: [
@@ -63,17 +71,17 @@ export default function Issues (props) {
             className="priority"
             style={{
               backgroundColor:
-                data.priority === 'Øyeblikkelig'
-                  ? 'rgb(255, 125, 145)'
-                  : '' || data.priority === 'Høy'
-                    ? 'rgb(242, 130, 91)'
-                    : '' || data.priority === 'Normal'
-                      ? 'rgb(255, 250, 247)'
-                      : '' || data.priority === 'Haster'
-                        ? 'rgb(231, 242, 163)'
-                        : '' || data.priority === 'Lav'
-                          ? 'rgb(231, 232, 242)'
-                          : '',
+                data.priority === 'Øyeblikkelig' ?
+                  'rgb(255, 125, 145)'
+                  : '' || data.priority === 'Høy' ?
+                    'rgb(242, 130, 91)'
+                  : '' || data.priority === 'Normal' ?
+                         'rgb(255, 250, 247)'
+                  : '' || data.priority === 'Haster' ?
+                        'rgb(231, 242, 163)'
+                  : '' || data.priority === 'Lav' ?
+                          'rgb(231, 232, 242)'
+                  : '',
                 padding: '0.7em'
             }}
           >
@@ -105,14 +113,14 @@ export default function Issues (props) {
             className="status"
             style={{
               backgroundColor:
-                data.status === 'Åpen'
-                  ? 'rgb(255, 199, 255)'
-                  : '' || data.status === 'Løst'
-                    ? 'rgb(255, 255, 145)'
-                    : '' || data.status === 'Lukket'
-                    ? 'rgb(255, 125, 145)'
-                    : '' || data.status === 'Under arbeid'
-                    ? 'rgb(202, 163, 0)' : '',
+                data.status === 'Åpen' ?
+                  'rgb(255, 199, 255)'
+                  : '' || data.status === 'Løst' ?
+                     'rgb(255, 255, 145)'
+                    : '' || data.status === 'Lukket' ?
+                    'rgb(255, 125, 145)'
+                    : '' || data.status === 'Under arbeid' ?
+                    'rgb(202, 163, 0)' : '',
             }}
           >
             {data.status}
@@ -128,6 +136,22 @@ export default function Issues (props) {
     ]
   })
 
+  const issueCircularLoader = () => (
+    <Grid
+      container
+      spacing={0}
+      alignItems="center"
+      justify="center"
+      style={{ minHeight: "100vh" }}
+    >
+      <Grid item xs={6}>
+        <Typography variant="h6" gutterBottom>
+        <CircularProgress /> Laster inn saker...
+        </Typography>
+      </Grid>
+    </Grid>
+  )
+
   useEffect(() => {
     let isSubscribed = true
 
@@ -142,9 +166,11 @@ export default function Issues (props) {
   const getIssues = async () => {
     const res = await issueService.getAll()
     setData(res)
+    setChecked(true)
   }
 
   function MaterialCustomTable () {
+
     return (
       <MaterialTable
         options={{
@@ -169,18 +195,18 @@ export default function Issues (props) {
       />
     )
   }
-
+  if (dataset <= null) {
+    return issueCircularLoader();
+  }
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <nav className={classes.drawer} aria-label="Mailbox folders" />
-      <main className={classes.content}>
-        <React.Fragment>
-          <Suspense fallback={<CircularProgress />}>
+      <nav className={classes.drawer} aria-label="Registrerte Saker" />
+      <Zoom in={checked} style={{ transitionDelay: checked ? '500ms' : '0ms' }}>
+        <main className={classes.content}>
             <MaterialCustomTable />
-          </Suspense>
-        </React.Fragment>
-      </main>
+        </main>
+      </Zoom>
     </div>
   )
 }

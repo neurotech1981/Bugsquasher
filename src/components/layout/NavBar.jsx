@@ -30,8 +30,8 @@ import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppTwoTone'
 import NoteAddRoundedIcon from '@material-ui/icons/NoteAddTwoTone'
 import PageviewRoundedIcon from '@material-ui/icons/PageviewTwoTone'
 import GroupRoundedIcon from '@material-ui/icons/GroupTwoTone'
-import LogRocket from 'logrocket';
-import setupLogRocketReact from 'logrocket-react';
+//import LogRocket from 'logrocket';
+//import setupLogRocketReact from 'logrocket-react';
 
 const drawerWidth = 250
 
@@ -173,7 +173,7 @@ const useStyles = makeStyles((theme) => ({
 function NavBar (props) {
 
   const items = [
-  { label: 'Min oversikt', icon: <Dashboard />, path: '/landing'},
+  { label: 'Dashboard', icon: <Dashboard />, path: '/landing'},
 
   { label: 'Prosjekt oversikt', icon: <PageviewRoundedIcon />, path:
     !auth.isAuthenticated() ? '/prosjekt-oversikt/' : '/prosjekt-oversikt/' + auth.isAuthenticated().user._id
@@ -192,8 +192,8 @@ function NavBar (props) {
   {
     label: 'Bruker administrasjon',
     icon: <GroupRoundedIcon />,
-    path: !auth.isAuthenticated()
-      ? '/bruker-admin/'
+    path: !auth.isAuthenticated() ?
+        '/bruker-admin/'
       : '/bruker-admin/' + auth.isAuthenticated().user._id
   },
   { label: 'Innstillinger', icon: <Settings />, path: '/innstillinger' }
@@ -205,13 +205,15 @@ function NavBar (props) {
   const [open, setOpen] = useState(false)
 
 // This is an example script - don't forget to change it!
-LogRocket.identify('5f856c24f8a3b2531facddf9', {
+//LogRocket.init('w0hnhq/bugsquasher')
+//setupLogRocketReact(LogRocket)
+/*LogRocket.identify('5f856c24f8a3b2531facddf9', {
   name: 'Bjørn-Are Jakobsen',
   email: 'ba.jakobsen@gmail.com',
 
   // Add your own custom user variables here, ie:
   subscriptionType: 'admin'
-});
+});*/
 
   const classes = useStyles()
   const theme = useTheme()
@@ -357,8 +359,7 @@ LogRocket.identify('5f856c24f8a3b2531facddf9', {
 
   return auth.isAuthenticated() && (
     <div className={classes.root}>
-      {LogRocket.init('w0hnhq/bugsquasher')}
-      {setupLogRocketReact(LogRocket)}
+
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>

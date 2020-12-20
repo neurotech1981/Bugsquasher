@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default function Users (props) {
+export default function Users () {
   const [userList] = useState({
     columns: [
       { title: 'ID', field: '_id', editable: 'never' },

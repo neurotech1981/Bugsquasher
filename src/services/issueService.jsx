@@ -16,5 +16,17 @@ export default {
   },
   deleteIssueByID: async (id) => {
     return await axios.put(`/api/deleteIssue/${id}`)
+  },
+  countIssues: async () => {
+    return await axios.get(`/api/countIssues`)
+  },
+  getTodaysIssues: async () => {
+    return await axios.get(`/api/getTodaysIssues`)
+  },
+  countSolvedIssues: async () => {
+    return await axios.get(`/api/countSolvedIssues`)
+  },
+  countOpenIssues: async () => {
+    return await axios.get(`/api/countOpenIssues`)
   }
 }

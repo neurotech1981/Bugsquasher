@@ -1,350 +1,347 @@
 /* eslint-disable no-underscore-dangle */
-import React, { useState, useEffect } from 'react'
-import useReactRouter from 'use-react-router'
-import { makeStyles } from '@material-ui/core/styles'
-import MenuItem from '@material-ui/core/MenuItem'
-import TextField from '@material-ui/core/TextField'
-import Icon from '@material-ui/core/Icon'
-import Button from '@material-ui/core/Button'
-import Container from '@material-ui/core/Container'
-import Snackbar from '@material-ui/core/Snackbar'
-// eslint-disable-next-line no-unused-vars
-import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
-import { AlertTitle } from '@material-ui/lab'
-import axios from 'axios'
-import { useSelector } from 'react-redux'
-import Box from '@material-ui/core/Box'
-import Previews from './ImageUploader'
-import auth from '../auth/auth-helper'
-import { findUserProfile, getUsers } from '../utils/api-user'
+import React, { useState, useEffect } from "react";
+import useReactRouter from "use-react-router";
+import { makeStyles } from "@material-ui/core/styles";
+import MenuItem from "@material-ui/core/MenuItem";
+import TextField from "@material-ui/core/TextField";
+import Icon from "@material-ui/core/Icon";
+import Button from "@material-ui/core/Button";
+import Container from "@material-ui/core/Container";
+import Snackbar from "@material-ui/core/Snackbar";
+// eslint-disable-neAlertxt-line no-unused-vars
+import MuiAlert from "@material-ui/lab/Alert";
+import { AlertTitle } from "@material-ui/lab";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import Box from "@material-ui/core/Box";
+import Previews from "./ImageUploader";
+import auth from "../auth/auth-helper";
+import { findUserProfile, getUsers } from "../utils/api-user";
 
-function Alert (props) {
+function Alert(props) {
   // eslint-disable-next-line react/jsx-props-no-spreading
-  return <MuiAlert elevation={1} variant="filled" {...props} />
+  return <MuiAlert elevation={1} variant="filled" {...props} />;
 }
 
 const alvorlighetsGrad = [
   {
     value: 0,
-    label: 'Ingen valgt'
+    label: "Ingen valgt",
   },
   {
     value: 1,
-    label: 'Tekst'
+    label: "Tekst",
   },
   {
     value: 2,
-    label: 'Justering'
+    label: "Justering",
   },
   {
     value: 3,
-    label: 'Triviell'
+    label: "Triviell",
   },
   {
     value: 4,
-    label: 'Mindre alvorlig'
+    label: "Mindre alvorlig",
   },
   {
     value: 5,
-    label: 'Alvorlig'
+    label: "Alvorlig",
   },
   {
     value: 6,
-    label: 'Kræsj'
+    label: "Kræsj",
   },
   {
     value: 7,
-    label: 'Blokkering'
-  }
-]
+    label: "Blokkering",
+  },
+];
 
 const Kategori = [
   {
     value: 0,
-    label: 'Ingen valgt'
+    label: "Ingen valgt",
   },
   {
     value: 1,
-    label: 'Triviell'
+    label: "Triviell",
   },
   {
     value: 2,
-    label: 'Tekst'
+    label: "Tekst",
   },
   {
     value: 3,
-    label: 'Justering'
+    label: "Justering",
   },
   {
     value: 4,
-    label: 'Mindre alvorlig'
+    label: "Mindre alvorlig",
   },
   {
     value: 5,
-    label: 'Alvorlig'
+    label: "Alvorlig",
   },
   {
     value: 6,
-    label: 'Kræsj'
+    label: "Kræsj",
   },
   {
     value: 7,
-    label: 'Blokkering'
-  }
-]
+    label: "Blokkering",
+  },
+];
 
 const prioritet = [
   {
     value: 0,
-    label: 'Ingen valgt'
+    label: "Ingen valgt",
   },
   {
     value: 1,
-    label: 'Ingen'
+    label: "Ingen",
   },
   {
     value: 2,
-    label: 'Lav'
+    label: "Lav",
   },
   {
     value: 3,
-    label: 'Normal'
+    label: "Normal",
   },
   {
     value: 4,
-    label: 'Høy'
+    label: "Høy",
   },
   {
     value: 5,
-    label: 'Haster'
+    label: "Haster",
   },
   {
     value: 6,
-    label: 'Øyeblikkelig'
-  }
-]
+    label: "Øyeblikkelig",
+  },
+];
 
 const reprodusere = [
   {
     value: 0,
-    label: 'Ingen valgt',
-    color: '#F2CBD1'
+    label: "Ingen valgt",
+    color: "#F2CBD1",
   },
   {
     value: 2,
-    label: 'Alltid',
-    color: '#F2CBD1'
+    label: "Alltid",
+    color: "#F2CBD1",
   },
   {
     value: 3,
-    label: 'Noen ganger',
-    color: '#F49CA9'
+    label: "Noen ganger",
+    color: "#F49CA9",
   },
   {
     value: 4,
-    label: 'Tilfeldig',
-    color: '#F26A7E'
+    label: "Tilfeldig",
+    color: "#F26A7E",
   },
   {
     value: 5,
-    label: 'Har ikke forsøkt',
-    color: '#F20024'
+    label: "Har ikke forsøkt",
+    color: "#F20024",
   },
   {
     value: 6,
-    label: 'Kan ikke reprodusere',
-    color: '#870D1F'
+    label: "Kan ikke reprodusere",
+    color: "#870D1F",
   },
   {
     value: 7,
-    label: 'Ingen',
-    color: '#7B0C1D'
-  }
-]
+    label: "Ingen",
+    color: "#7B0C1D",
+  },
+];
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: '100%',
-    margin: '0 auto',
-    '& > * + *': {
-      marginTop: theme.spacing(2)
-    }
+    width: "100%",
+    margin: "0 auto",
+    "& > * + *": {
+      marginTop: theme.spacing(2),
+    },
   },
   headerOne: {
-    margin: '0 auto',
-    padding: '0.5em',
-    fontSize: '3em',
-    color: 'darkslategray'
+    margin: "0 auto",
+    padding: "0.5em",
+    fontSize: "3em",
+    color: "darkslategray",
   },
   active: {
-    backgroundColor: 'rgba(155, 205, 155, 0.12)'
+    backgroundColor: "rgba(155, 205, 155, 0.12)",
   },
   container: {
-    paddingTop: '20px',
-    marginTop: '100px',
-    marginBottom: '100px',
-    padding: '20px',
-    paddingBottom: '50px',
-    display: 'grid',
-    flexWrap: 'wrap',
-    borderRadius: '2em',
+    paddingTop: "20px",
+    marginTop: "100px",
+    marginBottom: "100px",
+    padding: "20px",
+    paddingBottom: "50px",
+    display: "grid",
+    flexWrap: "wrap",
+    borderRadius: "2em",
     boxShadow:
-      '0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 5px 15px -3px rgba(0, 0, 0, 0.05)',
-    backgroundRepeat: 'no-repeat',
-    backgroundAttachment: 'fixed',
-    height: '100%',
-    margin: '0 auto',
-    [theme.breakpoints.up('sm')]: {
-      maxWidth: '100%',
-      width: '100%'
-    }
+      "0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 5px 15px -3px rgba(0, 0, 0, 0.05)",
+    backgroundRepeat: "no-repeat",
+    backgroundAttachment: "fixed",
+    height: "100%",
+    margin: "0 auto",
+    [theme.breakpoints.up("sm")]: {
+      maxWidth: "100%",
+      width: "100%",
+    },
   },
 
   input: {
     backgroundColor: theme.palette.background.paper,
-    maxWidth: '100%',
-    webkitTransition: '0.18s ease-out',
-    mozTransition: '0.18s ease-out',
-    oTransition: '0.18s ease-out',
-    transition: '0.18s ease-out'
+    maxWidth: "100%",
+    webkitTransition: "0.18s ease-out",
+    mozTransition: "0.18s ease-out",
+    oTransition: "0.18s ease-out",
+    transition: "0.18s ease-out",
   },
   textField: {
     marginLeft: theme.spacing(2),
-    marginRight: theme.spacing(2)
+    marginRight: theme.spacing(2),
   },
   BoxErrorField: {
-    backgroundColor: '#ffe4e7',
-    color: 'red'
+    backgroundColor: "#ffe4e7",
+    color: "red",
   },
   dense: {
-    marginTop: theme.spacing(2)
+    marginTop: theme.spacing(2),
   },
   menu: {
-    width: 200
+    width: 200,
   },
   button: {
-    marginTop: '20px',
-    height: '50px',
-    margin: '0 auto',
+    marginTop: "20px",
+    height: "50px",
+    margin: "0 auto",
     fontSize: 20,
-    borderRadius: 15
+    borderRadius: 15,
   },
   leftIcon: {
-    marginRight: theme.spacing(1)
+    marginRight: theme.spacing(1),
   },
   rightIcon: {
-    marginLeft: theme.spacing(1)
+    marginLeft: theme.spacing(1),
   },
   iconSmall: {
-    fontSize: '1.2em'
+    fontSize: "1.2em",
   },
   selected: {
-    '&:hover': {
-      backgroundColor: 'green',
-      color: 'green'
-    }
-  }
-}))
+    "&:hover": {
+      backgroundColor: "green",
+      color: "green",
+    },
+  },
+}));
 
-export default function CreateIssue () {
-  const { match } = useReactRouter()
+export default function CreateIssue(props) {
+  const { match } = useReactRouter();
   const initialState = {
     setID: 0,
-    setNavn: '',
-    setDelegated: '',
-    setKategori: 'Ingen valgt',
-    setAlvorlighetsgrad: 'Ingen valgt',
-    setPrioritet: 'Ingen valgt',
-    setReprodusere: 'Ingen valgt',
-    setOppsummering: '',
-    setBeskrivelse: '',
-    setStegReprodusere: '',
-    setTillegg: '',
-    setImageName: ['']
-  }
+    setNavn: "",
+    setDelegated: "",
+    setKategori: "Ingen valgt",
+    setAlvorlighetsgrad: "Ingen valgt",
+    setPrioritet: "Ingen valgt",
+    setReprodusere: "Ingen valgt",
+    setOppsummering: "",
+    setBeskrivelse: "",
+    setStegReprodusere: "",
+    setTillegg: "",
+    setImageName: [""],
+  };
 
-  const classes = useStyles()
-  const [values, setValues] = useState(initialState)
-  const [errors, setErrors] = useState('')
-  const [users, setUsers] = useState([])
+  const classes = useStyles();
+  const [values, setValues] = useState(initialState);
+  const [errors, setErrors] = useState("");
+  const [users, setUsers] = useState([]);
   const [userinfo, setUserinfo] = useState({
-    user: [''],
-    redirectToSignin: false
-  })
-  const [open, setOpen] = React.useState(false)
+    user: [""],
+    redirectToSignin: false,
+  });
+  const [open, setOpen] = React.useState(false);
 
   const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return
+    if (reason === "clickaway") {
+      return;
     }
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
-  const images = useSelector((state) => state)
+  const images = useSelector((state) => state);
 
   const init = (userId) => {
-    const jwt = auth.isAuthenticated()
+    const jwt = auth.isAuthenticated();
 
     findUserProfile(
       {
-        userId
+        userId,
       },
       { t: jwt.token }
     ).then((data) => {
       if (data.error) {
-        setUserinfo({ redirectToSignin: true })
+        setUserinfo({ redirectToSignin: true });
       } else {
-        setUserinfo({ user: data })
-        setValues({ setNavn: data.name })
+        setUserinfo({ user: data });
+        setValues({ setNavn: data.name });
       }
-    })
+    });
 
     getUsers({ t: jwt.token }).then((data) => {
       if (data.error) {
-        setValues({ redirectToSignin: true })
+        setValues({ redirectToSignin: true });
       } else {
-        setUsers(data.data)
+        setUsers(data.data);
       }
-    })
-  }
+    });
+  };
 
   useEffect(() => {
     if (!users.length) {
-      init(match.params.userId)
+      init(match.params.userId);
     }
-  }, [!users.length])
+  }, [!users.length]);
 
   const handleChange = (name) => (event) => {
     setValues({
       ...values,
-      [name]: event.target.value
-    })
-  }
+      [name]: event.target.value,
+    });
+  };
 
   const errorAlert = (error) => (
     <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
       <Alert onClose={handleClose} severity="error" variant="standard">
         <AlertTitle>Feil</AlertTitle>
-        Noe gikk galt -
-        {' '}
-        {error}
-        !
+        Noe gikk galt - {error}!
       </Alert>
     </Snackbar>
-  )
+  );
 
   const onChangeImageDrop = (event) => {
-    event.preventDefault()
-    setValues(prevState => ({
+    event.preventDefault();
+    setValues((prevState) => ({
       ...prevState,
-      setImageName: [...images.imageupload[1].name]
-    }))
-  }
+      setImageName: [...images.imageupload[1].name],
+    }));
+  };
 
   // Legg inn ny query / varelinje i database med backend API
   const putDataToDB = () => {
-    const imageNameValue = images.imageupload[1].name
+    const imageNameValue = images.imageupload[1].name;
     axios
-      .post('/api/putData', {
+      .post("/api/putData", {
         name: userinfo.user.name,
         category: values.setKategori,
         description: values.setBeskrivelse,
@@ -357,31 +354,34 @@ export default function CreateIssue () {
         additional_info: values.setTillegg,
         imageName: imageNameValue,
         // eslint-disable-next-line no-underscore-dangle
-        userid: userinfo.user._id
+        userid: userinfo.user._id,
       })
       .then((response) => {
         if (response.status === 200) {
-          setOpen(true)
-          clearState()
+          setOpen(true);
+          clearState();
+          setTimeout(function () {
+            props.history.push("/saker/" + match.params.userId);
+          }, 2000);
         }
       })
       .catch((err) => {
-        setErrors(err.response.data)
-        errorAlert(err.response.data)
-        window.scrollTo(0, 0)
-      })
+        setErrors(err.response.data);
+        errorAlert(err.response.data);
+        window.scrollTo(0, 0);
+      });
     // clear errors on submit if any present, before correcting old error
-  }
+  };
 
   const clearState = () => {
-    setValues({ ...initialState })
-  }
+    setValues({ ...initialState });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     // setImages(prevState => ({...prevState, setImageName: [...images.imageupload[1].name]}));
-    putDataToDB()
-  }
+    putDataToDB();
+  };
 
   return (
     <div className={classes.root}>
@@ -401,14 +401,14 @@ export default function CreateIssue () {
             defaultValue="Ingen valgt"
             className={classes.textField}
             value={values.setDelegated || initialState.setDelegated}
-            onChange={handleChange('setDelegated')}
+            onChange={handleChange("setDelegated")}
             InputProps={{
-              className: classes.input
+              className: classes.input,
             }}
             SelectProps={{
               MenuProps: {
-                className: classes.menu
-              }
+                className: classes.menu,
+              },
             }}
             margin="normal"
             variant="outlined"
@@ -419,8 +419,7 @@ export default function CreateIssue () {
               </MenuItem>
             ))}
           </TextField>
-          {errors.delegated ?
-          (
+          {errors.delegated ? (
             <Box
               className={classes.BoxErrorField}
               fontFamily="Monospace"
@@ -428,12 +427,10 @@ export default function CreateIssue () {
               p={1}
               m={1}
             >
-              {errors.delegated}
-              {' '}
-              ⚠️
+              {errors.delegated} ⚠️
             </Box>
           ) : (
-            ''
+            ""
           )}
           <TextField
             id="outlined-select-alvorlighetsgrad"
@@ -441,15 +438,15 @@ export default function CreateIssue () {
             label="Kategori"
             name="kategori"
             className={classes.textField}
-            value={values.setKategori || 'Ingen valgt'}
-            onChange={handleChange('setKategori')}
+            value={values.setKategori || "Ingen valgt"}
+            onChange={handleChange("setKategori")}
             InputProps={{
-              className: classes.input
+              className: classes.input,
             }}
             SelectProps={{
               MenuProps: {
-                className: classes.menu
-              }
+                className: classes.menu,
+              },
             }}
             margin="normal"
             variant="outlined"
@@ -468,28 +465,26 @@ export default function CreateIssue () {
               p={1}
               m={1}
             >
-              {errors.category}
-              {' '}
-              ⚠️
+              {errors.category} ⚠️
             </Box>
           ) : (
-            ''
+            ""
           )}
           <TextField
             id="outlined-select-alvorlighetsgrad"
             select
             name="alvorlighetsgrad"
             label="Alvorlighetsgrad"
-            value={values.setAlvorlighetsgrad || 'Ingen valgt'}
+            value={values.setAlvorlighetsgrad || "Ingen valgt"}
             className={classes.textField}
-            onChange={handleChange('setAlvorlighetsgrad')}
+            onChange={handleChange("setAlvorlighetsgrad")}
             InputProps={{
-              className: classes.input
+              className: classes.input,
             }}
             SelectProps={{
               MenuProps: {
-                className: classes.menu
-              }
+                className: classes.menu,
+              },
             }}
             margin="normal"
             variant="outlined"
@@ -508,12 +503,10 @@ export default function CreateIssue () {
               p={1}
               m={1}
             >
-              {errors.severity}
-              {' '}
-              ⚠️
+              {errors.severity} ⚠️
             </Box>
           ) : (
-            ''
+            ""
           )}
           <TextField
             id="outlined-select-prioritet"
@@ -521,15 +514,15 @@ export default function CreateIssue () {
             name="prioritet"
             label="Prioritet"
             className={classes.textField}
-            value={values.setPrioritet || 'Ingen valgt'}
-            onChange={handleChange('setPrioritet')}
+            value={values.setPrioritet || "Ingen valgt"}
+            onChange={handleChange("setPrioritet")}
             InputProps={{
-              className: classes.input
+              className: classes.input,
             }}
             SelectProps={{
               MenuProps: {
-                className: classes.menu
-              }
+                className: classes.menu,
+              },
             }}
             margin="normal"
             variant="outlined"
@@ -548,12 +541,10 @@ export default function CreateIssue () {
               p={1}
               m={1}
             >
-              {errors.priority}
-              {' '}
-              ⚠️
+              {errors.priority} ⚠️
             </Box>
           ) : (
-            ''
+            ""
           )}
           <TextField
             id="outlined-select-prioritet"
@@ -561,15 +552,15 @@ export default function CreateIssue () {
             name="reprodusere"
             label="Reprodusere"
             className={classes.textField}
-            value={values.setReprodusere || 'Ingen valgt'}
-            onChange={handleChange('setReprodusere')}
+            value={values.setReprodusere || "Ingen valgt"}
+            onChange={handleChange("setReprodusere")}
             InputProps={{
-              className: classes.input
+              className: classes.input,
             }}
             SelectProps={{
               MenuProps: {
-                className: classes.menu
-              }
+                className: classes.menu,
+              },
             }}
             margin="normal"
             variant="outlined"
@@ -581,7 +572,7 @@ export default function CreateIssue () {
                 selected
                 style={{
                   backgroundColor: option.color,
-                  color: 'white'
+                  color: "white",
                 }}
               >
                 {option.label}
@@ -596,22 +587,20 @@ export default function CreateIssue () {
               p={1}
               m={1}
             >
-              {errors.reproduce}
-              {' '}
-              ⚠️
+              {errors.reproduce} ⚠️
             </Box>
           ) : (
-            ''
+            ""
           )}
           <TextField
             id="outlined-oppsummering"
             label="Oppsummering"
             name="oppsummering"
             value={[values.setOppsummering]}
-            onChange={handleChange('setOppsummering')}
+            onChange={handleChange("setOppsummering")}
             className={classes.textField}
             InputProps={{
-              className: classes.input
+              className: classes.input,
             }}
             margin="normal"
             variant="outlined"
@@ -624,22 +613,20 @@ export default function CreateIssue () {
               p={1}
               m={1}
             >
-              {errors.summary}
-              {' '}
-              ⚠️
+              {errors.summary} ⚠️
             </Box>
           ) : (
-            ''
+            ""
           )}
           <TextField
             id="outlined-beskrivelse-input"
             label="Beskrivelse"
             name="beskrivelse"
             value={[values.setBeskrivelse]}
-            onChange={handleChange('setBeskrivelse')}
+            onChange={handleChange("setBeskrivelse")}
             className={classes.textField}
             InputProps={{
-              className: classes.input
+              className: classes.input,
             }}
             multiline
             rows="8"
@@ -654,21 +641,19 @@ export default function CreateIssue () {
               p={1}
               m={1}
             >
-              {errors.description}
-              {' '}
-              ⚠️
+              {errors.description} ⚠️
             </Box>
           ) : (
-            ''
+            ""
           )}
           <TextField
             id="outlined-reprodusere-input"
             label="Steg for å reprodusere	"
             className={classes.textField}
             value={values.setStegReprodusere}
-            onChange={handleChange('setStegReprodusere')}
+            onChange={handleChange("setStegReprodusere")}
             InputProps={{
-              className: classes.input
+              className: classes.input,
             }}
             name="reprodusere"
             multiline
@@ -684,12 +669,10 @@ export default function CreateIssue () {
               p={1}
               m={1}
             >
-              {errors.step_reproduce}
-              {' '}
-              ⚠️
+              {errors.step_reproduce} ⚠️
             </Box>
           ) : (
-            ''
+            ""
           )}
           <TextField
             id="outlined-multiline-static"
@@ -699,9 +682,9 @@ export default function CreateIssue () {
             rows="8"
             className={classes.textField}
             value={values.setTillegg}
-            onChange={handleChange('setTillegg')}
+            onChange={handleChange("setTillegg")}
             InputProps={{
-              className: classes.input
+              className: classes.input,
             }}
             margin="normal"
             variant="outlined"
@@ -714,12 +697,10 @@ export default function CreateIssue () {
               p={1}
               m={1}
             >
-              {errors.additional_info}
-              {' '}
-              ⚠️
+              {errors.additional_info} ⚠️
             </Box>
           ) : (
-            ''
+            ""
           )}
           <Previews onChange={(e) => onChangeImageDrop(e)} />
           <Button
@@ -738,8 +719,8 @@ export default function CreateIssue () {
               Sak ble opprettet!
             </Alert>
           </Snackbar>
-          </form>
+        </form>
       </Container>
     </div>
-  )
+  );
 }

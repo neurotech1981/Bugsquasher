@@ -17,8 +17,8 @@ var delays2 = 80,
 
 const dailySalesChart = {
   data: {
-    labels: ["M", "T", "W", "T", "F", "S", "S"],
-    series: [[12, 17, 7, 17, 23, 18, 38]]
+    labels: ["M", "T", "O", "T", "F", "L", "S"],
+    series: [[12, 47, 27, 37, 23, 18, 78]]
   },
   options: {
     lineSmooth: Chartist.Interpolation.cardinal({
@@ -81,9 +81,9 @@ const emailsSubscriptionChart = {
       "Jul",
       "Aug",
       "Sep",
-      "Oct",
+      "Okt",
       "Nov",
-      "Dec"
+      "Des"
     ],
     series: [[542, 443, 320, 780, 553, 453, 326, 434, 568, 610, 756, 895]]
   },
@@ -136,7 +136,7 @@ const emailsSubscriptionChart = {
 
 const completedTasksChart = {
   data: {
-    labels: ["12am", "3pm", "6pm", "9pm", "12pm", "3am", "6am", "9am"],
+    labels: ["06:00", "12:00", "18:00", "21:00", "23:00", "01:00", "03:00", "06:00"],
     series: [[230, 750, 450, 300, 280, 440, 200, 590]]
   },
   options: {

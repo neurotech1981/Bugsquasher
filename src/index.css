@@ -212,13 +212,6 @@ a {
   transition: border 300ms linear;
 }
 
-a:visited {
-  color: rgb(26, 56, 30);
-  text-decoration: none;
-  font-weight: 600;
-  outline: none;
-}
-
 a:hover,
 a:focus {
   transition: all ease-in-out 0.3s;

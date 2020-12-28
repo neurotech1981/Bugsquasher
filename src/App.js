@@ -4,6 +4,7 @@ import Landing from './components/layout/Landing'
 import Issues from './components/layout/Issues'
 import Users from './components/user/Users'
 import CreateIssue from './components/layout/CreateIssue'
+import EditIssue from "./components/layout/EditIssue";
 import ViewIssue from './components/layout/ViewIssue'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import PrivateRoute from './components/auth/PrivateRoute'
@@ -30,6 +31,7 @@ class App extends Component {
             <PrivateRoute path="/saker/:userId" component={Issues} />
             <PrivateRoute path="/vis-sak/:id" component={ViewIssue} />
             <PrivateRoute path="/bruker-admin/:userId" component={Users} />
+            <PrivateRoute path="/edit-issue/:id" component={EditIssue} />
             <Route path="/resett-passord" component={ResetPassword} />
             <Route path="/accounts/tilbakestill-passord/:token" component={ChangePassword} />
             <Route path="/signup" component={Signup} />

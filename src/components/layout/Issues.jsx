@@ -10,8 +10,8 @@ import { Link } from 'react-router-dom'
 import MaterialTable from 'material-table'
 import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import Zoom from '@material-ui/core/Zoom'
-const formattedDate = (value) => moment(value).format('DD/MM-YYYY')
+import Fade from "@material-ui/core/Fade";
+const formattedDate = (value) => moment(value).format("DD/MM-YYYY HH:mm");
 
 const drawerWidth = 240
 
@@ -203,11 +203,11 @@ export default function Issues () {
     <div className={classes.root}>
       <CssBaseline />
       <nav className={classes.drawer} aria-label="Registrerte Saker" />
-      <Zoom in={checked} style={{ transitionDelay: checked ? '500ms' : '0ms' }}>
+      <Fade in={checked}>
         <main className={classes.content}>
             <MaterialCustomTable />
         </main>
-      </Zoom>
+      </Fade>
     </div>
   )
 }

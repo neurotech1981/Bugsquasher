@@ -358,9 +358,10 @@ router.delete("/removeUser", (req, res) => {
 
 // this is our delete method
 // this method removes existing data in our database
-router.delete("/deleteData", (req, res) => {
-  const { id } = req.body;
-  Data.findByIdAndRemove(id, (err) => {
+router.delete("/deleteIssueByID", (req, res) => {
+  console.log("In delete function", req.body);
+  const { _id } = req.body;
+  Data.findByIdAndDelete({_id: _id}, (err) => {
     if (err) return res.send(err);
     return res.json({
       success: true,

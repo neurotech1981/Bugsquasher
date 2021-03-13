@@ -5,15 +5,20 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 
-const styles = {
+//const useStyles = makeStyles(styles);
+const useStyles = makeStyles((styles) => ({
+  //const styles =  {
   grid: {
-    margin: "0 315px !important",
+    width: "80%",
     marginTop: "100px !important",
-    width: "unset"
-  }
-};
-
-const useStyles = makeStyles(styles);
+    marginRight: "100px !important",
+    margin: "0 auto",
+  },
+  [styles.breakpoints.up("sm")]: {
+    width: "100%",
+    backgroundColor: "red"
+  },
+}));
 
 export default function GridContainer(props) {
   const classes = useStyles();
@@ -26,5 +31,5 @@ export default function GridContainer(props) {
 }
 
 GridContainer.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node,
 };

@@ -24,6 +24,11 @@ import { Link } from "react-router-dom";
 import EditIcon from "@material-ui/icons/Edit";
 import { useHistory } from "react-router-dom";
 import auth from "../auth/auth-helper";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
 
 const drawerWidth = 240;
 
@@ -116,12 +121,25 @@ export default function ViewIssue(props) {
   const [images, setImages] = useState([]);
   const [errors, setErrors] = useState("");
   const [myself, setMyself] = useState([]);
+  const [open, setOpen] = useState(false);
 
   const [selectedDate, setSelectedDate] = React.useState(dataset.updatedAt);
   const history = useHistory();
 
   const goHome = () => {
     history.push("/saker/" + auth.isAuthenticated().user._id);
+  };
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleConfirmDelete = () => {
+    onDelete();
   };
 
   const handleChange = (event) => {
@@ -168,16 +186,17 @@ export default function ViewIssue(props) {
   };
 
   const onDelete = async () => {
-    console.log("ID DELETE", dataset._id);
+    console.log("Inside OnDelete", dataset._id);
     const id = dataset._id;
     await issueService
       .deleteIssueByID(id)
       .then((response) => {
-        console.log("ISSUE DELETED SUCCESSFULLY");
+        console.log("ISSUE DELETED SUCCESSFULLY", response.status);
+        setOpen(false);
         goHome();
       })
       .catch((e) => {
-        console.log("ISSUE UPDATE: ", e);
+        console.log("DELETING ISSUE FAILED WITH ERROR: ", e);
       });
   };
 
@@ -236,6 +255,29 @@ export default function ViewIssue(props) {
   return (
     <div className={classes.root}>
       <CssBaseline />
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Slett sak"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Er du helt sikker på at du vil slette sak ?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="default">
+            Avbryt
+          </Button>
+          <Button onClick={handleConfirmDelete} color="primary" autoFocus>
+            Slett sak
+          </Button>
+        </DialogActions>
+      </Dialog>
       <nav className={classes.drawer} aria-label="Mailbox folders" />
       <main className={classes.content}>
         <Typography variant="h4" gutterBottom></Typography>
@@ -267,7 +309,7 @@ export default function ViewIssue(props) {
               className={classes.button}
               startIcon={<DeleteIcon />}
               size="small"
-              onClick={() => onDelete()}
+              onClick={handleClickOpen}
             >
               Slett sak
             </Button>

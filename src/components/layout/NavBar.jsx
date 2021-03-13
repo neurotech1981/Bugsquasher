@@ -42,132 +42,133 @@ const drawerWidth = 250
 
 const useStyles = makeStyles((theme) => ({
   palette: {
-    type: 'dark'
+    type: "dark",
   },
   colorPrimary: {
-    backgroundColor: '#2C1C3A',
+    backgroundColor: "#2C1C3A",
   },
   buttons: {
-    position: 'relative',
+    position: "relative",
     borderRadius: theme.shape.borderRadius,
     marginRight: theme.spacing(2),
-    alignItems: 'center',
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: '0px',
-      width: 'auto'
-    }
+    alignItems: "center",
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
+      marginLeft: "0px",
+      width: "auto",
+    },
   },
   root: {
-    display: 'flex'
+    display: "flex",
   },
   grow: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   drawer: {
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up("sm")]: {
       width: drawerWidth,
-      flexShrink: 0
-    }
+      flexShrink: 0,
+    },
   },
   drawerPaper: {
     width: drawerWidth,
-    flexShrink: 0
+    flexShrink: 0,
   },
   drawerHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '0 8px',
-    justifyContent: 'flex-end'
+    display: "flex",
+    alignItems: "center",
+    padding: "0 8px",
+    justifyContent: "flex-end",
   },
   flexContainer: {
-    justifyContent: 'center',
-    alignItems: 'center'
+    justifyContent: "center",
+    alignItems: "center",
   },
   hide: {
-    display: 'none'
+    display: "none",
   },
   appBar: {
-    [theme.breakpoints.up('sm')]: {
+    backgroundColor: "#2C1C3A",
+    [theme.breakpoints.up("sm")]: {
       width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: drawerWidth,
-      backgroundColor: '#2C1C3A'
-    }
+      backgroundColor: "#2C1C3A",
+    },
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
-    transition: theme.transitions.create(['margin', 'width'], {
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    })
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
   fab: {
-    margin: theme.spacing(1)
+    margin: theme.spacing(1),
   },
   extendedIcon: {
-    marginRight: theme.spacing(1)
+    marginRight: theme.spacing(1),
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3)
+    padding: theme.spacing(3),
   },
   contentShift: {
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
+      duration: theme.transitions.duration.enteringScreen,
     }),
-    marginLeft: 0
+    marginLeft: 0,
   },
   menuButton: {
     marginRight: theme.spacing(2),
-    [theme.breakpoints.up('sm')]: {
-      display: 'none'
-    }
+    [theme.breakpoints.up("sm")]: {
+      display: "none",
+    },
   },
   button: {
     margin: theme.spacing(1),
-    '&:hover': {
-      transition: theme.transitions.create('margin', {
+    "&:hover": {
+      transition: theme.transitions.create("margin", {
         easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen
+        duration: theme.transitions.duration.enteringScreen,
       }),
-      backgroundColor: '#FFF00',
-      color: 'white'
-    }
+      backgroundColor: "#FFF00",
+      color: "white",
+    },
   },
   title: {
-    display: 'none',
-    textShadow: '0 1px 1px rgba(0,0,0,0.25)',
-    [theme.breakpoints.up('sm')]: {
-      display: 'block'
-    }
+    display: "none",
+    textShadow: "0 1px 1px rgba(0,0,0,0.25)",
+    [theme.breakpoints.up("sm")]: {
+      display: "block",
+    },
   },
   inputRoot: {
-    color: 'inherit'
+    color: "inherit",
   },
   inputInput: {
     padding: theme.spacing(1, 1, 1, 7),
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: 200
-    }
+    transition: theme.transitions.create("width"),
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      width: 200,
+    },
   },
   sectionDesktop: {
-    display: 'none',
-    [theme.breakpoints.up('md')]: {
-      display: 'flex'
-    }
+    display: "none",
+    [theme.breakpoints.up("md")]: {
+      display: "flex",
+    },
   },
   sectionMobile: {
-    display: 'flex',
-    [theme.breakpoints.up('md')]: {
-      display: 'none'
-    }
+    display: "flex",
+    [theme.breakpoints.up("md")]: {
+      display: "none",
+    },
   },
-  toolbar: theme.mixins.toolbar
-}))
+  toolbar: theme.mixins.toolbar,
+}));
 
 
 function NavBar (props) {

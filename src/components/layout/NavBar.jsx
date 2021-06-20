@@ -1,39 +1,39 @@
-import React, { Fragment, useState } from 'react'
-import auth from '../auth/auth-helper'
-import { Link } from 'react-router-dom'
-import { makeStyles, useTheme } from '@material-ui/core/styles'
-import useReactRouter from 'use-react-router'
-import Divider from '@material-ui/core/Divider'
-import Drawer from '@material-ui/core/Drawer'
-import Hidden from '@material-ui/core/Hidden'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
-import IconButton from '@material-ui/core/IconButton'
-import Typography from '@material-ui/core/Typography'
-import Badge from '@material-ui/core/Badge'
-import List from '@material-ui/core/List'
-import MenuItem from '@material-ui/core/MenuItem'
-import Menu from '@material-ui/core/Menu'
-import MenuIcon from '@material-ui/icons/MenuTwoTone'
-import AccountCircle from '@material-ui/icons/AccountCircleTwoTone'
-import NotificationsIcon from '@material-ui/icons/NotificationsTwoTone'
-import MoreIcon from '@material-ui/icons/MoreVertTwoTone'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
-import MailIcon from '@material-ui/icons/MailTwoTone'
-import Dashboard from '@material-ui/icons/DashboardTwoTone'
-import Settings from '@material-ui/icons/SettingsTwoTone'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import BugIcon from '../../images/bug.svg'
-import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppTwoTone'
-import NoteAddRoundedIcon from '@material-ui/icons/NoteAddTwoTone'
-import PageviewRoundedIcon from '@material-ui/icons/PageviewTwoTone'
-import GroupRoundedIcon from '@material-ui/icons/GroupTwoTone'
+import React, { Fragment, useState } from "react";
+import auth from "../auth/auth-helper";
+import { Link } from "react-router-dom";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import useReactRouter from "use-react-router";
+import Divider from "@material-ui/core/Divider";
+import Drawer from "@material-ui/core/Drawer";
+import Hidden from "@material-ui/core/Hidden";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import IconButton from "@material-ui/core/IconButton";
+import Typography from "@material-ui/core/Typography";
+import Badge from "@material-ui/core/Badge";
+import List from "@material-ui/core/List";
+import MenuItem from "@material-ui/core/MenuItem";
+import Menu from "@material-ui/core/Menu";
+import MenuIcon from "@material-ui/icons/MenuTwoTone";
+import AccountCircle from "@material-ui/icons/AccountCircleTwoTone";
+import NotificationsIcon from "@material-ui/icons/NotificationsTwoTone";
+import MoreIcon from "@material-ui/icons/MoreVertTwoTone";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
+import MailIcon from "@material-ui/icons/MailTwoTone";
+import Dashboard from "@material-ui/icons/DashboardTwoTone";
+import Settings from "@material-ui/icons/SettingsTwoTone";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import BugIcon from "../../images/bug.svg";
+import ExitToAppRoundedIcon from "@material-ui/icons/ExitToAppTwoTone";
+import NoteAddRoundedIcon from "@material-ui/icons/NoteAddTwoTone";
+import PageviewRoundedIcon from "@material-ui/icons/PageviewTwoTone";
+import GroupRoundedIcon from "@material-ui/icons/GroupTwoTone";
 //import LogRocket from 'logrocket';
 //import setupLogRocketReact from 'logrocket-react';
 
-const drawerWidth = 250
+const drawerWidth = 250;
 
 //const isActive = (history, path) => {
 //  if (history.location.pathname === path) return { color: '#F44336' }
@@ -170,45 +170,57 @@ const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
 }));
 
-
-function NavBar (props) {
-
+function NavBar(props) {
   const items = [
-  { label: 'Dashboard', icon: <Dashboard />, path: '/landing'},
+    { label: "Dashboard", icon: <Dashboard />, path: "/landing" },
 
-  { label: 'Prosjekt oversikt', icon: <PageviewRoundedIcon />, path:
-    !auth.isAuthenticated() ? '/prosjekt-oversikt/' : '/prosjekt-oversikt/' + auth.isAuthenticated().user._id
-  },
-  { label: 'Opprett prosjekt', icon: <NoteAddRoundedIcon />, path:
-    !auth.isAuthenticated() ? '/opprett-prosjekt/' : '/opprett-prosjekt/' + auth.isAuthenticated().user._id
-  },
-  {
-    label: 'Legg til sak',
-    icon: <NoteAddRoundedIcon />,
-    path: !auth.isAuthenticated() ? '/legg-til-sak/' : '/legg-til-sak/' + auth.isAuthenticated().user._id
-  },
-  { label: 'Vis saker', icon: <PageviewRoundedIcon />, path:
-  !auth.isAuthenticated() ? '/saker/' : '/saker/' + auth.isAuthenticated().user._id
-},
-  {
-    label: 'Bruker administrasjon',
-    icon: <GroupRoundedIcon />,
-    path: !auth.isAuthenticated() ?
-        '/bruker-admin/'
-      : '/bruker-admin/' + auth.isAuthenticated().user._id
-  },
-  { label: 'Innstillinger', icon: <Settings />, path: '/innstillinger' }
-]
+    {
+      label: "Prosjekt oversikt",
+      icon: <PageviewRoundedIcon />,
+      path: !auth.isAuthenticated()
+        ? "/prosjekt-oversikt/"
+        : "/prosjekt-oversikt/" + auth.isAuthenticated().user._id,
+    },
+    {
+      label: "Opprett prosjekt",
+      icon: <NoteAddRoundedIcon />,
+      path: !auth.isAuthenticated()
+        ? "/opprett-prosjekt/"
+        : "/opprett-prosjekt/" + auth.isAuthenticated().user._id,
+    },
+    {
+      label: "Legg til sak",
+      icon: <NoteAddRoundedIcon />,
+      path: !auth.isAuthenticated()
+        ? "/legg-til-sak/"
+        : "/legg-til-sak/" + auth.isAuthenticated().user._id,
+    },
+    {
+      label: "Vis saker",
+      icon: <PageviewRoundedIcon />,
+      path: !auth.isAuthenticated()
+        ? "/saker/"
+        : "/saker/" + auth.isAuthenticated().user._id,
+    },
+    {
+      label: "Bruker administrasjon",
+      icon: <GroupRoundedIcon />,
+      path: !auth.isAuthenticated()
+        ? "/bruker-admin/"
+        : "/bruker-admin/" + auth.isAuthenticated().user._id,
+    },
+    { label: "Innstillinger", icon: <Settings />, path: "/innstillinger" },
+  ];
 
-  const { history } = useReactRouter()
-  const { container } = props
+  const { history } = useReactRouter();
+  const { container } = props;
   //const [mobileOpen, setMobileOpen] = React.useState(false)
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
-// This is an example script - don't forget to change it!
-//LogRocket.init('w0hnhq/bugsquasher')
-//setupLogRocketReact(LogRocket)
-/*LogRocket.identify('5f856c24f8a3b2531facddf9', {
+  // This is an example script - don't forget to change it!
+  //LogRocket.init('w0hnhq/bugsquasher')
+  //setupLogRocketReact(LogRocket)
+  /*LogRocket.identify('5f856c24f8a3b2531facddf9', {
   name: 'Bjørn-Are Jakobsen',
   email: 'ba.jakobsen@gmail.com',
 
@@ -216,76 +228,76 @@ function NavBar (props) {
   subscriptionType: 'admin'
 });*/
 
-  const classes = useStyles()
-  const theme = useTheme()
-  function handleDrawerToggle () {
-    setOpen(!open)
+  const classes = useStyles();
+  const theme = useTheme();
+  function handleDrawerToggle() {
+    setOpen(!open);
   }
 
- // function handleDrawerOpen () {
- //   setOpen(true)
- // }
+  // function handleDrawerOpen () {
+  //   setOpen(true)
+  // }
 
- // function handleDrawerClose () {
- //   setOpen(false)
- // }
+  // function handleDrawerClose () {
+  //   setOpen(false)
+  // }
 
   const drawer = (
     <div>
       {auth.isAuthenticated() && (
-      <Drawer
-        className={classes.drawer}
-        variant="permanent"
-        classes={{
-          paper: classes.drawerPaper
-        }}
-      >
-        <div className={classes.toolbar} />
-        <Divider />
-        <List>
-          {items.map((items, index) => (
-            <Link to={items.path} key={index}>
-              <ListItem button key={items.key} to={items.path}>
-                <ListItemIcon>{items.icon}</ListItemIcon>
-                <ListItemText primary={items.label} />
-              </ListItem>
-            </Link>
-          ))}
-        </List>
-        <Divider />
-      </Drawer>
+        <Drawer
+          className={classes.drawer}
+          variant="permanent"
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+        >
+          <div className={classes.toolbar} />
+          <Divider />
+          <List>
+            {items.map((items, index) => (
+              <Link to={items.path} key={index}>
+                <ListItem button key={items.key} to={items.path}>
+                  <ListItemIcon>{items.icon}</ListItemIcon>
+                  <ListItemText primary={items.label} />
+                </ListItem>
+              </Link>
+            ))}
+          </List>
+          <Divider />
+        </Drawer>
       )}
     </div>
-  )
+  );
 
-  const [anchorEl, setAnchorEl] = useState(false)
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(false)
+  const [anchorEl, setAnchorEl] = useState(false);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(false);
 
-  const isMenuOpen = Boolean(anchorEl)
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
+  const isMenuOpen = Boolean(anchorEl);
+  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
-  function handleProfileMenuOpen (event) {
-    setAnchorEl(event.currentTarget)
+  function handleProfileMenuOpen(event) {
+    setAnchorEl(event.currentTarget);
   }
 
-  function handleMobileMenuClose () {
-    setMobileMoreAnchorEl(null)
+  function handleMobileMenuClose() {
+    setMobileMoreAnchorEl(null);
   }
 
-  function handleMenuClose () {
-    setAnchorEl(null)
-    handleMobileMenuClose()
+  function handleMenuClose() {
+    setAnchorEl(null);
+    handleMobileMenuClose();
   }
 
-  function handleMobileMenuOpen (event) {
-    setMobileMoreAnchorEl(event.currentTarget)
+  function handleMobileMenuOpen(event) {
+    setMobileMoreAnchorEl(event.currentTarget);
   }
 
   const renderMenu = auth.isAuthenticated() && (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
@@ -299,7 +311,7 @@ function NavBar (props) {
       </MenuItem>
       <MenuItem
         component={Link}
-        to={'/user/' + auth.isAuthenticated().user._id}
+        to={"/user/" + auth.isAuthenticated().user._id}
       >
         <IconButton color="inherit">
           <AccountCircle />
@@ -309,7 +321,7 @@ function NavBar (props) {
 
       <MenuItem
         onClick={() => {
-          auth.signout(() => history.push('/signin'))
+          auth.signout(() => history.push("/signin"));
         }}
       >
         <IconButton color="inherit">
@@ -318,13 +330,13 @@ function NavBar (props) {
         <p>Logg ut</p>
       </MenuItem>
     </Menu>
-  )
+  );
 
   const renderMobileMenu = auth.isAuthenticated() && (
     <Menu
       anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
@@ -346,7 +358,7 @@ function NavBar (props) {
         <MenuItem
           onClose={handleMobileMenuClose}
           onClick={() => {
-            auth.signout(() => history.push('/signin'))
+            auth.signout(() => history.push("/signin"));
           }}
         >
           <IconButton color="inherit">
@@ -356,111 +368,117 @@ function NavBar (props) {
         </MenuItem>
       )}
     </Menu>
-  )
+  );
 
-  return auth.isAuthenticated() && (
-    <div className={classes.root}>
-
-      <CssBaseline />
-      <AppBar position="fixed" className={classes.appBar}>
-        <Toolbar>
-          {auth.isAuthenticated() && (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              className={classes.menuButton}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-
-          <img className="svgLogoIcon" alt="Logo" src={BugIcon} type="image/svg+xml" />
-          <Typography
-            className={classes.title}
-            variant="h6"
-            noWrap
-            style={{ fontFamily: 'Poppins' }}
-          >
-            BugSquasher
-          </Typography>
-          <div className={classes.buttons}>
+  return (
+    auth.isAuthenticated() && (
+      <div className={classes.root}>
+        <CssBaseline />
+        <AppBar position="fixed" className={classes.appBar}>
+          <Toolbar>
             {auth.isAuthenticated() && (
-              <Fragment>
-                <div className={classes.grow}>
-                  <nav className={classes.drawer} aria-label="Issues">
-                    <Hidden smUp implementation="css">
-                      <Drawer
-                        container={container}
-                        variant="temporary"
-                        anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-                        open={open}
-                        edge="start"
-                        onClose={handleDrawerToggle}
-                        classes={{
-                          paper: classes.drawerPaper
-                        }}
-                        ModalProps={{
-                          keepMounted: true // Better open performance on mobile.
-                        }}
-                      >
-                        {drawer}
-                      </Drawer>
-                    </Hidden>
-                    <Hidden xsDown implementation="css">
-                      <Drawer
-                        classes={{
-                          paper: classes.drawerPaper
-                        }}
-                        variant="permanent"
-                        open
-                      >
-                        {drawer}
-                      </Drawer>
-                    </Hidden>
-                  </nav>
-                </div>
-              </Fragment>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={handleDrawerToggle}
+                className={classes.menuButton}
+              >
+                <MenuIcon />
+              </IconButton>
             )}
-          </div>
-          <div className={classes.grow} />
-          <div className={classes.sectionDesktop}>
-            <IconButton color="inherit">
-              <Badge badgeContent={0} color="secondary">
-                <MailIcon />
-              </Badge>
-            </IconButton>
-            <IconButton color="inherit">
-              <Badge badgeContent={0} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              edge="end"
-              aria-owns={isMenuOpen ? 'material-appbar' : undefined}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
+
+            <img
+              className="svgLogoIcon"
+              alt="Logo"
+              src={BugIcon}
+              type="image/svg+xml"
+            />
+            <Typography
+              className={classes.title}
+              variant="h6"
+              noWrap
+              style={{ fontFamily: "Poppins" }}
             >
-              <AccountCircle />
-            </IconButton>
-          </div>
-          <div className={classes.sectionMobile}>
-            <IconButton
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit"
-            >
-              <MoreIcon />
-            </IconButton>
-          </div>
-        </Toolbar>
-      </AppBar>
-      {renderMenu}
-      {renderMobileMenu}
-    </div>
-  )
+              BugSquasher
+            </Typography>
+            <div className={classes.buttons}>
+              {auth.isAuthenticated() && (
+                <Fragment>
+                  <div className={classes.grow}>
+                    <nav className={classes.drawer} aria-label="Issues">
+                      <Hidden smUp implementation="css">
+                        <Drawer
+                          container={container}
+                          variant="temporary"
+                          anchor={theme.direction === "rtl" ? "right" : "left"}
+                          open={open}
+                          edge="start"
+                          onClose={handleDrawerToggle}
+                          classes={{
+                            paper: classes.drawerPaper,
+                          }}
+                          ModalProps={{
+                            keepMounted: true, // Better open performance on mobile.
+                          }}
+                        >
+                          {drawer}
+                        </Drawer>
+                      </Hidden>
+                      <Hidden xsDown implementation="css">
+                        <Drawer
+                          classes={{
+                            paper: classes.drawerPaper,
+                          }}
+                          variant="permanent"
+                          open
+                        >
+                          {drawer}
+                        </Drawer>
+                      </Hidden>
+                    </nav>
+                  </div>
+                </Fragment>
+              )}
+            </div>
+            <div className={classes.grow} />
+            <div className={classes.sectionDesktop}>
+              <IconButton color="inherit">
+                <Badge badgeContent={0} color="secondary">
+                  <MailIcon />
+                </Badge>
+              </IconButton>
+              <IconButton color="inherit">
+                <Badge badgeContent={0} color="secondary">
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
+              <IconButton
+                edge="end"
+                aria-owns={isMenuOpen ? "material-appbar" : undefined}
+                aria-haspopup="true"
+                onClick={handleProfileMenuOpen}
+                color="inherit"
+              >
+                <AccountCircle />
+              </IconButton>
+            </div>
+            <div className={classes.sectionMobile}>
+              <IconButton
+                aria-haspopup="true"
+                onClick={handleMobileMenuOpen}
+                color="inherit"
+              >
+                <MoreIcon />
+              </IconButton>
+            </div>
+          </Toolbar>
+        </AppBar>
+        {renderMenu}
+        {renderMobileMenu}
+      </div>
+    )
+  );
 }
 
-export default NavBar
+export default NavBar;

@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     type: "dark",
   },
   colorPrimary: {
-    backgroundColor: "#2C1C3A",
+    backgroundColor: "#b70491",
   },
   buttons: {
     position: "relative",
@@ -88,11 +88,11 @@ const useStyles = makeStyles((theme) => ({
     display: "none",
   },
   appBar: {
-    backgroundColor: "#2C1C3A",
+    backgroundColor: "#b70491",
     [theme.breakpoints.up("sm")]: {
       width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: drawerWidth,
-      backgroundColor: "#2C1C3A",
+      backgroundColor: "#b70491",
     },
   },
   appBarShift: {

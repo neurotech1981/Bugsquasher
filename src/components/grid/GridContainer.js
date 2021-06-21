@@ -9,14 +9,16 @@ import Grid from "@material-ui/core/Grid";
 const useStyles = makeStyles((styles) => ({
   //const styles =  {
   grid: {
-    width: "80%",
+    width: "100%",
     marginTop: "100px !important",
     marginRight: "100px !important",
     margin: "0 auto",
-  },
-  [styles.breakpoints.up("sm")]: {
-    width: "100%",
-    backgroundColor: "red"
+    [styles.breakpoints.up("sm")]: {
+      width: "80%",
+      marginTop: "100px !important",
+      marginRight: "100px !important",
+      margin: "0 auto",
+    },
   },
 }));
 

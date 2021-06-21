@@ -175,6 +175,7 @@ export default function ViewIssue(props) {
   };
 
   const upDateIssueStatus = async (id, data) => {
+    console.log("Status: " + id);
     await issueService
       .upDateIssueStatus(id, { status: data })
       .then((response) => {
@@ -331,6 +332,7 @@ export default function ViewIssue(props) {
               }}
               margin="normal"
               inputProps={{ "aria-label": "naked" }}
+              onChange={e => upDateIssueStatus(dataset._id, e.target.value)}
             >
               {Status.map((option, key) => (
                 <MenuItem key={key} value={option.label}>

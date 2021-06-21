@@ -177,6 +177,7 @@ function NavBar(props) {
     {
       label: "Prosjekt oversikt",
       icon: <PageviewRoundedIcon />,
+      /*eslint operator-linebreak: [2, "after", { "overrides": { "?": "ignore", ":": "ignore"} }]*/
       path: !auth.isAuthenticated()
         ? "/prosjekt-oversikt/"
         : "/prosjekt-oversikt/" + auth.isAuthenticated().user._id,

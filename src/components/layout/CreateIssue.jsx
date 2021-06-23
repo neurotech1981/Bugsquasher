@@ -187,14 +187,15 @@ const useStyles = makeStyles((theme) => ({
     display: "grid",
     flexWrap: "wrap",
     borderRadius: "2em",
+    backgroundColor: "white",
     boxShadow:
       "0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 5px 15px -3px rgba(0, 0, 0, 0.05)",
     backgroundRepeat: "no-repeat",
     backgroundAttachment: "fixed",
-    height: "100%",
+    height: "80%",
     margin: "0 auto",
-    [theme.breakpoints.up("sm")]: {
-      maxWidth: "100%",
+    [theme.breakpoints.up("xs")]: {
+      maxWidth: "80%",
       width: "100%",
     },
   },
@@ -314,6 +315,7 @@ export default function CreateIssue(props) {
   }, [!users.length]);
 
   const handleChange = (name) => (event) => {
+    console.log(JSON.stringify(images))
     setValues({
       ...values,
       [name]: event.target.value,
@@ -321,7 +323,7 @@ export default function CreateIssue(props) {
   };
 
   const errorAlert = (error) => (
-    <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+    <Snackbar open={open} autohideduration={6000} onClose={handleClose}>
       <Alert onClose={handleClose} severity="error" variant="standard">
         <AlertTitle>Feil</AlertTitle>
         Noe gikk galt - {error}!
@@ -330,16 +332,23 @@ export default function CreateIssue(props) {
   );
 
   const onChangeImageDrop = (event) => {
+    console.log("Images" + images.imageupload[1].name);
     event.preventDefault();
     setValues((prevState) => ({
       ...prevState,
       setImageName: [...images.imageupload[1].name],
     }));
+    console.log(images.imageupload[1]);
+
   };
 
   // Legg inn ny query / varelinje i database med backend API
   const putDataToDB = () => {
-    const imageNameValue = images.imageupload[1].name;
+    let imageNameValue = "[none]";
+    if(images.length > 0)
+    {
+      imageNameValue = images.imageupload[1].name;
+    }
     axios
       .post("/api/putData", {
         name: userinfo.user.name,
@@ -713,7 +722,7 @@ export default function CreateIssue(props) {
             Send inn sak
             <Icon className={classes.rightIcon}>send</Icon>
           </Button>
-          <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+          <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
             <Alert onClose={handleClose} severity="success" variant="standard">
               <AlertTitle>Suksess</AlertTitle>
               Sak ble opprettet!

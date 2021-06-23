@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 const User = require('../models/user')
 const db = require('../index')
 const errorHandler = require('../../../helpers/dbErrorHandler')
@@ -60,6 +62,29 @@ export const findUserProfile = (req, res) => {
   req.profile.hashedPassword = undefined
   req.profile.salt = undefined
   return res.json(req.profile)
+}
+
+export async function changePassword ( req, res )  {
+  console.log(JSON.stringify(req.body));
+  const account = await User.findOne({
+    '_id': req.body._id,
+  })
+
+  if (!account) throw 'Invalid ID'
+
+  // update password and remove reset token
+  account.hashedPassword = hash(req.body.password, account.salt)
+  account.passwordReset = Date.now()
+  await account.save((err, result) => {
+    if (err) {
+      return res.status(400).json({
+        error: errorHandler.getErrorMessage(err)
+      })
+    }
+    return res.status(200).json({
+      message: 'Passord ble endret'
+    })
+  })
 }
 
 export async function forgotPassword ({ email }, origin) {

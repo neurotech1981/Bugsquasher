@@ -147,6 +147,7 @@ function Previews () {
   }
 
   const uploadToServer = async (e) => {
+    console.log(acceptedFiles.map((file) => file.name))
     e.preventDefault()
     /* eslint-disable no-unused-vars */
     await new Promise((resolve, reject) => {
@@ -244,7 +245,7 @@ function Previews () {
         <p>Dra og slipp filer her, eller klikk for å velge fil(er)</p>
       </div>
       <aside style={thumbsContainer}>{thumbs}</aside>
-      { progress ? <LinearProgressWithLabel autoHideDuration={300} className={classes.borderProgress} value={progress} /> : null }
+      { progress ? <LinearProgressWithLabel autohideduration={300} className={classes.borderProgress} value={progress} /> : null }
       <p>
       <Button
         disabled={!files.length > 0}
@@ -264,7 +265,7 @@ function Previews () {
         </Icon>
       </Button>
       </p>
-      <Snackbar open={open} onClose={handleClose} autoHideDuration={2000}>
+      <Snackbar open={open} onClose={handleClose} autohideduration={2000}>
         <Alert onClose={handleClose} severity="success" variant="filled">
           <AlertTitle>Suksess</AlertTitle>
       { files.length } {files.length > 1 ? 'bilder' : 'bilde'} ble lastet opp!

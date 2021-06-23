@@ -49,6 +49,23 @@ export const changePassword = async (token, password, passwordConfirm) => {
   }
 }
 
+export const changePasswordProfile = async (_id, password, passwordConfirm) => {
+  try {
+    console.log("Inside change password profile")
+    const response = await fetch('/api/change-password/', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(_id, password, passwordConfirm)
+    })
+    return response.json()
+  } catch (err) {
+    return console.log(err)
+  }
+}
+
 export const getUsers = async credentials => {
   try {
     const response = await fetch('/api/userslist/', {

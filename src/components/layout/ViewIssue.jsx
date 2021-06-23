@@ -166,8 +166,9 @@ export default function ViewIssue(props) {
 
   const getIssueByID = async (id) => {
     const res = await issueService.getIssueByID(id);
+    console.log(JSON.stringify(res.imageName))
     setData(res);
-    if (res.imageName === null) {
+    if (res.imageName === "") {
       setImages(["none"]);
     } else {
       setImages(res.imageName); //[0]
@@ -220,15 +221,6 @@ export default function ViewIssue(props) {
     },
   ];
 
-  const thumbs = images.map((file, index) => (
-    <div style={thumb} key={index}>
-      <div style={thumbInner}>
-        <DeleteForeverRoundedIcon className={classes.icon} />
-        <img alt={file.name} src={file.path} style={img} />
-      </div>
-    </div>
-  ));
-
   useEffect(
     () => {
       // Make sure to revoke the data uris to avoid memory leaks
@@ -238,6 +230,7 @@ export default function ViewIssue(props) {
   );
 
   const imgList = images.map((file, index) => {
+    console.log(file);
     if (file === "none") {
       return <div key={index}>Ingen vedlegg</div>;
     }

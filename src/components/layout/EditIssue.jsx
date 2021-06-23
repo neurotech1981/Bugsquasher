@@ -37,7 +37,7 @@ function Alert(props) {
 }
 
 const errorAlert = (error) => (
-  <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+  <Snackbar open={open} autohideduration={6000} onClose={handleClose}>
     <Alert onClose={handleClose} severity="error" variant="standard">
       <AlertTitle>Feil</AlertTitle>
       Noe gikk galt - {error}!
@@ -749,7 +749,7 @@ export default function EditIssue(props) {
               margin="normal"
             />
           </div>
-          <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+          <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
             <Alert onClose={handleClose} severity="success" variant="standard">
               <AlertTitle>Suksess</AlertTitle>
               Sak ble oppdatert!

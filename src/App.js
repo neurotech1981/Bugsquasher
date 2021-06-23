@@ -15,6 +15,7 @@ import ResetPassword from './components/auth/ResetPassword'
 import ChangePassword from './components/auth/ChangePassword'
 import { Provider } from 'react-redux'
 import { store } from './redux/store'
+import './App.css';
 
 class App extends Component {
   render () {

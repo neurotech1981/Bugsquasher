@@ -31,9 +31,9 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: "5px",
   },
   colorPrimary: {
-    //backgroundImage:
-    //  'linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)'
-    backgroundColor: "#48305F",
+    backgroundImage:
+      'linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)'
+    //backgroundColor: "#48305F",
   },
   alignItemsAndJustifyContent: {
     alignItems: "center",
@@ -176,7 +176,7 @@ export default function Issues() {
       <MaterialTable
         options={{
           headerStyle: {
-            backgroundColor: "rgb(183 110 247)",
+            backgroundColor: "rgb(111 68 148)",
             color: "#FFF",
             textAlign: "left",
           },

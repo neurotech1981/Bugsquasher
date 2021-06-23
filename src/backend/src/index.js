@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 // import dependencies
 import userRoutes from "./routes/user";
 import authRoutes from "./routes/auth";
@@ -19,8 +21,6 @@ const cookieParser = require("cookie-parser");
 const AccessControl = require("accesscontrol");
 const rateLimit = require("express-rate-limit");
 
-var graphqlHTTP = require("express-graphql");
-var { buildSchema } = require("graphql");
 
 // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 // see https://expressjs.com/en/guide/behind-proxies.html
@@ -166,6 +166,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 // enable all CORS requests
 app.use(cors());
+app.use(express.static(__dirname + '/public/')); //Don't forget me :(
 
 // log HTTP requests
 app.use(morgan("combined"));
@@ -179,40 +180,6 @@ app.use((err, req, res, next) => {
     res.status(401).json({ error: err.name + ":" + err.message });
   }
 });
-
-var root = { hello: () => "Hello world!" };
-
-var schema = buildSchema(`
-  type Query {
-    me: User
-  }
-  type User {
-    id: ID
-    name: String
-    email: String
-    role: String,
-    rights: String
-  }
-`);
-
-function Query_me(request) {
-  return request.auth.user;
-}
-
-function User_name(user) {
-  return user.name;
-}
-
-app.use(
-  "/graphql",
-  graphqlHTTP({
-    schema: schema,
-    rootValue: root,
-    graphiql: true,
-  })
-);
-
-app.listen(4000, () => console.log("Now browse to localhost:4000/graphql"));
 
 router
   .route("/uploadimage", multipartMiddleware)

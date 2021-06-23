@@ -84,7 +84,7 @@ export default function ResetPassword () {
   }
 
    const successAlert = () => (
-    <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+    <Snackbar open={open} autohideduration={6000} onClose={handleClose}>
       <Alert onClose={handleClose} severity="success" variant="standard">
         <AlertTitle>Suksess</AlertTitle>
         {values.message}

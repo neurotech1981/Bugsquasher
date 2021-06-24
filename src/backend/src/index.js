@@ -220,7 +220,6 @@ router.route("/getLatestCases").get(function (req, res) {
   )
 });
 
-
 router.route("/getTodaysIssues").get(function (req, res) {
   var yesterday = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
 

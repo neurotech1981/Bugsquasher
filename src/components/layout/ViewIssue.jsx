@@ -171,9 +171,9 @@ export default function ViewIssue(props) {
 
   const getIssueByID = async (id) => {
     const res = await issueService.getIssueByID(id);
-    console.log(JSON.stringify(res.imageName))
+    console.log("Imagename: ", JSON.stringify(res.imageName))
     setData(res);
-    if (res.imageName === "") {
+    if (res.imageName === "[none]") {
       setImages(["none"]);
     } else {
       setImages(res.imageName); //[0]

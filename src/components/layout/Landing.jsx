@@ -47,7 +47,7 @@ function Landing () {
   const [todaysIssues, setTodaysIssues] = useState(0)
   const [solvedIssues, setSolvedIssues] = useState(0)
   const [openIssues, setOpenIssues] = useState(0)
-  const [latestCases, setLatestCases] = useState()
+  const [latestCases, setLatestCases] = useState([])
 
   useEffect(() => {
     let isSubscribed = true

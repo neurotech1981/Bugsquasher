@@ -38,4 +38,7 @@ export default {
   countOpenIssues: async () => {
     return await instance.get(`/api/countOpenIssues`);
   },
+  getLatestCases: async () => {
+    return await instance.get(`/api/getLatestCases`);
+  },
 };

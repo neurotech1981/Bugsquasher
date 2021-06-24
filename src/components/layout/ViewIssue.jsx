@@ -29,6 +29,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import Paper from '@material-ui/core/Paper';
 
 const drawerWidth = 240;
 
@@ -36,7 +37,11 @@ const formattedDate = (value) => moment(value).format("DD/MM-YYYY");
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
+    display: 'flex',
+  },
+  paper: {
+    width: '100%',
+    flexShrink: 0,
   },
   button: {
     margin: theme.spacing(1),
@@ -57,15 +62,15 @@ const useStyles = makeStyles((theme) => ({
     flexWrap: "wrap",
   },
   textField: {
+    borderRadius: ".1em",
+    padding: theme.spacing(2),
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: "100%",
-    backgroundColor: "rose",
   },
   textFieldStatus: {
     margin: theme.spacing(1),
     width: "10%",
-    backgroundColor: "rose",
     marginTop: "0",
   },
   avatar: {
@@ -273,6 +278,7 @@ export default function ViewIssue(props) {
         </DialogActions>
       </Dialog>
       <nav className={classes.drawer} aria-label="Mailbox folders" />
+      <Paper elevation={0} className={classes.paper}>
       <main className={classes.content}>
         <Typography variant="h4" gutterBottom></Typography>
         <div className="grid-container">
@@ -490,6 +496,7 @@ export default function ViewIssue(props) {
           </div>
         </div>
       </main>
+      </Paper>
     </div>
   );
 }

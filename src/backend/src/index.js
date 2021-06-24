@@ -205,8 +205,22 @@ router.route("/countIssues").get(function (req, res) {
   });
 });
 
-// this is our count issues method
-// this method count all issues in the data model
+// Find 5 latest issues.
+router.route("/getLatestCases").get(function (req, res) {
+  console.log("Inside getLatestCases")
+  Data.find({}).select(["createdAt", "summary", "priority", "severity"]).sort({ createdAt: -1 }).limit(5).exec(
+    function (err, result) {
+      if (err) {
+        console.log(err)
+        res.send(err);
+      } else {
+        res.json(result);
+      }
+    }
+  )
+});
+
+
 router.route("/getTodaysIssues").get(function (req, res) {
   var yesterday = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
 

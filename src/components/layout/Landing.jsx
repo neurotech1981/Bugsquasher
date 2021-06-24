@@ -1,4 +1,6 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react'
+import moment from "moment";
 import PropTypes from 'prop-types'
 import ChartistGraph from 'react-chartist';
 import { makeStyles } from '@material-ui/core/styles'
@@ -45,6 +47,7 @@ function Landing () {
   const [todaysIssues, setTodaysIssues] = useState(0)
   const [solvedIssues, setSolvedIssues] = useState(0)
   const [openIssues, setOpenIssues] = useState(0)
+  const [latestCases, setLatestCases] = useState()
 
   useEffect(() => {
     let isSubscribed = true
@@ -52,10 +55,11 @@ function Landing () {
           getIssueCount(),
           getTodaysIssueCount(),
           getSolvedIssues(),
-          getOpenIssues()
+          getOpenIssues(),
+          getLatestCases()
         }
     return () => isSubscribed = false
-  }, [issueCount, todaysIssues, solvedIssues, openIssues])
+  }, [])
 
   const getIssueCount = async () => {
     const res = await issueService.countIssues()
@@ -75,6 +79,14 @@ function Landing () {
   const getOpenIssues = async () => {
     const res = await issueService.countOpenIssues()
     setOpenIssues(res.data)
+  }
+
+  const getLatestCases = async () => {
+    const res = await issueService.getLatestCases()
+    var valueArr = res.data.map(element => {
+      return [moment(element.createdAt).format("DD/MM-YYYY HH:mm"),element.summary, element.priority, element.severity];
+    });
+    setLatestCases(valueArr)
   }
 
   return (
@@ -222,66 +234,20 @@ function Landing () {
           </Card>
         </GridItem>
       </GridContainer>
-            <GridContainer>
-        <GridItem xs={12} sm={12} md={6}>
-          <CustomTabs
-            title="Tasks:"
-            headerColor="primary"
-            tabs={[
-              {
-                tabName: "Bugs",
-                tabIcon: BugReport,
-                tabContent: (
-                  <Tasks
-                    checkedIndexes={[0, 3]}
-                    tasksIndexes={[0, 1, 2, 3]}
-                    tasks={bugs}
-                  />
-                )
-              },
-              {
-                tabName: "Website",
-                tabIcon: Code,
-                tabContent: (
-                  <Tasks
-                    checkedIndexes={[0]}
-                    tasksIndexes={[0, 1]}
-                    tasks={website}
-                  />
-                )
-              },
-              {
-                tabName: "Server",
-                tabIcon: Cloud,
-                tabContent: (
-                  <Tasks
-                    checkedIndexes={[1]}
-                    tasksIndexes={[0, 1, 2]}
-                    tasks={server}
-                  />
-                )
-              }
-            ]}
-          />
-        </GridItem>
-        <GridItem xs={12} sm={12} md={6}>
+      <GridContainer>
+        <GridItem xs={12} sm={12} md={12}>
           <Card>
-            <CardHeader color="warning">
+            <CardHeader color="success">
               <h4 className={classes.cardTitleWhite}>Siste aktive saker</h4>
               <p className={classes.cardCategoryWhite}>
-                Nye saker siste måned.
+                De 5 siste sakene.
               </p>
             </CardHeader>
             <CardBody>
               <Table
                 tableHeaderColor="warning"
-                tableHead={["ID", "Name", "Prioritet", "Alvorlighet"]}
-                tableData={[
-                  ["1", "Dakota Rice", "$36,738", "Niger"],
-                  ["2", "Minerva Hooper", "$23,789", "Curaçao"],
-                  ["3", "Sage Rodriguez", "$56,142", "Netherlands"],
-                  ["4", "Philip Chaney", "$38,735", "Korea, South"]
-                ]}
+                tableHead={["Dato", "Oppsummering", "Prioritet", "Alvorlighet"]}
+                tableData={latestCases}
               />
             </CardBody>
           </Card>

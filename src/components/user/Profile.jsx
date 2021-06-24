@@ -34,14 +34,14 @@ function Alert(props) {
 
 const useStyles = makeStyles((theme) => ({
   root: theme.mixins.gutters({
-    maxWidth: 600,
-    margin: 'auto',
+    maxWidth: '80vh',
+    margin: "0 auto",
     padding: theme.spacing(3),
     marginTop: theme.spacing(15),
-    borderRadius: '15px',
+    borderRadius: '10px',
   }),
   title: {
-    margin: `${theme.spacing(3)}px 0 ${theme.spacing(2)}px`,
+    margin: `${theme.spacing(3)}px 0 ${theme.spacing(1)}px`,
     fontWeight: 500,
   },
   userInfo: {
@@ -130,10 +130,11 @@ export default function Profile () {
     return <Redirect to="/signin" />
   }
   return (
-    <Paper className={classes.root} elevation={4}>
+    <Paper className={classes.root} elevation={1}>
       <Typography type="title" className={classes.title}>
-        Profile
+        Profile info
       </Typography>
+      <Divider />
       <List>
         <ListItem button>
           <ListItemAvatar>
@@ -150,15 +151,17 @@ export default function Profile () {
             </ListItemSecondaryAction>
           )}
         </ListItem>
-        <Divider />
       </List>
       <Typography type="title" className={classes.title}>
         Bytt passord
       </Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={6}>
+      <Divider />
+<br/>
+      <Grid container align="center" xs={12} sm={12} spacing={2}>
+        <Grid item align="left" xs={12} sm={6}>
         <InputLabel style={{ margin: "5px" }} htmlFor="new-password">Nytt passord</InputLabel>
           <OutlinedInput
+              style={{ width: "100%" }}
               id="new-password"
               type={show.showPassword ? 'text' : 'password'}
               variant="outlined"
@@ -179,9 +182,10 @@ export default function Profile () {
             }
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item align="left" xs={12} sm={6}>
           <InputLabel style={{ margin: "5px" }} htmlFor="repeat-password">Gjenta passord</InputLabel>
           <OutlinedInput
+              style={{ width: "100%" }}
               id="repeat-password"
               type={show.showPassword ? 'text' : 'password'}
               variant="outlined"
@@ -202,7 +206,7 @@ export default function Profile () {
             }
             />
           </Grid>
-            <Grid align="right" item xs={12}>
+            <Grid  align="right" item xs={12} sm={12}>
               <Button
                 variant="contained"
                 color="primary"
@@ -212,7 +216,7 @@ export default function Profile () {
                 className={classes.button}
                 startIcon={<SaveIcon />}
               >
-                Lagre
+                Oppdater passord
               </Button>
             </Grid>
         </Grid>

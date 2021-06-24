@@ -174,25 +174,69 @@ export default function Issues() {
   function MaterialCustomTable() {
     return (
       <MaterialTable
+        localization={{
+          body: {
+            emptyDataSourceMessage: "Ingen saker funnet",
+            filterRow: {
+              filterTooltip: "Filter",
+            },
+          },
+          toolbar: {
+            searchPlaceholder: "Søk",
+            showColumnsTitle: "Kolonne",
+            addRemoveColumns: "Legg til eller fjern kolonner",
+            exportTitle: "Eksporter",
+          },
+          pagination: {
+            labelDisplayedRows: "{from}-{to} av {count}",
+            nextTooltip: "Neste side",
+            previousTooltip: "Forrige side",
+            lastTooltip: "Siste side",
+            firstTooltip: "Første side",
+            labelRowsSelect: "oppføringer",
+          },
+        }}
         options={{
+          rowStyle: (x) => {
+            if (x.tableData.id % 2) {
+              return { backgroundColor: "#f2f2f2" };
+            }
+          },
+          filterCellStyle: {
+            background: "#f2f2f2",
+          },
+          padding: "dense",
+          exportAllData: true,
           headerStyle: {
-            backgroundColor: "rgb(111 68 148)",
+            backgroundColor: "#05386B",
             color: "#FFF",
             textAlign: "left",
+            fontWeight: "700",
+            whiteSpace: "nowrap",
           },
-          rowStyle: {
-            boxShadow: "0 6px 12px rgba(51, 51, 51, 0.1)",
-          },
+          filtering: true,
           search: true,
           exportButton: true,
           pageSize: 10,
-          loadingType: "linear",
+          loadingType: "overlay",
+          isLoading: true,
+          debounceInterval: 500,
           tableLayout: "auto",
           columnsButton: true,
         }}
         title="Registrerte saker"
         columns={state.columns}
         data={dataset}
+        actions={[
+          {
+            icon: "add_box",
+            tooltip: "Legg til ny sak",
+            position: "toolbar",
+            onClick: () => {
+              console.log("Link til ny sak.");
+            },
+          },
+        ]}
       />
     );
   }

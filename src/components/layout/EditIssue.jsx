@@ -213,12 +213,12 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: "100%",
-    backgroundColor: "rose",
+    backgroundColor: "white",
   },
   textFieldStatus: {
     margin: theme.spacing(1),
     width: "10%",
-    backgroundColor: "rose",
+    backgroundColor: "white",
     marginTop: "0",
   },
   avatar: {

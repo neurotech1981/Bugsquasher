@@ -182,11 +182,10 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: "20px",
     marginTop: "100px",
     marginBottom: "100px",
-    padding: "20px",
     paddingBottom: "50px",
     display: "grid",
     flexWrap: "wrap",
-    borderRadius: "2em",
+    borderRadius: "1em",
     backgroundColor: "white",
     boxShadow:
       "0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 5px 15px -3px rgba(0, 0, 0, 0.05)",
@@ -195,7 +194,7 @@ const useStyles = makeStyles((theme) => ({
     height: "80%",
     margin: "0 auto",
     [theme.breakpoints.up("xs")]: {
-      maxWidth: "80%",
+      maxWidth: "100%",
       width: "100%",
     },
   },
@@ -332,7 +331,6 @@ export default function CreateIssue(props) {
   );
 
   const onChangeImageDrop = (event) => {
-    console.log("Images" + images.imageupload[1].name);
     event.preventDefault();
     setValues((prevState) => ({
       ...prevState,

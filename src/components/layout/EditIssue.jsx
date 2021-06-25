@@ -333,7 +333,8 @@ export default function EditIssue(props) {
   const getIssueByID = async (id) => {
     const res = await issueService.getIssueByID(id);
     setData(res);
-    if (res.imageName === null) {
+    console.log(res.imageName);
+    if (res.imageName === "") {
       setImages(["none"]);
     } else {
       setImages(res.imageName); //[0]

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
@@ -171,9 +172,9 @@ export default function ViewIssue(props) {
 
   const getIssueByID = async (id) => {
     const res = await issueService.getIssueByID(id);
-    console.log("Imagename: ", JSON.stringify(res.imageName))
     setData(res);
-    if (res.imageName === "[none]") {
+    console.log("Imagename: ", res.imageName)
+    if (res.imageName === "" || res.imageName === "[none]") {
       setImages(["none"]);
     } else {
       setImages(res.imageName); //[0]
@@ -235,7 +236,8 @@ export default function ViewIssue(props) {
   );
 
   const imgList = images.map((file, index) => {
-    console.log(file);
+    console.log("File" , file);
+
     if (file === "none") {
       return <div key={index}>Ingen vedlegg</div>;
     }

@@ -70,19 +70,23 @@ export default function Issues() {
           <div
             className="priority"
             style={{
+              height: "100%",
+              width: "100",
+              fontSize: "1.1em",
+              fontWeight: "600",
               backgroundColor:
                 data.priority === "Øyeblikkelig" ?
-                  "rgb(255, 125, 145)"
+                  "rgb(255, 185, 145)"
                   : "" || data.priority === "Høy" ?
                   "rgb(242, 130, 91)"
                   : "" || data.priority === "Normal" ?
-                  "rgb(255, 250, 247)"
+                  "rgb(206, 255, 204)"
                   : "" || data.priority === "Haster" ?
                   "rgb(231, 242, 163)"
                   : "" || data.priority === "Lav" ?
-                  "rgb(231, 232, 242)"
+                  "rgb(211, 212, 242)"
                   : "",
-              padding: "0.5em",
+              padding: "0.2em",
             }}
           >
             {data.priority}
@@ -112,17 +116,19 @@ export default function Issues() {
           <div
             className="status"
             style={{
+              fontSize: "1.1em",
+              fontWeight: "600",
               backgroundColor:
                 data.status === "Åpen" ?
-                  "rgb(255, 199, 255)"
+                  "rgb(155, 119, 255)"
                   : "" || data.status === "Løst" ?
-                  "rgb(255, 255, 145)"
+                  "rgb(87, 242, 80)"
                   : "" || data.status === "Lukket" ?
-                  "rgb(255, 125, 145)"
+                  "rgb(255, 65, 55)"
                   : "" || data.status === "Under arbeid" ?
                   "rgb(202, 163, 0)"
                   : "",
-              padding: "0.5em",
+              padding: "0.2em",
             }}
           >
             {data.status}
@@ -132,6 +138,7 @@ export default function Issues() {
       {
         title: "Opprettet",
         width: 20,
+        defaultSort: "desc",
         field: "createdAt",
         render: (data) => <div>{formattedDate(data.createdAt)}</div>,
       },
@@ -197,6 +204,7 @@ export default function Issues() {
           },
         }}
         options={{
+          sorting: true,
           rowStyle: (x) => {
             if (x.tableData.id % 2) {
               return { backgroundColor: "#f2f2f2" };

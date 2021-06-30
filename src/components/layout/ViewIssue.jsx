@@ -4,12 +4,14 @@ import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import issueService from "../../services/issueService";
 import "../../App.css";
+import CommentForm from "../Comments/CommentForm";
+import Comments from "../Comments/Comments";
 import moment from "moment";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
-import DeleteForeverRoundedIcon from "@material-ui/icons/DeleteForeverRounded";
+import Divider from "@material-ui/core/Divider";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import InputLabel from "@material-ui/core/InputLabel";
 import IconButton from "@material-ui/core/IconButton";
@@ -128,8 +130,9 @@ export default function ViewIssue(props) {
   const [errors, setErrors] = useState("");
   const [myself, setMyself] = useState([]);
   const [open, setOpen] = useState(false);
+  const [comments, setComments] = useState([]);
 
-  const [selectedDate, setSelectedDate] = React.useState(dataset.updatedAt);
+  const [selectedDate, setSelectedDate] = useState(dataset.updatedAt);
   const history = useHistory();
 
   const goHome = () => {
@@ -167,24 +170,37 @@ export default function ViewIssue(props) {
   const { id } = props.match.params;
 
   useEffect(() => {
-    getIssueByID(id);
+    const jwt = auth.isAuthenticated()
+    getIssueByID(id, jwt.token);
+    getComments();
   }, [id]);
 
-  const getIssueByID = async (id) => {
-    const res = await issueService.getIssueByID(id);
+  const getIssueByID = async (id, token) => {
+    console.log(token)
+    const res = await issueService.getIssueByID(id, token);
     setData(res);
     console.log("Imagename: ", res.imageName)
-    if (res.imageName === "" || res.imageName === "[none]") {
+    if (res.imageName === "" || res.imageName === "[none]" || res.imageName === "none" || res.imageName === undefined) {
       setImages(["none"]);
     } else {
       setImages(res.imageName); //[0]
     }
   };
 
+  const getComments = async () => {
+    const jwt = auth.isAuthenticated()
+    const res = await issueService.getComments(jwt.token);
+    let commentList = res.slice(0, 10);
+    setComments(commentList);
+  };
+
+
   const upDateIssueStatus = async (id, data) => {
+    const jwt = auth.isAuthenticated()
+
     console.log("Status: " + id);
     await issueService
-      .upDateIssueStatus(id, { status: data })
+      .upDateIssueStatus(id, { status: data }, jwt.token)
       .then((response) => {
         setData({ ...dataset, status: data });
       })
@@ -194,10 +210,12 @@ export default function ViewIssue(props) {
   };
 
   const onDelete = async () => {
+    const jwt = auth.isAuthenticated()
+
     console.log("Inside OnDelete", dataset._id);
     const id = dataset._id;
     await issueService
-      .deleteIssueByID(id)
+      .deleteIssueByID(id, { t: jwt.token })
       .then((response) => {
         console.log("ISSUE DELETED SUCCESSFULLY", response.status);
         setOpen(false);
@@ -238,7 +256,7 @@ export default function ViewIssue(props) {
   const imgList = images.map((file, index) => {
     console.log("File" , file);
 
-    if (file === "none") {
+    if (file === "none" || file === undefined) {
       return <div key={index}>Ingen vedlegg</div>;
     }
     return (
@@ -282,7 +300,7 @@ export default function ViewIssue(props) {
       <nav className={classes.drawer} aria-label="Mailbox folders" />
       <Paper elevation={0} className={classes.paper}>
       <main className={classes.content}>
-        <Typography variant="h4" gutterBottom></Typography>
+      <br/>
         <div className="grid-container">
           <div className="item0">
             <IconButton onClick={goHome}>
@@ -496,7 +514,16 @@ export default function ViewIssue(props) {
               }}
             />
           </div>
+          <div className="item16">
+          <Typography variant="h4" p={5}  paragraph>Kommentarfelt<Divider/></Typography>
+            <Comments comments={comments} />
+          </div>
+          <div className="item17">
+
+            <CommentForm/>
+          </div>
         </div>
+
       </main>
       </Paper>
     </div>

@@ -27,6 +27,7 @@ import CardIcon from "../Card/CardIcon.js";
 import CardBody from "../Card/CardBody.js";
 import CardFooter from "../Card/CardFooter.js";
 import issueService from '../../services/issueService'
+import auth from "../auth/auth-helper";
 
 import { bugs, website, server } from "../../variables/general.js";
 
@@ -62,27 +63,40 @@ function Landing () {
   }, [])
 
   const getIssueCount = async () => {
-    const res = await issueService.countIssues()
+    const jwt = auth.isAuthenticated()
+    console.log("JWT>>>>>", jwt.token)
+    const res = await issueService.countIssues(jwt.token);
+    console.log(res.data.message)
     setIssueCount(res.data)
   }
 
   const getTodaysIssueCount = async () => {
-    const res = await issueService.getTodaysIssues()
+    const jwt = auth.isAuthenticated()
+
+    const res = await issueService.getTodaysIssues(jwt.token)
     setTodaysIssues(res.data)
   }
 
   const getSolvedIssues = async () => {
-    const res = await issueService.countSolvedIssues()
+    const jwt = auth.isAuthenticated()
+
+    const res = await issueService.countSolvedIssues(jwt.token)
     setSolvedIssues(res.data)
   }
 
   const getOpenIssues = async () => {
-    const res = await issueService.countOpenIssues()
+    const jwt = auth.isAuthenticated()
+
+    const res = await issueService.countOpenIssues(jwt.token)
+    console.log(res.data)
     setOpenIssues(res.data)
   }
 
   const getLatestCases = async () => {
-    const res = await issueService.getLatestCases()
+    const jwt = auth.isAuthenticated()
+    console.log("GETLATESTCASES >>>>>", jwt.token)
+    const res = await issueService.getLatestCases(jwt.token)
+    console.log(res);
     var valueArr = res.data.map(element => {
       return [moment(element.createdAt).format("DD/MM-YYYY HH:mm"),element.summary, element.priority, element.severity];
     });

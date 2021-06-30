@@ -20,6 +20,7 @@ var multipart = require("connect-multiparty");
 const cookieParser = require("cookie-parser");
 const AccessControl = require("accesscontrol");
 const rateLimit = require("express-rate-limit");
+import jwt from 'jsonwebtoken';
 
 
 // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
@@ -138,7 +139,41 @@ function isValidId(id) {
 
 // define the Express app
 const app = express();
-const router = express.Router();
+const ProtectedRoutes = express.Router();
+
+//set secret
+app.set('jwtSecret', config.jwtSecret);
+
+ProtectedRoutes.use((req, res, next) =>{
+  // check header for the token
+  console.log(req.headers)
+  var token = req.headers.authorization;
+
+  console.log("Token Auth check: ", token)
+  console.log("Secret >>> ", app.get('jwtSecret'))
+  // decode token
+  if (token) {
+    // verifies secret and checks if the token is expired
+    jwt.verify(token, app.get('jwtSecret'), (err, decoded) =>{
+      if (err) {
+        return res.json({ message: 'invalid token' });
+      } else {
+        // if everything is good, save to request for use in other routes
+        req.decoded = decoded;
+        next();
+      }
+    });
+
+  } else {
+
+    // if there is no token
+
+    res.send({
+        message: 'No token provided.'
+    });
+
+  }
+});
 // (optional) only made for logging and
 // bodyParser, parses the request body to be a readable json format
 //  apply limiter to all requests
@@ -181,7 +216,7 @@ app.use((err, req, res, next) => {
   }
 });
 
-router
+ProtectedRoutes
   .route("/uploadimage", multipartMiddleware)
   .post(upload.array("imageData", 12), function (req, res, next) {
     const file = req.files;
@@ -193,72 +228,83 @@ router
     res.send(file);
   });
 
+
 // this is our count issues method
 // this method count all issues in the data model
-router.route("/countIssues").get(function (req, res) {
-  Data.countDocuments({}, function (err, result) {
+ProtectedRoutes.route("/countIssues").get(async function (req, res, next) {
+  console.log("Inside countIssue", req.body)
+  await Data.countDocuments({}, function (err, result) {
     if (err) {
       res.send(err);
+      next();
     } else {
       res.json(result);
+      next();
     }
   });
 });
 
 // Find 5 latest issues.
-router.route("/getLatestCases").get(function (req, res) {
+ProtectedRoutes.route("/getLatestCases").get(async function (req, res, next) {
   console.log("Inside getLatestCases")
-  Data.find({}).select(["createdAt", "summary", "priority", "severity"]).sort({ createdAt: -1 }).limit(5).exec(
+  await Data.find({}).select(["createdAt", "summary", "priority", "severity"]).sort({ createdAt: -1 }).limit(5).exec(
     function (err, result) {
       if (err) {
         console.log(err)
         res.send(err);
+        next();
       } else {
         res.json(result);
+        next();
       }
     }
   )
 });
 
-router.route("/getTodaysIssues").get(function (req, res) {
+ProtectedRoutes.route("/getTodaysIssues").get(async function (req, res,next) {
   var yesterday = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
 
-  Data.countDocuments(
+  await Data.countDocuments(
     { createdAt: { $gte: yesterday } },
     function (err, result) {
       if (err) {
         res.send(err);
+        next();
       } else {
         res.json(result);
+        next();
       }
     }
   );
 });
 
-router.route("/countSolvedIssues").get(function (req, res) {
-  Data.countDocuments({ status: "Løst" }, function (err, result) {
+ProtectedRoutes.route("/countSolvedIssues").get(async function (req, res, next) {
+  await Data.countDocuments({ status: "Løst" }, function (err, result) {
     if (err) {
       res.send(err);
+      next();
     } else {
       res.json(result);
+      next();
     }
   });
 });
 
-router.route("/countOpenIssues").get(function (req, res) {
-  Data.countDocuments({ status: "Åpen" }, function (err, result) {
+ProtectedRoutes.route("/countOpenIssues").get(async function (req, res, next) {
+  await Data.countDocuments({ status: "Åpen" }, function (err, result) {
     if (err) {
       res.send(err);
     } else {
       res.json(result);
     }
   });
+
 });
 
 // this is our get method
 // this method fetches all available data in our database
-router.get("/getData", (req, res) => {
-  Data.find((err, data) => {
+ProtectedRoutes.route("/getData").get(async function (req, res, next)  {
+  await Data.find((err, data) => {
     if (err) {
       return res.json({
         success: false,
@@ -270,12 +316,13 @@ router.get("/getData", (req, res) => {
       data: data,
     });
   });
+
 });
 
-router.put("/upDateIssueStatus/:id", (req, res, next) => {
+ProtectedRoutes.route("/upDateIssueStatus/:id").get(async function (req, res, next) {
   const { update } = req.body;
   console.log("BODY REQ ISSUE UPDATE: ", req.params.id);
-  Data.findByIdAndUpdate(
+  await Data.findByIdAndUpdate(
     { _id: req.params.id },
     { status: req.body.status },
     function (err, data) {
@@ -286,32 +333,36 @@ router.put("/upDateIssueStatus/:id", (req, res, next) => {
       });
     }
   );
+  next();
 });
 
-router.put("/upDateIssue/:id", (req, res, next) => {
+ProtectedRoutes.put("/upDateIssue/:id").get(async function (req, res, next) {
   const { dataset } = req.body;
-  Data.findByIdAndUpdate({ _id: req.params.id }, dataset, function (err, data) {
+  await Data.findByIdAndUpdate({ _id: req.params.id }, dataset, function (err, data) {
     if (err) return next(err);
     return res.json({
       success: true,
       data: data,
     });
   });
+  next();
 });
 
-router.put("/getDataByID/:id", function async(req, res, next) {
-  Data.findById(req.params.id, req.body, function (err, post) {
-    if (err) return next(err);
+ProtectedRoutes.route("/getDataByID/:id").get(async function (req, res, next) {
+  console.log("Inside getDataByID: ", req.params.id)
+  await Data.findById(req.params.id, function (err, post) {
+    if (err) return res.json(err);
     return res.json({
       success: true,
       data: post,
     });
   });
+  next();
 });
 
 // this is our old update method
 // this method overwrites existing data in our database
-router.post("/edituser", function async(req, res) {
+ProtectedRoutes.post("/edituser").get(async function (req, res) {
   const { _id, role, update } = req.body;
   const permission = ac.can(role).readAny("editusers");
   if (permission.granted) {
@@ -324,9 +375,10 @@ router.post("/edituser", function async(req, res) {
     // resource is forbidden for this user/role
     res.status(403).end();
   }
+  next();
 });
 
-router.delete("/removeUser", (req, res) => {
+ProtectedRoutes.delete("/removeUser").get(async function(req, res) {
   const { _id } = req.body;
   User.findByIdAndRemove(_id, (err) => {
     if (err) return res.send(err);
@@ -334,11 +386,12 @@ router.delete("/removeUser", (req, res) => {
       success: true,
     });
   });
+  next();
 });
 
 // this is our delete method
 // this method removes existing data in our database
-router.delete("/deleteIssueByID", (req, res) => {
+ProtectedRoutes.delete("/deleteIssueByID").get(async function (req, res) {
   console.log("In delete function", req.body);
   const { _id } = req.body;
   Data.findByIdAndDelete({_id: _id}, (err) => {
@@ -347,11 +400,12 @@ router.delete("/deleteIssueByID", (req, res) => {
       success: true,
     });
   });
+  next();
 });
 
 // this is our create method
 // this method adds new data in our database
-router.post("/putData", function async(req, res) {
+ProtectedRoutes.post("/putData").get(async function (req, res) {
   const { errors, isValid } = validateInput(req.body);
   // Check Validation
   if (!isValid) {
@@ -360,7 +414,7 @@ router.post("/putData", function async(req, res) {
   }
 
   const data = new Data();
-  data.id = req.body.id;
+  //data.id = req.body.id;
   data.name = req.body.name;
   data.delegated = req.body.delegated;
   data.description = req.body.description;
@@ -389,12 +443,16 @@ router.post("/putData", function async(req, res) {
       document: data,
     });
   });
+  next();
+
 });
 
 // api routes
-app.use("/accounts", require("./accounts/account.controller"));
+app.use("/accounts", ProtectedRoutes, require("./accounts/account.controller"));
+
+
 // append /api for our http requests
-app.use("/api", router);
+app.use("/api", ProtectedRoutes);
 
 // start the server
 app.listen(API_PORT, () => {

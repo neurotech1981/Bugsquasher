@@ -8,6 +8,7 @@ import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
 import issueService from '../../services/issueService'
+import auth from "../auth/auth-helper";
 import '../../App.css'
 import moment from 'moment'
 
@@ -142,7 +143,9 @@ export default function Issues (props) {
   }, [!dataset])
 
   const getIssues = async () => {
-    const res = await issueService.getAll()
+    const jwt = auth.isAuthenticated()
+
+    const res = await issueService.getAll(jwt.token)
     setData(res)
   }
 

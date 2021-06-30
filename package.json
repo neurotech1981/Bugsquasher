@@ -15,6 +15,7 @@
     "dotenv": "^8.6.0",
     "express-jwt": "^6.0.0",
     "express-session": "^1.17.2",
+    "faker": "^5.5.3",
     "formidable": "^1.2.2",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.12.3",
@@ -30,6 +31,7 @@
     "react-chartist": "^0.14.4",
     "react-dom": "^17.0.2",
     "react-dropzone": "^11.3.2",
+    "react-hook-form": "^7.9.0",
     "react-modal-image": "^2.5.0",
     "react-redux": "^7.2.4",
     "react-router": "^5.2.0",
@@ -61,7 +63,7 @@
       "not dead",
       "not op_mini all"
     ],
-  "development": [
+    "development": [
       ">0.3%",
       "not ie 11",
       "not dead",

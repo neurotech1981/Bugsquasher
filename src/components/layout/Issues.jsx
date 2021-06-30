@@ -11,6 +11,8 @@ import MaterialTable from "material-table";
 import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Fade from "@material-ui/core/Fade";
+import auth from "../auth/auth-helper";
+
 const formattedDate = (value) => moment(value).format("DD/MM-YYYY HH:mm");
 
 const drawerWidth = 240;
@@ -173,7 +175,9 @@ export default function Issues() {
   }, [dataset]);
 
   const getIssues = async () => {
-    const res = await issueService.getAll();
+    const jwt = auth.isAuthenticated()
+
+    const res = await issueService.getAll(jwt.token);
     setData(res);
     setChecked(true);
   };

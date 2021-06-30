@@ -324,14 +324,18 @@ export default function EditIssue(props) {
   };
 
   useEffect(() => {
-    getIssueByID(id);
+    const jwt = auth.isAuthenticated()
+
+    getIssueByID(id, jwt.token);
     if (!users.length) {
       init(match.params.userId);
     }
   }, [id]);
 
   const getIssueByID = async (id) => {
-    const res = await issueService.getIssueByID(id);
+    const jwt = auth.isAuthenticated()
+    const res = await issueService.getIssueByID(id,
+      jwt.token);
     setData(res);
     console.log(res.imageName);
     if (res.imageName === "" || res.imageName === "[none]" ) {
@@ -342,10 +346,12 @@ export default function EditIssue(props) {
   };
 
   const updateIssueByID = async () => {
+    const jwt = auth.isAuthenticated()
     const id = dataset._id;
 
     await issueService
-      .upDateIssue(id, { dataset })
+      .upDateIssue(id, { dataset },
+        { t: jwt.token })
       .then((response) => {
         console.log("UPDATED", response);
         setOpen(true);

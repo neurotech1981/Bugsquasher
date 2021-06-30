@@ -104,6 +104,7 @@ export default function Profile () {
   const onSubmit = () => {
     console.log(auth.isAuthenticated().user._id)
     const user = {
+      credentials: auth.isAuthenticated().token || undefined,
       _id: auth.isAuthenticated().user._id || undefined,
       password: show.password || undefined,
       passwordConfirm: show.repeatPassword || undefined

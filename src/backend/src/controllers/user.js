@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 const User = require('../models/user')
+const Comment = require('../models/comments')
 const db = require('../index')
 const errorHandler = require('../../../helpers/dbErrorHandler')
 const Role = require('../../../helpers/role')
@@ -8,6 +9,7 @@ const Rights = require('../../../helpers/rights')
 const sendEmail = require('../../../helpers/send-email')
 const crypto = require('crypto')
 const bcrypt = require('bcrypt')
+
 
 export const registerUser = async (req, res, next) => {
   const user = new User(req.body)
@@ -29,6 +31,26 @@ export const registerUser = async (req, res, next) => {
   })
 
   await sendVerificationEmail(user, 'localhost')
+  next();
+}
+
+export const addComment = async (req, res, next) => {
+  console.log("inside comment")
+
+  const comment = new Comment(req.body.commentData)
+
+  comment.save((err, result) => {
+    if (err) {
+      return res.status(400).json({
+        error: errorHandler.getErrorMessage(err)
+      })
+    }
+    console.log(result)
+    res.status(200).json({
+      message: 'Du postet en ny kommentar!'
+    })
+  })
+  next();
 }
 
 export const getUsers = (req, res, next) => {
@@ -42,6 +64,7 @@ export const getUsers = (req, res, next) => {
     return res.json({
       data: data
     })
+
   })
 }
 
@@ -55,6 +78,7 @@ export const findUserById = (req, res, next, id) => {
     req.profile = user
     next()
   })
+  next();
 }
 
 export const findUserProfile = (req, res) => {
@@ -64,7 +88,7 @@ export const findUserProfile = (req, res) => {
   return res.json(req.profile)
 }
 
-export async function changePassword ( req, res )  {
+export async function changePassword ( req, res, next )  {
   console.log(JSON.stringify(req.body));
   const account = await User.findOne({
     '_id': req.body._id,
@@ -85,6 +109,7 @@ export async function changePassword ( req, res )  {
       message: 'Passord ble endret'
     })
   })
+  next();
 }
 
 export async function forgotPassword ({ email }, origin) {

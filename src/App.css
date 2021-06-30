@@ -420,6 +420,12 @@ a:focus {
 .item15 {
   grid-area: delegated;
 }
+.item16 {
+  grid-area: comments;
+}
+.item17 {
+  grid-area: commentform;
+}
 
 .grid-container {
   display: grid;
@@ -434,8 +440,9 @@ a:focus {
     "beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse"
     "stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere"
     "tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo"
-    "vedlegg vedlegg vedlegg vedlegg vedlegg vedlegg";
-
+    "vedlegg vedlegg vedlegg vedlegg vedlegg vedlegg"
+    "comments comments comments comments comments comments"
+    "commentform commentform commentform commentform commentform commentform";
   grid-gap: 5px;
   background-color: rgba(33, 149, 243, 0);
   padding: 10px;

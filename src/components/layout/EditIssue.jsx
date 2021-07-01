@@ -351,7 +351,7 @@ export default function EditIssue(props) {
 
     await issueService
       .upDateIssue(id, { dataset },
-        { t: jwt.token })
+        jwt.token )
       .then((response) => {
         console.log("UPDATED", response);
         setOpen(true);

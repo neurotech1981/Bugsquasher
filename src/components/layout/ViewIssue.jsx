@@ -212,10 +212,10 @@ export default function ViewIssue(props) {
   const onDelete = async () => {
     const jwt = auth.isAuthenticated()
 
-    console.log("Inside OnDelete", dataset._id);
+    console.log("Inside OnDelete", dataset._id + " " + jwt.token);
     const id = dataset._id;
     await issueService
-      .deleteIssueByID(id, { t: jwt.token })
+      .deleteIssueByID(id, jwt.token)
       .then((response) => {
         console.log("ISSUE DELETED SUCCESSFULLY", response.status);
         setOpen(false);

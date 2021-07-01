@@ -120,7 +120,7 @@ export default function Users () {
       {
         userId: userId,
       },
-      { t: jwt.token }
+      jwt.token
     ).then((myself) => {
       if (myself.error) {
         setValues({ redirectToSignin: true });
@@ -129,7 +129,7 @@ export default function Users () {
       }
     });
 
-    getUsers({ t: jwt.token }).then((data) => {
+    getUsers(jwt.token).then((data) => {
       if (data.error) {
         setValues({ redirectToSignin: true })
       } else {
@@ -146,25 +146,36 @@ export default function Users () {
 
   // Slett bruker
   const deleteFromDB = (idTodelete) => {
-    axios.delete('/api/removeUser', {
-      data: {
-        _id: idTodelete
-      },
-    })
+    const jwt = auth.isAuthenticated();
+    const data = {
+      _id: idTodelete,
+      }
+    axios.post('/api/removeUser', {
+      data: data,
+      token: jwt.token
+    }),
     init(match.params.userId)
   }
 
   // Rediger bruker
   const updateUser = (idToBeUpdated, _name, _role, _rights, _email) => {
-    axios.post('/api/edituser', {
+    const jwt = auth.isAuthenticated();
+
+    const data = {
       _id: idToBeUpdated,
       role: myself.role,
+      name: _name,
       update: {
         name: _name,
         role: _role,
         rights: _rights,
         email: _email
-      }
+      },
+    }
+
+    axios.post('/api/edituser', {
+      data: data,
+      token: jwt.token
     })
   }
 
@@ -191,10 +202,13 @@ export default function Users () {
               onRowAdd: (newData) => new Promise((resolve, reject) => {
                 setTimeout(() => {
                   {
+                    const jwt = auth.isAuthenticated();
+
                     const user = {
                       name: newData.name || undefined,
                       email: newData.email || undefined,
-                      password: newData.password || undefined
+                      password: newData.password || undefined,
+                      token: jwt.token || undefined
                     }
                     registerUser(user).then((data) => {
                       if (data.error) {

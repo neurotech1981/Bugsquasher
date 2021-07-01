@@ -143,37 +143,6 @@ const ProtectedRoutes = express.Router();
 
 //set secret
 app.set('jwtSecret', config.jwtSecret);
-
-ProtectedRoutes.use((req, res, next) =>{
-  // check header for the token
-  console.log(req.headers)
-  var token = req.headers.authorization;
-
-  console.log("Token Auth check: ", token)
-  console.log("Secret >>> ", app.get('jwtSecret'))
-  // decode token
-  if (token) {
-    // verifies secret and checks if the token is expired
-    jwt.verify(token, app.get('jwtSecret'), (err, decoded) =>{
-      if (err) {
-        return res.json({ message: 'invalid token' });
-      } else {
-        // if everything is good, save to request for use in other routes
-        req.decoded = decoded;
-        next();
-      }
-    });
-
-  } else {
-
-    // if there is no token
-
-    res.send({
-        message: 'No token provided.'
-    });
-
-  }
-});
 // (optional) only made for logging and
 // bodyParser, parses the request body to be a readable json format
 //  apply limiter to all requests
@@ -213,6 +182,40 @@ app.use("/", authRoutes);
 app.use((err, req, res, next) => {
   if (err.name === "UnauthorizedError") {
     res.status(401).json({ error: err.name + ":" + err.message });
+  }
+});
+
+ProtectedRoutes.use((req, res, next) =>{
+  // check header for the token
+  //console.log(req)
+  var token = req.headers.authorization;
+  if(token === undefined) {
+    token = req.body.token;
+  }
+
+  //console.log("Token Auth check: ", token)
+  //console.log("Secret >>> ", app.get('jwtSecret'))
+  // decode token
+  if (token) {
+    // verifies secret and checks if the token is expired
+    jwt.verify(token, app.get('jwtSecret'), (err, decoded) =>{
+      if (err) {
+        return res.json({ message: 'invalid token' });
+      } else {
+        // if everything is good, save to request for use in other routes
+        req.decoded = decoded;
+        next();
+      }
+    });
+
+  } else {
+
+    // if there is no token
+
+    res.send({
+        message: 'No token provided.'
+    });
+
   }
 });
 
@@ -318,9 +321,9 @@ ProtectedRoutes.route("/getData").get(async function (req, res, next)  {
   });
 
 });
-
-ProtectedRoutes.route("/upDateIssueStatus/:id").get(async function (req, res, next) {
+ProtectedRoutes.route("/upDateIssueStatus/:id").post(async function (req, res, next) {
   const { update } = req.body;
+  console.log(update)
   console.log("BODY REQ ISSUE UPDATE: ", req.params.id);
   await Data.findByIdAndUpdate(
     { _id: req.params.id },
@@ -329,14 +332,14 @@ ProtectedRoutes.route("/upDateIssueStatus/:id").get(async function (req, res, ne
       if (err) return next(err);
       return res.json({
         success: true,
-        data: data,
+        data: update,
       });
     }
   );
   next();
 });
 
-ProtectedRoutes.put("/upDateIssue/:id").get(async function (req, res, next) {
+ProtectedRoutes.route("/upDateIssue/:id").post(async function (req, res, next) {
   const { dataset } = req.body;
   await Data.findByIdAndUpdate({ _id: req.params.id }, dataset, function (err, data) {
     if (err) return next(err);
@@ -362,11 +365,12 @@ ProtectedRoutes.route("/getDataByID/:id").get(async function (req, res, next) {
 
 // this is our old update method
 // this method overwrites existing data in our database
-ProtectedRoutes.post("/edituser").get(async function (req, res) {
-  const { _id, role, update } = req.body;
+ProtectedRoutes.route("/edituser").post(async function (req, res, next) {
+  console.log("Inside Edit User", req)
+  const { _id, role, update } = req.body.data;
   const permission = ac.can(role).readAny("editusers");
   if (permission.granted) {
-    User.findByIdAndUpdate(_id, req.body.update, (err) => {
+    User.findByIdAndUpdate(_id, req.body.data.update, (err) => {
       if (err || !update) return res.status(400).json(err);
       // filter data by permission attributes and send.
       res.json(permission.filter(update));
@@ -375,33 +379,32 @@ ProtectedRoutes.post("/edituser").get(async function (req, res) {
     // resource is forbidden for this user/role
     res.status(403).end();
   }
-  next();
 });
 
-ProtectedRoutes.delete("/removeUser").get(async function(req, res) {
-  const { _id } = req.body;
+ProtectedRoutes.route("/removeUser").post(async function(req, res) {
+  const { _id } = req.body.data;
+  console.log("Inside removeUser ", _id)
   User.findByIdAndRemove(_id, (err) => {
     if (err) return res.send(err);
     return res.json({
       success: true,
     });
   });
-  next();
 });
 
 // this is our delete method
 // this method removes existing data in our database
-ProtectedRoutes.delete("/deleteIssueByID").get(async function (req, res) {
-  console.log("In delete function", req.body);
-  const { _id } = req.body;
-  Data.findByIdAndDelete({_id: _id}, (err) => {
+ProtectedRoutes.route("/deleteIssueByID/:id").get(async function (req, res, next) {
+  console.log("In delete function", );
+  const { id } = req.params;
+  Data.findByIdAndDelete({_id: id}, (err) => {
     if (err) return res.send(err);
     return res.json({
       success: true,
     });
   });
-  next();
 });
+
 
 // this is our create method
 // this method adds new data in our database

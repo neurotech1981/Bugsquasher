@@ -44,6 +44,7 @@
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
     "concurrently": "^5.2.0",
-    "nodemon": "^1.19.4"
+    "nodemon": "^1.19.4",
+    "glob-parent": ">=5.1.2"
   }
 }

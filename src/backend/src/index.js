@@ -21,6 +21,7 @@ const cookieParser = require("cookie-parser");
 const AccessControl = require("accesscontrol");
 const rateLimit = require("express-rate-limit");
 import jwt from 'jsonwebtoken';
+const csrf = require("csurf");
 
 
 // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
@@ -141,6 +142,8 @@ function isValidId(id) {
 const app = express();
 const ProtectedRoutes = express.Router();
 
+app.use(cookieParser());
+app.use(csrf({ cookie: true }));
 //set secret
 app.set('jwtSecret', config.jwtSecret);
 // (optional) only made for logging and
@@ -167,7 +170,6 @@ app.use(helmet());
 app.use(express.json());
 app.use(mongoSanitize());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 // enable all CORS requests
 app.use(cors());
 app.use(express.static(__dirname + '/public/')); //Don't forget me :(

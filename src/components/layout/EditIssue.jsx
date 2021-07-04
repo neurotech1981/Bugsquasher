@@ -312,6 +312,7 @@ export default function EditIssue(props) {
   };
 
   const handleDataChange = (name) => (event) => {
+    console.log("Updated ", name);
     setData({
       ...dataset,
       [name]: event.target.value,
@@ -338,7 +339,7 @@ export default function EditIssue(props) {
       jwt.token);
     setData(res);
     console.log(res.imageName);
-    if (res.imageName === "" || res.imageName === "[none]" ) {
+    if (res.imageName === "" || res.imageName === "[none]" || res.imageName === "none" ) { // Remove later when nulling out db. Keep only ["none"]
       setImages(["none"]);
     } else {
       setImages(res.imageName); //[0]
@@ -374,11 +375,10 @@ export default function EditIssue(props) {
     await issueService
       .deleteIssueByID(id)
       .then((response) => {
-        console.log("ISSUE DELETED SUCCESSFULLY");
         goHome();
       })
       .catch((e) => {
-        console.log("ISSUE UPDATE: ", e);
+        console.log("Error deleting: ", e);
       });
   };
 
@@ -537,10 +537,13 @@ export default function EditIssue(props) {
               id="outlined-select-alvorlighetsgrad"
               select
               label="Kategori"
-              name="kategori"
+              name="category"
               className={classes.textField}
               value={dataset.category || "Ingen valgt"}
-              onChange={handleDataChange("category")}
+              onChange={e => setData({
+                  ...dataset,
+                  [e.target.name]: e.target.value,
+                })}
               InputProps={{
                 className: classes.input,
               }}

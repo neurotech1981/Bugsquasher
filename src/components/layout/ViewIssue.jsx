@@ -318,7 +318,7 @@ export default function ViewIssue(props) {
               component={Link}
               startIcon={<EditIcon />}
               to={"/edit-issue/" + dataset._id}
-              size="small"
+              size="large"
               disabled={auth.isAuthenticated().user._id != dataset.userid}
             >
               Rediger
@@ -328,7 +328,7 @@ export default function ViewIssue(props) {
               color="secondary"
               className={classes.button}
               startIcon={<DeleteIcon />}
-              size="small"
+              size="large"
               onClick={handleClickOpen}
             >
               Slett sak

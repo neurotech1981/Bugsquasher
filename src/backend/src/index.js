@@ -193,8 +193,6 @@ ProtectedRoutes.use((req, res, next) =>{
     token = req.body.token;
   }
 
-  //console.log("Token Auth check: ", token)
-  //console.log("Secret >>> ", app.get('jwtSecret'))
   // decode token
   if (token) {
     // verifies secret and checks if the token is expired

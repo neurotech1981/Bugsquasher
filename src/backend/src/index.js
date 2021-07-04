@@ -395,7 +395,7 @@ ProtectedRoutes.route("/removeUser").post(async function(req, res) {
 ProtectedRoutes.route("/deleteIssueByID/:id").get(async function (req, res, next) {
   console.log("In delete function", );
   const { id } = req.params;
-  Data.findByIdAndDelete({_id: id}, (err) => {
+  Data.findByIdAndDelete({_id: { $eq: id } }, (err) => {
     if (err) return res.send(err);
     return res.json({
       success: true,
@@ -449,7 +449,7 @@ ProtectedRoutes.post("/putData").get(async function (req, res) {
 });
 
 // api routes
-app.use("/accounts", ProtectedRoutes, require("./accounts/account.controller"));
+app.use("/accounts", require("./accounts/account.controller"));
 
 
 // append /api for our http requests

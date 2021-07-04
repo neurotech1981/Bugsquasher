@@ -15,6 +15,8 @@ import Divider from "@material-ui/core/Divider";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import InputLabel from "@material-ui/core/InputLabel";
 import IconButton from "@material-ui/core/IconButton";
+import FormControl from '@material-ui/core/FormControl';
+
 import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
 import Avatar from "@material-ui/core/Avatar";
@@ -75,6 +77,7 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
     width: "10%",
     marginTop: "0",
+
   },
   avatar: {
     margin: 10,
@@ -86,6 +89,10 @@ const useStyles = makeStyles((theme) => ({
     height: "70px",
     color: "#fff",
     backgroundColor: deepPurple[500],
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
   },
 }));
 
@@ -198,10 +205,11 @@ export default function ViewIssue(props) {
   const upDateIssueStatus = async (id, data) => {
     const jwt = auth.isAuthenticated()
 
-    console.log("Status: " + id);
+    console.log("Status: " + id + JSON.stringify(data));
     await issueService
       .upDateIssueStatus(id, { status: data }, jwt.token)
       .then((response) => {
+        console.log("Response: ", response)
         setData({ ...dataset, status: data });
       })
       .catch((e) => {
@@ -312,9 +320,50 @@ export default function ViewIssue(props) {
             <p style={{ fontSize: "0.6em", marginTop: "0.3em" }}>
               Opprettet: {formattedDate(dataset.createdAt)}
             </p>
+            <FormControl variant="outlined"
+              className={classes.textFieldStatus}>
+            <TextField
+
+              id="outlined-select-status"
+              select
+              label="Status"
+              name="Status"
+              size="large"
+              value={[dataset.status ? dataset.status : "Åpen"]}
+              InputProps={{
+                className: classes.input,
+              }}
+              SelectProps={{
+                MenuProps: {
+                  className: classes.menu,
+                },
+              }}
+              inputProps={{ "aria-label": "naked" }}
+              onChange={e => upDateIssueStatus(dataset._id, e.target.value)}
+            >
+              {Status.map((option, key) => (
+                <MenuItem key={key} value={option.label}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
+            </FormControl>
+            {errors.status ? (
+              <Box
+                className={classes.BoxErrorField}
+                fontFamily="Monospace"
+                color="error.main"
+                p={1}
+                m={1}
+              >
+                {errors.status} ⚠️
+              </Box>
+            ) : (
+              ""
+            )}
             <Button
               variant="contained"
-              color="primary"
+              color="sse"
               component={Link}
               startIcon={<EditIcon />}
               to={"/edit-issue/" + dataset._id}
@@ -333,45 +382,6 @@ export default function ViewIssue(props) {
             >
               Slett sak
             </Button>
-            <TextField
-              id="outlined-select-status"
-              select
-              label="Status"
-              name="Status"
-              size="small"
-              className={classes.textFieldStatus}
-              value={[dataset.status ? dataset.status : "Åpen"]}
-              InputProps={{
-                className: classes.input,
-              }}
-              SelectProps={{
-                MenuProps: {
-                  className: classes.menu,
-                },
-              }}
-              margin="normal"
-              inputProps={{ "aria-label": "naked" }}
-              onChange={e => upDateIssueStatus(dataset._id, e.target.value)}
-            >
-              {Status.map((option, key) => (
-                <MenuItem key={key} value={option.label}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
-            {errors.status ? (
-              <Box
-                className={classes.BoxErrorField}
-                fontFamily="Monospace"
-                color="error.main"
-                p={1}
-                m={1}
-              >
-                {errors.status} ⚠️
-              </Box>
-            ) : (
-              ""
-            )}
           </div>
           <div className="item2">
             <TextField

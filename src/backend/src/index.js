@@ -143,7 +143,7 @@ const app = express();
 const ProtectedRoutes = express.Router();
 
 app.use(cookieParser());
-app.use(csrf({ cookie: true }));
+//app.use(csrf({ cookie: true }));
 //set secret
 app.set('jwtSecret', config.jwtSecret);
 // (optional) only made for logging and
@@ -189,12 +189,12 @@ app.use((err, req, res, next) => {
 
 ProtectedRoutes.use((req, res, next) =>{
   // check header for the token
-  //console.log(req)
+  console.log("ProtectedRoutes headers: ", req.headers)
   var token = req.headers.authorization;
+
   if(token === undefined) {
     token = req.body.token;
   }
-
   // decode token
   if (token) {
     // verifies secret and checks if the token is expired
@@ -207,15 +207,11 @@ ProtectedRoutes.use((req, res, next) =>{
         next();
       }
     });
-
   } else {
-
     // if there is no token
-
     res.send({
         message: 'No token provided.'
     });
-
   }
 });
 
@@ -321,25 +317,25 @@ ProtectedRoutes.route("/getData").get(async function (req, res, next)  {
   });
 
 });
-ProtectedRoutes.route("/upDateIssueStatus/:id").post(async function (req, res, next) {
+ProtectedRoutes.route("/upDateIssueStatus/:id/:status").get(async function (req, res, next) {
   const { update } = req.body;
-  console.log(update)
-  console.log("BODY REQ ISSUE UPDATE: ", req.params.id);
+  console.log("BODY REQ ISSUE UPDATE: ", req.params);
   await Data.findByIdAndUpdate(
     { _id: req.params.id },
-    { status: req.body.status },
+    { status: req.params.status },
     function (err, data) {
       if (err) return next(err);
       return res.json({
         success: true,
-        data: update,
+        data: data,
       });
     }
   );
   next();
 });
 
-ProtectedRoutes.route("/upDateIssue/:id").post(async function (req, res, next) {
+ProtectedRoutes.post("/upDateIssue/:id", async function (req, res, next) {
+  console.log("Inside Update Issue", req.body)
   const { dataset } = req.body;
   await Data.findByIdAndUpdate({ _id: req.params.id }, dataset, function (err, data) {
     if (err) return next(err);
@@ -395,10 +391,11 @@ ProtectedRoutes.route("/removeUser/:id").post(async function(req, res) {
 
 // this is our delete method
 // this method removes existing data in our database
-ProtectedRoutes.route("/deleteIssueByID/:id").get(async function (req, res, next) {
-  console.log("In delete function", );
+ProtectedRoutes.get("/deleteIssueByID/:id", async function (req, res, next) {
+
   const { id } = req.params;
-  Data.findByIdAndDelete({_id: { $eq: id } }, (err) => {
+  console.log("In delete function>>>>>>> ", id);
+  Data.findByIdAndDelete(id, (err) => {
     if (err) return res.send(err);
     return res.json({
       success: true,
@@ -409,8 +406,8 @@ ProtectedRoutes.route("/deleteIssueByID/:id").get(async function (req, res, next
 
 // this is our create method
 // this method adds new data in our database
-ProtectedRoutes.post("/putData").get(async function (req, res) {
-  const { errors, isValid } = validateInput(req.body);
+ProtectedRoutes.post("/putData", async function (req, res) {
+  const { errors, isValid } = validateInput(req.body.data);
   // Check Validation
   if (!isValid) {
     // If any errors, send 400 with errors object
@@ -419,21 +416,21 @@ ProtectedRoutes.post("/putData").get(async function (req, res) {
 
   const data = new Data();
   //data.id = req.body.id;
-  data.name = req.body.name;
-  data.delegated = req.body.delegated;
-  data.description = req.body.description;
-  data.category = req.body.category;
-  data.environment = req.body.environment;
-  data.step_reproduce = req.body.step_reproduce;
-  data.summary = req.body.summary;
-  data.browser = req.body.browser;
-  data.visual = req.body.visual;
-  data.reproduce = req.body.reproduce;
-  data.severity = req.body.severity;
-  data.priority = req.body.priority;
-  data.additional_info = req.body.additional_info;
-  data.userid = req.body.userid;
-  data.imageName = req.body.imageName;
+  data.name = req.body.data.name;
+  data.delegated = req.body.data.delegated;
+  data.description = req.body.data.description;
+  data.category = req.body.data.category;
+  data.environment = req.body.data.environment;
+  data.step_reproduce = req.body.data.step_reproduce;
+  data.summary = req.body.data.summary;
+  data.browser = req.body.data.browser;
+  data.visual = req.body.data.visual;
+  data.reproduce = req.body.data.reproduce;
+  data.severity = req.body.data.severity;
+  data.priority = req.body.data.priority;
+  data.additional_info = req.body.data.additional_info;
+  data.userid = req.body.data.userid;
+  data.imageName = req.body.data.imageName;
 
   data.save((err) => {
     if (err) {

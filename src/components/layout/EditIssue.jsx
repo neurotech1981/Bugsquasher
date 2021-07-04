@@ -460,7 +460,7 @@ export default function EditIssue(props) {
               color="primary"
               className={classes.button}
               startIcon={<SaveIcon />}
-              size="small"
+              size="large"
               onClick={() => updateIssueByID()}
             >
               Lagre endringer
@@ -470,7 +470,7 @@ export default function EditIssue(props) {
               color="default"
               className={classes.button}
               startIcon={<CancelIcon />}
-              size="small"
+              size="large"
               onClick={() => CancelEdit()}
             >
               Avbryt

@@ -17,16 +17,19 @@ export default {
     return res.data.data || [];
   },
   upDateIssueStatus: async (id, data, auth) => {
-    console.log(data)
-    return await instance.post(`/api/upDateIssueStatus/${id}`, data, { headers: { Authorization: auth } });
+    return await instance.get(`/api/upDateIssueStatus/${id}/${data.status}`, { headers: { Authorization: auth } }, { body: { status: data.status } });
   },
   upDateIssue: async (id, data, auth) => {
     return await instance.post(`/api/upDateIssue/${id}`, data, { headers: { Authorization: auth } });
+  },
+  addIssue: async (data, auth) => {
+    return await instance.post(`/api/putData/`, data, { headers: { Authorization: auth } });
   },
   addComment: async (data, auth) => {
     return await instance.get(`/api/add-comment`, data, { headers: { Authorization: auth } });
   },
   deleteIssueByID: async (id, auth) => {
+    console.log("Inside deleteIssueByID ", id + " " + auth)
     return await instance.get(`/api/deleteIssueByID/${id}`, { headers: { Authorization: auth } });
   },
   countIssues: async (auth) => {

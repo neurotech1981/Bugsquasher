@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import useReactRouter from "use-react-router";
 import { makeStyles } from "@material-ui/core/styles";
+import issueService from "../../services/issueService";
 import MenuItem from "@material-ui/core/MenuItem";
 import TextField from "@material-ui/core/TextField";
 import Icon from "@material-ui/core/Icon";
@@ -11,7 +12,6 @@ import Snackbar from "@material-ui/core/Snackbar";
 // eslint-disable-neAlertxt-line no-unused-vars
 import MuiAlert from "@material-ui/lab/Alert";
 import { AlertTitle } from "@material-ui/lab";
-import axios from "axios";
 import { useSelector } from "react-redux";
 import Box from "@material-ui/core/Box";
 import Previews from "./ImageUploader";
@@ -341,28 +341,33 @@ export default function CreateIssue(props) {
   };
 
   // Legg inn ny query / varelinje i database med backend API
-  const putDataToDB = () => {
+  const putDataToDB = async () => {
     let imageNameValue = "[none]";
     if(images.length > 0)
     {
       imageNameValue = images.imageupload[1].name;
     }
-    axios
-      .post("/api/putData", {
-        name: userinfo.user.name,
-        category: values.setKategori,
-        description: values.setBeskrivelse,
-        reproduce: values.setReprodusere,
-        severity: values.setAlvorlighetsgrad,
-        priority: values.setPrioritet,
-        summary: values.setOppsummering,
-        delegated: values.setDelegated,
-        step_reproduce: values.setStegReprodusere,
-        additional_info: values.setTillegg,
-        imageName: imageNameValue,
-        // eslint-disable-next-line no-underscore-dangle
-        userid: userinfo.user._id,
-      })
+
+    let data = {
+      name: userinfo.user.name,
+      category: values.setKategori,
+      description: values.setBeskrivelse,
+      reproduce: values.setReprodusere,
+      severity: values.setAlvorlighetsgrad,
+      priority: values.setPrioritet,
+      summary: values.setOppsummering,
+      delegated: values.setDelegated,
+      step_reproduce: values.setStegReprodusere,
+      additional_info: values.setTillegg,
+      imageName: imageNameValue,
+      // eslint-disable-next-line no-underscore-dangle
+      userid: userinfo.user._id,
+    }
+    const jwt = auth.isAuthenticated()
+
+    await issueService
+      .addIssue({ data },
+        jwt.token )
       .then((response) => {
         if (response.status === 200) {
           setOpen(true);

@@ -147,11 +147,7 @@ export default function Users () {
   // Slett bruker
   const deleteFromDB = (idTodelete) => {
     const jwt = auth.isAuthenticated();
-    const data = {
-      _id: idTodelete,
-      }
-    axios.post('/api/removeUser', {
-      data: data,
+    axios.post(`/api/removeUser/${idTodelete}`, {
       token: jwt.token
     }),
     init(match.params.userId)
@@ -162,7 +158,6 @@ export default function Users () {
     const jwt = auth.isAuthenticated();
 
     const data = {
-      _id: idToBeUpdated,
       role: myself.role,
       name: _name,
       update: {
@@ -173,7 +168,7 @@ export default function Users () {
       },
     }
 
-    axios.post('/api/edituser', {
+    axios.post(`/api/edituser/${idToBeUpdated}`, {
       data: data,
       token: jwt.token
     })

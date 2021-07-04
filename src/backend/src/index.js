@@ -363,12 +363,13 @@ ProtectedRoutes.route("/getDataByID/:id").get(async function (req, res, next) {
 
 // this is our old update method
 // this method overwrites existing data in our database
-ProtectedRoutes.route("/edituser").post(async function (req, res, next) {
+ProtectedRoutes.route("/edituser/:id").post(async function (req, res, next) {
   console.log("Inside Edit User", req)
-  const { _id, role, update } = req.body.data;
+  const { id } = req.params;
+  const { role, update } = req.body.data;
   const permission = ac.can(role).readAny("editusers");
   if (permission.granted) {
-    User.findByIdAndUpdate(_id, req.body.data.update, (err) => {
+    User.findByIdAndUpdate({ _id: { $eq: id } }, req.body.data.update, (err) => {
       if (err || !update) return res.status(400).json(err);
       // filter data by permission attributes and send.
       res.json(permission.filter(update));
@@ -379,10 +380,10 @@ ProtectedRoutes.route("/edituser").post(async function (req, res, next) {
   }
 });
 
-ProtectedRoutes.route("/removeUser").post(async function(req, res) {
-  const { _id } = req.body.data;
-  console.log("Inside removeUser ", _id)
-  User.findByIdAndRemove(_id, (err) => {
+ProtectedRoutes.route("/removeUser/:id").post(async function(req, res) {
+  const { id } = req.params;
+  console.log("Inside removeUser ", id)
+  User.findByIdAndRemove({_id: { $eq: id } }, (err) => {
     if (err) return res.send(err);
     return res.json({
       success: true,

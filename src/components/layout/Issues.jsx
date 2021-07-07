@@ -41,19 +41,6 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-  label: {
-    display: "inline",
-    padding: ".5em .6em .3em",
-    fontSize: "50%",
-    fontWeight: 700,
-    lineHeight: 1,
-    backgroundColor: "lightblue",
-    color: "#000",
-    textAlign: "center",
-    whiteSpace: "nowrap",
-    verticalAlign: "baseline",
-    borderRadius: ".25em",
-  },
 }));
 
 export default function Issues() {
@@ -63,54 +50,64 @@ export default function Issues() {
 
   const [state] = useState({
     columns: [
+      { title: "Oppsummering", field: "summary",
+      render: (data) => (
+        <span>
+          <Link to={"/vis-sak/" + data._id} className="link underline">
+            {data.summary}
+          </Link>
+        </span>
+      ),
+      cellStyle: {
+        width: 650,
+        maxWidth: 650
+      },
+      headerStyle: {
+        width:650,
+        maxWidth: 650
+      }
+    },
+      { title: "Kategori", field: "category", headerStyle: {width: "6.66%"} },
+      { title: "Alvorlighetsgrad", field: "severity", headerStyle: {width: "6.66%"} },
+      {
+        title: "Lagt inn",
+        defaultSort: "desc",
+        field: "createdAt",
+        render: (data) => <div>{formattedDate(data.createdAt)}</div>,
+        headerStyle: {width: "16.66%"}
+      },
       {
         title: "Prioritet",
         field: "priority",
-        width: 20,
         // eslint-disable-next-line react/display-name
         render: (data) => (
           <div
             className="priority"
             style={{
-              height: "100%",
-              width: "100",
-              fontSize: "1.1em",
+              fontSize: "1em",
               fontWeight: "600",
+              textShadow: "2px 4px 4px rgba(0,0,0,0.2), 0px -5px 10px rgba(255,255,255,0.15)",
+              color: "#ffffff",
               backgroundColor:
                 data.priority === "Øyeblikkelig" ?
-                  "rgb(255, 185, 145)"
+                  "rgba(236, 4, 4, 1)"
                   : "" || data.priority === "Høy" ?
-                  "rgb(242, 130, 91)"
+                  "rgba(226, 31, 28, 1)"
                   : "" || data.priority === "Normal" ?
-                  "rgb(206, 255, 204)"
+                  "rgba(217, 57, 53, .6)"
                   : "" || data.priority === "Haster" ?
-                  "rgb(231, 242, 163)"
+                  "rgba(207, 84, 77, 1)"
                   : "" || data.priority === "Lav" ?
-                  "rgb(211, 212, 242)"
+                  "rgba(197, 111, 101, 0.5)"
                   : "",
-              padding: "0.2em",
+              padding: "0.7em",
             }}
           >
             {data.priority}
           </div>
         ),
+        headerStyle: {width: "16.66%"}
       },
-      {
-        title: "ID",
-        field: "_id",
-        width: 20,
-        type: "numeric",
-        render: (data) => (
-          <span>
-            <Link to={"/vis-sak/" + data._id} className="link underline">
-              {data._id}
-            </Link>
-          </span>
-        ),
-      },
-      { title: "Oppsummering", field: "summary" },
-      { title: "Kategori", field: "category" },
-      { title: "Alvorlighetsgrad", field: "severity", width: 30 },
       {
         title: "Status",
         field: "status",
@@ -118,8 +115,10 @@ export default function Issues() {
           <div
             className="status"
             style={{
-              fontSize: "1.1em",
+              fontSize: "1em",
               fontWeight: "600",
+              color: "#ffffff",
+              textShadow: "2px 4px 4px rgba(0,0,0,0.2), 0px -5px 10px rgba(255,255,255,0.15)",
               backgroundColor:
                 data.status === "Åpen" ?
                   "rgb(155, 119, 255)"
@@ -130,19 +129,13 @@ export default function Issues() {
                   : "" || data.status === "Under arbeid" ?
                   "rgb(202, 163, 0)"
                   : "",
-              padding: "0.2em",
+              padding: "0.7em",
             }}
           >
             {data.status}
           </div>
         ),
-      },
-      {
-        title: "Opprettet",
-        width: 20,
-        defaultSort: "desc",
-        field: "createdAt",
-        render: (data) => <div>{formattedDate(data.createdAt)}</div>,
+        headerStyle: {width: "16.66%"}
       },
     ],
   });
@@ -210,31 +203,31 @@ export default function Issues() {
         options={{
           sorting: true,
           rowStyle: (x) => {
-            if (x.tableData.id % 2) {
+            if (x.tableData.id % 1) {
               return { backgroundColor: "#f2f2f2" };
             }
           },
           filterCellStyle: {
-            background: "#f2f2f2",
+            background: "rgb(225 240 255)",
           },
           padding: "dense",
           exportAllData: true,
           headerStyle: {
-            backgroundColor: "#05386B",
-            color: "#FFF",
+            backgroundColor: "rgb(225 240 255)",
+            //color: "#FFFFFF",
             textAlign: "left",
-            fontWeight: "700",
+            fontWeight: "600",
             whiteSpace: "nowrap",
           },
           filtering: true,
           search: true,
           exportButton: true,
-          pageSize: 10,
+          pageSize: 15,
           loadingType: "overlay",
           isLoading: true,
           debounceInterval: 500,
-          tableLayout: "auto",
           columnsButton: true,
+          resizable: true
         }}
         title="Registrerte saker"
         columns={state.columns}

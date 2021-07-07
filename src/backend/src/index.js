@@ -15,6 +15,7 @@ var Data = require("./models/data");
 const User = require("./models/user");
 const path = require("path");
 const logger = require("morgan");
+const moment = require("moment");
 const multer = require("multer");
 var multipart = require("connect-multiparty");
 const cookieParser = require("cookie-parser");
@@ -189,15 +190,18 @@ app.use((err, req, res, next) => {
 
 ProtectedRoutes.use((req, res, next) =>{
   // check header for the token
-  console.log("ProtectedRoutes headers: ", req.headers)
+  //console.log("ProtectedRoutes headers: ", req.headers)
   var token = req.headers.authorization;
 
   if(token === undefined) {
     token = req.body.token;
   }
+
+  console.log(token);
   // decode token
   if (token) {
     // verifies secret and checks if the token is expired
+    try {
     jwt.verify(token, app.get('jwtSecret'), (err, decoded) =>{
       if (err) {
         return res.json({ message: 'invalid token' });
@@ -207,6 +211,9 @@ ProtectedRoutes.use((req, res, next) =>{
         next();
       }
     });
+    } catch(err) {
+      console.log("An error occured: ", err);
+    }
   } else {
     // if there is no token
     res.send({
@@ -220,7 +227,7 @@ ProtectedRoutes
   .post(upload.array("imageData", 12), function (req, res, next) {
     const file = req.files;
     if (!file) {
-      const error = new Error("Vennligst velg en fil å laste opp");
+      const error = new Error("En feil oppstod");
       error.httpStatusCode = 400;
       return next(error);
     }
@@ -288,6 +295,342 @@ ProtectedRoutes.route("/countSolvedIssues").get(async function (req, res, next) 
     }
   });
 });
+
+ProtectedRoutes.route("/thisWeekIssuesCount").get(async function (req, res, next) {
+  console.log("Inside thisWeekIssuesCount")
+
+  // Work out days for start of tomorrow and one week before
+  const oneDay = 1000 * 60 * 60 * 24,
+        oneWeek = oneDay * 7;
+
+  let d = Date.now();
+  let lastDay  = d - ( d % oneDay ) + oneDay;
+  let firstDay = lastDay - oneWeek;
+
+  var start = moment().startOf('week').format(); // set to 12:00 am today
+  var end = moment().endOf('week').format(); // set to 23:59 pm today
+
+  await Data.aggregate([
+    {
+       $match: {
+           createdAt: {
+               $gte: new Date(start),
+               $lte: new Date(end)
+           }
+       }
+       // Your matching logic
+     },
+     /* Now grouping users based on _id or id parameter for each day
+     from the above match results.
+
+     $createdAt can be replaced by date property present in your database.
+     */
+     { $group : {
+           _id : { day: { $dayOfMonth: "$createdAt" },
+                   month: { $month: "$createdAt" },
+                   year: { $year: "$createdAt" } },
+                   count : {$sum : 1}
+           }
+      }
+   ],function(err, result) {
+    // results in here
+    if (err) {
+      res.send(err);
+    } else {
+      res.json(result);
+    }
+  })
+})
+
+ProtectedRoutes.route("/thisYearIssuesCount").get(async function (req, res, next) {
+  console.log("Inside thisYearIssuesCount")
+
+  // Work out days for start of tomorrow and one week before
+  const oneDay = 1000 * 60 * 60 * 24,
+        oneWeek = oneDay * 7;
+
+  let d = Date.now();
+  let lastDay  = d - ( d % oneDay ) + oneDay;
+  let firstDay = lastDay - oneWeek;
+
+  const FIRST_MONTH = 1
+  const LAST_MONTH = 12
+  const monthsArray = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ]
+
+  //var start = moment().subtract(12, 'months').format();
+  //var end = moment().format();
+  var start = moment().startOf('year').format(); // set to 12:00 am today
+  var end = moment().endOf('year').format(); // set to 23:59 pm today
+  console.log(end + " : " + start)
+  //let end = "2021-07-06T23:59:59"
+  //let start = "2019-04-07T00:00:00"
+
+  await Data.aggregate([
+    {
+       $match: {
+           createdAt: {
+               $gte: new Date(start),
+               $lte: new Date(end)
+           }
+       }
+       // Your matching logic
+     },
+     /* Now grouping users based on _id or id parameter for each day
+     from the above match results.
+
+     $createdAt can be replaced by date property present in your database.
+     */
+     { $group : {
+           /*_id : {
+                   month: { $month: "$createdAt" },
+                   year: { $year: "$createdAt" } },
+                   count : {$sum : 1}
+           }*/
+           _id: { "year_month": { $substrCP: [ "$createdAt", 0, 24 ] } },
+    },
+    },
+    {
+      $sort: { "_id.year_month": 1 }
+    },
+    {
+      $project: {
+          _id: 0,
+          count: {$sum : 1},
+          month_year: {
+              $concat: [
+                 { $arrayElemAt: [ monthsArray, { $subtract: [ { $toInt: { $substrCP: [ "$_id.year_month", 5, 2 ] } }, 1 ] } ] },
+                 "-",
+                 { $substrCP: [ "$_id.year_month", 0, 4 ] }
+              ]
+          }
+      }
+    },
+    {
+      $group: {
+          _id: null,
+          data: { $push: { k: "$month_year", v: "$count" } }
+      }
+    },
+    {
+      $addFields: {
+          start_year: { $substrCP: [ start, 0, 4 ] },
+          end_year: { $substrCP: [ end, 0, 4 ] },
+          months1: { $range: [ { $toInt: { $substrCP: [ start, 5, 2 ] } }, { $add: [ LAST_MONTH, 1 ] } ] },
+          months2: { $range: [ FIRST_MONTH, { $add: [ { $toInt: { $substrCP: [ end, 5, 2 ] } }, 1 ] } ] }
+      }
+    },
+    {
+      $addFields: {
+          template_data: {
+              $concatArrays: [
+                  { $map: {
+                       input: "$months1", as: "m1",
+                       in: {
+                           count: 0,
+                           month_year: {
+                               $concat: [ { $arrayElemAt: [ monthsArray, { $subtract: [ "$$m1", 1 ] } ] }, "-",  "$start_year" ]
+                           }
+                       }
+                  } },
+                  { $map: {
+                       input: "$months2", as: "m2",
+                       in: {
+                           count: 0,
+                           month_year: {
+                               $concat: [ { $arrayElemAt: [ monthsArray, { $subtract: [ "$$m2", 1 ] } ] }, "-",  "$end_year" ]
+                           }
+                       }
+                  } }
+              ]
+         }
+      }
+    },
+    {
+      $addFields: {
+          data: {
+             $map: {
+                 input: "$template_data", as: "t",
+                 in: {
+                     k: "$$t.month_year",
+                     v: {
+                         $reduce: {
+                             input: "$data", initialValue: 0,
+                             in: {
+                                 $cond: [ { $eq: [ "$$t.month_year", "$$this.k"] },
+                                              { $add: [ "$$this.v", "$$value" ] },
+                                              { $add: [ 0, "$$value" ] }
+                                 ]
+                             }
+                         }
+                     }
+                 }
+              }
+          }
+      }
+  },
+  {
+      $project: {
+          data: {$arrayToObject: "$data" },
+          _id: 0
+      }
+  }
+   ],function(err, result) {
+    // results in here
+    if (err) {
+      res.send(err);
+    } else {
+      res.json(result);
+    }
+  })
+})
+
+ProtectedRoutes.route("/weekdayIssueCount").get(async function (req, res, next) {
+  console.log("Inside weekday issue count")
+    // Work out days for start of tomorrow and one week before
+    const oneDay = 1000 * 60 * 60 * 24,
+          oneWeek = oneDay * 7;
+
+    let d = Date.now();
+    let lastDay  = d - ( d % oneDay ) + oneDay;
+    let firstDay = lastDay - oneWeek;
+
+    const FIRST_DAY = 1
+    const LAST_DAY = 7
+    const daysArray = [ 'Man', 'Tirs', 'Ons', 'Tors', 'Fre', 'Lør', 'Søn' ]
+
+    //var start = moment().subtract(12, 'months').format();
+    //var end = moment().format();
+    var start = moment().startOf('isoweek').format(); // set to 12:00 am today
+    var end = moment().endOf('isoweek').format(); // set to 23:59 pm today
+    console.log(end + " : " + start)
+    //let end = "2021-07-06T23:59:59"
+    //let start = "2019-04-07T00:00:00"
+
+    await Data.aggregate([
+      {
+         $match: {
+             createdAt: {
+                 $gte: new Date(start),
+                 $lte: new Date(end)
+             }
+         }
+         // Your matching logic
+       },
+       /* Now grouping users based on _id or id parameter for each day
+       from the above match results.
+
+       $createdAt can be replaced by date property present in your database.
+       */
+       { $group : {
+             /*_id : {
+                     month: { $month: "$createdAt" },
+                     year: { $year: "$createdAt" } },
+                     count : {$sum : 1}
+             }*/
+             _id: { "year_day": { $substrCP: [ "$createdAt", 0, 24 ] } },
+      },
+      },
+      {
+        $sort: { "_id.year_day": 1 }
+      },
+      {
+        $project: {
+            _id: 0,
+            count: {$sum : 1},
+            day_year: {
+                $concat: [
+                   { $arrayElemAt: [ daysArray, { $subtract: [ { $toInt: { $substrCP: [ "$_id.year_day", 8, 2 ] } }, 5 ] } ] },
+                   "-",
+                   { $substrCP: [ "$_id.year_day", 0, 4 ] }
+                ]
+            }
+        }
+      },
+      {
+        $group: {
+            _id: null,
+            data: { $push: { k: "$day_year", v: "$count" } }
+        }
+      },
+      {
+        $addFields: {
+            start_week: { $substrCP: [ start, 0, 4 ] },
+            end_week: { $substrCP: [ end, 0, 4 ] },
+            months1: { $range: [ { $toInt: { $substrCP: [ start, 5, 2 ] } }, { $add: [ LAST_DAY, 1 ] } ] },
+            months2: { $range: [ FIRST_DAY, { $add: [ { $toInt: { $substrCP: [ end, 5, 2 ] } }, 1 ] } ] }
+        }
+      },
+      {
+        $addFields: {
+            template_data: {
+                $concatArrays: [
+                    { $map: {
+                         input: "$months1", as: "m1",
+                         in: {
+                             count: 0,
+                             day_year: {
+                                 $concat: [ { $arrayElemAt: [ daysArray, { $subtract: [ "$$m1", 7 ] } ] }, "-",  "$start_week" ]
+                             }
+                         }
+                    } },
+                    { $map: {
+                         input: "$months2", as: "m2",
+                         in: {
+                             count: 0,
+                             day_year: {
+                                 $concat: [ { $arrayElemAt: [ daysArray, { $subtract: [ "$$m2", 1 ] } ] }, "-",  "$end_week" ]
+                             }
+                         }
+                    } }
+                ]
+           }
+        }
+      },
+      {
+        $addFields: {
+            data: {
+               $map: {
+                   input: "$template_data", as: "t",
+                   in: {
+                       k: "$$t.day_year",
+                       v: {
+                           $reduce: {
+                               input: "$data", initialValue: 0,
+                               in: {
+                                   $cond: [ { $eq: [ "$$t.day_year", "$$this.k"] },
+                                                { $add: [ "$$this.v", "$$value" ] },
+                                                { $add: [ 0, "$$value" ] }
+                                   ]
+                               }
+                           }
+                       }
+                   }
+                }
+            }
+        }
+    },
+    {
+        $project: {
+            data: {$arrayToObject: "$data" },
+            _id: 0
+        }
+    }
+     ],function(err, result) {
+    // results in here
+    if (err) {
+      console.log("Inside weekday issue count error")
+
+      res.send(err.message);
+    } else {
+      console.log("Inside weekday issue count result")
+
+      res.json(result);
+    }
+  })
+})
+
+
+
 
 ProtectedRoutes.route("/countOpenIssues").get(async function (req, res, next) {
   await Data.countDocuments({ status: "Åpen" }, function (err, result) {

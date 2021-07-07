@@ -49,6 +49,32 @@ function Landing () {
   const [solvedIssues, setSolvedIssues] = useState(0)
   const [openIssues, setOpenIssues] = useState(0)
   const [latestCases, setLatestCases] = useState([])
+  const [thisYearCases, setThisYearCases] = useState([])
+
+  const [yearlyCountIssues, setYearlyCountIssues] = useState({
+    labels: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mai",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des"
+    ],
+    series: [[]],
+  });
+
+  const [weeklyCountIssues, setThisWeekCountIssues] = useState({
+    labels: [
+      'Man', 'Tirs', 'Ons', 'Tors', 'Fre', 'Lør', 'Søn'
+    ],
+    series: [[]],
+  });
 
   useEffect(() => {
     let isSubscribed = true
@@ -57,50 +83,64 @@ function Landing () {
           getTodaysIssueCount(),
           getSolvedIssues(),
           getOpenIssues(),
-          getLatestCases()
+          getLatestCases(),
+          getThisYearIssueCount(),
+          getThisWeekIssueCount()
         }
     return () => isSubscribed = false
   }, [])
 
   const getIssueCount = async () => {
     const jwt = auth.isAuthenticated()
-    console.log("JWT>>>>>", jwt.token)
     const res = await issueService.countIssues(jwt.token);
-    console.log(res.data.message)
     setIssueCount(res.data)
   }
 
   const getTodaysIssueCount = async () => {
     const jwt = auth.isAuthenticated()
-
     const res = await issueService.getTodaysIssues(jwt.token)
     setTodaysIssues(res.data)
   }
 
   const getSolvedIssues = async () => {
     const jwt = auth.isAuthenticated()
-
     const res = await issueService.countSolvedIssues(jwt.token)
     setSolvedIssues(res.data)
   }
 
   const getOpenIssues = async () => {
     const jwt = auth.isAuthenticated()
-
     const res = await issueService.countOpenIssues(jwt.token)
-    console.log(res.data)
     setOpenIssues(res.data)
   }
 
   const getLatestCases = async () => {
     const jwt = auth.isAuthenticated()
-    console.log("GETLATESTCASES >>>>>", jwt.token)
     const res = await issueService.getLatestCases(jwt.token)
-    console.log(res);
     var valueArr = res.data.map(element => {
       return [moment(element.createdAt).format("DD/MM-YYYY HH:mm"),element.summary, element.priority, element.severity];
     });
     setLatestCases(valueArr)
+  }
+
+  const getThisYearIssueCount = async () => {
+    const jwt = auth.isAuthenticated()
+    const res = await issueService.getThisYearCaseCount(jwt.token)
+    console.log(res);
+    var valueArr = Object.values(res.data[0].data).map(element => {
+      return element;
+    });
+    setYearlyCountIssues({...yearlyCountIssues, series: [valueArr]});
+  }
+
+  const getThisWeekIssueCount = async () => {
+    const jwt = auth.isAuthenticated()
+    const res = await issueService.getThisWeeklyCaseCount(jwt.token)
+    console.log(res);
+    var valueArr = Object.values(res.data[0].data).map(element => {
+      return element;
+    });
+    setThisWeekCountIssues({...weeklyCountIssues, series: [valueArr]});
   }
 
   return (
@@ -185,14 +225,14 @@ function Landing () {
             <CardHeader >
               <ChartistGraph
                 className="ct-chart"
-                data={dailySalesChart.data}
+                data={weeklyCountIssues}
                 type="Line"
                 options={dailySalesChart.options}
                 listener={dailySalesChart.animation}
               />
             </CardHeader>
             <CardBody>
-              <h4 className={classes.cardTitle}>Daglige saker</h4>
+              <h4 className={classes.cardTitle}>Ukentlige saker</h4>
               <p className={classes.cardCategory}>
                 <span className={classes.successText}>
                   <ArrowUpward className={classes.upArrowCardCategory} /> 55%
@@ -212,7 +252,7 @@ function Landing () {
             <CardHeader >
               <ChartistGraph
                 className="ct-chart"
-                data={emailsSubscriptionChart.data}
+                data={yearlyCountIssues}
                 type="Bar"
                 options={emailsSubscriptionChart.options}
                 responsiveOptions={emailsSubscriptionChart.responsiveOptions}
@@ -223,6 +263,11 @@ function Landing () {
               <h4 className={classes.cardTitle}>Saker over ett år</h4>
               <p className={classes.cardCategory}>Saker over en 12 måneders periode</p>
             </CardBody>
+            <CardFooter chart>
+              <div className={classes.stats}>
+                <AccessTime /> løste saker siste år
+              </div>
+            </CardFooter>
           </Card>
         </GridItem>
         <GridItem xs={12} sm={12} md={4}>

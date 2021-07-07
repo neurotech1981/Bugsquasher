@@ -47,4 +47,10 @@ export default {
   getLatestCases: async (auth) => {
     return await instance.get("/api/getLatestCases", { headers: { Authorization: auth } });
   },
+  getThisYearCaseCount: async (auth) => {
+    return await instance.get("/api/thisYearIssuesCount", { headers: { Authorization: auth } });
+  },
+  getThisWeeklyCaseCount: async (auth) => {
+    return await instance.get("/api/weekdayIssueCount", { headers: { Authorization: auth } });
+  },
 };

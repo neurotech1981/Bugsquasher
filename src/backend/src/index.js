@@ -629,6 +629,150 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (req, res, next) 
   })
 })
 
+ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res, next) {
+  console.log("Inside weekday issue count")
+    // Work out days for start of tomorrow and one week before
+    const oneDay = 1000 * 60 * 60 * 24,
+          oneWeek = oneDay * 7;
+
+    let d = Date.now();
+    let lastDay  = d - ( d % oneDay ) + oneDay;
+    let firstDay = lastDay - oneWeek;
+
+    const FIRST_DAY = 0
+    const LAST_DAY = 9
+    const daysArray = [ '00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00', '23:59' ]
+
+    //var start = moment().subtract(12, 'months').format();
+    //var end = moment().format();
+    var start = moment().startOf('day').format(); // set to 12:00 am today
+    var end = moment().endOf('day').format(); // set to 23:59 pm today
+    console.log(end + " : " + start)
+    //let end = "2021-07-06T23:59:59"
+    //let start = "2019-04-07T00:00:00"
+
+    await Data.aggregate([
+      {
+         $match: {
+             createdAt: {
+                 $gte: new Date(start),
+                 $lte: new Date(end)
+             }
+         }
+         // Your matching logic
+       },
+       /* Now grouping users based on _id or id parameter for each day
+       from the above match results.
+
+       $createdAt can be replaced by date property present in your database.
+       */
+       { $group : {
+             /*_id : {
+                     month: { $month: "$createdAt" },
+                     year: { $year: "$createdAt" } },
+                     count : {$sum : 1}
+             }*/
+             _id: { "year_day": { $substrCP: [ "$createdAt", 0, 24 ] } },
+      },
+      },
+      {
+        $sort: { "_id.year_day": 1 }
+      },
+      {
+        $project: {
+            _id: 0,
+            count: {$sum : 1},
+            day_year: {
+                $concat: [
+                   { $arrayElemAt: [ daysArray, { $subtract: [ { $toInt: { $substrCP: [ "$_id.year_day", 11, 2 ] } }, 9 ] } ] },
+                   "-",
+                   { $substrCP: [ "$_id.year_day", 0, 4 ] }
+                ]
+            }
+        }
+      },
+      {
+        $group: {
+            _id: null,
+            data: { $push: { k: "$day_year", v: "$count" } }
+        }
+      },
+      {
+        $addFields: {
+            start_week: { $substrCP: [ start, 0, 4 ] },
+            end_week: { $substrCP: [ end, 0, 4 ] },
+            months1: { $range: [ { $toInt: { $substrCP: [ start, 5, 2 ] } }, { $add: [ LAST_DAY, 1 ] } ] },
+            months2: { $range: [ FIRST_DAY, { $add: [ { $toInt: { $substrCP: [ end, 5, 2 ] } }, 1 ] } ] }
+        }
+      },
+      {
+        $addFields: {
+            template_data: {
+                $concatArrays: [
+                    { $map: {
+                         input: "$months1", as: "m1",
+                         in: {
+                             count: 0,
+                             day_year: {
+                                 $concat: [ { $arrayElemAt: [ daysArray, { $subtract: [ "$$m1", 3 ] } ] }, "-",  "$start_week" ]
+                             }
+                         }
+                    } },
+                    { $map: {
+                         input: "$months2", as: "m2",
+                         in: {
+                             count: 0,
+                             day_year: {
+                                 $concat: [ { $arrayElemAt: [ daysArray, { $subtract: [ "$$m2", 3 ] } ] }, "-",  "$end_week" ]
+                             }
+                         }
+                    } }
+                ]
+           }
+        }
+      },
+      {
+        $addFields: {
+            data: {
+               $map: {
+                   input: "$template_data", as: "t",
+                   in: {
+                       k: "$$t.day_year",
+                       v: {
+                           $reduce: {
+                               input: "$data", initialValue: 0,
+                               in: {
+                                   $cond: [ { $eq: [ "$$t.day_year", "$$this.k"] },
+                                                { $add: [ "$$this.v", "$$value" ] },
+                                                { $add: [ 0, "$$value" ] }
+                                   ]
+                               }
+                           }
+                       }
+                   }
+                }
+            }
+        }
+    },
+    {
+        $project: {
+            data: {$arrayToObject: "$data" },
+            _id: 0
+        }
+    }
+     ],function(err, result) {
+    // results in here
+    if (err) {
+      console.log("Inside weekday issue count error")
+
+      res.send(err.message);
+    } else {
+      console.log("Inside weekday issue count result")
+
+      res.json(result);
+    }
+  })
+})
 
 
 

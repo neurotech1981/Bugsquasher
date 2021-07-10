@@ -21,10 +21,10 @@ const dailySalesChart = {
       tension: 0
     }),
     low: 0,
-    high: 8, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
+    high: 30, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
     chartPadding: {
       top: 0,
-      right: 0,
+      right: 20,
       bottom: 0,
       left: 0
     }
@@ -71,10 +71,10 @@ const emailsSubscriptionChart = {
       showGrid: true
     },
     low: 0,
-    high: 12,
+    high: 30,
     chartPadding: {
       top: 0,
-      right: 5,
+      right: 20,
       bottom: 0,
       left: 0
     }
@@ -114,19 +114,15 @@ const emailsSubscriptionChart = {
 // #############################
 
 const completedTasksChart = {
-  data: {
-    labels: ["06:00", "12:00", "18:00", "21:00", "23:00", "01:00", "03:00", "06:00"],
-    series: [[230, 750, 450, 300, 280, 440, 200, 590]]
-  },
   options: {
     lineSmooth: Chartist.Interpolation.simple({
     divisor: 2
   }),
     low: 0,
-    high: 1000, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
+    high: 12, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
     chartPadding: {
       top: 0,
-      right: 0,
+      right: 20,
       bottom: 0,
       left: 0
     }

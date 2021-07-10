@@ -53,4 +53,7 @@ export default {
   getThisWeeklyCaseCount: async (auth) => {
     return await instance.get("/api/weekdayIssueCount", { headers: { Authorization: auth } });
   },
+  getDailyIssueCount: async (auth) => {
+    return await instance.get("/api/dailyIssueCount", { headers: { Authorization: auth } });
+  },
 };

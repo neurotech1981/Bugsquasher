@@ -28,6 +28,7 @@ import CardBody from "../Card/CardBody.js";
 import CardFooter from "../Card/CardFooter.js";
 import issueService from '../../services/issueService'
 import auth from "../auth/auth-helper";
+import Link from '@material-ui/core/Link';
 
 import { bugs, website, server } from "../../variables/general.js";
 
@@ -76,6 +77,13 @@ function Landing () {
     series: [[]],
   });
 
+  const [dailyCountIssues, setDailyCountIssues] = useState({
+    labels: [
+      '00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00', '23:59'
+    ],
+    series: [[0, 0, 0, 0, 0, 0, 0, 0, 0]],
+  });
+
   useEffect(() => {
     let isSubscribed = true
         if (isSubscribed) {
@@ -85,7 +93,8 @@ function Landing () {
           getOpenIssues(),
           getLatestCases(),
           getThisYearIssueCount(),
-          getThisWeekIssueCount()
+          getThisWeekIssueCount(),
+          getDailyIssueCount()
         }
     return () => isSubscribed = false
   }, [])
@@ -117,16 +126,18 @@ function Landing () {
   const getLatestCases = async () => {
     const jwt = auth.isAuthenticated()
     const res = await issueService.getLatestCases(jwt.token)
+    if(Object.values(res.data).length !== 0) {
     var valueArr = res.data.map(element => {
-      return [moment(element.createdAt).format("DD/MM-YYYY HH:mm"),element.summary, element.priority, element.severity];
+      return [moment(element.createdAt).format("DD/MM-YYYY HH:mm"),"Test" + element.summary + "<strong>Test</strong><br>", element.priority, element.severity];
     });
     setLatestCases(valueArr)
+  }
   }
 
   const getThisYearIssueCount = async () => {
     const jwt = auth.isAuthenticated()
     const res = await issueService.getThisYearCaseCount(jwt.token)
-    console.log(res);
+    console.log("This year: ", res);
     var valueArr = Object.values(res.data[0].data).map(element => {
       return element;
     });
@@ -137,11 +148,26 @@ function Landing () {
     const jwt = auth.isAuthenticated()
     const res = await issueService.getThisWeeklyCaseCount(jwt.token)
     console.log(res);
+    if(Object.values(res.data).length !== 0) {
     var valueArr = Object.values(res.data[0].data).map(element => {
       return element;
     });
     setThisWeekCountIssues({...weeklyCountIssues, series: [valueArr]});
   }
+  }
+
+  const getDailyIssueCount = async () => {
+    const jwt = auth.isAuthenticated()
+    const res = await issueService.getDailyIssueCount(jwt.token)
+    console.log(res);
+    if(Object.values(res.data).length !== 0) {
+    var valueArr = Object.values(res.data[0].data).map(element => {
+      return element;
+    });
+    setDailyCountIssues({...dailyCountIssues, series: [valueArr]});
+  }
+  }
+
 
   return (
   <div>
@@ -275,7 +301,7 @@ function Landing () {
             <CardHeader >
               <ChartistGraph
                 className="ct-chart"
-                data={completedTasksChart.data}
+                data={dailyCountIssues}
                 type="Line"
                 options={completedTasksChart.options}
                 listener={completedTasksChart.animation}

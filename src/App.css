@@ -16,7 +16,7 @@ body {
   font-weight: 300;
   line-height: 1.42em;
   color: rgb(0, 0, 0);
-  background-color: #EDF5E1 !important;
+  background-color: #edf5e1 !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -35,9 +35,9 @@ body {
 }
 
 .makeStyles-textFieldStatus-100 {
-    width: 10%;
-    margin: 8px;
-    margin-top: -7px;
+  width: 10%;
+  margin: 8px;
+  margin-top: -7px;
 }
 
 .div-issues {
@@ -69,7 +69,6 @@ body {
 .ct-series-b .ct-slice-donut {
   stroke: #000000;
 }
-
 
 .makeStyles-root-187 {
   width: 80%;
@@ -119,18 +118,6 @@ body {
   text-align: center;
 }
 
-.link {
-  display: inline-block;
-  width: 100%;
-  text-decoration: none;
-  color: rgb(0, 0, 0);
-  letter-spacing: 0.1em;
-  text-align: left;
-  font-size: 0.8rem;
-  margin: 10px;
-  position: relative;
-}
-
 /* NavBar main menu hover */
 .MuiListItem-button:hover {
   text-decoration: none;
@@ -141,34 +128,6 @@ body {
 .MuiListItem-button:active {
   text-decoration: none;
   background-color: rgba(47, 0, 255, 0.5) !important;
-}
-
-.underline {
-  border: 2px solid transparent;
-}
-.underline::after {
-  width: 0%;
-  height: 2px;
-  display: block;
-  background-color: rgb(60, 34, 121);
-  content: " ";
-  position: absolute;
-  top: 34px;
-  left: 50%;
-  -webkit-transition: left 0.2s cubic-bezier(0.215, 0.61, 0.355, 1),
-    width 0.2s cubic-bezier(0.215, 0.61, 0.355, 1);
-  transition: left 0.2s cubic-bezier(0.215, 0.61, 0.355, 1),
-    width 0.2s cubic-bezier(0.215, 0.61, 0.355, 1);
-}
-.underline:hover::after {
-  width: 100%;
-  height: 2px;
-  display: block;
-  background-color: rgb(95, 97, 172);
-  content: " ";
-  position: absolute;
-  top: 34px;
-  left: 0;
 }
 
 .makeStyles-root-200 {
@@ -252,7 +211,6 @@ a {
   color: rgb(49, 49, 49);
   text-decoration: none;
   font-weight: 600;
-  font-size: 1.4em;
   outline: none;
   border-bottom: 2px solid transparent;
   -webkit-transition: border 300ms linear;
@@ -304,7 +262,7 @@ a:focus {
 }
 
 .makeStyles-drawerPaper-7 {
-  background-color: #05386B !important;
+  background-color: #05386b !important;
 }
 
 .MuiListItemText-root {

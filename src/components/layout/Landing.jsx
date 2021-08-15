@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
 import PropTypes from "prop-types";
+import "../../App.css";
 import ChartistGraph from "react-chartist";
 import { makeStyles } from "@material-ui/core/styles";
 import Icon from "@material-ui/core/Icon";
@@ -132,10 +133,16 @@ function Landing() {
     const jwt = auth.isAuthenticated();
     const res = await issueService.getLatestCases(jwt.token);
     if (Object.values(res.data).length !== 0) {
-      var valueArr = res.data.map((element) => {
+      var valueArr = res.data.map((element, key) => {
         return [
           moment(element.createdAt).format("DD/MM-YYYY HH:mm"),
-          "Test" + element.summary + "<strong>Test</strong><br>",
+          <a
+            href={"http://localhost:3000/vis-sak/" + element._id}
+            className="link underline"
+            key={key}
+          >
+            {element.summary}
+          </a>,
           element.priority,
           element.severity,
         ];
@@ -340,7 +347,7 @@ function Landing() {
       <GridContainer>
         <GridItem xs={12} sm={12} md={12}>
           <Card>
-            <CardHeader color="success">
+            <CardHeader color="primary">
               <h4 className={classes.cardTitleWhite}>Siste aktive saker</h4>
               <p className={classes.cardCategoryWhite}>De 5 siste sakene.</p>
             </CardHeader>

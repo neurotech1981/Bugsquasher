@@ -1042,18 +1042,16 @@ ProtectedRoutes.route("/getDataByID/:id").get(async function (req, res, next) {
 ProtectedRoutes.route("/edituser/:id").post(async function (req, res, next) {
   console.log("Inside Edit User", req);
   const { id } = req.params;
-  const { role, update } = req.body.data;
+  const { role, update } = req.body;
   const permission = ac.can(role).readAny("editusers");
+  console.log("<<< UPDATING USER >>> " + id);
   if (permission.granted) {
-    User.findByIdAndUpdate(
-      { _id: { $eq: id } },
-      req.body.data.update,
-      (err) => {
-        if (err || !update) return res.status(400).json(err);
-        // filter data by permission attributes and send.
-        res.json(permission.filter(update));
-      }
-    );
+    console.log("<<<< User has valid permission to update user >>>>");
+    User.findByIdAndUpdate({ _id: id }, update, (err) => {
+      if (err || !update) return res.status(400).json(err);
+      // filter data by permission attributes and send.
+      res.json(permission.filter(update));
+    });
   } else {
     // resource is forbidden for this user/role
     res.status(403).end();
@@ -1063,8 +1061,8 @@ ProtectedRoutes.route("/edituser/:id").post(async function (req, res, next) {
 ProtectedRoutes.route("/removeUser/:id").post(async function (req, res) {
   const { id } = req.params;
   console.log("Inside removeUser ", id);
-  User.findByIdAndRemove({ _id: { $eq: id } }, (err) => {
-    if (err) return res.send(err);
+  User.findByIdAndRemove({ _id: id }, (err) => {
+    if (err) return res.status(400).json(err);
     return res.json({
       success: true,
     });

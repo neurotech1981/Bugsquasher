@@ -240,7 +240,7 @@ function Landing() {
             <CardFooter stats>
               <div className={classes.stats}>
                 <LocalOffer />
-                Spores fra Github
+                Totalt antall løste saker.
               </div>
             </CardFooter>
           </Card>

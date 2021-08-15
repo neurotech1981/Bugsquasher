@@ -4,7 +4,7 @@ const getErrorMessage = (err) => {
     switch (err.code) {
       case 11000:
       case 11001:
-        message = this.getUniqueErrorMessage(err)
+        message = getUniqueErrorMessage(err)
         break
       default:
         message = 'Something went wrong.'
@@ -20,6 +20,7 @@ const getErrorMessage = (err) => {
 
 const getUniqueErrorMessage = (err) => {
   let output
+  console.log(err);
   try {
     const fieldName = err.message.substring(
       err.message.lastIndexOf('.$') + 2,

@@ -89,6 +89,7 @@ export const findUserProfile = (req, res) => {
 }
 
 export async function changePassword ( req, res, next )  {
+  console.log("Inside changePassword")
   console.log(JSON.stringify(req.body));
   const account = await User.findOne({
     '_id': req.body._id,

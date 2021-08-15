@@ -34,7 +34,7 @@ class App extends Component {
             <PrivateRoute path="/bruker-admin/:userId" component={Users} />
             <PrivateRoute path="/edit-issue/:id" component={EditIssue} />
             <Route path="/resett-passord" component={ResetPassword} />
-            <Route path="/accounts/tilbakestill-passord/:token" component={ChangePassword} />
+            <Route path="/tilbakestill-passord/:token" component={ChangePassword} />
             <Route path="/signup" component={Signup} />
             <Route path="/signin" component={Signin} />
           </Router>

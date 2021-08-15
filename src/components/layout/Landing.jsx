@@ -1,16 +1,16 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
 import moment from "moment";
-import PropTypes from 'prop-types'
-import ChartistGraph from 'react-chartist';
-import { makeStyles } from '@material-ui/core/styles'
+import PropTypes from "prop-types";
+import ChartistGraph from "react-chartist";
+import { makeStyles } from "@material-ui/core/styles";
 import Icon from "@material-ui/core/Icon";
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import DateRange from "@material-ui/icons/DateRange";
 import LocalOffer from "@material-ui/icons/LocalOffer";
 import Accessibility from "@material-ui/icons/Accessibility";
 import Update from "@material-ui/icons/Update";
-import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
+import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
 import BugReport from "@material-ui/icons/BugReport";
 import Code from "@material-ui/icons/Code";
 import Cloud from "@material-ui/icons/Cloud";
@@ -26,31 +26,30 @@ import CardHeader from "../Card/CardHeader.js";
 import CardIcon from "../Card/CardIcon.js";
 import CardBody from "../Card/CardBody.js";
 import CardFooter from "../Card/CardFooter.js";
-import issueService from '../../services/issueService'
+import issueService from "../../services/issueService";
 import auth from "../auth/auth-helper";
-import Link from '@material-ui/core/Link';
+import Link from "@material-ui/core/Link";
 
 import { bugs, website, server } from "../../variables/general.js";
 
 import {
   dailySalesChart,
   emailsSubscriptionChart,
-  completedTasksChart
+  completedTasksChart,
 } from "../../variables/charts.js";
 
 import styles from "../../assets/styles/dashboardStyle.js";
 
-
 const useStyles = makeStyles(styles);
 
-function Landing () {
-  const classes = useStyles()
-  const [issueCount, setIssueCount] = useState(0)
-  const [todaysIssues, setTodaysIssues] = useState(0)
-  const [solvedIssues, setSolvedIssues] = useState(0)
-  const [openIssues, setOpenIssues] = useState(0)
-  const [latestCases, setLatestCases] = useState([])
-  const [thisYearCases, setThisYearCases] = useState([])
+function Landing() {
+  const classes = useStyles();
+  const [issueCount, setIssueCount] = useState(0);
+  const [todaysIssues, setTodaysIssues] = useState(0);
+  const [solvedIssues, setSolvedIssues] = useState(0);
+  const [openIssues, setOpenIssues] = useState(0);
+  const [latestCases, setLatestCases] = useState([]);
+  const [thisYearCases, setThisYearCases] = useState([]);
 
   const [yearlyCountIssues, setYearlyCountIssues] = useState({
     labels: [
@@ -65,113 +64,122 @@ function Landing () {
       "Sep",
       "Okt",
       "Nov",
-      "Des"
+      "Des",
     ],
     series: [[]],
   });
 
   const [weeklyCountIssues, setThisWeekCountIssues] = useState({
-    labels: [
-      'Man', 'Tirs', 'Ons', 'Tors', 'Fre', 'Lør', 'Søn'
-    ],
-    series: [[]],
+    labels: ["Man", "Tirs", "Ons", "Tors", "Fre", "Lør", "Søn"],
+    series: [[0, 0, 0, 0, 0, 0, 0]],
   });
 
   const [dailyCountIssues, setDailyCountIssues] = useState({
     labels: [
-      '00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00', '23:59'
+      "00:00",
+      "03:00",
+      "06:00",
+      "09:00",
+      "12:00",
+      "15:00",
+      "18:00",
+      "21:00",
+      "23:59",
     ],
     series: [[0, 0, 0, 0, 0, 0, 0, 0, 0]],
   });
 
   useEffect(() => {
-    let isSubscribed = true
-        if (isSubscribed) {
-          getIssueCount(),
-          getTodaysIssueCount(),
-          getSolvedIssues(),
-          getOpenIssues(),
-          getLatestCases(),
-          getThisYearIssueCount(),
-          getThisWeekIssueCount(),
-          getDailyIssueCount()
-        }
-    return () => isSubscribed = false
-  }, [])
+    let isSubscribed = true;
+    if (isSubscribed) {
+      getIssueCount(),
+        getTodaysIssueCount(),
+        getSolvedIssues(),
+        getOpenIssues(),
+        getLatestCases(),
+        getThisYearIssueCount(),
+        getThisWeekIssueCount(),
+        getDailyIssueCount();
+    }
+    return () => (isSubscribed = false);
+  }, []);
 
   const getIssueCount = async () => {
-    const jwt = auth.isAuthenticated()
+    const jwt = auth.isAuthenticated();
     const res = await issueService.countIssues(jwt.token);
-    setIssueCount(res.data)
-  }
+    setIssueCount(res.data);
+  };
 
   const getTodaysIssueCount = async () => {
-    const jwt = auth.isAuthenticated()
-    const res = await issueService.getTodaysIssues(jwt.token)
-    setTodaysIssues(res.data)
-  }
+    const jwt = auth.isAuthenticated();
+    const res = await issueService.getTodaysIssues(jwt.token);
+    setTodaysIssues(res.data);
+  };
 
   const getSolvedIssues = async () => {
-    const jwt = auth.isAuthenticated()
-    const res = await issueService.countSolvedIssues(jwt.token)
-    setSolvedIssues(res.data)
-  }
+    const jwt = auth.isAuthenticated();
+    const res = await issueService.countSolvedIssues(jwt.token);
+    setSolvedIssues(res.data);
+  };
 
   const getOpenIssues = async () => {
-    const jwt = auth.isAuthenticated()
-    const res = await issueService.countOpenIssues(jwt.token)
-    setOpenIssues(res.data)
-  }
+    const jwt = auth.isAuthenticated();
+    const res = await issueService.countOpenIssues(jwt.token);
+    setOpenIssues(res.data);
+  };
 
   const getLatestCases = async () => {
-    const jwt = auth.isAuthenticated()
-    const res = await issueService.getLatestCases(jwt.token)
-    if(Object.values(res.data).length !== 0) {
-    var valueArr = res.data.map(element => {
-      return [moment(element.createdAt).format("DD/MM-YYYY HH:mm"),"Test" + element.summary + "<strong>Test</strong><br>", element.priority, element.severity];
-    });
-    setLatestCases(valueArr)
-  }
-  }
+    const jwt = auth.isAuthenticated();
+    const res = await issueService.getLatestCases(jwt.token);
+    if (Object.values(res.data).length !== 0) {
+      var valueArr = res.data.map((element) => {
+        return [
+          moment(element.createdAt).format("DD/MM-YYYY HH:mm"),
+          "Test" + element.summary + "<strong>Test</strong><br>",
+          element.priority,
+          element.severity,
+        ];
+      });
+      setLatestCases(valueArr);
+    }
+  };
 
   const getThisYearIssueCount = async () => {
-    const jwt = auth.isAuthenticated()
-    const res = await issueService.getThisYearCaseCount(jwt.token)
+    const jwt = auth.isAuthenticated();
+    const res = await issueService.getThisYearCaseCount(jwt.token);
     console.log("This year: ", res);
-    var valueArr = Object.values(res.data[0].data).map(element => {
+    var valueArr = Object.values(res.data[0].data).map((element) => {
       return element;
     });
-    setYearlyCountIssues({...yearlyCountIssues, series: [valueArr]});
-  }
+    setYearlyCountIssues({ ...yearlyCountIssues, series: [valueArr] });
+  };
 
   const getThisWeekIssueCount = async () => {
-    const jwt = auth.isAuthenticated()
-    const res = await issueService.getThisWeeklyCaseCount(jwt.token)
-    console.log(res);
-    if(Object.values(res.data).length !== 0) {
-    var valueArr = Object.values(res.data[0].data).map(element => {
+    const jwt = auth.isAuthenticated();
+    const res = await issueService.getThisWeeklyCaseCount(jwt.token);
+    console.log("Data from this weeks issue count: " + res.data[0].data);
+
+    var valueArr = Object.values(res.data[0].data).map((element) => {
       return element;
     });
-    setThisWeekCountIssues({...weeklyCountIssues, series: [valueArr]});
-  }
-  }
+    setThisWeekCountIssues({ ...weeklyCountIssues, series: [valueArr] });
+  };
 
   const getDailyIssueCount = async () => {
-    const jwt = auth.isAuthenticated()
-    const res = await issueService.getDailyIssueCount(jwt.token)
+    const jwt = auth.isAuthenticated();
+    const res = await issueService.getDailyIssueCount(jwt.token);
     console.log(res);
-    if(Object.values(res.data).length !== 0) {
-    var valueArr = Object.values(res.data[0].data).map(element => {
-      return element;
-    });
-    setDailyCountIssues({...dailyCountIssues, series: [valueArr]});
-  }
-  }
-
+    if (Object.values(res.data).length !== 0) {
+      var valueArr = Object.values(res.data[0].data).map((element) => {
+        return element;
+      });
+      setDailyCountIssues({ ...dailyCountIssues, series: [valueArr] });
+    }
+  };
 
   return (
-  <div>
-    <GridContainer>
+    <div>
+      <GridContainer>
         <GridItem xs={12} sm={6} md={3}>
           <Card>
             <CardHeader color="warning" stats icon>
@@ -199,7 +207,9 @@ function Landing () {
                 <PlaylistAddIcon />
               </CardIcon>
               <p className={classes.cardCategory}>Nye saker idag</p>
-              <h3 className={classes.cardTitle}><h1>{todaysIssues}</h1></h3>
+              <h3 className={classes.cardTitle}>
+                <h1>{todaysIssues}</h1>
+              </h3>
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
@@ -216,7 +226,9 @@ function Landing () {
                 <CheckCircleIcon />
               </CardIcon>
               <p className={classes.cardCategory}>Løste saker</p>
-              <h3 className={classes.cardTitle}><h1>{solvedIssues}</h1></h3>
+              <h3 className={classes.cardTitle}>
+                <h1>{solvedIssues}</h1>
+              </h3>
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
@@ -234,7 +246,9 @@ function Landing () {
               </CardIcon>
 
               <p className={classes.cardCategory}>Åpne saker</p>
-              <h3 className={classes.cardTitle}><h1>{openIssues}</h1></h3>
+              <h3 className={classes.cardTitle}>
+                <h1>{openIssues}</h1>
+              </h3>
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
@@ -248,7 +262,7 @@ function Landing () {
       <GridContainer>
         <GridItem xs={12} sm={12} md={4}>
           <Card chart>
-            <CardHeader >
+            <CardHeader>
               <ChartistGraph
                 className="ct-chart"
                 data={weeklyCountIssues}
@@ -275,7 +289,7 @@ function Landing () {
         </GridItem>
         <GridItem xs={12} sm={12} md={4}>
           <Card chart>
-            <CardHeader >
+            <CardHeader>
               <ChartistGraph
                 className="ct-chart"
                 data={yearlyCountIssues}
@@ -287,7 +301,9 @@ function Landing () {
             </CardHeader>
             <CardBody>
               <h4 className={classes.cardTitle}>Saker over ett år</h4>
-              <p className={classes.cardCategory}>Saker over en 12 måneders periode</p>
+              <p className={classes.cardCategory}>
+                Saker over en 12 måneders periode
+              </p>
             </CardBody>
             <CardFooter chart>
               <div className={classes.stats}>
@@ -298,7 +314,7 @@ function Landing () {
         </GridItem>
         <GridItem xs={12} sm={12} md={4}>
           <Card chart>
-            <CardHeader >
+            <CardHeader>
               <ChartistGraph
                 className="ct-chart"
                 data={dailyCountIssues}
@@ -309,7 +325,9 @@ function Landing () {
             </CardHeader>
             <CardBody>
               <h4 className={classes.cardTitle}>Løste saker</h4>
-              <p className={classes.cardCategory}>Løste saker i løpet av en dag</p>
+              <p className={classes.cardCategory}>
+                Løste saker i løpet av en dag
+              </p>
             </CardBody>
             <CardFooter chart>
               <div className={classes.stats}>
@@ -324,9 +342,7 @@ function Landing () {
           <Card>
             <CardHeader color="success">
               <h4 className={classes.cardTitleWhite}>Siste aktive saker</h4>
-              <p className={classes.cardCategoryWhite}>
-                De 5 siste sakene.
-              </p>
+              <p className={classes.cardCategoryWhite}>De 5 siste sakene.</p>
             </CardHeader>
             <CardBody>
               <Table
@@ -339,13 +355,13 @@ function Landing () {
         </GridItem>
       </GridContainer>
     </div>
-  )
+  );
 }
 
 Landing.propTypes = {
   // Injected by the documentation to work in an iframe.
   // You won't need it on your project.
-  container: PropTypes.object
-}
+  container: PropTypes.object,
+};
 
-export default Landing
+export default Landing;

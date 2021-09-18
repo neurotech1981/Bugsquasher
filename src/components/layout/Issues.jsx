@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
   },
   colorPrimary: {
     backgroundImage:
-      'linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)'
+      "linear-gradient(rgb(15, 76, 129) 0%, rgb(6, 80, 249) 100%)",
     //backgroundColor: "#48305F",
   },
   alignItemsAndJustifyContent: {
@@ -50,31 +50,37 @@ export default function Issues() {
 
   const [state] = useState({
     columns: [
-      { title: "Oppsummering", field: "summary",
-      render: (data) => (
-        <span>
-          <Link to={"/vis-sak/" + data._id} className="link underline">
-            {data.summary}
-          </Link>
-        </span>
-      ),
-      cellStyle: {
-        width: 650,
-        maxWidth: 650
+      {
+        title: "Oppsummering",
+        field: "summary",
+        render: (data) => (
+          <span>
+            <Link to={"/vis-sak/" + data._id} className="link underline">
+              {data.summary}
+            </Link>
+          </span>
+        ),
+        cellStyle: {
+          width: 650,
+          maxWidth: 650,
+        },
+        headerStyle: {
+          width: 650,
+          maxWidth: 650,
+        },
       },
-      headerStyle: {
-        width:650,
-        maxWidth: 650
-      }
-    },
-      { title: "Kategori", field: "category", headerStyle: {width: "6.66%"} },
-      { title: "Alvorlighetsgrad", field: "severity", headerStyle: {width: "6.66%"} },
+      { title: "Kategori", field: "category", headerStyle: { width: "6.66%" } },
+      {
+        title: "Alvorlighetsgrad",
+        field: "severity",
+        headerStyle: { width: "6.66%" },
+      },
       {
         title: "Lagt inn",
         defaultSort: "desc",
         field: "createdAt",
         render: (data) => <div>{formattedDate(data.createdAt)}</div>,
-        headerStyle: {width: "16.66%"}
+        headerStyle: { width: "16.66%" },
       },
       {
         title: "Prioritet",
@@ -86,19 +92,20 @@ export default function Issues() {
             style={{
               fontSize: "1em",
               fontWeight: "600",
-              textShadow: "2px 4px 4px rgba(0,0,0,0.2), 0px -5px 10px rgba(255,255,255,0.15)",
+              textShadow:
+                "2px 4px 4px rgba(0,0,0,0.2), 0px -5px 10px rgba(255,255,255,0.15)",
               color: "#ffffff",
               backgroundColor:
-                data.priority === "Øyeblikkelig" ?
-                  "rgba(236, 4, 4, 1)"
-                  : "" || data.priority === "Høy" ?
-                  "rgba(226, 31, 28, 1)"
-                  : "" || data.priority === "Normal" ?
-                  "rgba(217, 57, 53, .6)"
-                  : "" || data.priority === "Haster" ?
-                  "rgba(207, 84, 77, 1)"
-                  : "" || data.priority === "Lav" ?
-                  "rgba(197, 111, 101, 0.5)"
+                data.priority === "Øyeblikkelig"
+                  ? "rgba(236, 4, 4, 1)"
+                  : "" || data.priority === "Høy"
+                  ? "rgba(226, 31, 28, 1)"
+                  : "" || data.priority === "Normal"
+                  ? "rgba(217, 57, 53, .6)"
+                  : "" || data.priority === "Haster"
+                  ? "rgba(207, 84, 77, 1)"
+                  : "" || data.priority === "Lav"
+                  ? "rgba(197, 111, 101, 0.5)"
                   : "",
               padding: "0.7em",
             }}
@@ -106,7 +113,7 @@ export default function Issues() {
             {data.priority}
           </div>
         ),
-        headerStyle: {width: "16.66%"}
+        headerStyle: { width: "16.66%" },
       },
       {
         title: "Status",
@@ -118,16 +125,17 @@ export default function Issues() {
               fontSize: "1em",
               fontWeight: "600",
               color: "#ffffff",
-              textShadow: "2px 4px 4px rgba(0,0,0,0.2), 0px -5px 10px rgba(255,255,255,0.15)",
+              textShadow:
+                "2px 4px 4px rgba(0,0,0,0.2), 0px -5px 10px rgba(255,255,255,0.15)",
               backgroundColor:
-                data.status === "Åpen" ?
-                  "rgb(155, 119, 255)"
-                  : "" || data.status === "Løst" ?
-                  "rgb(87, 242, 80)"
-                  : "" || data.status === "Lukket" ?
-                  "rgb(255, 65, 55)"
-                  : "" || data.status === "Under arbeid" ?
-                  "rgb(202, 163, 0)"
+                data.status === "Åpen"
+                  ? "rgb(155, 119, 255)"
+                  : "" || data.status === "Løst"
+                  ? "rgb(87, 242, 80)"
+                  : "" || data.status === "Lukket"
+                  ? "rgb(255, 65, 55)"
+                  : "" || data.status === "Under arbeid"
+                  ? "rgb(202, 163, 0)"
                   : "",
               padding: "0.7em",
             }}
@@ -135,7 +143,7 @@ export default function Issues() {
             {data.status}
           </div>
         ),
-        headerStyle: {width: "16.66%"}
+        headerStyle: { width: "16.66%" },
       },
     ],
   });
@@ -168,7 +176,7 @@ export default function Issues() {
   }, [dataset]);
 
   const getIssues = async () => {
-    const jwt = auth.isAuthenticated()
+    const jwt = auth.isAuthenticated();
 
     const res = await issueService.getAll(jwt.token);
     setData(res);
@@ -227,7 +235,7 @@ export default function Issues() {
           isLoading: true,
           debounceInterval: 500,
           columnsButton: true,
-          resizable: true
+          resizable: true,
         }}
         title="Registrerte saker"
         columns={state.columns}

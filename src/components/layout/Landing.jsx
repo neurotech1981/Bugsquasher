@@ -93,14 +93,14 @@ function Landing() {
   useEffect(() => {
     let isSubscribed = true;
     if (isSubscribed) {
-      getIssueCount(),
-        getTodaysIssueCount(),
-        getSolvedIssues(),
-        getOpenIssues(),
-        getLatestCases(),
-        getThisYearIssueCount(),
-        getThisWeekIssueCount(),
-        getDailyIssueCount();
+      getIssueCount();
+      getTodaysIssueCount();
+      getSolvedIssues();
+      getOpenIssues();
+      getLatestCases();
+      getThisYearIssueCount();
+      getThisWeekIssueCount();
+      getDailyIssueCount();
     }
     return () => (isSubscribed = false);
   }, []);
@@ -155,20 +155,29 @@ function Landing() {
     const jwt = auth.isAuthenticated();
     const res = await issueService.getThisYearCaseCount(jwt.token);
     console.log("This year: ", res);
-    var valueArr = Object.values(res.data[0].data).map((element) => {
-      return element;
-    });
+    if (Object.values(res.data).length !== 0) {
+      var valueArr = Object.values(res.data[0].data).map((element) => {
+        return element;
+      });
+    } else {
+      return null;
+    }
     setYearlyCountIssues({ ...yearlyCountIssues, series: [valueArr] });
   };
 
   const getThisWeekIssueCount = async () => {
     const jwt = auth.isAuthenticated();
     const res = await issueService.getThisWeeklyCaseCount(jwt.token);
-    console.log("Data from this weeks issue count: " + res.data[0].data);
-
-    var valueArr = Object.values(res.data[0].data).map((element) => {
-      return element;
-    });
+    console.log(
+      "Data from this weeks issue count: " + JSON.stringify(res.data)
+    );
+    if (Object.values(res.data).length !== 0) {
+      var valueArr = Object.values(res.data[0].data).map((element) => {
+        return element;
+      });
+    } else {
+      return null;
+    }
     setThisWeekCountIssues({ ...weeklyCountIssues, series: [valueArr] });
   };
 

@@ -150,8 +150,8 @@ export default function Users() {
     const jwt = auth.isAuthenticated();
     axios.post(`/api/removeUser/${idTodelete}`, {
       token: jwt.token,
-    }),
-      init(match.params.userId);
+    });
+    init(match.params.userId);
   };
 
   // Rediger bruker

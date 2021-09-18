@@ -37,7 +37,7 @@ function Alert(props) {
 }
 
 const errorAlert = (error) => (
-  <Snackbar open={open} autohideduration={6000} onClose={handleClose}>
+  <Snackbar autohideduration={6000} onClose={handleClose}>
     <Alert onClose={handleClose} severity="error" variant="standard">
       <AlertTitle>Feil</AlertTitle>
       Noe gikk galt - {error}!
@@ -325,7 +325,7 @@ export default function EditIssue(props) {
   };
 
   useEffect(() => {
-    const jwt = auth.isAuthenticated()
+    const jwt = auth.isAuthenticated();
 
     getIssueByID(id, jwt.token);
     if (!users.length) {
@@ -334,12 +334,16 @@ export default function EditIssue(props) {
   }, [id]);
 
   const getIssueByID = async (id) => {
-    const jwt = auth.isAuthenticated()
-    const res = await issueService.getIssueByID(id,
-      jwt.token);
+    const jwt = auth.isAuthenticated();
+    const res = await issueService.getIssueByID(id, jwt.token);
     setData(res);
     console.log(res.imageName);
-    if (res.imageName === "" || res.imageName === "[none]" || res.imageName === "none" ) { // Remove later when nulling out db. Keep only ["none"]
+    if (
+      res.imageName === "" ||
+      res.imageName === "[none]" ||
+      res.imageName === "none"
+    ) {
+      // Remove later when nulling out db. Keep only ["none"]
       setImages(["none"]);
     } else {
       setImages(res.imageName); //[0]
@@ -347,12 +351,11 @@ export default function EditIssue(props) {
   };
 
   const updateIssueByID = async () => {
-    const jwt = auth.isAuthenticated()
+    const jwt = auth.isAuthenticated();
     const id = dataset._id;
 
     await issueService
-      .upDateIssue(id, { dataset },
-        jwt.token )
+      .upDateIssue(id, { dataset }, jwt.token)
       .then((response) => {
         console.log("UPDATED", response);
         setOpen(true);
@@ -540,10 +543,12 @@ export default function EditIssue(props) {
               name="category"
               className={classes.textField}
               value={dataset.category || "Ingen valgt"}
-              onChange={e => setData({
+              onChange={(e) =>
+                setData({
                   ...dataset,
                   [e.target.name]: e.target.value,
-                })}
+                })
+              }
               InputProps={{
                 className: classes.input,
               }}

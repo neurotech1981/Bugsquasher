@@ -38,13 +38,16 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
     "redux": "^4.1.0",
+    "source-map-explorer": "^2.5.2",
     "use-react-router": "^1.0.7",
     "uuid": "^8.3.2",
     "validator": "^13.6.0",
     "webfontloader": "^1.6.28"
   },
   "scripts": {
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
     "start": "react-scripts start",
+    "dev": "nodemon --exec react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "test:nowatch": "react-scripts start --watchAll=false",

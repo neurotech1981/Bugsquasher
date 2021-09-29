@@ -7,16 +7,16 @@ import {
   ListItemText,
   ListItemAvatar,
   Avatar,
-  Typography
+  Typography,
 } from "@material-ui/core";
-import QueryBuilderIcon from '@material-ui/icons/QueryBuilder';
-import AlternateEmailIcon from '@material-ui/icons/AlternateEmail';
-import PersonPinIcon from '@material-ui/icons/PersonPin';
+import QueryBuilderIcon from "@material-ui/icons/QueryBuilder";
+import AlternateEmailIcon from "@material-ui/icons/AlternateEmail";
+import PersonPinIcon from "@material-ui/icons/PersonPin";
 import Faker from "faker";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100ch",
+    width: "100%",
     backgroundColor: theme.palette.background.paper,
   },
   fonts: {
@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme => ({
     verticalAlign: "middle",
   },
   inline: {
-    display: "inline"
+    display: "inline",
   },
   fontDate: {
     color: "black",
@@ -49,7 +49,7 @@ const Comments = ({ comments }) => {
   const classes = useStyles();
   return (
     <List className={classes.root}>
-      {comments.map(comment => {
+      {comments.map((comment) => {
         console.log("Comment", comment);
         return (
           <React.Fragment key={comment.id}>
@@ -60,7 +60,8 @@ const Comments = ({ comments }) => {
               <ListItemText
                 primary={
                   <Typography className={classes.fonts}>
-                    <PersonPinIcon className={classes.iconDate}/>{comment.name}
+                    <PersonPinIcon className={classes.iconDate} />
+                    {comment.name}
                   </Typography>
                 }
                 secondary={
@@ -71,14 +72,23 @@ const Comments = ({ comments }) => {
                       className={classes.inline}
                       color="textPrimary"
                     >
-                    <ListItemText primary={
-                    <>
-                    <Typography className={classes.fontDate}>
-                    <QueryBuilderIcon className={classes.iconDate} />
-                    01-12-2021 12:42
-                    </Typography>
-                    <Typography className={classes.fontEmail}><AlternateEmailIcon className={classes.iconDate} />{comment.email}</Typography><Divider/></>
-                    }/>
+                      <ListItemText
+                        primary={
+                          <>
+                            <Typography className={classes.fontDate}>
+                              <QueryBuilderIcon className={classes.iconDate} />
+                              01-12-2021 12:42
+                            </Typography>
+                            <Typography className={classes.fontEmail}>
+                              <AlternateEmailIcon
+                                className={classes.iconDate}
+                              />
+                              {comment.email}
+                            </Typography>
+                            <Divider />
+                          </>
+                        }
+                      />
                     </Typography>
                     {comment.body}
                   </>

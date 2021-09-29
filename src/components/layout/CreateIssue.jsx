@@ -270,7 +270,7 @@ export default function CreateIssue(props) {
     user: [""],
     redirectToSignin: false,
   });
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -311,10 +311,10 @@ export default function CreateIssue(props) {
     if (!users.length) {
       init(match.params.userId);
     }
-  }, [!users.length]);
+  }, [match.params.userId, users.length]);
 
   const handleChange = (name) => (event) => {
-    console.log(JSON.stringify(images))
+    console.log(JSON.stringify(images));
     setValues({
       ...values,
       [name]: event.target.value,
@@ -337,14 +337,12 @@ export default function CreateIssue(props) {
       setImageName: [...images.imageupload[1].name],
     }));
     console.log(images.imageupload[1]);
-
   };
 
   // Legg inn ny query / varelinje i database med backend API
   const putDataToDB = async () => {
     let imageNameValue = "[none]";
-    if(images.length > 0)
-    {
+    if (!images) {
       imageNameValue = images.imageupload[1].name;
     }
 
@@ -362,12 +360,11 @@ export default function CreateIssue(props) {
       imageName: imageNameValue,
       // eslint-disable-next-line no-underscore-dangle
       userid: userinfo.user._id,
-    }
-    const jwt = auth.isAuthenticated()
+    };
+    const jwt = auth.isAuthenticated();
 
     await issueService
-      .addIssue({ data },
-        jwt.token )
+      .addIssue({ data }, jwt.token)
       .then((response) => {
         if (response.status === 200) {
           setOpen(true);

@@ -96,8 +96,8 @@ body {
 }
 
 .priority {
-  border-radius: 2em;
-  padding: 0.3em;
+  border-radius: 1em;
+  padding: 0.4em !important;
   font-weight: 500;
   font-size: 1em;
   background: -webkit-linear-gradient(90deg, #2f0a2621, #41476757);
@@ -108,8 +108,9 @@ body {
 }
 
 .status {
-  border-radius: 2em;
-  padding: 0.3em;
+  border-radius: 1em;
+  padding: 0.4em !important;
+  vertical-align: "sub";
   font-weight: 500;
   font-size: 1em;
   background: -webkit-linear-gradient(90deg, #2f0a2621, #41476757);
@@ -210,7 +211,7 @@ body {
 a {
   color: rgb(49, 49, 49);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 400;
   outline: none;
   border-bottom: 2px solid transparent;
   -webkit-transition: border 300ms linear;
@@ -221,8 +222,8 @@ a {
 a:hover,
 a:focus {
   transition: all ease-in-out 0.3s;
-  color: #1ed306;
-  text-decoration: none;
+  color: #665de6;
+  text-decoration: dashed;
   border-end-end-radius: 4px solid rgb(73, 248, 152);
 }
 
@@ -383,6 +384,7 @@ a:focus {
 
 .grid-container {
   display: grid;
+  grid-template-columns: repeat(6, 1fr);
   grid-template-areas:
     "top top top top top top"
     "header header header header header header"
@@ -404,15 +406,9 @@ a:focus {
 
 .grid-container > div {
   text-align: left;
-  font-size: 20px;
+  font-size: 1.5rem;
   border-radius: 4px;
   padding: 5px 2px;
-}
-
-.item1 {
-  grid-area: header;
-  align-self: center;
-  font-weight: 600;
 }
 
 .MuiCardActions-root {

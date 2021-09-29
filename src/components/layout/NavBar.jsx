@@ -33,7 +33,7 @@ import GroupRoundedIcon from "@material-ui/icons/GroupTwoTone";
 //import LogRocket from 'logrocket';
 //import setupLogRocketReact from 'logrocket-react';
 
-const drawerWidth = 250;
+const drawerWidth = 260;
 
 //const isActive = (history, path) => {
 //  if (history.location.pathname === path) return { color: '#F44336' }

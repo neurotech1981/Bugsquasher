@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 // import dependencies
+import jwt from "jsonwebtoken";
 import userRoutes from "./routes/user";
 import authRoutes from "./routes/auth";
 import config from "../config/index";
@@ -11,7 +12,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
-var Data = require("./models/data");
+var Data = require("./models/issue");
 const User = require("./models/user");
 const path = require("path");
 const logger = require("morgan");
@@ -21,7 +22,6 @@ var multipart = require("connect-multiparty");
 const cookieParser = require("cookie-parser");
 const AccessControl = require("accesscontrol");
 const rateLimit = require("express-rate-limit");
-import jwt from "jsonwebtoken";
 const csrf = require("csurf");
 
 // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
@@ -110,8 +110,6 @@ try {
   mongoose.connect(URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
   });
 } catch (error) {
   console.log(error);
@@ -238,7 +236,7 @@ ProtectedRoutes.route("/uploadimage", multipartMiddleware).post(
 // this method count all issues in the data model
 ProtectedRoutes.route("/countIssues").get(async function (req, res, next) {
   console.log("Inside countIssue", req.body);
-  await Data.countDocuments({}, function (err, result) {
+  Data.countDocuments({}, function (err, result) {
     if (err) {
       res.send(err);
       next();
@@ -252,7 +250,7 @@ ProtectedRoutes.route("/countIssues").get(async function (req, res, next) {
 // Find 5 latest issues.
 ProtectedRoutes.route("/getLatestCases").get(async function (req, res, next) {
   console.log("Inside getLatestCases");
-  await Data.find({})
+  Data.find({})
     .select(["createdAt", "summary", "priority", "severity"])
     .sort({ createdAt: -1 })
     .limit(5)
@@ -271,7 +269,7 @@ ProtectedRoutes.route("/getLatestCases").get(async function (req, res, next) {
 ProtectedRoutes.route("/getTodaysIssues").get(async function (req, res, next) {
   var yesterday = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
 
-  await Data.countDocuments(
+  Data.countDocuments(
     { createdAt: { $gte: yesterday } },
     function (err, result) {
       if (err) {
@@ -290,7 +288,7 @@ ProtectedRoutes.route("/countSolvedIssues").get(async function (
   res,
   next
 ) {
-  await Data.countDocuments({ status: "Løst" }, function (err, result) {
+  Data.countDocuments({ status: "Løst" }, function (err, result) {
     if (err) {
       res.send(err);
       next();
@@ -319,7 +317,7 @@ ProtectedRoutes.route("/thisWeekIssuesCount").get(async function (
   var start = moment().startOf("week").format(); // set to 12:00 am today
   var end = moment().endOf("week").format(); // set to 23:59 pm today
 
-  await Data.aggregate(
+  Data.aggregate(
     [
       {
         $match: {
@@ -397,7 +395,7 @@ ProtectedRoutes.route("/thisYearIssuesCount").get(async function (
   //let end = "2021-07-06T23:59:59"
   //let start = "2019-04-07T00:00:00"
 
-  await Data.aggregate(
+  Data.aggregate(
     [
       {
         $match: {
@@ -593,7 +591,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
   //let end = "2021-07-06T23:59:59"
   //let start = "2019-04-07T00:00:00"
 
-  await Data.aggregate(
+  Data.aggregate(
     [
       {
         $match: {
@@ -794,7 +792,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res, next) {
   //let end = "2021-07-06T23:59:59"
   //let start = "2019-04-07T00:00:00"
 
-  await Data.aggregate(
+  Data.aggregate(
     [
       {
         $match: {
@@ -962,7 +960,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res, next) {
 });
 
 ProtectedRoutes.route("/countOpenIssues").get(async function (req, res, next) {
-  await Data.countDocuments({ status: "Åpen" }, function (err, result) {
+  Data.countDocuments({ status: "Åpen" }, function (err, result) {
     if (err) {
       res.send(err);
     } else {
@@ -974,7 +972,7 @@ ProtectedRoutes.route("/countOpenIssues").get(async function (req, res, next) {
 // this is our get method
 // this method fetches all available data in our database
 ProtectedRoutes.route("/getData").get(async function (req, res, next) {
-  await Data.find((err, data) => {
+  Data.find((err, data) => {
     if (err) {
       return res.json({
         success: false,
@@ -994,7 +992,7 @@ ProtectedRoutes.route("/upDateIssueStatus/:id/:status").get(async function (
 ) {
   const { update } = req.body;
   console.log("BODY REQ ISSUE UPDATE: ", req.params);
-  await Data.findByIdAndUpdate(
+  Data.findByIdAndUpdate(
     { _id: req.params.id },
     { status: req.params.status },
     function (err, data) {
@@ -1005,36 +1003,29 @@ ProtectedRoutes.route("/upDateIssueStatus/:id/:status").get(async function (
       });
     }
   );
-  next();
 });
 
 ProtectedRoutes.post("/upDateIssue/:id", async function (req, res, next) {
   console.log("Inside Update Issue", req.body);
   const { dataset } = req.body;
-  await Data.findByIdAndUpdate(
-    { _id: req.params.id },
-    dataset,
-    function (err, data) {
-      if (err) return next(err);
-      return res.json({
-        success: true,
-        data: data,
-      });
-    }
-  );
-  next();
+  Data.findByIdAndUpdate({ _id: req.params.id }, dataset, function (err, data) {
+    if (err) return next(err);
+    return res.json({
+      success: true,
+      data: data,
+    });
+  });
 });
 
 ProtectedRoutes.route("/getDataByID/:id").get(async function (req, res, next) {
   console.log("Inside getDataByID: ", req.params.id);
-  await Data.findById(req.params.id, function (err, post) {
+  Data.findById(req.params.id, function (err, post) {
     if (err) return res.json(err);
     return res.json({
       success: true,
       data: post,
     });
   });
-  next();
 });
 
 // this is our old update method
@@ -1044,7 +1035,6 @@ ProtectedRoutes.route("/edituser/:id").post(async function (req, res, next) {
   const { id } = req.params;
   const { role, update } = req.body;
   const permission = ac.can(role).readAny("editusers");
-  console.log("<<< UPDATING USER >>> " + id);
   if (permission.granted) {
     console.log("<<<< User has valid permission to update user >>>>");
     User.findByIdAndUpdate({ _id: id }, update, (err) => {
@@ -1084,7 +1074,7 @@ ProtectedRoutes.get("/deleteIssueByID/:id", async function (req, res, next) {
 
 // this is our create method
 // this method adds new data in our database
-ProtectedRoutes.post("/putData", async function (req, res) {
+ProtectedRoutes.post("/new-issue", async function (req, res) {
   const { errors, isValid } = validateInput(req.body.data);
   // Check Validation
   if (!isValid) {
@@ -1122,7 +1112,6 @@ ProtectedRoutes.post("/putData", async function (req, res) {
       document: data,
     });
   });
-  next();
 });
 
 // api routes

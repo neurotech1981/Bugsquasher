@@ -15,8 +15,10 @@ import Divider from "@material-ui/core/Divider";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import InputLabel from "@material-ui/core/InputLabel";
 import IconButton from "@material-ui/core/IconButton";
-import FormControl from '@material-ui/core/FormControl';
-
+import FormControl from "@material-ui/core/FormControl";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
+import { AlertTitle } from "@material-ui/lab";
 import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
 import Avatar from "@material-ui/core/Avatar";
@@ -34,18 +36,20 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import Paper from '@material-ui/core/Paper';
+import Paper from "@material-ui/core/Paper";
 
 const drawerWidth = 240;
 
+function Alert(props) {
+  return <MuiAlert elevation={1} variant="filled" {...props} />;
+}
 const formattedDate = (value) => moment(value).format("DD/MM-YYYY");
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: 'flex',
+    display: "flex",
   },
   paper: {
-    width: '100%',
     flexShrink: 0,
   },
   button: {
@@ -67,17 +71,15 @@ const useStyles = makeStyles((theme) => ({
     flexWrap: "wrap",
   },
   textField: {
-    borderRadius: ".1em",
-    padding: theme.spacing(2),
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: "100%",
+    backgroundColor: "white",
   },
   textFieldStatus: {
     margin: theme.spacing(1),
-    width: "10%",
+    width: "20%",
     marginTop: "0",
-
   },
   avatar: {
     margin: 10,
@@ -92,7 +94,6 @@ const useStyles = makeStyles((theme) => ({
   },
   formControl: {
     margin: theme.spacing(1),
-    minWidth: 120,
   },
 }));
 
@@ -134,6 +135,11 @@ export default function ViewIssue(props) {
   const classes = useStyles();
   const [dataset, setData] = useState([""]);
   const [images, setImages] = useState([]);
+  const [openStatusUpdate, setOpenStatusUpdate] = useState({
+    openStatusSnackbar: false,
+    verticalStatusUpdate: "bottom",
+    horizontalStatusUpdate: "left",
+  });
   const [errors, setErrors] = useState("");
   const [myself, setMyself] = useState([]);
   const [open, setOpen] = useState(false);
@@ -152,6 +158,10 @@ export default function ViewIssue(props) {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleStatusUpdateClose = () => {
+    setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: false });
   };
 
   const handleConfirmDelete = () => {
@@ -177,17 +187,22 @@ export default function ViewIssue(props) {
   const { id } = props.match.params;
 
   useEffect(() => {
-    const jwt = auth.isAuthenticated()
+    const jwt = auth.isAuthenticated();
     getIssueByID(id, jwt.token);
     getComments();
   }, [id]);
 
   const getIssueByID = async (id, token) => {
-    console.log(token)
+    console.log(token);
     const res = await issueService.getIssueByID(id, token);
     setData(res);
-    console.log("Imagename: ", res.imageName)
-    if (res.imageName === "" || res.imageName === "[none]" || res.imageName === "none" || res.imageName === undefined) {
+    console.log("Imagename: ", res.imageName);
+    if (
+      res.imageName === "" ||
+      res.imageName === "[none]" ||
+      res.imageName === "none" ||
+      res.imageName === undefined
+    ) {
       setImages(["none"]);
     } else {
       setImages(res.imageName); //[0]
@@ -195,21 +210,21 @@ export default function ViewIssue(props) {
   };
 
   const getComments = async () => {
-    const jwt = auth.isAuthenticated()
+    const jwt = auth.isAuthenticated();
     const res = await issueService.getComments(jwt.token);
     let commentList = res.slice(0, 10);
     setComments(commentList);
   };
 
-
   const upDateIssueStatus = async (id, data) => {
-    const jwt = auth.isAuthenticated()
+    const jwt = auth.isAuthenticated();
 
     console.log("Status: " + id + JSON.stringify(data));
     await issueService
       .upDateIssueStatus(id, { status: data }, jwt.token)
       .then((response) => {
-        console.log("Response: ", response)
+        console.log("Response: ", response);
+        setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true });
         setData({ ...dataset, status: data });
       })
       .catch((e) => {
@@ -218,7 +233,7 @@ export default function ViewIssue(props) {
   };
 
   const onDelete = async () => {
-    const jwt = auth.isAuthenticated()
+    const jwt = auth.isAuthenticated();
 
     console.log("Inside OnDelete", dataset._id + " " + jwt.token);
     const id = dataset._id;
@@ -262,7 +277,7 @@ export default function ViewIssue(props) {
   );
 
   const imgList = images.map((file, index) => {
-    console.log("File" , file);
+    console.log("File", file);
 
     if (file === "none" || file === undefined) {
       return <div key={index}>Ingen vedlegg</div>;
@@ -279,6 +294,9 @@ export default function ViewIssue(props) {
     );
   });
 
+  const { verticalStatusUpdate, horizontalStatusUpdate, openStatusSnackbar } =
+    openStatusUpdate;
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -288,9 +306,7 @@ export default function ViewIssue(props) {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          {"Slett sak"}
-        </DialogTitle>
+        <DialogTitle id="alert-dialog-title">{"Slett sak"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             Er du helt sikker på at du vil slette sak ?
@@ -305,10 +321,10 @@ export default function ViewIssue(props) {
           </Button>
         </DialogActions>
       </Dialog>
-      <nav className={classes.drawer} aria-label="Mailbox folders" />
-      <Paper elevation={0} className={classes.paper}>
+      <nav className={classes.drawer} aria-label="Drawer" />
+
       <main className={classes.content}>
-      <br/>
+        <br />
         <div className="grid-container">
           <div className="item0">
             <IconButton onClick={goHome}>
@@ -317,36 +333,51 @@ export default function ViewIssue(props) {
           </div>
           <div className="item1" style={{ paddingLeft: "5rem" }}>
             {dataset.name}
-            <p style={{ fontSize: "0.6em", marginTop: "0.3em" }}>
+            <p style={{ fontSize: "0.5em", marginTop: "0.3em" }}>
               Opprettet: {formattedDate(dataset.createdAt)}
             </p>
-            <FormControl variant="outlined"
-              className={classes.textFieldStatus}>
-            <TextField
-
-              id="outlined-select-status"
-              select
-              label="Status"
-              name="Status"
-              size="large"
-              value={[dataset.status ? dataset.status : "Åpen"]}
-              InputProps={{
-                className: classes.input,
-              }}
-              SelectProps={{
-                MenuProps: {
-                  className: classes.menu,
-                },
-              }}
-              inputProps={{ "aria-label": "naked" }}
-              onChange={e => upDateIssueStatus(dataset._id, e.target.value)}
-            >
-              {Status.map((option, key) => (
-                <MenuItem key={key} value={option.label}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
+            <FormControl variant="filled" className={classes.textFieldStatus}>
+              <TextField
+                id="outlined-select-status"
+                select
+                label="Status"
+                name="Status"
+                value={[dataset.status ? dataset.status : "Åpen"]}
+                InputProps={{
+                  className: classes.input,
+                }}
+                SelectProps={{
+                  MenuProps: {
+                    className: classes.menu,
+                  },
+                }}
+                inputProps={{ "aria-label": "naked" }}
+                onChange={(e) => upDateIssueStatus(dataset._id, e.target.value)}
+              >
+                {Status.map((option, key) => (
+                  <MenuItem key={key} value={option.label}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <Snackbar
+                open={openStatusSnackbar}
+                autohideduration={3000}
+                onClose={handleStatusUpdateClose}
+                anchorOrigin={{
+                  vertical: verticalStatusUpdate,
+                  horizontal: horizontalStatusUpdate,
+                }}
+              >
+                <Alert
+                  severity="success"
+                  variant="standard"
+                  onClose={handleStatusUpdateClose}
+                >
+                  <AlertTitle>Suksess</AlertTitle>
+                  Status ble oppdatert!
+                </Alert>
+              </Snackbar>
             </FormControl>
             {errors.status ? (
               <Box
@@ -363,12 +394,12 @@ export default function ViewIssue(props) {
             )}
             <Button
               variant="contained"
-              color="sse"
+              color="primary"
               component={Link}
               startIcon={<EditIcon />}
               to={"/edit-issue/" + dataset._id}
               size="large"
-              disabled={auth.isAuthenticated().user._id != dataset.userid}
+              disabled={auth.isAuthenticated().user._id !== dataset.userid}
             >
               Rediger
             </Button>
@@ -389,7 +420,7 @@ export default function ViewIssue(props) {
               value={[dataset.priority ? dataset.priority : ""]}
               className={classes.textField}
               margin="normal"
-              variant="standard"
+              variant="filled"
               InputProps={{
                 readOnly: true,
               }}
@@ -401,7 +432,7 @@ export default function ViewIssue(props) {
               value={formattedDate(dataset.updatedAt)}
               className={classes.textField}
               margin="normal"
-              variant="standard"
+              variant="filled"
               InputProps={{
                 readOnly: true,
               }}
@@ -419,7 +450,7 @@ export default function ViewIssue(props) {
               value={[dataset.category ? dataset.category : ""]}
               className={classes.textField}
               margin="normal"
-              variant="standard"
+              variant="filled"
               InputProps={{
                 readOnly: true,
               }}
@@ -439,7 +470,7 @@ export default function ViewIssue(props) {
               value={[dataset.severity ? dataset.severity : ""]}
               className={classes.textField}
               margin="normal"
-              variant="standard"
+              variant="filled"
               InputProps={{
                 readOnly: true,
               }}
@@ -451,7 +482,7 @@ export default function ViewIssue(props) {
               value={[dataset.reproduce ? dataset.reproduce : ""]}
               className={classes.textField}
               margin="normal"
-              variant="standard"
+              variant="filled"
               InputProps={{
                 readOnly: true,
               }}
@@ -463,7 +494,7 @@ export default function ViewIssue(props) {
               value={[dataset.delegated ? dataset.delegated : "Ingen"]}
               className={classes.textField}
               margin="normal"
-              variant="standard"
+              variant="filled"
               InputProps={{
                 readOnly: true,
               }}
@@ -476,7 +507,7 @@ export default function ViewIssue(props) {
               value={[dataset.summary ? dataset.summary : ""]}
               className={classes.textField}
               margin="normal"
-              variant="standard"
+              variant="filled"
               InputProps={{
                 readOnly: true,
               }}
@@ -486,7 +517,7 @@ export default function ViewIssue(props) {
             <TextField
               multiline
               rowsMax="8"
-              variant="standard"
+              variant="filled"
               label="Beskrivelse"
               value={[dataset.description ? dataset.description : ""]}
               className={classes.textField}
@@ -499,7 +530,7 @@ export default function ViewIssue(props) {
           <div className="item13">
             <TextField
               multiline
-              variant="standard"
+              variant="filled"
               rows="10"
               label="Steg for å reprodusere"
               value={[dataset.step_reproduce ? dataset.step_reproduce : ""]}
@@ -514,7 +545,7 @@ export default function ViewIssue(props) {
             <TextField
               multiline
               rows="10"
-              variant="standard"
+              variant="filled"
               label="Tilleggsinformasjon"
               value={[dataset.additional_info ? dataset.additional_info : ""]}
               className={classes.textField}
@@ -525,17 +556,17 @@ export default function ViewIssue(props) {
             />
           </div>
           <div className="item16">
-          <Typography variant="h4" p={5}  paragraph>Kommentarfelt<Divider/></Typography>
+            <Typography variant="h4" p={5} paragraph>
+              Kommentarfelt
+              <Divider />
+            </Typography>
             <Comments comments={comments} />
           </div>
           <div className="item17">
-
-            <CommentForm/>
+            <CommentForm />
           </div>
         </div>
-
       </main>
-      </Paper>
     </div>
   );
 }

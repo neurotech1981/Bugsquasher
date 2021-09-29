@@ -12,8 +12,9 @@ import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Fade from "@material-ui/core/Fade";
 import auth from "../auth/auth-helper";
+import VisibilityIcon from "@material-ui/icons/Visibility";
 
-const formattedDate = (value) => moment(value).format("DD/MM-YYYY HH:mm");
+const formattedDate = (value) => moment(value).format("DD MMM YYYY");
 
 const drawerWidth = 240;
 
@@ -30,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     paddingTop: "65px",
-    paddingLeft: "5px",
+    margin: "1rem",
   },
   colorPrimary: {
     backgroundImage:
@@ -57,6 +58,10 @@ export default function Issues() {
           <span>
             <Link to={"/vis-sak/" + data._id} className="link underline">
               {data.summary}
+              <VisibilityIcon
+                fontSize="small"
+                style={{ verticalAlign: "sub", marginLeft: ".3rem" }}
+              />
             </Link>
           </span>
         ),
@@ -212,7 +217,7 @@ export default function Issues() {
           sorting: true,
           rowStyle: (x) => {
             if (x.tableData.id % 1) {
-              return { backgroundColor: "#f2f2f2" };
+              return { backgroundColor: "#50C252" };
             }
           },
           filterCellStyle: {
@@ -221,8 +226,8 @@ export default function Issues() {
           padding: "dense",
           exportAllData: true,
           headerStyle: {
-            backgroundColor: "rgb(225 240 255)",
-            //color: "#FFFFFF",
+            backgroundColor: "#05386B",
+            color: "#FFFFFF",
             textAlign: "left",
             fontWeight: "600",
             whiteSpace: "nowrap",

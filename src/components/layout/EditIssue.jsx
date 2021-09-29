@@ -331,19 +331,19 @@ export default function EditIssue(props) {
     if (!users.length) {
       init(match.params.userId);
     }
-  }, [id]);
+  }, [id, match.params.userId, users.length]);
 
-  const getIssueByID = async (id) => {
-    const jwt = auth.isAuthenticated();
-    const res = await issueService.getIssueByID(id, jwt.token);
+  const getIssueByID = async (id, token) => {
+    console.log(token);
+    const res = await issueService.getIssueByID(id, token);
     setData(res);
-    console.log(res.imageName);
+    console.log("Imagename: ", res.imageName);
     if (
       res.imageName === "" ||
       res.imageName === "[none]" ||
-      res.imageName === "none"
+      res.imageName === "none" ||
+      res.imageName === undefined
     ) {
-      // Remove later when nulling out db. Keep only ["none"]
       setImages(["none"]);
     } else {
       setImages(res.imageName); //[0]
@@ -404,15 +404,6 @@ export default function EditIssue(props) {
     },
   ];
 
-  const thumbs = images.map((file, index) => (
-    <div style={thumb} key={index}>
-      <div style={thumbInner}>
-        <DeleteForeverRoundedIcon className={classes.icon} />
-        <img alt={file.name} src={file.path} style={img} />
-      </div>
-    </div>
-  ));
-
   const CancelEdit = () => {
     history.goBack();
   };
@@ -426,7 +417,9 @@ export default function EditIssue(props) {
   );
 
   const imgList = images.map((file, index) => {
-    if (file === "none") {
+    console.log("File", file);
+
+    if (file === "none" || file === undefined) {
       return <div key={index}>Ingen vedlegg</div>;
     }
     return (
@@ -444,7 +437,7 @@ export default function EditIssue(props) {
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <nav className={classes.drawer} aria-label="Mailbox folders" />
+      <nav className={classes.drawer} aria-label="Drawe" />
       <main className={classes.content}>
         <Typography variant="h4" gutterBottom></Typography>
         <div className="grid-container">

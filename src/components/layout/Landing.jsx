@@ -194,7 +194,7 @@ function Landing() {
   };
 
   return (
-    <div>
+    <div className={classes.root}>
       <GridContainer>
         <GridItem xs={12} sm={6} md={3}>
           <Card>

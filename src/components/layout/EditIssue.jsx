@@ -10,7 +10,6 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
-import DeleteForeverRoundedIcon from "@material-ui/icons/DeleteForeverRounded";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import InputLabel from "@material-ui/core/InputLabel";
 import IconButton from "@material-ui/core/IconButton";
@@ -23,8 +22,13 @@ import ModalImage from "react-modal-image";
 import { deepPurple } from "@material-ui/core/colors";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
-import { Link } from "react-router-dom";
-import EditIcon from "@material-ui/icons/Edit";
+
+import { EditorState, convertToRaw, ContentState } from "draft-js";
+import { Editor } from "react-draft-wysiwyg";
+import draftToHtml from "draftjs-to-html";
+import htmlToDraft from "html-to-draftjs";
+
+import "../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { useHistory } from "react-router-dom";
 import auth from "../auth/auth-helper";
 import { getUsers } from "../utils/api-user";
@@ -271,7 +275,7 @@ const img = {
 export default function EditIssue(props) {
   const { match } = useReactRouter();
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const classes = useStyles();
   const [dataset, setData] = useState([""]);
   const [images, setImages] = useState([]);
@@ -279,7 +283,16 @@ export default function EditIssue(props) {
   const [myself, setMyself] = useState([]);
   const [users, setUsers] = useState([]);
 
-  const [selectedDate, setSelectedDate] = React.useState(dataset.updatedAt);
+  const contentBlock = htmlToDraft("");
+  const initState = contentBlock
+    ? EditorState.createWithContent(
+        ContentState.createFromBlockArray(contentBlock.contentBlocks)
+      )
+    : EditorState.createEmpty();
+
+  const [editorState, setEditorState] = useState(initState);
+
+  const [selectedDate, setSelectedDate] = useState(dataset.updatedAt);
   const history = useHistory();
 
   const goHome = () => {
@@ -433,6 +446,10 @@ export default function EditIssue(props) {
       </div>
     );
   });
+
+  const onEditorStateChange = (editorState) => {
+    setEditorState({ editorState });
+  };
 
   return (
     <div className={classes.root}>
@@ -722,15 +739,45 @@ export default function EditIssue(props) {
             />
           </div>
           <div className="item12">
-            <TextField
-              multiline
-              rowsMax="8"
-              variant="outlined"
-              label="Beskrivelse"
-              onChange={handleDataChange("description")}
-              value={[dataset.description ? dataset.description : ""]}
-              className={classes.textField}
-              margin="normal"
+            <Editor
+              placeholder="Type here.."
+              editorState={editorState}
+              editorStyle={{
+                backgroundColor: "white",
+                border: "1px solid lightgray",
+                borderTop: "0px solid lightgray",
+                minHeight: 180,
+                padding: 10,
+                borderRadius: "0 0 0.5rem 0.5rem",
+                lineHeight: "5px",
+              }}
+              toolbarStyle={{
+                borderRadius: "0.5rem 0.5rem 0 0",
+                marginBottom: "1px",
+              }}
+              wrapperClassName="demo-wrapper"
+              toolbarClassName="flex sticky top-0 z-20 !justify-start"
+              editorClassName="mt-5 shadow-sm border min-h-editor p-2"
+              onEditorStateChange={onEditorStateChange}
+              toolbar={{
+                link: { inDropdown: true },
+                list: { inDropdown: true },
+                options: [
+                  "fontFamily",
+                  "inline",
+                  "blockType",
+                  "fontSize",
+                  "list",
+                  "image",
+                  "textAlign",
+                  "colorPicker",
+                  "link",
+                  "embedded",
+                  "emoji",
+                  "remove",
+                  "history",
+                ],
+              }}
             />
           </div>
           <div className="item13">

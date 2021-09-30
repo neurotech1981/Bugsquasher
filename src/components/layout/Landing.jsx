@@ -172,7 +172,7 @@ function Landing() {
       "Data from this weeks issue count: " + JSON.stringify(res.data)
     );
     if (Object.values(res.data).length !== 0) {
-      var valueArr = Object.values(res.data[0].data).map((element) => {
+      var valueArr = Object.values(res.data).map((element) => {
         return element;
       });
     } else {

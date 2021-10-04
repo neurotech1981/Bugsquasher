@@ -284,8 +284,8 @@ export default function EditIssue(props) {
   const [users, setUsers] = useState([]);
 
   const contentBlock = htmlToDraft("");
-  const initState = contentBlock
-    ? EditorState.createWithContent(
+  const initState = contentBlock ?
+    EditorState.createWithContent(
         ContentState.createFromBlockArray(contentBlock.contentBlocks)
       )
     : EditorState.createEmpty();
@@ -448,7 +448,7 @@ export default function EditIssue(props) {
   });
 
   const onEditorStateChange = (editorState) => {
-    setEditorState({ editorState });
+    setEditorState(editorState);
   };
 
   return (
@@ -777,6 +777,10 @@ export default function EditIssue(props) {
                   "remove",
                   "history",
                 ],
+              }}
+              hashtag={{
+                separator: " ",
+                trigger: "#",
               }}
             />
           </div>

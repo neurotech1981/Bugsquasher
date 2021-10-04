@@ -348,6 +348,7 @@ export default function CreateIssue(props) {
 
     let data = {
       name: userinfo.user.name,
+      reporter_id: userinfo.user._id,
       category: values.setKategori,
       description: values.setBeskrivelse,
       reproduce: values.setReprodusere,
@@ -423,7 +424,7 @@ export default function CreateIssue(props) {
             variant="outlined"
           >
             {users.map((option) => (
-              <MenuItem key={option._id} value={option.name}>
+              <MenuItem key={option._id} value={option._id}>
                 {option.name}
               </MenuItem>
             ))}

@@ -100,7 +100,7 @@ export const findUserProfile = async (params, credentials) => {
   }
 }
 
-export const addComment = async (data, credentials) => {
+/* export const addComment = async (data, credentials) => {
   console.log("Inside addcomment")
   try {
     const response = await fetch('/api/add-comment', {
@@ -116,7 +116,7 @@ export const addComment = async (data, credentials) => {
   } catch (err) {
     return console.error(err)
   }
-}
+} */
 
 export const deleteUser = async (params, credentials) => {
   try {

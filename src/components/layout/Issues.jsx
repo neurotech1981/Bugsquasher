@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     paddingTop: "65px",
-    margin: "1rem",
+    margin: "2rem",
   },
   colorPrimary: {
     backgroundImage:
@@ -97,20 +97,19 @@ export default function Issues() {
             style={{
               fontSize: "1em",
               fontWeight: "600",
-              textShadow:
-                "2px 4px 4px rgba(0,0,0,0.2), 0px -5px 10px rgba(255,255,255,0.15)",
+              height: "3vh",
               color: "#ffffff",
               backgroundColor:
-                data.priority === "Øyeblikkelig"
-                  ? "rgba(236, 4, 4, 1)"
-                  : "" || data.priority === "Høy"
-                  ? "rgba(226, 31, 28, 1)"
-                  : "" || data.priority === "Normal"
-                  ? "rgba(217, 57, 53, .6)"
-                  : "" || data.priority === "Haster"
-                  ? "rgba(207, 84, 77, 1)"
-                  : "" || data.priority === "Lav"
-                  ? "rgba(197, 111, 101, 0.5)"
+                data.priority === "Øyeblikkelig" ?
+                  "rgba(236, 4, 4, 1)"
+                  : "" || data.priority === "Høy" ?
+                  "rgba(226, 31, 28, 1)"
+                  : "" || data.priority === "Normal" ?
+                  "rgba(217, 57, 53, .6)"
+                  : "" || data.priority === "Haster" ?
+                  "rgba(207, 84, 77, 1)"
+                  : "" || data.priority === "Lav" ?
+                  "rgba(197, 111, 101, 0.5)"
                   : "",
               padding: "0.7em",
             }}
@@ -133,14 +132,14 @@ export default function Issues() {
               textShadow:
                 "2px 4px 4px rgba(0,0,0,0.2), 0px -5px 10px rgba(255,255,255,0.15)",
               backgroundColor:
-                data.status === "Åpen"
-                  ? "rgb(155, 119, 255)"
-                  : "" || data.status === "Løst"
-                  ? "rgb(87, 242, 80)"
-                  : "" || data.status === "Lukket"
-                  ? "rgb(255, 65, 55)"
-                  : "" || data.status === "Under arbeid"
-                  ? "rgb(202, 163, 0)"
+                data.status === "Åpen" ?
+                  "rgb(155, 119, 255)"
+                  : "" || data.status === "Løst" ?
+                  "rgb(87, 242, 80)"
+                  : "" || data.status === "Lukket" ?
+                  "rgb(255, 65, 55)"
+                  : "" || data.status === "Under arbeid" ?
+                  "rgb(202, 163, 0)"
                   : "",
               padding: "0.7em",
             }}
@@ -221,13 +220,13 @@ export default function Issues() {
             }
           },
           filterCellStyle: {
-            background: "rgb(225 240 255)",
+            background: "rgb(255 255 255)",
           },
           padding: "dense",
           exportAllData: true,
           headerStyle: {
-            backgroundColor: "#05386B",
-            color: "#FFFFFF",
+            backgroundColor: "#FFFFFF",
+            color: "#000000",
             textAlign: "left",
             fontWeight: "600",
             whiteSpace: "nowrap",

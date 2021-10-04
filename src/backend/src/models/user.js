@@ -33,6 +33,10 @@ const userSchema = new Schema({
   salt: {
     type: String
   },
+  issues: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Data"
+ }],
   verificationToken: String,
   verified: Date,
   resetToken: {
@@ -108,3 +112,6 @@ userSchema.set('toJSON', {
 })
 
 module.exports = mongoose.model('User', userSchema)
+export function findByIdAndRemove(arg0, arg1) {
+  throw new Error("Function not implemented.")
+}

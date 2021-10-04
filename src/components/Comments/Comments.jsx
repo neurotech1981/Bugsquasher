@@ -3,7 +3,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import {
   List,
   ListItem,
-  Divider,
   ListItemText,
   ListItemAvatar,
   Avatar,
@@ -18,10 +17,10 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
     backgroundColor: theme.palette.background.paper,
+    borderRadius: "1rem",
   },
-  fonts: {
+  fontName: {
     fontWeight: "bold",
-    fontSize: "0.8em",
     color: "black",
     verticalAlign: "middle",
   },
@@ -33,13 +32,13 @@ const useStyles = makeStyles((theme) => ({
   inline: {
     display: "inline",
   },
-  fontDate: {
+  fontBody: {
     color: "black",
-    fontSize: "0.8em",
     verticalAlign: "middle",
   },
   iconDate: {
-    fontSize: "0.8em",
+    fontSize: "1.0rem",
+    verticalAlign: "sub",
     fontWeight: "bold",
     marginRight: "5px",
   },
@@ -59,43 +58,41 @@ const Comments = ({ comments }) => {
               </ListItemAvatar>
               <ListItemText
                 primary={
-                  <Typography className={classes.fonts}>
-                    <PersonPinIcon className={classes.iconDate} />
-                    {comment.name}
-                  </Typography>
+                  <>
+                    <Typography
+                      component={"span"}
+                      variant={"body2"}
+                      className={classes.fontName}
+                    >
+                      <PersonPinIcon className={classes.iconDate} />
+                      {comment.name}
+                    </Typography>
+                    <ListItemText>
+                      <Typography
+                        component={"span"}
+                        variant={"subtitle1"}
+                        className={classes.fontBody}
+                      >
+                        {comment.body}
+                      </Typography>
+                    </ListItemText>
+                  </>
                 }
                 secondary={
                   <>
-                    <Typography
-                      component="span"
-                      variant="body2"
-                      className={classes.inline}
-                      color="textPrimary"
-                    >
-                      <ListItemText
-                        primary={
-                          <>
-                            <Typography className={classes.fontDate}>
-                              <QueryBuilderIcon className={classes.iconDate} />
-                              01-12-2021 12:42
-                            </Typography>
-                            <Typography className={classes.fontEmail}>
-                              <AlternateEmailIcon
-                                className={classes.iconDate}
-                              />
-                              {comment.email}
-                            </Typography>
-                            <Divider />
-                          </>
-                        }
-                      />
+                    <Typography component={"span"} variant={"body2"}>
+                      <QueryBuilderIcon className={classes.iconDate} />
+                      01-12-2021 12:42
                     </Typography>
-                    {comment.body}
+                    <Typography component={"span"} variant={"subtitle1"}>
+                      {" "}
+                      <AlternateEmailIcon className={classes.iconDate} />
+                      {comment.email}
+                    </Typography>
                   </>
                 }
               />
             </ListItem>
-            <Divider />
           </React.Fragment>
         );
       })}

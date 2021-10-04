@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0),
     "& .MuiTextField-root": {
       margin: theme.spacing(0),
-      width: "70%  ",
+      width: "100%  ",
     },
     "& .MuiButtonBase-root": {
       margin: theme.spacing(0),
@@ -28,6 +28,10 @@ const useStyles = makeStyles((theme) => ({
     minWidth: "50%",
     backgroundColor: "white",
   },
+  commentFieldBtn: {
+    minWidth: "50%",
+    marginTop: "1rem",
+  },
 }));
 
 const CommentForm = () => {
@@ -36,41 +40,38 @@ const CommentForm = () => {
   const classes = useStyles();
   const { handleSubmit, control } = useForm();
   const history = useHistory();
+
   const onSubmit = async (data) => {
     const jwt = auth.isAuthenticated();
+    console.log("onSubmit commentform", data);
+      let { _id } = auth.isAuthenticated().user;
 
-    let { _id, email, name } = auth.isAuthenticated().user;
-    const commentData = {
-      issueID: id || undefined,
-      creatorID: _id || undefined,
-      name: name || undefined,
-      email: email || undefined,
-      body: data.comment || undefined,
-    };
-    console.log(commentData);
-    await issueService
-      .addComment(
-        {
-          commentData,
-        },
-        { t: jwt.token }
-      )
-      .then((response) => {
-        setTimeout(() => {
-          history.push("/vis-sak/" + id);
-        }, 1000);
-        console.log(response.data);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+      const commentData = {
+        author: _id || undefined,
+        content: data.content || undefined,
+      };
+      console.log("commentData", commentData);
+
+      await issueService
+        .addComment(commentData,jwt.token,id)
+        .then((response) => {
+          setTimeout(() => {
+            history.push("/vis-sak/" + id);
+          }, 1000);
+          console.log(response.data);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
   };
 
   return (
     <form className={classes.root} onSubmit={handleSubmit(onSubmit)}>
-      <Typography>Ny kommentar</Typography>
+      <Typography component={"span"} variant={"body1"}>
+        Ny kommentar
+      </Typography>
       <Controller
-        name="comment"
+        name="content"
         control={control}
         defaultValue=""
         render={({ field: { onChange, value }, fieldState: { error } }) => (
@@ -89,11 +90,11 @@ const CommentForm = () => {
         )}
         rules={{ required: "Du glemte å legge inn din kommentar" }}
       />
-      <p>
+      <div className={classes.commentFieldBtn}>
         <Button type="submit" variant="contained" color="primary">
           Legg inn kommentar
         </Button>
-      </p>
+      </div>
     </form>
   );
 };

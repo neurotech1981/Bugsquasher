@@ -16,7 +16,16 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(12),
     marginLeft: 290,
     overflowX: "auto",
-    borderRadius: 14,
+    backgroundColor: "rgb(255, 255, 255)",
+    color: "rgb(33, 43, 54)",
+    transition: "boxShadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+    backgroundImage: "none",
+    overflow: "hidden",
+    boxShadow:
+      "rgb(145 158 171 / 24%) 0px 0px 2px 0px, rgb(145 158 171 / 24%) 0px 16px 32px -4px",
+    borderRadius: "16px",
+    position: "relative",
+    zIndex: 0,
   },
   table: {
     minWidth: 500,
@@ -43,7 +52,6 @@ const useStyles = makeStyles((theme) => ({
 export default function Users() {
   const [userList] = useState({
     columns: [
-      { title: "ID", field: "_id", editable: "never" },
       {
         title: "Navn",
         field: "name",
@@ -70,6 +78,30 @@ export default function Users() {
         field: "rights",
         editable: "always",
         lookup: { Les: "Les", Skriv: "Skriv" },
+        render: (data) => (
+          <div
+            className="priority"
+            style={{
+              fontSize: "1em",
+              fontWeight: "600",
+              width: "10vh",
+              height: "3vh",
+              textShadow:
+                "2px 4px 4px rgba(0,0,0,0.2), 0px -5px 10px rgba(255,255,255,0.15)",
+              color: "#FFFFFF",
+              borderRadius: "1rem",
+              backgroundColor:
+                data.rights === "Les" ?
+                  "rgba(255, 200, 204, 1)"
+                  : "" || data.rights === "Skriv" ?
+                  "rgba(200, 200, 228, 1)"
+                  : "",
+              padding: "0.5em",
+            }}
+          >
+            {data.rights}
+          </div>
+        ),
       },
       {
         title: "E-Post",
@@ -183,11 +215,8 @@ export default function Users() {
           <MaterialTable
             options={{
               headerStyle: {
-                backgroundColor: "#48305F",
-                color: "#FFF",
-              },
-              rowStyle: {
-                boxShadow: "0 3px 5px rgba(51, 51, 51, 0.1)",
+                backgroundColor: "rgb(255, 255, 255)",
+                color: "#000",
               },
             }}
             title="Bruker administrasjon"

@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
+import useReactRouter from "use-react-router";
 import { makeStyles } from "@material-ui/core/styles";
 import issueService from "../../services/issueService";
 import "../../App.css";
@@ -11,7 +12,6 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
-import Divider from "@material-ui/core/Divider";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import InputLabel from "@material-ui/core/InputLabel";
 import IconButton from "@material-ui/core/IconButton";
@@ -20,7 +20,6 @@ import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import { AlertTitle } from "@material-ui/lab";
 import DeleteIcon from "@material-ui/icons/Delete";
-import SaveIcon from "@material-ui/icons/Save";
 import Avatar from "@material-ui/core/Avatar";
 import MenuItem from "@material-ui/core/MenuItem";
 import ModalImage from "react-modal-image";
@@ -36,7 +35,9 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import Paper from "@material-ui/core/Paper";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import { findUserProfile, getUsers } from "../utils/api-user";
 
 const drawerWidth = 240;
 
@@ -47,7 +48,7 @@ const formattedDate = (value) => moment(value).format("DD/MM-YYYY");
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
+    display: "grid",
   },
   paper: {
     flexShrink: 0,
@@ -63,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3),
+    padding: theme.spacing(2),
     paddingTop: "50px",
   },
   container: {
@@ -74,11 +75,10 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: "100%",
-    backgroundColor: "white",
   },
   textFieldStatus: {
     margin: theme.spacing(1),
-    width: "20%",
+    width: "100%",
     marginTop: "0",
   },
   avatar: {
@@ -94,6 +94,15 @@ const useStyles = makeStyles((theme) => ({
   },
   formControl: {
     margin: theme.spacing(1),
+  },
+  flexContainer: {
+    display: "grid",
+    posistion: "absolute",
+    flexDirection: "row",
+    width: "50vh",
+    height: "50%",
+    padding: "1rem",
+    backgroundColor: "azure",
   },
 }));
 
@@ -132,6 +141,8 @@ const img = {
 };
 
 export default function ViewIssue(props) {
+  const { match } = useReactRouter();
+
   const classes = useStyles();
   const [dataset, setData] = useState([""]);
   const [images, setImages] = useState([]);
@@ -140,6 +151,10 @@ export default function ViewIssue(props) {
     verticalStatusUpdate: "bottom",
     horizontalStatusUpdate: "left",
   });
+  const [userinfo, setUserinfo] = useState({
+    user: [""],
+    redirectToSignin: false,
+  });
   const [errors, setErrors] = useState("");
   const [myself, setMyself] = useState([]);
   const [open, setOpen] = useState(false);
@@ -147,6 +162,27 @@ export default function ViewIssue(props) {
 
   const [selectedDate, setSelectedDate] = useState(dataset.updatedAt);
   const history = useHistory();
+
+  const init = (userId) => {
+    const jwt = auth.isAuthenticated();
+
+    findUserProfile(
+      {
+        userId,
+      },
+      { t: jwt.token }
+    ).then((data) => {
+      if (data.error) {
+        setUserinfo({ redirectToSignin: true });
+      } else {
+        setUserinfo({ user: data });
+      }
+    });
+  };
+
+  useEffect(() => {
+      init(match.params.userId);
+  }, [match.params.userId]);
 
   const goHome = () => {
     history.push("/saker/" + auth.isAuthenticated().user._id);
@@ -186,17 +222,20 @@ export default function ViewIssue(props) {
 
   const { id } = props.match.params;
 
-  useEffect(() => {
-    const jwt = auth.isAuthenticated();
-    getIssueByID(id, jwt.token);
-    getComments();
-  }, [id]);
-
-  const getIssueByID = async (id, token) => {
-    console.log(token);
-    const res = await issueService.getIssueByID(id, token);
-    setData(res);
-    console.log("Imagename: ", res.imageName);
+  const getIssueByID = (id, token) => {
+    console.log("TOKEN >>>", token);
+    const res = issueService.getIssueByID(id, token);
+    console.log("RESULT >>>", res)
+    res.then(function(result ) {
+      console.log("Result from promise: ",result);
+      setData(result);
+    })
+   /*  res.reporter.hashedPassword = null;
+    res.reporter.resetToken.token = null;
+    res.reporter.verificationToken = null;
+    res.delegated.hashedPassword = null;
+    res.delegated.verificationToken = null; */
+    console.log("Issue data: ", JSON.stringify(res));
     if (
       res.imageName === "" ||
       res.imageName === "[none]" ||
@@ -207,6 +246,9 @@ export default function ViewIssue(props) {
     } else {
       setImages(res.imageName); //[0]
     }
+
+
+
   };
 
   const getComments = async () => {
@@ -215,6 +257,8 @@ export default function ViewIssue(props) {
     let commentList = res.slice(0, 10);
     setComments(commentList);
   };
+
+
 
   const upDateIssueStatus = async (id, data) => {
     const jwt = auth.isAuthenticated();
@@ -240,7 +284,6 @@ export default function ViewIssue(props) {
     await issueService
       .deleteIssueByID(id, jwt.token)
       .then((response) => {
-        console.log("ISSUE DELETED SUCCESSFULLY", response.status);
         setOpen(false);
         goHome();
       })
@@ -294,6 +337,18 @@ export default function ViewIssue(props) {
     );
   });
 
+  useEffect(() => {
+    let isSubscribed = true;
+    if (isSubscribed)
+    {
+      const jwt = auth.isAuthenticated();
+      getComments();
+      console.log("Inside getIssueByID");
+      getIssueByID(id, jwt.token);
+    }
+    return () => (isSubscribed = false);
+  }, [setData]);
+
   const { verticalStatusUpdate, horizontalStatusUpdate, openStatusSnackbar } =
     openStatusUpdate;
 
@@ -322,251 +377,274 @@ export default function ViewIssue(props) {
         </DialogActions>
       </Dialog>
       <nav className={classes.drawer} aria-label="Drawer" />
-
-      <main className={classes.content}>
-        <br />
-        <div className="grid-container">
-          <div className="item0">
-            <IconButton onClick={goHome}>
-              <ArrowBackIcon />
-            </IconButton>
-          </div>
-          <div className="item1" style={{ paddingLeft: "5rem" }}>
-            {dataset.name}
-            <p style={{ fontSize: "0.5em", marginTop: "0.3em" }}>
-              Opprettet: {formattedDate(dataset.createdAt)}
-            </p>
-            <FormControl variant="filled" className={classes.textFieldStatus}>
+      <div className="grid-container two-columns__center">
+        <section className="two-columns__main">
+          <div className="form-grid">
+            <div className="item0">
+              <IconButton onClick={goHome}>
+                <ArrowBackIcon />
+              </IconButton>
+            </div>
+            <div className="item1" style={{ paddingLeft: "5rem" }}>
+              {dataset.reporter != null ? dataset.reporter.name : "Laster..."}
+              <Typography>
+                Opprettet: {formattedDate(dataset.createdAt)}
+              </Typography>
+            </div>
+            <div className="item2">
               <TextField
-                id="outlined-select-status"
-                select
-                label="Status"
-                name="Status"
-                value={[dataset.status ? dataset.status : "Åpen"]}
+                label="Priority"
+                value={[dataset.priority ? dataset.priority : ""]}
+                className={classes.textField}
+                margin="normal"
+                variant="standard"
                 InputProps={{
-                  className: classes.input,
+                  readOnly: true,
                 }}
-                SelectProps={{
-                  MenuProps: {
-                    className: classes.menu,
-                  },
+              />
+            </div>
+            <div className="item3">
+              <TextField
+                label="Sist oppdatert"
+                value={formattedDate(dataset.updatedAt)}
+                className={classes.textField}
+                margin="normal"
+                variant="standard"
+                InputProps={{
+                  readOnly: true,
                 }}
-                inputProps={{ "aria-label": "naked" }}
-                onChange={(e) => upDateIssueStatus(dataset._id, e.target.value)}
+              />
+            </div>
+            <div className="item14">
+              <InputLabel shrink htmlFor="select-multiple-native">
+                Vedlegg
+              </InputLabel>
+              <aside style={thumbsContainer}>{imgList}</aside>
+            </div>
+            <div className="item4">
+              <TextField
+                label="Kategori"
+                value={[dataset.category ? dataset.category : ""]}
+                className={classes.textField}
+                margin="normal"
+                variant="standard"
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </div>
+            <div className="item1">
+              <Grid container alignItems="flex-start">
+                <Avatar
+                  alt="Profile picture"
+                  className={classes.purpleAvatar}
+                ></Avatar>
+              </Grid>
+            </div>
+            <div className="item7">
+              <TextField
+                label="Alvorlighetsgrad"
+                value={[dataset.severity ? dataset.severity : ""]}
+                className={classes.textField}
+                margin="normal"
+                variant="standard"
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </div>
+            <div className="item8">
+              <TextField
+                label="Mulighet å reprodusere"
+                value={[dataset.reproduce ? dataset.reproduce : ""]}
+                className={classes.textField}
+                margin="normal"
+                variant="standard"
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </div>
+            <div className="item15">
+              <TextField
+                label="Delegert til"
+                value={[dataset.delegated != null ? dataset.delegated.name : "Laster..."]}
+                className={classes.textField}
+                margin="normal"
+                variant="standard"
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </div>
+            <div className="item11">
+              <TextField
+                multiline
+                label="Oppsummering"
+                value={[dataset.summary ? dataset.summary : ""]}
+                className={classes.textField}
+                margin="normal"
+                variant="standard"
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </div>
+            <div className="item12">
+              <TextField
+                multiline
+                rowsMax="8"
+                variant="standard"
+                label="Beskrivelse"
+                value={[dataset.description ? dataset.description : ""]}
+                className={classes.textField}
+                margin="normal"
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </div>
+            <div className="item13">
+              <TextField
+                multiline
+                variant="standard"
+                rows="10"
+                label="Steg for å reprodusere"
+                value={[dataset.step_reproduce ? dataset.step_reproduce : ""]}
+                className={classes.textField}
+                margin="normal"
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </div>
+            <div className="item10">
+              <TextField
+                multiline
+                rows="10"
+                variant="standard"
+                label="Tilleggsinformasjon"
+                value={[dataset.additional_info ? dataset.additional_info : ""]}
+                className={classes.textField}
+                margin="normal"
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </div>
+            <div className="item16">
+              <Typography component={"span"} variant={"subtitle1"}>
+                Kommentarfelt
+              </Typography>
+              <Comments comments={comments} />
+            </div>
+            <div className="item17">
+              <CommentForm />
+            </div>
+          </div>
+        </section>
+        <aside className="two-columns__aside">
+          <List className="side-menu">
+            <ListItem primaryText="foo1" secondaryText="bar1">
+              <Button
+                variant="contained"
+                color="primary"
+                component={Link}
+                startIcon={<EditIcon />}
+                to={"/edit-issue/" + dataset._id}
+                size="small"
+                disabled={auth.isAuthenticated().user._id !== dataset.userid}
               >
-                {Status.map((option, key) => (
-                  <MenuItem key={key} value={option.label}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <Snackbar
-                open={openStatusSnackbar}
-                autohideduration={3000}
-                onClose={handleStatusUpdateClose}
-                anchorOrigin={{
-                  vertical: verticalStatusUpdate,
-                  horizontal: horizontalStatusUpdate,
-                }}
+                Rediger
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                className={classes.button}
+                startIcon={<DeleteIcon />}
+                size="small"
+                onClick={handleClickOpen}
               >
-                <Alert
-                  severity="success"
-                  variant="standard"
-                  onClose={handleStatusUpdateClose}
+                Slett sak
+              </Button>
+            </ListItem>
+            <ListItem primaryText="foo1" secondaryText="bar1"></ListItem>
+            <ListItem primaryText="foo1" secondaryText="bar1">
+              <FormControl className={classes.textFieldStatus}>
+                <TextField
+                  id="outlined-select-status"
+                  select
+                  label="Status"
+                  variant="outlined"
+                  name="Status"
+                  value={[dataset.status ? dataset.status : "Åpen"]}
+                  InputProps={{
+                    className: classes.input,
+                  }}
+                  SelectProps={{
+                    MenuProps: {
+                      className: classes.menu,
+                    },
+                  }}
+                  inputProps={{ "aria-label": "naked" }}
+                  onChange={(e) =>
+                    upDateIssueStatus(dataset._id, e.target.value)
+                  }
                 >
-                  <AlertTitle>Suksess</AlertTitle>
-                  Status ble oppdatert!
-                </Alert>
-              </Snackbar>
-            </FormControl>
-            {errors.status ? (
-              <Box
-                className={classes.BoxErrorField}
-                fontFamily="Monospace"
-                color="error.main"
-                p={1}
-                m={1}
-              >
-                {errors.status} ⚠️
-              </Box>
-            ) : (
-              ""
-            )}
-            <Button
-              variant="contained"
-              color="primary"
-              component={Link}
-              startIcon={<EditIcon />}
-              to={"/edit-issue/" + dataset._id}
-              size="large"
-              disabled={auth.isAuthenticated().user._id !== dataset.userid}
-            >
-              Rediger
-            </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              className={classes.button}
-              startIcon={<DeleteIcon />}
-              size="large"
-              onClick={handleClickOpen}
-            >
-              Slett sak
-            </Button>
-          </div>
-          <div className="item2">
-            <TextField
-              label="Priority"
-              value={[dataset.priority ? dataset.priority : ""]}
-              className={classes.textField}
-              margin="normal"
-              variant="filled"
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-          </div>
-          <div className="item3">
-            <TextField
-              label="Sist oppdatert"
-              value={formattedDate(dataset.updatedAt)}
-              className={classes.textField}
-              margin="normal"
-              variant="filled"
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-          </div>
-          <div className="item14">
-            <InputLabel shrink htmlFor="select-multiple-native">
-              Vedlegg
-            </InputLabel>
-            <aside style={thumbsContainer}>{imgList}</aside>
-          </div>
-          <div className="item4">
-            <TextField
-              label="Kategori"
-              value={[dataset.category ? dataset.category : ""]}
-              className={classes.textField}
-              margin="normal"
-              variant="filled"
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-          </div>
-          <div className="item1">
-            <Grid container alignItems="flex-start">
-              <Avatar
-                alt="Profile picture"
-                className={classes.purpleAvatar}
-              ></Avatar>
-            </Grid>
-          </div>
-          <div className="item7">
-            <TextField
-              label="Alvorlighetsgrad"
-              value={[dataset.severity ? dataset.severity : ""]}
-              className={classes.textField}
-              margin="normal"
-              variant="filled"
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-          </div>
-          <div className="item8">
-            <TextField
-              label="Mulighet å reprodusere"
-              value={[dataset.reproduce ? dataset.reproduce : ""]}
-              className={classes.textField}
-              margin="normal"
-              variant="filled"
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-          </div>
-          <div className="item15">
-            <TextField
-              label="Delegert til"
-              value={[dataset.delegated ? dataset.delegated : "Ingen"]}
-              className={classes.textField}
-              margin="normal"
-              variant="filled"
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-          </div>
-          <div className="item11">
-            <TextField
-              multiline
-              label="Oppsummering"
-              value={[dataset.summary ? dataset.summary : ""]}
-              className={classes.textField}
-              margin="normal"
-              variant="filled"
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-          </div>
-          <div className="item12">
-            <TextField
-              multiline
-              rowsMax="8"
-              variant="filled"
-              label="Beskrivelse"
-              value={[dataset.description ? dataset.description : ""]}
-              className={classes.textField}
-              margin="normal"
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-          </div>
-          <div className="item13">
-            <TextField
-              multiline
-              variant="filled"
-              rows="10"
-              label="Steg for å reprodusere"
-              value={[dataset.step_reproduce ? dataset.step_reproduce : ""]}
-              className={classes.textField}
-              margin="normal"
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-          </div>
-          <div className="item10">
-            <TextField
-              multiline
-              rows="10"
-              variant="filled"
-              label="Tilleggsinformasjon"
-              value={[dataset.additional_info ? dataset.additional_info : ""]}
-              className={classes.textField}
-              margin="normal"
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-          </div>
-          <div className="item16">
-            <Typography variant="h4" p={5} paragraph>
-              Kommentarfelt
-              <Divider />
-            </Typography>
-            <Comments comments={comments} />
-          </div>
-          <div className="item17">
-            <CommentForm />
-          </div>
-        </div>
-      </main>
+                  {Status.map((option, key) => (
+                    <MenuItem key={key} value={option.label}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <Snackbar
+                  open={openStatusSnackbar}
+                  autohideduration={3000}
+                  onClose={handleStatusUpdateClose}
+                  anchorOrigin={{
+                    vertical: verticalStatusUpdate,
+                    horizontal: horizontalStatusUpdate,
+                  }}
+                >
+                  <Alert
+                    severity="success"
+                    variant="standard"
+                    onClose={handleStatusUpdateClose}
+                  >
+                    <AlertTitle>Suksess</AlertTitle>
+                    Status ble oppdatert!
+                  </Alert>
+                </Snackbar>
+              </FormControl>
+              {errors.status ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
+                >
+                  {errors.status} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </ListItem>
+            <ListItem primaryText="foo1" secondaryText="bar1">
+              Hello world
+            </ListItem>
+            <ListItem primaryText="foo1" secondaryText="bar1">
+              Hello world
+            </ListItem>
+            <ListItem primaryText="foo1" secondaryText="bar1">
+              Hello world
+            </ListItem>
+            <ListItem primaryText="foo1" secondaryText="bar1">
+              Hello world
+            </ListItem>
+          </List>
+        </aside>
+      </div>
     </div>
   );
 }

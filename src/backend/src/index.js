@@ -12,8 +12,9 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
-var Data = require("./models/issue");
+const Data = require("./models/issue");
 const User = require("./models/user");
+const Comments = require("./models/comment");
 const path = require("path");
 const logger = require("morgan");
 const moment = require("moment");
@@ -30,7 +31,7 @@ const csrf = require("csurf");
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 10, // limit each IP to 100 requests per windowMs
 });
 
 // This is actually how the grants are maintained internally.
@@ -101,6 +102,7 @@ var upload = multer({
 const API_PORT = 3001;
 
 const validateInput = require("../../validation/input-validation");
+const validateCommentInput = require("../../validation/comment-validation");
 
 // Use the Data object (data) to find all Data records
 Data.find(Data);
@@ -125,6 +127,7 @@ db.once("open", function () {
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 mongoose.Promise = global.Promise;
+
 
 module.exports = {
   UserAccount: require("../src/models/user"),
@@ -186,6 +189,7 @@ app.use((err, req, res, next) => {
 });
 
 ProtectedRoutes.use((req, res, next) => {
+  console.log("Inside protected route")
   // check header for the token
   //console.log("ProtectedRoutes headers: ", req.headers)
   var token = req.headers.authorization;
@@ -985,6 +989,7 @@ ProtectedRoutes.route("/getData").get(async function (req, res, next) {
     });
   });
 });
+
 ProtectedRoutes.route("/upDateIssueStatus/:id/:status").get(async function (
   req,
   res,
@@ -1017,15 +1022,54 @@ ProtectedRoutes.post("/upDateIssue/:id", async function (req, res, next) {
   });
 });
 
-ProtectedRoutes.route("/getDataByID/:id").get(async function (req, res, next) {
-  console.log("Inside getDataByID: ", req.params.id);
-  Data.findById(req.params.id, function (err, post) {
-    if (err) return res.json(err);
-    return res.json({
-      success: true,
-      data: post,
-    });
-  });
+ProtectedRoutes.route("/getIssueByID/:id").get(async function (req, res) {
+  console.log("Inside getIssueByID: ", req.params.id);
+  try {
+  await Data.findOne({ _id: req.params.id })
+    .populate([
+      {
+        path: "reporter",
+        select:'name',
+        model: "User",
+      },
+      {
+        path: "delegated",
+        select:'name',
+        model: "User",
+      },
+    ])
+    .exec()
+    .then(response => {
+      console.log(response);
+      res.json({
+        success: true,
+        data: response,
+      });
+    })
+  } catch(e) {
+    // database error
+    console.log(e);
+    res.status(500).send("database error");
+  }
+});
+
+ProtectedRoutes.route("/get-comments/:id").get(async function (req, res) {
+  console.log(req.params.id)
+  const currentUser =  req.body.user;
+  try {
+  await Data.findById(req.params.id).populate('comments').lean()
+    .then(response => {
+      console.log(response);
+      res.json({
+        success: true,
+        data: { response, currentUser },
+      });
+    })
+  } catch(e) {
+    // database error
+    console.log(e);
+    res.status(500).send("database error " + e);
+  }
 });
 
 // this is our old update method
@@ -1083,9 +1127,9 @@ ProtectedRoutes.post("/new-issue", async function (req, res) {
   }
 
   const data = new Data();
-  //data.id = req.body.id;
   data.name = req.body.data.name;
   data.delegated = req.body.data.delegated;
+  data.reporter = req.body.data.reporter_id;
   data.description = req.body.data.description;
   data.category = req.body.data.category;
   data.environment = req.body.data.environment;
@@ -1100,7 +1144,7 @@ ProtectedRoutes.post("/new-issue", async function (req, res) {
   data.userid = req.body.data.userid;
   data.imageName = req.body.data.imageName;
 
-  data.save((err) => {
+  Data.save((err) => {
     if (err) {
       return res.status(400).json({
         success: false,
@@ -1112,6 +1156,48 @@ ProtectedRoutes.post("/new-issue", async function (req, res) {
       document: data,
     });
   });
+});
+
+// this is our create method
+// this method adds new data in our database
+ProtectedRoutes.post("/issue/comments/:id", async function (req, res) {
+ /*  const { errors, isValid } = validateCommentInput(req.body);
+  // Check Validation
+  if (!isValid) {
+    // If any errors, send 400 with errors object
+    return res.status(400).json(errors);
+  } */
+  const comment = new Comments(req.body);
+
+  console.log(req.params);
+  comment
+  .save()
+  .then(() => Promise.all([
+    Data.findById(req.params.id),
+  ]))
+  .then(([issue]) => {
+    issue.comments.unshift(comment);
+    return Promise.all([
+      issue.save(),
+    ]);
+  })
+  .then(() => res.redirect(`/vis-sak/${req.params.id}`))
+  .catch((err) => {
+    console.log(err);
+  });
+
+/*   comment.save((err) => {
+    if (err) {
+      return res.status(400).json({
+        success: false,
+        error: err,
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      document: comment,
+    });
+  }); */
 });
 
 // api routes

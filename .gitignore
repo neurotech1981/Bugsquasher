@@ -33,3 +33,4 @@ yarn-error.log*
 package-lock.json
 src/backend/config/index.js
 config.json
+.p10k.zsh

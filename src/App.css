@@ -16,9 +16,19 @@ body {
   font-weight: 300;
   line-height: 1.42em;
   color: rgb(0, 0, 0);
-  background-color: #edf5e1 !important;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /*background-color: #edf5e1 !important;*/
+  background: url(./img/pattern6.webp) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  background-blend-mode: color-burn;
+
+  /* background-repeat: no-repeat;
+  background-clip: padding-box;
+  background-size: cover;*/
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
 }
 
 .label {
@@ -82,7 +92,7 @@ body {
 }
 
 .MuiTableRow-root:nth-of-type(odd) {
-  background: #dceeffd5;
+  background: #f8f2f2;
 }
 
 .MuiToolbar-regular {
@@ -382,33 +392,104 @@ a:focus {
   grid-area: commentform;
 }
 
-.grid-container {
+.form-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-template-areas:
     "top top top top top top"
     "header header header header header header"
+    "beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse"
     "prioritet prioritet prioritet oppdatert oppdatert oppdatert"
     "kategori kategori kategori delegated delegated delegated"
     "alvorlighet alvorlighet alvorlighet reprodusere reprodusere reprodusere"
     "status status status status status status"
     "oppsummering oppsummering oppsummering oppsummering oppsummering oppsummering"
-    "beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse"
     "stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere"
     "tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo"
     "vedlegg vedlegg vedlegg vedlegg vedlegg vedlegg"
     "comments comments comments comments comments comments"
     "commentform commentform commentform commentform commentform commentform";
-  grid-gap: 5px;
-  background-color: rgba(33, 149, 243, 0);
-  padding: 10px;
+  grid-gap: 1rem;
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 100%;
+  backdrop-filter: blur(6px) saturate(180%);
+  -webkit-backdrop-filter: blur(6px) saturate(180%);
+  background-color: rgba(255, 255, 255, 0.55);
+  border-radius: 12px;
+  border: 1px solid rgba(209, 213, 219, 0.3);
+  box-shadow: rgb(145 158 171 / 24%) 0px 0px 2px 0px,
+    rgb(145 158 171 / 24%) 0px 16px 32px -4px;
+  transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+}
+
+.two-columns__aside {
+  grid-area: aside;
+}
+
+.two-columns__main {
+  grid-area: main;
+}
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+nav,
+section,
+summary {
+  display: block;
+  margin: 0;
+  padding: 0;
 }
 
 .grid-container > div {
-  text-align: left;
+  /* text-align: left;
   font-size: 1.5rem;
   border-radius: 4px;
-  padding: 5px 2px;
+  padding: 5px 2px;*/
+  max-width: 100%;
+  padding: 0 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 1092px) {
+  .grid-container {
+    max-width: 1060px;
+  }
+}
+
+.two-columns__center {
+  display: grid;
+  padding-top: 90px;
+  grid-area: center;
+  grid-template-areas: "main";
+  grid-template-columns: 100%;
+  grid-column-gap: 16px;
+  width: 100%;
+  grid-template-areas:
+    "main aside"
+    "main aside";
+  grid-template-columns: calc(100% - 150px) 300px;
+}
+
+.side-menu {
+  backdrop-filter: blur(6px) saturate(180%);
+  -webkit-backdrop-filter: blur(6px) saturate(180%);
+  background-color: rgba(255, 255, 255, 0.55);
+  border-radius: 12px;
+  border: 1px solid rgba(209, 213, 219, 0.3);
+  overflow: hidden;
+  min-height: 100%;
+  box-shadow: rgb(145 158 171 / 24%) 0px 0px 2px 0px,
+    rgb(145 158 171 / 24%) 0px 16px 32px -4px;
+  transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
 }
 
 .MuiCardActions-root {

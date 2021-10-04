@@ -15,6 +15,9 @@ import VpnKeyIcon from "@material-ui/icons/VpnKey";
 import { Link } from "react-router-dom";
 import Box from "@material-ui/core/Box";
 import PersonAddRoundedIcon from "@material-ui/icons/PersonAddTwoTone";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
+import IconButton from "@material-ui/core/IconButton";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -80,9 +83,18 @@ export default function Signin() {
     password: "",
     error: "",
     redirectToReferrer: false,
+    showPassword: false,
   };
 
   const [values, setValues] = useState(initialState);
+
+  const handleClickShowPassword = () => {
+    setValues({ ...values, showPassword: !values.showPassword });
+  };
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
 
   const clickSubmit = () => {
     const user = {
@@ -149,13 +161,27 @@ export default function Signin() {
           <br />
           <TextField
             id="password"
-            type="password"
+            type={values.showPassword ? "text" : "password"}
             label="Passord"
             className={classes.textField}
             onChange={handleChange("password")}
             margin="normal"
             variant="outlined"
             autoComplete="current-password"
+            InputProps={{
+              endAdornment: (
+                <IconButton
+                  variant="outlined"
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                >
+                  {values.showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              ),
+              classes: {
+                adornedEnd: classes.adornedEnd,
+              },
+            }}
           />
           <br />{" "}
           {values.error && (
@@ -172,6 +198,7 @@ export default function Signin() {
             <Button
               color="primary"
               variant="contained"
+              size="large"
               onClick={() => clickSubmit()}
               className={classes.button}
             >
@@ -182,6 +209,7 @@ export default function Signin() {
               color="default"
               variant="contained"
               aria-label="Registrer bruker"
+              size="large"
               className={classes.button}
               href="/signup"
             >

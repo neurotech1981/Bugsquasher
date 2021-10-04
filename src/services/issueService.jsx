@@ -18,7 +18,7 @@ export default {
     return res.data || [];
   },
   getIssueByID: async (id, auth) => {
-    const res = await instance.get(`/api/getDataByID/${id}`, {
+    const res = await instance.get(`/api/getIssueByID/${id}`, {
       headers: { Authorization: auth },
     });
     return res.data.data || [];
@@ -40,8 +40,8 @@ export default {
       headers: { Authorization: auth },
     });
   },
-  addComment: async (data, auth) => {
-    return await instance.get(`/api/add-comment`, data, {
+  addComment: async (data, auth, id) => {
+    return await instance.post(`/api/issue/comments/${id}`, data, {
       headers: { Authorization: auth },
     });
   },

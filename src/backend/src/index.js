@@ -1181,7 +1181,13 @@ ProtectedRoutes.post("/issue/comments/:id", async function (req, res) {
       issue.save(),
     ]);
   })
-  .then(() => res.redirect(`/vis-sak/${req.params.id}`))
+  .then(response => {
+    console.log(response);
+    res.json({
+      success: true,
+      data: response,
+    });
+  })
   .catch((err) => {
     console.log(err);
   });

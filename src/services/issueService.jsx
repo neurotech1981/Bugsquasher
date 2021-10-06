@@ -10,12 +10,12 @@ export default {
     });
     return res.data.data || [];
   },
-  getComments: async (auth) => {
+  getComments: async (id, auth) => {
     const res = await instance.get(
-      "https://jsonplaceholder.typicode.com/posts/1/comments",
+      `/api/get-comments/${id}`,
       { headers: { Authorization: auth } }
     );
-    return res.data || [];
+    return res.data.data || [];
   },
   getIssueByID: async (id, auth) => {
     const res = await instance.get(`/api/getIssueByID/${id}`, {

@@ -97,7 +97,6 @@ export default function Issues() {
             style={{
               fontSize: "1em",
               fontWeight: "600",
-              height: "3vh",
               color: "#ffffff",
               backgroundColor:
                 data.priority === "Øyeblikkelig" ?

@@ -1,4 +1,4 @@
-import { signout } from '../utils/api-auth'
+import ApiAuth from '../utils/ApiAuth'
 
 const auth = {
   isAuthenticated () {
@@ -15,7 +15,7 @@ const auth = {
 
     cb()
     // optional
-    signout().then(() => {
+    ApiAuth.SignOut().then(() => {
       document.cookie = 't=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
     })
   }

@@ -31,7 +31,7 @@ const csrf = require("csurf");
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // limit each IP to 100 requests per windowMs
+  max: 100, // limit each IP to 100 requests per windowMs
 });
 
 // This is actually how the grants are maintained internally.
@@ -243,10 +243,8 @@ ProtectedRoutes.route("/countIssues").get(async function (req, res, next) {
   Data.countDocuments({}, function (err, result) {
     if (err) {
       res.send(err);
-      next();
     } else {
       res.json(result);
-      next();
     }
   });
 });
@@ -262,10 +260,8 @@ ProtectedRoutes.route("/getLatestCases").get(async function (req, res, next) {
       if (err) {
         console.log(err);
         res.send(err);
-        next();
       } else {
         res.json(result);
-        next();
       }
     });
 });
@@ -278,10 +274,8 @@ ProtectedRoutes.route("/getTodaysIssues").get(async function (req, res, next) {
     function (err, result) {
       if (err) {
         res.send(err);
-        next();
       } else {
         res.json(result);
-        next();
       }
     }
   );
@@ -295,10 +289,8 @@ ProtectedRoutes.route("/countSolvedIssues").get(async function (
   Data.countDocuments({ status: "Løst" }, function (err, result) {
     if (err) {
       res.send(err);
-      next();
     } else {
       res.json(result);
-      next();
     }
   });
 });
@@ -362,7 +354,6 @@ ProtectedRoutes.route("/thisWeekIssuesCount").get(async function (
 ProtectedRoutes.route("/thisYearIssuesCount").get(async function (
   req,
   res,
-  next
 ) {
   console.log("Inside thisYearIssuesCount");
 
@@ -572,7 +563,6 @@ ProtectedRoutes.route("/thisYearIssuesCount").get(async function (
 ProtectedRoutes.route("/weekdayIssueCount").get(async function (
   req,
   res,
-  next
 ) {
   console.log("Inside weekday issue count");
   // Work out days for start of tomorrow and one week before
@@ -764,7 +754,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
   );
 });
 
-ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res, next) {
+ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
   console.log("Inside weekday issue count");
   // Work out days for start of tomorrow and one week before
   const oneDay = 1000 * 60 * 60 * 24,
@@ -963,7 +953,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res, next) {
   );
 });
 
-ProtectedRoutes.route("/countOpenIssues").get(async function (req, res, next) {
+ProtectedRoutes.route("/countOpenIssues").get(async function (req, res) {
   Data.countDocuments({ status: "Åpen" }, function (err, result) {
     if (err) {
       res.send(err);
@@ -1023,7 +1013,6 @@ ProtectedRoutes.post("/upDateIssue/:id", async function (req, res, next) {
 });
 
 ProtectedRoutes.route("/getIssueByID/:id").get(async function (req, res) {
-  console.log("Inside getIssueByID: ", req.params.id);
   try {
   await Data.findOne({ _id: req.params.id })
     .populate([
@@ -1040,7 +1029,6 @@ ProtectedRoutes.route("/getIssueByID/:id").get(async function (req, res) {
     ])
     .exec()
     .then(response => {
-      console.log(response);
       res.json({
         success: true,
         data: response,
@@ -1048,18 +1036,19 @@ ProtectedRoutes.route("/getIssueByID/:id").get(async function (req, res) {
     })
   } catch(e) {
     // database error
-    console.log(e);
     res.status(500).send("database error");
   }
 });
 
 ProtectedRoutes.route("/get-comments/:id").get(async function (req, res) {
-  console.log(req.params.id)
   const currentUser =  req.body.user;
   try {
-  await Data.findById(req.params.id).populate('comments').lean()
+  await Data.findById(req.params.id).populate(
+  {
+    path: "comments",
+  })
+    .lean()
     .then(response => {
-      console.log(response);
       res.json({
         success: true,
         data: { response, currentUser },
@@ -1067,7 +1056,6 @@ ProtectedRoutes.route("/get-comments/:id").get(async function (req, res) {
     })
   } catch(e) {
     // database error
-    console.log(e);
     res.status(500).send("database error " + e);
   }
 });

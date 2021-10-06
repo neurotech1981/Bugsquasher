@@ -1,6 +1,22 @@
 // api-auth.js
-export const signin = async (user) => {
+import axios from "axios";
+const instance = axios.create();
+
+export default {
+    SignIn: async (auth) => {
+      const res = await instance.post("/auth/signin/", auth, {withCredentials: true});
+      console.log("SignIn ", res)
+      return res.data || [];
+    },
+    SignOut: async () => {
+      const res = await instance.get("/auth/signout/");
+      return res.data || [];
+    }
+};
+
+/* export const signin = async (user) => {
   try {
+    console.log("Inside Signin fetch")
     const response = await fetch('/auth/signin/', {
       method: 'POST',
       headers: {
@@ -26,3 +42,4 @@ export const signout = async () => {
     return console.log(err)
   }
 }
+ */

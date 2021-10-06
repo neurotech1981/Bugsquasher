@@ -9,7 +9,7 @@ import Icon from "@material-ui/core/Icon";
 import { makeStyles } from "@material-ui/core/styles";
 import auth from "./auth-helper";
 import { Redirect } from "react-router-dom";
-import { signin } from "../utils/api-auth";
+import ApiAuth from "../utils/ApiAuth";
 import useReactRouter from "use-react-router";
 import VpnKeyIcon from "@material-ui/icons/VpnKey";
 import { Link } from "react-router-dom";
@@ -97,12 +97,13 @@ export default function Signin() {
   };
 
   const clickSubmit = () => {
+    console.log("SIGNING IN")
     const user = {
       email: values.email || undefined,
       password: values.password || undefined,
     };
 
-    signin(user).then((data) => {
+    ApiAuth.SignIn(user).then((data) => {
       if (data.error) {
         setValues({
           error: data.error,

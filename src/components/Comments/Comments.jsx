@@ -7,11 +7,20 @@ import {
   ListItemAvatar,
   Avatar,
   Typography,
+  IconButton
 } from "@material-ui/core";
 import QueryBuilderIcon from "@material-ui/icons/QueryBuilder";
 import AlternateEmailIcon from "@material-ui/icons/AlternateEmail";
 import PersonPinIcon from "@material-ui/icons/PersonPin";
 import Faker from "faker";
+import moment from "moment";
+import auth from "../auth/auth-helper";
+import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
+import ReplyIcon from '@material-ui/icons/Reply';
+
+const formattedDate = (value) => moment(value).format("DD/MM-YYYY HH:mm");
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,14 +54,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Comments = ({ comments }) => {
+  const jwt = auth.isAuthenticated();
+
   const classes = useStyles();
   return (
     <List className={classes.root}>
-      {comments.map((comment) => {
-        console.log("Comment", comment);
+      {comments.map((result) => {
         return (
-          <React.Fragment key={comment.id}>
-            <ListItem key={comment.id} alignItems="flex-start">
+          <React.Fragment key={result._id}>
+            <ListItem key={result._id} alignItems="flex-start">
               <ListItemAvatar>
                 <Avatar alt="avatar" src={Faker.image.avatar()} />
               </ListItemAvatar>
@@ -65,15 +75,27 @@ const Comments = ({ comments }) => {
                       className={classes.fontName}
                     >
                       <PersonPinIcon className={classes.iconDate} />
-                      {comment.name}
+                      {result.author.name}
                     </Typography>
+                    {result.author._id === jwt.user._id ?
+                    <>
+                    <IconButton size="small" aria-label="delete" color="secondary">
+                      <DeleteIcon />
+                    </IconButton>
+                    <IconButton size="small" aria-label="delete" color="primary">
+                      <EditIcon />
+                    </IconButton>
+                    </>
+                    : <IconButton size="small" aria-label="delete" color="primary">
+                        <ReplyIcon />
+                      </IconButton>}
                     <ListItemText>
                       <Typography
                         component={"span"}
                         variant={"subtitle1"}
                         className={classes.fontBody}
                       >
-                        {comment.body}
+                        {result.content}
                       </Typography>
                     </ListItemText>
                   </>
@@ -82,12 +104,12 @@ const Comments = ({ comments }) => {
                   <>
                     <Typography component={"span"} variant={"body2"}>
                       <QueryBuilderIcon className={classes.iconDate} />
-                      01-12-2021 12:42
+                      {formattedDate(result.updatedAt)}
                     </Typography>
                     <Typography component={"span"} variant={"subtitle1"}>
                       {" "}
                       <AlternateEmailIcon className={classes.iconDate} />
-                      {comment.email}
+                      {result.author.email}
                     </Typography>
                   </>
                 }

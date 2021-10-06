@@ -407,8 +407,8 @@ a:focus {
     "stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere"
     "tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo"
     "vedlegg vedlegg vedlegg vedlegg vedlegg vedlegg"
-    "comments comments comments comments comments comments"
-    "commentform commentform commentform commentform commentform commentform";
+    "commentform commentform commentform commentform commentform commentform"
+    "comments comments comments comments comments comments";
   grid-gap: 1rem;
   padding: 2rem;
   border-radius: 1rem;
@@ -472,11 +472,15 @@ summary {
   grid-template-areas: "main";
   grid-template-columns: 100%;
   grid-column-gap: 16px;
-  width: 100%;
+  width: 100vh;
   grid-template-areas:
     "main aside"
     "main aside";
-  grid-template-columns: calc(100% - 150px) 300px;
+    grid-template-columns: calc(100% - 50px) 300px;
+}
+
+.MuiListItem-root {
+  justify-content: center !important;
 }
 
 .side-menu {

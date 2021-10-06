@@ -20,8 +20,8 @@ var CommentsSchema = new mongoose.Schema(
 
 // Always populate the author field
 CommentsSchema
-  .pre('findOne', Populate('author'))
-  .pre('find', Populate('author'))
+  .pre('findOne', Populate('author', ["name", "email"]))
+  .pre('find', Populate('author', ["name", "email"]))
   .pre('findOne', Populate('comments'))
   .pre('find', Populate('comments'));
 

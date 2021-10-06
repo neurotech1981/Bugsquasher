@@ -253,9 +253,15 @@ export default function ViewIssue(props) {
 
   const getComments = async () => {
     const jwt = auth.isAuthenticated();
-    const res = await issueService.getComments(jwt.token);
-    let commentList = res.slice(0, 10);
-    setComments(commentList);
+    await issueService
+    .getComments(id, jwt.token)
+    .then((response) => {
+      console.log("RESULT >>>>>", response)
+      setComments(response.response.comments);
+    })
+    .catch((e) => {
+      console.log("Comment error: ", e);
+    })
   };
 
 
@@ -536,7 +542,7 @@ export default function ViewIssue(props) {
               <Typography component={"span"} variant={"subtitle1"}>
                 Kommentarfelt
               </Typography>
-              <Comments comments={comments} />
+              {comments ? <Comments comments={comments} /> : <Typography component={"p"} variant={"subtitle1"}>Ingen kommenter</Typography>}
             </div>
             <div className="item17">
               <CommentForm />

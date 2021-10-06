@@ -85,7 +85,6 @@ export default function Users() {
               fontSize: "1em",
               fontWeight: "600",
               width: "10vh",
-              height: "3vh",
               textShadow:
                 "2px 4px 4px rgba(0,0,0,0.2), 0px -5px 10px rgba(255,255,255,0.15)",
               color: "#FFFFFF",

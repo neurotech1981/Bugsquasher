@@ -5,6 +5,7 @@ import config from '../../config/index'
 
 export const signin = (req, res) => {
   const { email } = req.body
+  console.log("Signing in....");
   User.findOne({ email: email }, (err, user) => {
     if (err || !user) {
       return res.status(401).json({

@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from "react";
 import auth from "../auth/auth-helper";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import useReactRouter from "use-react-router";
 import Divider from "@material-ui/core/Divider";
@@ -36,7 +36,7 @@ import GroupRoundedIcon from "@material-ui/icons/GroupTwoTone";
 const drawerWidth = 260;
 
 //const isActive = (history, path) => {
-//  if (history.location.pathname === path) return { color: '#F44336' }
+// if (history.location.pathname === path) return { color: '#F44336' }
 //  else return { color: '#ffffff' }
 //}
 
@@ -172,8 +172,10 @@ const useStyles = makeStyles((theme) => ({
 
 function NavBar(props) {
   const items = [
-    { label: "Dashboard", icon: <Dashboard />, path: "/landing" },
-
+    { label: "Dashboard", icon: <Dashboard />, path: !auth.isAuthenticated()
+      ? "/landing/"
+      : "/landing/" + auth.isAuthenticated().user._id,
+    },
     {
       label: "Prosjekt oversikt",
       icon: <PageviewRoundedIcon />,
@@ -214,9 +216,12 @@ function NavBar(props) {
   ];
 
   const { history } = useReactRouter();
+  const location = useLocation()
   const { container } = props;
   //const [mobileOpen, setMobileOpen] = React.useState(false)
   const [open, setOpen] = useState(false);
+  //const isActive = (value) => (location.pathname + "/" + auth.isAuthenticated().user._id == value ? true : false)
+
 
   // This is an example script - don't forget to change it!
   //LogRocket.init('w0hnhq/bugsquasher')
@@ -258,9 +263,10 @@ function NavBar(props) {
           <List>
             {items.map((items, index) => (
               <Link to={items.path} key={index}>
-                <ListItem button key={items.key} to={items.path}>
+                <ListItem selected={items.path === location.pathname} button key={items.key} to={items.path}>
                   <ListItemIcon>{items.icon}</ListItemIcon>
                   <ListItemText primary={items.label} />
+                  {console.log(items.path)}
                 </ListItem>
               </Link>
             ))}

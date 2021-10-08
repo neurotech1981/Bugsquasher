@@ -44,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
   fontBody: {
     color: "black",
     verticalAlign: "middle",
+    overflowWrap: "break-word",
   },
   iconDate: {
     fontSize: "1.0rem",
@@ -58,6 +59,10 @@ const Comments = ({ comments }) => {
 
   const classes = useStyles();
   return (
+    <>
+    <Typography component={"span"} variant={"subtitle1"}>
+    Kommentarer ({comments.length})
+  </Typography>
     <List className={classes.root}>
       {comments.map((result) => {
         return (
@@ -119,6 +124,7 @@ const Comments = ({ comments }) => {
         );
       })}
     </List>
+    </>
   );
 };
 

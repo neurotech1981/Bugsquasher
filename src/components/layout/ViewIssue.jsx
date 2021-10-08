@@ -38,6 +38,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import { findUserProfile, getUsers } from "../utils/api-user";
+import { reset } from "nodemon";
 
 const drawerWidth = 240;
 
@@ -158,6 +159,7 @@ export default function ViewIssue(props) {
   const [errors, setErrors] = useState("");
   const [myself, setMyself] = useState([]);
   const [open, setOpen] = useState(false);
+  const [opennewcomment, setOpenNewComment] = useState(false);
   const [comments, setComments] = useState([]);
 
   const [selectedDate, setSelectedDate] = useState(dataset.updatedAt);
@@ -223,19 +225,11 @@ export default function ViewIssue(props) {
   const { id } = props.match.params;
 
   const getIssueByID = (id, token) => {
-    console.log("TOKEN >>>", token);
     const res = issueService.getIssueByID(id, token);
-    console.log("RESULT >>>", res)
     res.then(function(result ) {
-      console.log("Result from promise: ",result);
       setData(result);
     })
-   /*  res.reporter.hashedPassword = null;
-    res.reporter.resetToken.token = null;
-    res.reporter.verificationToken = null;
-    res.delegated.hashedPassword = null;
-    res.delegated.verificationToken = null; */
-    console.log("Issue data: ", JSON.stringify(res));
+
     if (
       res.imageName === "" ||
       res.imageName === "[none]" ||
@@ -246,9 +240,6 @@ export default function ViewIssue(props) {
     } else {
       setImages(res.imageName); //[0]
     }
-
-
-
   };
 
   const getComments = async () => {
@@ -256,15 +247,12 @@ export default function ViewIssue(props) {
     await issueService
     .getComments(id, jwt.token)
     .then((response) => {
-      console.log("RESULT >>>>>", response)
       setComments(response.response.comments);
     })
     .catch((e) => {
       console.log("Comment error: ", e);
     })
   };
-
-
 
   const upDateIssueStatus = async (id, data) => {
     const jwt = auth.isAuthenticated();
@@ -273,7 +261,6 @@ export default function ViewIssue(props) {
     await issueService
       .upDateIssueStatus(id, { status: data }, jwt.token)
       .then((response) => {
-        console.log("Response: ", response);
         setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true });
         setData({ ...dataset, status: data });
       })
@@ -285,11 +272,10 @@ export default function ViewIssue(props) {
   const onDelete = async () => {
     const jwt = auth.isAuthenticated();
 
-    console.log("Inside OnDelete", dataset._id + " " + jwt.token);
     const id = dataset._id;
     await issueService
       .deleteIssueByID(id, jwt.token)
-      .then((response) => {
+      .then(() => {
         setOpen(false);
         goHome();
       })
@@ -326,7 +312,6 @@ export default function ViewIssue(props) {
   );
 
   const imgList = images.map((file, index) => {
-    console.log("File", file);
 
     if (file === "none" || file === undefined) {
       return <div key={index}>Ingen vedlegg</div>;
@@ -343,13 +328,32 @@ export default function ViewIssue(props) {
     );
   });
 
+  const onSubmit = async (data) => {
+    const jwt = auth.isAuthenticated();
+      let { _id } = auth.isAuthenticated().user;
+
+      const commentData = {
+        author: _id || undefined,
+        content: data.content || undefined,
+      };
+
+      await issueService
+        .addComment(commentData,jwt.token,id)
+        .then(() => {
+          getComments();
+          setOpenNewComment(true);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+  };
+
   useEffect(() => {
     let isSubscribed = true;
     if (isSubscribed)
     {
       const jwt = auth.isAuthenticated();
       getComments();
-      console.log("Inside getIssueByID");
       getIssueByID(id, jwt.token);
     }
     return () => (isSubscribed = false);
@@ -539,13 +543,10 @@ export default function ViewIssue(props) {
               />
             </div>
             <div className="item16">
-              <Typography component={"span"} variant={"subtitle1"}>
-                Kommentarfelt
-              </Typography>
-              {comments ? <Comments comments={comments} /> : <Typography component={"p"} variant={"subtitle1"}>Ingen kommenter</Typography>}
+              {comments ? <Comments comments={comments} /> : <Typography component={"p"} variant={"subtitle1"}>Ingen kommentarer</Typography>}
             </div>
             <div className="item17">
-              <CommentForm />
+              <CommentForm onSubmit={onSubmit} openNewComment={opennewcomment} setOpenNewComment={setOpenNewComment} />
             </div>
           </div>
         </section>
@@ -635,15 +636,6 @@ export default function ViewIssue(props) {
               ) : (
                 ""
               )}
-            </ListItem>
-            <ListItem primaryText="foo1" secondaryText="bar1">
-              Hello world
-            </ListItem>
-            <ListItem primaryText="foo1" secondaryText="bar1">
-              Hello world
-            </ListItem>
-            <ListItem primaryText="foo1" secondaryText="bar1">
-              Hello world
             </ListItem>
             <ListItem primaryText="foo1" secondaryText="bar1">
               Hello world

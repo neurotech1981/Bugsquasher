@@ -1170,14 +1170,10 @@ ProtectedRoutes.post("/issue/comments/:id", async function (req, res) {
     ]);
   })
   .then(response => {
-    console.log("Added comment: ", req.params.id);
-    //res.redirect('/vis-sak/' + req.params.id);
-    res.writeHead(200, {location: '/vis-sak/' + req.params.id});
-    res.end();
-    //res.json({
-    //  success: true,
-    //  data: response,
-    //});
+    res.json({
+      success: true,
+      data: response,
+    });
   })
   .catch((err) => {
     console.log(err);

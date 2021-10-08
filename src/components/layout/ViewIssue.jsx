@@ -353,7 +353,7 @@ export default function ViewIssue(props) {
       getIssueByID(id, jwt.token);
     }
     return () => (isSubscribed = false);
-  }, [setData]);
+  }, [setData, setComments]);
 
   const { verticalStatusUpdate, horizontalStatusUpdate, openStatusSnackbar } =
     openStatusUpdate;

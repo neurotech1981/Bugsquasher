@@ -109,7 +109,7 @@ const CommentForm = () => {
             helperText={error ? error.message : null}
             type="text"
             multiline
-            rows={8}
+            rows={1}
           />
         )}
         rules={{ required: "Du glemte å legge inn din kommentar" }}
@@ -117,7 +117,7 @@ const CommentForm = () => {
       {successAlert()}
       <div className={classes.commentFieldBtn}>
         <Button type="submit" variant="contained" color="primary">
-          Legg inn kommentar
+          Post
         </Button>
       </div>
     </form>

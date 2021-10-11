@@ -564,7 +564,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
   req,
   res,
 ) {
-  console.log("Inside weekday issue count");
+  console.log("Inside weekday123 issue count");
   // Work out days for start of tomorrow and one week before
   const oneDay = 1000 * 60 * 60 * 24,
     oneWeek = oneDay * 7;
@@ -576,12 +576,12 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
   const FIRST_DAY = 1;
   const LAST_DAY = 8;
   const daysArray = ["Man", "Tirs", "Ons", "Tors", "Fre", "Lør", "Søn"];
-
+  console.log("Days Array: ", daysArray);
   //var start = moment().subtract(12, 'months').format();
   //var end = moment().format();
   var start = moment().startOf("isoweek").format(); // set to 12:00 am today
   var end = moment().endOf("isoweek").format(); // set to 23:59 pm today
-  console.log(end + " : " + start);
+  console.log(end + " <:> " + start);
   //let end = "2021-07-06T23:59:59"
   //let start = "2019-04-07T00:00:00"
 
@@ -607,7 +607,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                      year: { $year: "$createdAt" } },
                      count : {$sum : 1}
              }*/
-          _id: { year_day: { $substrCP: ["$createdAt", 0, 24] } },
+          _id: { year_day: { $substrCP: ["$createdAt", 0, 18] } },
         },
       },
       {
@@ -625,7 +625,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                   {
                     $subtract: [
                       { $toInt: { $substrCP: ["$_id.year_day", 8, 2] } },
-                      9,
+                      18,
                     ],
                   },
                 ],
@@ -648,14 +648,16 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
           end_week: { $substrCP: [end, 0, 4] },
           months1: {
             $range: [
-              { $toInt: { $substrCP: [start, 5, 2] } },
-              { $add: [LAST_DAY, 0] },
+              LAST_DAY,
+              { $add: [{ $toInt: { $substrCP: [end, 5, 2] } }, 0] },
+              //{ $toInt: { $substrCP: [start, 5, 2] } },
+              //{ $add: [LAST_DAY, 0] },
             ],
           },
           months2: {
             $range: [
               FIRST_DAY,
-              { $add: [{ $toInt: { $substrCP: [end, 5, 2] } }, 0] },
+              { $add: [{ $toInt: { $substrCP: [start, 5, 2] } }, 0] },
             ],
           },
         },
@@ -673,7 +675,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                     day_year: {
                       $concat: [
                         {
-                          $arrayElemAt: [daysArray, { $subtract: ["$$m1", 7] }],
+                          $arrayElemAt: [daysArray, { $subtract: ["$$m1", 8] }],
                         },
                         "-",
                         "$start_week",
@@ -691,7 +693,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                     day_year: {
                       $concat: [
                         {
-                          $arrayElemAt: [daysArray, { $subtract: ["$$m2", 1] }],
+                          $arrayElemAt: [daysArray, { $subtract: ["$$m2", 8] }],
                         },
                         "-",
                         "$end_week",
@@ -747,7 +749,6 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
         console.log(
           "Inside weekday123 issue count result " + JSON.stringify(result)
         );
-
         res.json(result);
       }
     }
@@ -764,9 +765,9 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
   let lastDay = d - (d % oneDay) + oneDay;
   let firstDay = lastDay - oneWeek;
 
-  const FIRST_DAY = 0;
-  const LAST_DAY = 8;
-  const daysArray = [
+  const FIRST_HOUR = 0;
+  const LAST_HOUR = 9;
+  const hoursArray = [
     "00:00",
     "03:00",
     "06:00",
@@ -782,7 +783,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
   //var end = moment().format();
   var start = moment().startOf("day").format(); // set to 12:00 am today
   var end = moment().endOf("day").format(); // set to 23:59 pm today
-  console.log(end + " : " + start);
+  console.log(end + " <<< End:Start >>> " + start);
   //let end = "2021-07-06T23:59:59"
   //let start = "2019-04-07T00:00:00"
 
@@ -823,11 +824,11 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
             $concat: [
               {
                 $arrayElemAt: [
-                  daysArray,
+                  hoursArray,
                   {
                     $subtract: [
                       { $toInt: { $substrCP: ["$_id.year_day", 11, 2] } },
-                      25,
+                      23,
                     ],
                   },
                 ],
@@ -851,12 +852,12 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
           months1: {
             $range: [
               { $toInt: { $substrCP: [start, 5, 2] } },
-              { $add: [LAST_DAY, 1] },
+              { $add: [LAST_HOUR, 1] },
             ],
           },
           months2: {
             $range: [
-              FIRST_DAY,
+              FIRST_HOUR,
               { $add: [{ $toInt: { $substrCP: [end, 5, 2] } }, 1] },
             ],
           },
@@ -875,7 +876,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
                     day_year: {
                       $concat: [
                         {
-                          $arrayElemAt: [daysArray, { $subtract: ["$$m1", 4] }],
+                          $arrayElemAt: [hoursArray, { $subtract: ["$$m1", 4] }],
                         },
                         "-",
                         "$start_week",
@@ -893,7 +894,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
                     day_year: {
                       $concat: [
                         {
-                          $arrayElemAt: [daysArray, { $subtract: ["$$m2", 4] }],
+                          $arrayElemAt: [hoursArray, { $subtract: ["$$m2", 4] }],
                         },
                         "-",
                         "$end_week",
@@ -942,10 +943,10 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
     function (err, result) {
       // results in here
       if (err) {
-        console.log("Inside weekday issue count error");
+        console.log("Inside 24 hour issue count error");
         res.send(err.message);
       } else {
-        console.log("Inside weekday issue count result");
+        console.log("Inside 24 hour issue count result");
         console.log(result);
         res.json(result);
       }
@@ -1132,7 +1133,7 @@ ProtectedRoutes.post("/new-issue", async function (req, res) {
   data.userid = req.body.data.userid;
   data.imageName = req.body.data.imageName;
 
-  Data.save((err) => {
+  data.save((err) => {
     if (err) {
       return res.status(400).json({
         success: false,

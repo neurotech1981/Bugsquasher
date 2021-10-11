@@ -38,7 +38,6 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import { findUserProfile, getUsers } from "../utils/api-user";
-import { reset } from "nodemon";
 
 const drawerWidth = 240;
 

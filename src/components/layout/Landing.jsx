@@ -172,7 +172,7 @@ function Landing() {
       "Data from this weeks issue count: " + JSON.stringify(res.data)
     );
     if (Object.values(res.data).length !== 0) {
-      var valueArr = Object.values(res.data).map((element) => {
+      var valueArr = Object.values(res.data[0].data).map((element) => {
         return element;
       });
     } else {
@@ -222,7 +222,7 @@ function Landing() {
               <CardIcon color="danger">
                 <PlaylistAddIcon />
               </CardIcon>
-              <p className={classes.cardCategory}>Nye saker idag</p>
+              <p className={classes.cardCategory}>Nye saker</p>
               <h3 className={classes.cardTitle}>
                 <h1>{todaysIssues}</h1>
               </h3>

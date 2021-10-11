@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { makeStyles } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
@@ -7,10 +7,12 @@ import { Typography } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import { AlertTitle } from "@material-ui/lab";
 
+
 function Alert(props) {
   // eslint-disable-next-line react/jsx-props-no-spreading
   return <MuiAlert elevation={1} variant="filled" {...props} />;
 }
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -38,22 +40,33 @@ const useStyles = makeStyles((theme) => ({
 
 const CommentForm = ({ onSubmit, openNewComment, setOpenNewComment }) => {
   const classes = useStyles();
-  const { handleSubmit, control } = useForm();
+
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm({
+    defaultValues: { content: "" },
+  });
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
     setOpenNewComment(false);
-
   };
 
   const SuccessAlert = () => (
-      <Alert elevation={0} onClose={handleClose} severity="success" variant="standard">
-        <AlertTitle>Suksess</AlertTitle>
-        Meldingen din er lagt til.
-      </Alert>
-  )
+    <Alert
+      elevation={0}
+      onClose={handleClose}
+      severity="info"
+      variant="standard"
+    >
+      <AlertTitle>Ny kommentar</AlertTitle>
+      Kommentaren din ble lagt til.
+    </Alert>
+  );
+
+  useEffect(() => {
+    reset({ content: "" });
+  }, [reset, onSubmit]);
 
   return (
     <>
@@ -62,11 +75,13 @@ const CommentForm = ({ onSubmit, openNewComment, setOpenNewComment }) => {
           Ny kommentar
         </Typography>
         <Controller
-          name="content"
+          name={"content"}
           control={control}
           defaultValue=""
           render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <>
             <TextField
+              {...register("content", { required: true, maxLength: 150 })}
               label="Skriv inn din kommentar her"
               variant="outlined"
               className={classes.commentField}
@@ -76,17 +91,24 @@ const CommentForm = ({ onSubmit, openNewComment, setOpenNewComment }) => {
               helperText={error ? error.message : null}
               type="text"
               multiline
+              placeholder="Kommentar"
               rows={5}
             />
+            {errors.content?.type === 'required' && "Kommentarfelt er tomt"}
+            {errors.content?.type === 'maxLength' && "Det er ikke tillatt med mer en 150 bokstaver"}
+
+            </>
           )}
           rules={{ required: "Du glemte å legge inn din kommentar" }}
         />
-        {openNewComment && (
-          <SuccessAlert/>
-        )}
+        {openNewComment && <SuccessAlert />}
         <div className={classes.commentFieldBtn}>
-          <Button type="submit" variant="contained" color="primary">
-            Post
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+          >
+            Send inn
           </Button>
         </div>
       </form>

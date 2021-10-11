@@ -189,7 +189,6 @@ app.use((err, req, res, next) => {
 });
 
 ProtectedRoutes.use((req, res, next) => {
-  console.log("Inside protected route")
   // check header for the token
   //console.log("ProtectedRoutes headers: ", req.headers)
   var token = req.headers.authorization;
@@ -198,7 +197,6 @@ ProtectedRoutes.use((req, res, next) => {
     token = req.body.token;
   }
 
-  console.log(token);
   // decode token
   if (token) {
     // verifies secret and checks if the token is expired
@@ -239,7 +237,6 @@ ProtectedRoutes.route("/uploadimage", multipartMiddleware).post(
 // this is our count issues method
 // this method count all issues in the data model
 ProtectedRoutes.route("/countIssues").get(async function (req, res, next) {
-  console.log("Inside countIssue", req.body);
   Data.countDocuments({}, function (err, result) {
     if (err) {
       res.send(err);
@@ -251,7 +248,6 @@ ProtectedRoutes.route("/countIssues").get(async function (req, res, next) {
 
 // Find 5 latest issues.
 ProtectedRoutes.route("/getLatestCases").get(async function (req, res, next) {
-  console.log("Inside getLatestCases");
   Data.find({})
     .select(["createdAt", "summary", "priority", "severity"])
     .sort({ createdAt: -1 })
@@ -300,7 +296,6 @@ ProtectedRoutes.route("/thisWeekIssuesCount").get(async function (
   res,
   next
 ) {
-  console.log("Inside thisWeekIssuesCount");
 
   // Work out days for start of tomorrow and one week before
   const oneDay = 1000 * 60 * 60 * 24,
@@ -355,8 +350,6 @@ ProtectedRoutes.route("/thisYearIssuesCount").get(async function (
   req,
   res,
 ) {
-  console.log("Inside thisYearIssuesCount");
-
   // Work out days for start of tomorrow and one week before
   const oneDay = 1000 * 60 * 60 * 24,
     oneWeek = oneDay * 7;
@@ -382,13 +375,8 @@ ProtectedRoutes.route("/thisYearIssuesCount").get(async function (
     "December",
   ];
 
-  //var start = moment().subtract(12, 'months').format();
-  //var end = moment().format();
   var start = moment().startOf("year").format(); // set to 12:00 am today
   var end = moment().endOf("year").format(); // set to 23:59 pm today
-  console.log(end + " : " + start);
-  //let end = "2021-07-06T23:59:59"
-  //let start = "2019-04-07T00:00:00"
 
   Data.aggregate(
     [
@@ -564,26 +552,14 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
   req,
   res,
 ) {
-  console.log("Inside weekday123 issue count");
-  // Work out days for start of tomorrow and one week before
-  const oneDay = 1000 * 60 * 60 * 24,
-    oneWeek = oneDay * 7;
-
-  let d = Date.now();
-  let lastDay = d - (d % oneDay) + oneDay;
-  let firstDay = lastDay - oneWeek;
 
   const FIRST_DAY = 1;
   const LAST_DAY = 8;
   const daysArray = ["Man", "Tirs", "Ons", "Tors", "Fre", "Lør", "Søn"];
-  console.log("Days Array: ", daysArray);
   //var start = moment().subtract(12, 'months').format();
   //var end = moment().format();
   var start = moment().startOf("isoweek").format(); // set to 12:00 am today
   var end = moment().endOf("isoweek").format(); // set to 23:59 pm today
-  console.log(end + " <:> " + start);
-  //let end = "2021-07-06T23:59:59"
-  //let start = "2019-04-07T00:00:00"
 
   Data.aggregate(
     [
@@ -602,11 +578,6 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
        */
       {
         $group: {
-          /*_id : {
-                     month: { $month: "$createdAt" },
-                     year: { $year: "$createdAt" } },
-                     count : {$sum : 1}
-             }*/
           _id: { year_day: { $substrCP: ["$createdAt", 0, 18] } },
         },
       },
@@ -650,8 +621,6 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
             $range: [
               LAST_DAY,
               { $add: [{ $toInt: { $substrCP: [end, 5, 2] } }, 0] },
-              //{ $toInt: { $substrCP: [start, 5, 2] } },
-              //{ $add: [LAST_DAY, 0] },
             ],
           },
           months2: {
@@ -742,13 +711,8 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
     function (err, result) {
       // results in here
       if (err) {
-        console.log("Inside weekday123 issue count error");
-
         res.send(err.message);
       } else {
-        console.log(
-          "Inside weekday123 issue count result " + JSON.stringify(result)
-        );
         res.json(result);
       }
     }
@@ -756,7 +720,6 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
 });
 
 ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
-  console.log("Inside weekday issue count");
   // Work out days for start of tomorrow and one week before
   const oneDay = 1000 * 60 * 60 * 24,
     oneWeek = oneDay * 7;
@@ -783,7 +746,6 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
   //var end = moment().format();
   var start = moment().startOf("day").format(); // set to 12:00 am today
   var end = moment().endOf("day").format(); // set to 23:59 pm today
-  console.log(end + " <<< End:Start >>> " + start);
   //let end = "2021-07-06T23:59:59"
   //let start = "2019-04-07T00:00:00"
 
@@ -943,11 +905,8 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
     function (err, result) {
       // results in here
       if (err) {
-        console.log("Inside 24 hour issue count error");
         res.send(err.message);
       } else {
-        console.log("Inside 24 hour issue count result");
-        console.log(result);
         res.json(result);
       }
     }
@@ -987,7 +946,6 @@ ProtectedRoutes.route("/upDateIssueStatus/:id/:status").get(async function (
   next
 ) {
   const { update } = req.body;
-  console.log("BODY REQ ISSUE UPDATE: ", req.params);
   Data.findByIdAndUpdate(
     { _id: req.params.id },
     { status: req.params.status },
@@ -1002,7 +960,6 @@ ProtectedRoutes.route("/upDateIssueStatus/:id/:status").get(async function (
 });
 
 ProtectedRoutes.post("/upDateIssue/:id", async function (req, res, next) {
-  console.log("Inside Update Issue", req.body);
   const { dataset } = req.body;
   Data.findByIdAndUpdate({ _id: req.params.id }, dataset, function (err, data) {
     if (err) return next(err);
@@ -1064,12 +1021,10 @@ ProtectedRoutes.route("/get-comments/:id").get(async function (req, res) {
 // this is our old update method
 // this method overwrites existing data in our database
 ProtectedRoutes.route("/edituser/:id").post(async function (req, res, next) {
-  console.log("Inside Edit User", req);
   const { id } = req.params;
   const { role, update } = req.body;
   const permission = ac.can(role).readAny("editusers");
   if (permission.granted) {
-    console.log("<<<< User has valid permission to update user >>>>");
     User.findByIdAndUpdate({ _id: id }, update, (err) => {
       if (err || !update) return res.status(400).json(err);
       // filter data by permission attributes and send.
@@ -1083,7 +1038,6 @@ ProtectedRoutes.route("/edituser/:id").post(async function (req, res, next) {
 
 ProtectedRoutes.route("/removeUser/:id").post(async function (req, res) {
   const { id } = req.params;
-  console.log("Inside removeUser ", id);
   User.findByIdAndRemove({ _id: id }, (err) => {
     if (err) return res.status(400).json(err);
     return res.json({
@@ -1096,7 +1050,6 @@ ProtectedRoutes.route("/removeUser/:id").post(async function (req, res) {
 // this method removes existing data in our database
 ProtectedRoutes.get("/deleteIssueByID/:id", async function (req, res, next) {
   const { id } = req.params;
-  console.log("In delete function>>>>>>> ", id);
   Data.findByIdAndDelete(id, (err) => {
     if (err) return res.send(err);
     return res.json({
@@ -1158,7 +1111,6 @@ ProtectedRoutes.post("/issue/comments/:id", async function (req, res) {
   } */
   const comment = new Comments(req.body);
 
-  console.log(req.params);
   comment
   .save()
   .then(() => Promise.all([

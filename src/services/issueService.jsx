@@ -30,6 +30,13 @@ export default {
       { body: { status: data.status } }
     );
   },
+  upDateDelegated: async (id, data, auth) => {
+    return await instance.get(
+      `/api/upDateDelegated/${id}/${data.delegated}`,
+      { headers: { Authorization: auth } },
+      { body: { status: data.status } }
+    );
+  },
   upDateIssue: async (id, data, auth) => {
     return await instance.post(`/api/upDateIssue/${id}`, data, {
       headers: { Authorization: auth },

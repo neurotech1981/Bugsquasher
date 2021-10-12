@@ -16,30 +16,45 @@ import ChangePassword from './components/auth/ChangePassword'
 import { Provider } from 'react-redux'
 import { store } from './redux/store'
 import './App.css';
+import { createTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/styles';
 
+const theme = createTheme({
+  typography: {
+    fontFamily: [
+      'Space Mono',
+      'Roboto',
+      'Helvetica Neue',
+      'Arial',
+      'sans-serif'
+    ].join(','),
+  }
+});
 class App extends Component {
   render () {
     return (
-      <Provider store={store}>
-        <div>
-          <Router>
-            <NavBar />
-            <PrivateRoute path="/user/edit/:userId" />
-            <PrivateRoute path="/user/:userId" component={Profile} />
-            <PrivateRoute path="/landing" component={Landing} />
-            <PrivateRoute exact path="/" component={Landing} />
-            <PrivateRoute path="/legg-til-sak/:userId" component={CreateIssue}/>
-            <PrivateRoute path="/saker/:userId" component={Issues} />
-            <PrivateRoute path="/vis-sak/:id" component={ViewIssue} />
-            <PrivateRoute path="/bruker-admin/:userId" component={Users} />
-            <PrivateRoute path="/edit-issue/:id" component={EditIssue} />
-            <Route path="/resett-passord" component={ResetPassword} />
-            <Route path="/tilbakestill-passord/:token" component={ChangePassword} />
-            <Route path="/signup" component={Signup} />
-            <Route path="/signin" component={Signin} />
-          </Router>
-        </div>
-      </Provider>
+      <ThemeProvider theme={theme}>
+        <Provider store={store}>
+          <div>
+            <Router>
+              <NavBar />
+              <PrivateRoute path="/user/edit/:userId" />
+              <PrivateRoute path="/user/:userId" component={Profile} />
+              <PrivateRoute path="/landing" component={Landing} />
+              <PrivateRoute exact path="/" component={Landing} />
+              <PrivateRoute path="/legg-til-sak/:userId" component={CreateIssue}/>
+              <PrivateRoute path="/saker/:userId" component={Issues} />
+              <PrivateRoute path="/vis-sak/:id" component={ViewIssue} />
+              <PrivateRoute path="/bruker-admin/:userId" component={Users} />
+              <PrivateRoute path="/edit-issue/:id" component={EditIssue} />
+              <Route path="/resett-passord" component={ResetPassword} />
+              <Route path="/tilbakestill-passord/:token" component={ChangePassword} />
+              <Route path="/signup" component={Signup} />
+              <Route path="/signin" component={Signin} />
+            </Router>
+          </div>
+        </Provider>
+      </ThemeProvider>
     )
   }
 }

@@ -959,6 +959,25 @@ ProtectedRoutes.route("/upDateIssueStatus/:id/:status").get(async function (
   );
 });
 
+ProtectedRoutes.route("/upDateDelegated/:id/:delegated").get(async function (
+  req,
+  res,
+  next
+) {
+  const { update } = req.body;
+  Data.findByIdAndUpdate(
+    { _id: req.params.id },
+    { delegated: req.params.delegated },
+    function (err, data) {
+      if (err) return next(err);
+      return res.json({
+        success: true,
+        data: data,
+      });
+    }
+  );
+});
+
 ProtectedRoutes.post("/upDateIssue/:id", async function (req, res, next) {
   const { dataset } = req.body;
   Data.findByIdAndUpdate({ _id: req.params.id }, dataset, function (err, data) {

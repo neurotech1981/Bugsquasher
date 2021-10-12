@@ -20,6 +20,8 @@ import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import { AlertTitle } from "@material-ui/lab";
 import DeleteIcon from "@material-ui/icons/Delete";
+import UpdateIcon from '@material-ui/icons/Update';
+import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import Avatar from "@material-ui/core/Avatar";
 import MenuItem from "@material-ui/core/MenuItem";
 import ModalImage from "react-modal-image";
@@ -37,6 +39,7 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
 import { findUserProfile, getUsers } from "../utils/api-user";
 
 const drawerWidth = 240;
@@ -76,8 +79,14 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
     width: "100%",
   },
+  dateText: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: "100%",
+    color: "black",
+  },
   textFieldStatus: {
-    margin: theme.spacing(1),
+    margin: theme.spacing(0),
     width: "100%",
     marginTop: "0",
   },
@@ -160,6 +169,7 @@ export default function ViewIssue(props) {
   const [open, setOpen] = useState(false);
   const [opennewcomment, setOpenNewComment] = useState(false);
   const [comments, setComments] = useState([]);
+  const [users, setUsers] = useState([]);
 
   const [selectedDate, setSelectedDate] = useState(dataset.updatedAt);
   const history = useHistory();
@@ -179,11 +189,21 @@ export default function ViewIssue(props) {
         setUserinfo({ user: data });
       }
     });
+
+    getUsers({ t: jwt.token }).then((data) => {
+      if (data.error) {
+        setValues({ redirectToSignin: true });
+      } else {
+        setUsers(data.data);
+      }
+    });
   };
 
   useEffect(() => {
+    if (!users.length) {
       init(match.params.userId);
-  }, [match.params.userId]);
+    }
+  }, [match.params.userId, users.length]);
 
   const goHome = () => {
     history.push("/saker/" + auth.isAuthenticated().user._id);
@@ -225,9 +245,9 @@ export default function ViewIssue(props) {
 
   const getIssueByID = (id, token) => {
     const res = issueService.getIssueByID(id, token);
-    res.then(function(result ) {
+    res.then(function (result) {
       setData(result);
-    })
+    });
 
     if (
       res.imageName === "" ||
@@ -244,24 +264,37 @@ export default function ViewIssue(props) {
   const getComments = async () => {
     const jwt = auth.isAuthenticated();
     await issueService
-    .getComments(id, jwt.token)
-    .then((response) => {
-      setComments(response.response.comments);
-    })
-    .catch((e) => {
-      console.log("Comment error: ", e);
-    })
+      .getComments(id, jwt.token)
+      .then((response) => {
+        setComments(response.response.comments);
+      })
+      .catch((e) => {
+        console.log("Comment error: ", e);
+      });
   };
 
   const upDateIssueStatus = async (id, data) => {
     const jwt = auth.isAuthenticated();
 
-    console.log("Status: " + id + JSON.stringify(data));
     await issueService
       .upDateIssueStatus(id, { status: data }, jwt.token)
       .then((response) => {
         setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true });
         setData({ ...dataset, status: data });
+      })
+      .catch((e) => {
+        console.log("ISSUE UPDATE: ", e);
+      });
+  };
+
+  const upDateDelegated = async (id, data) => {
+    const jwt = auth.isAuthenticated();
+
+    await issueService
+      .upDateDelegated(id, { delegated: data }, jwt.token)
+      .then((response) => {
+        setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true });
+        setData({ ...dataset, delegated: data });
       })
       .catch((e) => {
         console.log("ISSUE UPDATE: ", e);
@@ -311,7 +344,6 @@ export default function ViewIssue(props) {
   );
 
   const imgList = images.map((file, index) => {
-
     if (file === "none" || file === undefined) {
       return <div key={index}>Ingen vedlegg</div>;
     }
@@ -329,28 +361,27 @@ export default function ViewIssue(props) {
 
   const onSubmit = async (data) => {
     const jwt = auth.isAuthenticated();
-      let { _id } = auth.isAuthenticated().user;
+    let { _id } = auth.isAuthenticated().user;
 
-      const commentData = {
-        author: _id || undefined,
-        content: data.content || undefined,
-      };
+    const commentData = {
+      author: _id || undefined,
+      content: data.content || undefined,
+    };
 
-      await issueService
-        .addComment(commentData,jwt.token,id)
-        .then(() => {
-          getComments();
-          setOpenNewComment(true);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+    await issueService
+      .addComment(commentData, jwt.token, id)
+      .then(() => {
+        getComments();
+        setOpenNewComment(true);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   };
 
   useEffect(() => {
     let isSubscribed = true;
-    if (isSubscribed)
-    {
+    if (isSubscribed) {
       const jwt = auth.isAuthenticated();
       getComments();
       getIssueByID(id, jwt.token);
@@ -477,7 +508,11 @@ export default function ViewIssue(props) {
             <div className="item15">
               <TextField
                 label="Delegert til"
-                value={[dataset.delegated != null ? dataset.delegated.name : "Laster..."]}
+                value={[
+                  dataset.delegated != null ?
+                    dataset.delegated.name
+                    : "Laster...",
+                ]}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -542,18 +577,28 @@ export default function ViewIssue(props) {
               />
             </div>
             <div className="item16">
-              {comments ? <Comments comments={comments} /> : <Typography component={"p"} variant={"subtitle1"}>Ingen kommentarer</Typography>}
+              {comments ? (
+                <Comments comments={comments} />
+              ) : (
+                <Typography component={"p"} variant={"subtitle1"}>
+                  Ingen kommentarer
+                </Typography>
+              )}
             </div>
             <div className="item17">
-              <CommentForm onSubmit={onSubmit} openNewComment={opennewcomment} setOpenNewComment={setOpenNewComment} />
+              <CommentForm
+                onSubmit={onSubmit}
+                openNewComment={opennewcomment}
+                setOpenNewComment={setOpenNewComment}
+              />
             </div>
           </div>
         </section>
         <aside className="two-columns__aside">
           <List className="side-menu">
-            <ListItem primaryText="foo1" secondaryText="bar1">
+            <ListItem>
               <Button
-                variant="contained"
+                variant="outlined"
                 color="primary"
                 component={Link}
                 startIcon={<EditIcon />}
@@ -564,7 +609,7 @@ export default function ViewIssue(props) {
                 Rediger
               </Button>
               <Button
-                variant="contained"
+                variant="outlined"
                 color="secondary"
                 className={classes.button}
                 startIcon={<DeleteIcon />}
@@ -574,8 +619,7 @@ export default function ViewIssue(props) {
                 Slett sak
               </Button>
             </ListItem>
-            <ListItem primaryText="foo1" secondaryText="bar1"></ListItem>
-            <ListItem primaryText="foo1" secondaryText="bar1">
+            <ListItem>
               <FormControl className={classes.textFieldStatus}>
                 <TextField
                   id="outlined-select-status"
@@ -603,6 +647,47 @@ export default function ViewIssue(props) {
                     </MenuItem>
                   ))}
                 </TextField>
+                <TextField
+                  id="outlined-select-delegert"
+                  select
+                  value={[
+                    dataset.delegated != null ?
+                      dataset.delegated._id
+                      : "Laster...",
+                  ]}
+                  label="Deleger til"
+                  name="delegert"
+                  onChange={(e) => upDateDelegated(dataset._id, e.target.value)}
+                  InputProps={{
+                    className: classes.input,
+                  }}
+                  SelectProps={{
+                    MenuProps: {
+                      className: classes.menu,
+                    },
+                  }}
+                  margin="normal"
+                  variant="outlined"
+                >
+                  {users.map((option) => (
+                    <MenuItem key={option._id} value={option._id}>
+                      {option.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                {errors.delegated ? (
+                  <Box
+                    className={classes.BoxErrorField}
+                    fontFamily="Monospace"
+                    color="error.main"
+                    p={1}
+                    m={1}
+                  >
+                    {errors.delegated} ⚠️
+                  </Box>
+                ) : (
+                  ""
+                )}
                 <Snackbar
                   open={openStatusSnackbar}
                   autohideduration={3000}
@@ -636,8 +721,37 @@ export default function ViewIssue(props) {
                 ""
               )}
             </ListItem>
-            <ListItem primaryText="foo1" secondaryText="bar1">
-              Hello world
+            <ListItem>
+              <ListItemText
+                disableTypography
+                className={classes.dateText}
+                primary={
+                  <Typography type="body2" style={{ color: "#000" }}>
+                    Opprettet <AccessTimeIcon style={{ fontSize: "18",verticalAlign: "text-top" }} />
+                  </Typography>
+                }
+                secondary={
+                  <Typography type="body2" style={{ color: "#555" }}>
+                    {formattedDate(dataset.createdAt)}
+                  </Typography>
+                }
+              />
+            </ListItem>
+            <ListItem>
+            <ListItemText
+                disableTypography
+                className={classes.dateText}
+                primary={
+                  <Typography type="body2" style={{ color: "#000" }}>
+                    Oppdatert <UpdateIcon style={{ fontSize: "18",verticalAlign: "text-top" }}/>
+                  </Typography>
+                }
+                secondary={
+                  <Typography type="body2" style={{ color: "#555" }}>
+                    {formattedDate(dataset.updatedAt)}
+                  </Typography>
+                }
+              />
             </ListItem>
           </List>
         </aside>

@@ -15,12 +15,14 @@ ReactDOM.render(
 WebFont.load({
   google: {
     families: [
+      'Sora',
       'Nunito Sans:300,400,700',
       'IBM Plex Sans',
       'Poppins',
       'Lobster',
       'Montserrat',
       'Roboto',
+      'Space Mono',
       'sans-serif'
     ]
   }

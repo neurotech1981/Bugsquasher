@@ -12,7 +12,6 @@ import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Fade from "@material-ui/core/Fade";
 import auth from "../auth/auth-helper";
-import VisibilityIcon from "@material-ui/icons/Visibility";
 
 const formattedDate = (value) => moment(value).format("DD MMM YYYY");
 
@@ -58,10 +57,6 @@ export default function Issues() {
           <span>
             <Link to={"/vis-sak/" + data._id} className="link underline">
               {data.summary}
-              <VisibilityIcon
-                fontSize="small"
-                style={{ verticalAlign: "sub", marginLeft: ".3rem" }}
-              />
             </Link>
           </span>
         ),

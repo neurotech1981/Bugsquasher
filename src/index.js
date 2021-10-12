@@ -16,6 +16,7 @@ WebFont.load({
   google: {
     families: [
       'Sora',
+      'Inter',
       'Nunito Sans:300,400,700',
       'IBM Plex Sans',
       'Poppins',

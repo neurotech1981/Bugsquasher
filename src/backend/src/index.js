@@ -748,6 +748,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
   var end = moment().endOf("day").format(); // set to 23:59 pm today
   //let end = "2021-07-06T23:59:59"
   //let start = "2019-04-07T00:00:00"
+  console.log(start + " <:> " + end)
 
   Data.aggregate(
     [
@@ -907,6 +908,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
       if (err) {
         res.send(err.message);
       } else {
+        console.log("24 hour count: " + JSON.stringify(result));
         res.json(result);
       }
     }

@@ -22,6 +22,7 @@ import { ThemeProvider } from '@material-ui/styles';
 const theme = createTheme({
   typography: {
     fontFamily: [
+      'Inter',
       'Space Mono',
       'Roboto',
       'Helvetica Neue',

@@ -11,10 +11,7 @@
 }
 
 body {
-  margin: 0;
-  font-weight: 300;
-  line-height: 1.42em;
-  color: rgb(0, 0, 0);
+
   /*background-color: #edf5e1 !important;*/
   background: url(./img/pattern6.webp) no-repeat center center fixed;
   -webkit-background-size: cover;
@@ -64,13 +61,13 @@ body {
   border: 3px solid red;
 }
 
-@import "//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css";
+@import "https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css";
 
 .ct-series-a .ct-bar,
 .ct-series-a .ct-line,
 .ct-series-a .ct-point,
 .ct-series-a .ct-slice-donut {
-  stroke: #ff5656;
+  stroke: #3B2044;
 }
 .ct-series-b .ct-bar,
 .ct-series-b .ct-line,
@@ -104,20 +101,22 @@ body {
   background: azure;
 }
 
+.link {
+  font-weight: 600;
+}
+
 .priority {
   border-radius: 1em;
   padding: 0.4em !important;
   font-weight: 500;
   font-size: 1em;
-  background: -webkit-linear-gradient(90deg, #2f0a2621, #41476757);
-  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.21);
   transition: all 0.2s ease-in-out;
-  text-align: center;
+  text-align: left;
   color: black;
 }
 
 .status {
-  border-radius: 1em;
+  border-radius: 0.3em;
   padding: 0.4em !important;
   vertical-align: "sub";
   font-weight: 500;
@@ -126,6 +125,7 @@ body {
   box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.21);
   transition: all 0.2s ease-in-out;
   text-align: center;
+  height: 30px
 }
 
 /* NavBar main menu hover */
@@ -272,7 +272,8 @@ a:focus {
 }
 
 .makeStyles-drawerPaper-7 {
-  background-color: #05386b !important;
+  background: linear-gradient(
+294.17deg, rgb(47, 25, 55) 35.57%, rgb(69, 38, 80) 92.42%, rgb(69, 38, 80) 92.42%);
 }
 
 .MuiListItemText-root {

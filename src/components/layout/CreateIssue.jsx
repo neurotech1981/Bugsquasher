@@ -186,13 +186,15 @@ const useStyles = makeStyles((theme) => ({
     display: "grid",
     flexWrap: "wrap",
     borderRadius: "1em",
-    backgroundColor: "white",
     boxShadow:
       "0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 5px 15px -3px rgba(0, 0, 0, 0.05)",
     backgroundRepeat: "no-repeat",
     backgroundAttachment: "fixed",
     height: "80%",
     margin: "0 auto",
+    backdropFilter: "blur(6px) saturate(180%)",
+    webkitBackdropFilter: "blur(6px) saturate(180%)",
+    backgroundColor: "rgba(255, 255, 255, 0.55)",
     [theme.breakpoints.up("xs")]: {
       maxWidth: "100%",
       width: "100%",

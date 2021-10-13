@@ -22,7 +22,6 @@ import ModalImage from "react-modal-image";
 import { deepPurple } from "@material-ui/core/colors";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
-
 import { EditorState, convertToRaw, ContentState } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import draftToHtml from "draftjs-to-html";
@@ -193,7 +192,7 @@ const reprodusere = [
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
+    display: "grid",
   },
   button: {
     margin: theme.spacing(1),
@@ -455,367 +454,375 @@ export default function EditIssue(props) {
     <div className={classes.root}>
       <CssBaseline />
       <nav className={classes.drawer} aria-label="Drawe" />
-      <main className={classes.content}>
-        <Typography variant="h4" gutterBottom></Typography>
-        <div className="grid-container">
-          <div className="item0">
-            <IconButton onClick={goHome}>
-              <ArrowBackIcon />
-            </IconButton>
-          </div>
-          <div className="item1" style={{ paddingLeft: "5rem" }}>
-            {dataset.name}
-            <p style={{ fontSize: "0.6em", marginTop: "0.3em" }}>
-              Opprettet: {formattedDate(dataset.createdAt)}
-            </p>
-            <Button
-              variant="contained"
-              color="primary"
-              className={classes.button}
-              startIcon={<SaveIcon />}
-              size="large"
-              onClick={() => updateIssueByID()}
-            >
-              Lagre endringer
-            </Button>
-            <Button
-              variant="contained"
-              color="default"
-              className={classes.button}
-              startIcon={<CancelIcon />}
-              size="large"
-              onClick={() => CancelEdit()}
-            >
-              Avbryt
-            </Button>
-          </div>
-          <div className="item2">
-            <TextField
-              id="outlined-select-prioritet"
-              select
-              name="prioritet"
-              label="Prioritet"
-              className={classes.textField}
-              value={dataset.priority || "Ingen valgt"}
-              onChange={handleDataChange("priority")}
-              InputProps={{
-                className: classes.input,
-              }}
-              SelectProps={{
-                MenuProps: {
-                  className: classes.menu,
-                },
-              }}
-              margin="normal"
-              variant="outlined"
-            >
-              {prioritet.map((option) => (
-                <MenuItem key={option.value} value={option.label}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
-            {errors.priority ? (
-              <Box
-                className={classes.BoxErrorField}
-                fontFamily="Monospace"
-                color="error.main"
-                p={1}
-                m={1}
+      <div className="grid-container two-columns__center">
+        <section className="two-columns__main">
+          <div className="form-grid">
+            <div className="item0">
+              <IconButton onClick={goHome}>
+                <ArrowBackIcon />
+              </IconButton>
+            </div>
+            <div className="item1" style={{ paddingLeft: "5rem" }}>
+              {dataset.name}
+              <p style={{ fontSize: "0.6em", marginTop: "0.3em" }}>
+                Opprettet: {formattedDate(dataset.createdAt)}
+              </p>
+              <Button
+                variant="outlined"
+                color="primary"
+                className={classes.button}
+                startIcon={<SaveIcon />}
+                size="small"
+                onClick={() => updateIssueByID()}
               >
-                {errors.priority} ⚠️
-              </Box>
-            ) : (
-              ""
-            )}
-          </div>
-          <div className="item3">
-            <TextField
-              label="Sist oppdatert"
-              value={formattedDate(dataset.updatedAt)}
-              className={classes.textField}
-              margin="normal"
-              variant="outlined"
-              onChange={handleChange}
-            />
-          </div>
-          <div className="item14">
-            <InputLabel shrink htmlFor="select-multiple-native">
-              Vedlegg
-            </InputLabel>
-            <aside style={thumbsContainer}>{imgList}</aside>
-          </div>
-          <div className="item4">
-            <TextField
-              id="outlined-select-alvorlighetsgrad"
-              select
-              label="Kategori"
-              name="category"
-              className={classes.textField}
-              value={dataset.category || "Ingen valgt"}
-              onChange={(e) =>
-                setData({
-                  ...dataset,
-                  [e.target.name]: e.target.value,
-                })
-              }
-              InputProps={{
-                className: classes.input,
-              }}
-              SelectProps={{
-                MenuProps: {
-                  className: classes.menu,
-                },
-              }}
-              margin="normal"
-              variant="outlined"
-            >
-              {Kategori.map((option) => (
-                <MenuItem key={option.value} value={option.label}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
-            {errors.category ? (
-              <Box
-                className={classes.BoxErrorField}
-                fontFamily="Monospace"
-                color="error.main"
-                p={1}
-                m={1}
+                Lagre endringer
+              </Button>
+              <Button
+                variant="outlined"
+                color="default"
+                className={classes.button}
+                startIcon={<CancelIcon />}
+                size="small"
+                onClick={() => CancelEdit()}
               >
-                {errors.category} ⚠️
-              </Box>
-            ) : (
-              ""
-            )}
-          </div>
-          <div className="item1">
-            <Grid container alignItems="flex-start">
-              <Avatar
-                alt="Profile picture"
-                className={classes.purpleAvatar}
-              ></Avatar>
-            </Grid>
-          </div>
-          <div className="item7">
-            <TextField
-              id="outlined-select-alvorlighetsgrad"
-              select
-              name="alvorlighetsgrad"
-              label="Alvorlighetsgrad"
-              value={dataset.severity || "Ingen valgt"}
-              className={classes.textField}
-              onChange={handleDataChange("severity")}
-              InputProps={{
-                className: classes.input,
-              }}
-              SelectProps={{
-                MenuProps: {
-                  className: classes.menu,
-                },
-              }}
-              margin="normal"
-              variant="outlined"
-            >
-              {alvorlighetsGrad.map((option) => (
-                <MenuItem key={option.value} value={option.label}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
-            {errors.severity ? (
-              <Box
-                className={classes.BoxErrorField}
-                fontFamily="Monospace"
-                color="error.main"
-                p={1}
-                m={1}
+                Avbryt
+              </Button>
+            </div>
+            <div className="item2">
+              <TextField
+                id="outlined-select-prioritet"
+                select
+                name="prioritet"
+                label="Prioritet"
+                className={classes.textField}
+                value={dataset.priority || "Ingen valgt"}
+                onChange={handleDataChange("priority")}
+                InputProps={{
+                  className: classes.input,
+                }}
+                SelectProps={{
+                  MenuProps: {
+                    className: classes.menu,
+                  },
+                }}
+                margin="normal"
+                variant="outlined"
               >
-                {errors.severity} ⚠️
-              </Box>
-            ) : (
-              ""
-            )}
-          </div>
-          <div className="item8">
-            <TextField
-              id="outlined-select-prioritet"
-              select
-              name="reprodusere"
-              label="Reprodusere"
-              className={classes.textField}
-              value={dataset.reproduce || "Ingen valgt"}
-              onChange={handleDataChange("reproduce")}
-              InputProps={{
-                className: classes.input,
-              }}
-              SelectProps={{
-                MenuProps: {
-                  className: classes.menu,
-                },
-              }}
-              margin="normal"
-              variant="outlined"
-            >
-              {reprodusere.map((option) => (
-                <MenuItem
-                  key={option.value}
-                  value={option.label}
-                  selected
-                  style={{
-                    backgroundColor: option.color,
-                    color: "white",
-                  }}
+                {prioritet.map((option) => (
+                  <MenuItem key={option.value} value={option.label}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              {errors.priority ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
                 >
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
-            {errors.reproduce ? (
-              <Box
-                className={classes.BoxErrorField}
-                fontFamily="Monospace"
-                color="error.main"
-                p={1}
-                m={1}
+                  {errors.priority} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </div>
+            <div className="item3">
+              <TextField
+                label="Sist oppdatert"
+                value={formattedDate(dataset.updatedAt)}
+                className={classes.textField}
+                margin="normal"
+                variant="outlined"
+                onChange={handleChange}
+              />
+            </div>
+            <div className="item14">
+              <InputLabel shrink htmlFor="select-multiple-native">
+                Vedlegg
+              </InputLabel>
+              <aside style={thumbsContainer}>{imgList}</aside>
+            </div>
+            <div className="item4">
+              <TextField
+                id="outlined-select-alvorlighetsgrad"
+                select
+                label="Kategori"
+                name="category"
+                className={classes.textField}
+                value={dataset.category || "Ingen valgt"}
+                onChange={(e) =>
+                  setData({
+                    ...dataset,
+                    [e.target.name]: e.target.value,
+                  })
+                }
+                InputProps={{
+                  className: classes.input,
+                }}
+                SelectProps={{
+                  MenuProps: {
+                    className: classes.menu,
+                  },
+                }}
+                margin="normal"
+                variant="outlined"
               >
-                {errors.reproduce} ⚠️
-              </Box>
-            ) : (
-              ""
-            )}
-          </div>
-          <div className="item15">
-            <TextField
-              id="outlined-select-delegert"
-              select
-              label="Delegert til"
-              name="delegert"
-              defaultValue="Ingen valgt"
-              className={classes.textField}
-              value={dataset.delegated || "Ingen valgt"}
-              onChange={handleDataChange("delegated")}
-              InputProps={{
-                className: classes.input,
-              }}
-              SelectProps={{
-                MenuProps: {
-                  className: classes.menu,
-                },
-              }}
-              margin="normal"
-              variant="outlined"
-            >
-              {users.map((option) => (
-                <MenuItem key={option._id} value={option._id}>
-                  {option.name}
-                </MenuItem>
-              ))}
-            </TextField>
-            {errors.delegated ? (
-              <Box
-                className={classes.BoxErrorField}
-                fontFamily="Monospace"
-                color="error.main"
-                p={1}
-                m={1}
+                {Kategori.map((option) => (
+                  <MenuItem key={option.value} value={option.label}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              {errors.category ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
+                >
+                  {errors.category} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </div>
+            <div className="item1">
+              <Grid container alignItems="flex-start">
+                <Avatar
+                  alt="Profile picture"
+                  className={classes.purpleAvatar}
+                ></Avatar>
+              </Grid>
+            </div>
+            <div className="item7">
+              <TextField
+                id="outlined-select-alvorlighetsgrad"
+                select
+                name="alvorlighetsgrad"
+                label="Alvorlighetsgrad"
+                value={dataset.severity || "Ingen valgt"}
+                className={classes.textField}
+                onChange={handleDataChange("severity")}
+                InputProps={{
+                  className: classes.input,
+                }}
+                SelectProps={{
+                  MenuProps: {
+                    className: classes.menu,
+                  },
+                }}
+                margin="normal"
+                variant="outlined"
               >
-                {errors.delegated} ⚠️
-              </Box>
-            ) : (
-              ""
-            )}
+                {alvorlighetsGrad.map((option) => (
+                  <MenuItem key={option.value} value={option.label}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              {errors.severity ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
+                >
+                  {errors.severity} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </div>
+            <div className="item8">
+              <TextField
+                id="outlined-select-prioritet"
+                select
+                name="reprodusere"
+                label="Reprodusere"
+                className={classes.textField}
+                value={dataset.reproduce || "Ingen valgt"}
+                onChange={handleDataChange("reproduce")}
+                InputProps={{
+                  className: classes.input,
+                }}
+                SelectProps={{
+                  MenuProps: {
+                    className: classes.menu,
+                  },
+                }}
+                margin="normal"
+                variant="outlined"
+              >
+                {reprodusere.map((option) => (
+                  <MenuItem
+                    key={option.value}
+                    value={option.label}
+                    selected
+                    style={{
+                      backgroundColor: option.color,
+                      color: "white",
+                    }}
+                  >
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              {errors.reproduce ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
+                >
+                  {errors.reproduce} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </div>
+            <div className="item15">
+              <TextField
+                id="outlined-select-delegert"
+                select
+                label="Delegert til"
+                name="delegert"
+                defaultValue="Ingen valgt"
+                className={classes.textField}
+                value={dataset.delegated || "Ingen valgt"}
+                onChange={handleDataChange("delegated")}
+                InputProps={{
+                  className: classes.input,
+                }}
+                SelectProps={{
+                  MenuProps: {
+                    className: classes.menu,
+                  },
+                }}
+                margin="normal"
+                variant="outlined"
+              >
+                {users.map((option) => (
+                  <MenuItem key={option._id} value={option._id}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              {errors.delegated ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
+                >
+                  {errors.delegated} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </div>
+            <div className="item12">
+              <TextField
+                multiline
+                label="Oppsummering"
+                onChange={handleDataChange("summary")}
+                value={[dataset.summary ? dataset.summary : ""]}
+                className={classes.textField}
+                margin="normal"
+                variant="outlined"
+              />
+            </div>
+            <div className="item11">
+              <Typography type="body1">
+                Beskrivelse
+              </Typography>
+              <Editor
+                placeholder="Type here.."
+                editorState={editorState}
+                editorStyle={{
+                  backgroundColor: "white",
+                  border: "1px solid lightgray",
+                  borderTop: "0px solid lightgray",
+                  minHeight: 180,
+                  padding: 10,
+                  borderRadius: "0 0 0.5rem 0.5rem",
+                  lineHeight: "5px",
+                }}
+                toolbarStyle={{
+                  borderRadius: "0.5rem 0.5rem 0 0",
+                  marginBottom: "1px",
+                }}
+                wrapperClassName="demo-wrapper"
+                toolbarClassName="flex sticky top-0 z-20 !justify-start"
+                editorClassName="mt-5 shadow-sm border min-h-editor p-2"
+                onEditorStateChange={onEditorStateChange}
+                toolbar={{
+                  link: { inDropdown: true },
+                  list: { inDropdown: true },
+                  options: [
+                    "fontFamily",
+                    "inline",
+                    "blockType",
+                    "fontSize",
+                    "list",
+                    "image",
+                    "textAlign",
+                    "colorPicker",
+                    "link",
+                    "embedded",
+                    "emoji",
+                    "remove",
+                    "history",
+                  ],
+                }}
+                hashtag={{
+                  separator: " ",
+                  trigger: "#",
+                }}
+              />
+            </div>
+            <div className="item13">
+              <TextField
+                multiline
+                variant="outlined"
+                onChange={handleDataChange("step_reproduce")}
+                rows="10"
+                label="Steg for å reprodusere"
+                value={[dataset.step_reproduce ? dataset.step_reproduce : ""]}
+                className={classes.textField}
+                margin="normal"
+              />
+            </div>
+            <div className="item10">
+              <TextField
+                multiline
+                rows="10"
+                onChange={handleDataChange("additional_info")}
+                variant="outlined"
+                label="Tilleggsinformasjon"
+                value={[dataset.additional_info ? dataset.additional_info : ""]}
+                className={classes.textField}
+                margin="normal"
+              />
+            </div>
+            <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
+              <Alert
+                onClose={handleClose}
+                severity="success"
+                variant="standard"
+              >
+                <AlertTitle>Suksess</AlertTitle>
+                Sak ble oppdatert!
+              </Alert>
+            </Snackbar>
           </div>
-          <div className="item11">
-            <TextField
-              multiline
-              label="Oppsummering"
-              onChange={handleDataChange("summary")}
-              value={[dataset.summary ? dataset.summary : ""]}
-              className={classes.textField}
-              margin="normal"
-              variant="outlined"
-            />
-          </div>
-          <div className="item12">
-            <Editor
-              placeholder="Type here.."
-              editorState={editorState}
-              editorStyle={{
-                backgroundColor: "white",
-                border: "1px solid lightgray",
-                borderTop: "0px solid lightgray",
-                minHeight: 180,
-                padding: 10,
-                borderRadius: "0 0 0.5rem 0.5rem",
-                lineHeight: "5px",
-              }}
-              toolbarStyle={{
-                borderRadius: "0.5rem 0.5rem 0 0",
-                marginBottom: "1px",
-              }}
-              wrapperClassName="demo-wrapper"
-              toolbarClassName="flex sticky top-0 z-20 !justify-start"
-              editorClassName="mt-5 shadow-sm border min-h-editor p-2"
-              onEditorStateChange={onEditorStateChange}
-              toolbar={{
-                link: { inDropdown: true },
-                list: { inDropdown: true },
-                options: [
-                  "fontFamily",
-                  "inline",
-                  "blockType",
-                  "fontSize",
-                  "list",
-                  "image",
-                  "textAlign",
-                  "colorPicker",
-                  "link",
-                  "embedded",
-                  "emoji",
-                  "remove",
-                  "history",
-                ],
-              }}
-              hashtag={{
-                separator: " ",
-                trigger: "#",
-              }}
-            />
-          </div>
-          <div className="item13">
-            <TextField
-              multiline
-              variant="outlined"
-              onChange={handleDataChange("step_reproduce")}
-              rows="10"
-              label="Steg for å reprodusere"
-              value={[dataset.step_reproduce ? dataset.step_reproduce : ""]}
-              className={classes.textField}
-              margin="normal"
-            />
-          </div>
-          <div className="item10">
-            <TextField
-              multiline
-              rows="10"
-              onChange={handleDataChange("additional_info")}
-              variant="outlined"
-              label="Tilleggsinformasjon"
-              value={[dataset.additional_info ? dataset.additional_info : ""]}
-              className={classes.textField}
-              margin="normal"
-            />
-          </div>
-          <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
-            <Alert onClose={handleClose} severity="success" variant="standard">
-              <AlertTitle>Suksess</AlertTitle>
-              Sak ble oppdatert!
-            </Alert>
-          </Snackbar>
-        </div>
-      </main>
+        </section>
+      </div>
     </div>
   );
 }

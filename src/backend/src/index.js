@@ -758,6 +758,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
             $gte: new Date(start),
             $lte: new Date(end),
           },
+          status: { $eq: "Løst" },
         },
         // Your matching logic
       },

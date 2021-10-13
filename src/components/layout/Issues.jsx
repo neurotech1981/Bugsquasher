@@ -13,6 +13,12 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Fade from "@material-ui/core/Fade";
 import auth from "../auth/auth-helper";
 
+import highest from "../../images/highest.svg";
+import high from "../../images/high.svg";
+import medium from "../../images/medium.svg";
+import low from "../../images/low.svg";
+import lowest from "../../images/lowest.svg";
+
 const formattedDate = (value) => moment(value).format("DD MMM YYYY");
 
 const drawerWidth = 240;
@@ -31,6 +37,12 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     paddingTop: "65px",
     margin: "2rem",
+  },
+  statusImg: {
+    width: "20px",
+    height: "20px",
+    verticalAlign: "text-bottom",
+    paddingRight: "5px"
   },
   colorPrimary: {
     backgroundImage:
@@ -86,28 +98,30 @@ export default function Issues() {
         title: "Prioritet",
         field: "priority",
         // eslint-disable-next-line react/display-name
-        render: (data) => (
+        render: (
+          data //url(./img/pattern6.webp)
+        ) => (
           <div
             className="priority"
             style={{
               fontSize: "1em",
               fontWeight: "600",
-              color: "#ffffff",
-              backgroundColor:
-                data.priority === "Øyeblikkelig" ?
-                  "rgba(236, 4, 4, 1)"
-                  : "" || data.priority === "Høy" ?
-                  "rgba(226, 31, 28, 1)"
-                  : "" || data.priority === "Normal" ?
-                  "rgba(217, 57, 53, .6)"
-                  : "" || data.priority === "Haster" ?
-                  "rgba(207, 84, 77, 1)"
-                  : "" || data.priority === "Lav" ?
-                  "rgba(197, 111, 101, 0.5)"
-                  : "",
               padding: "0.7em",
             }}
           >
+            {data.priority === "Øyeblikkelig" ? (
+              <img className={classes.statusImg} src={highest}></img>
+            ) : "" || data.priority === "Høy" ? (
+              <img className={classes.statusImg} src={high}></img>
+            ) : "" || data.priority === "Normal" ? (
+              <img className={classes.statusImg} src={medium}></img>
+            ) : "" || data.priority === "Haster" ? (
+              <img className={classes.statusImg} src={low}></img>
+            ) : "" || data.priority === "Lav" ? (
+              <img className={classes.statusImg} src={lowest}></img>
+            ) : (
+              ""
+            )}
             {data.priority}
           </div>
         ),
@@ -124,7 +138,7 @@ export default function Issues() {
               fontWeight: "600",
               color: "#ffffff",
               textShadow:
-                "2px 4px 4px rgba(0,0,0,0.2), 0px -5px 10px rgba(255,255,255,0.15)",
+                "rgb(0 0 0 / 41%) 1px 1px 2px, rgb(255 255 255 / 8%) 0px -5px 10px",
               backgroundColor:
                 data.status === "Åpen" ?
                   "rgb(155, 119, 255)"
@@ -137,9 +151,7 @@ export default function Issues() {
                   : "",
               padding: "0.7em",
             }}
-          >
-            {data.status}
-          </div>
+          >{data.status}</div>
         ),
         headerStyle: { width: "16.66%" },
       },

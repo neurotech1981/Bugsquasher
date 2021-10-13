@@ -521,7 +521,7 @@ export default function ViewIssue(props) {
                 }}
               />
             </div>
-            <div className="item11">
+            <div className="item12">
               <TextField
                 multiline
                 label="Oppsummering"
@@ -534,7 +534,7 @@ export default function ViewIssue(props) {
                 }}
               />
             </div>
-            <div className="item12">
+            <div className="item11">
               <TextField
                 multiline
                 rowsMax="8"

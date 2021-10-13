@@ -88,11 +88,11 @@ const useStyles = makeStyles((theme) => ({
     display: "none",
   },
   appBar: {
-    backgroundColor: "#05386B",
+    backgroundColor: "#3B2044",
     [theme.breakpoints.up("sm")]: {
       width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: drawerWidth,
-      backgroundColor: "#05386B",
+      backgroundColor: "#3B2044",
     },
   },
   appBarShift: {

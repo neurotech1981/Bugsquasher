@@ -342,6 +342,7 @@ a:focus {
 
 .item0 {
   grid-area: top;
+  margin-bottom: 2rem;
 }
 .item1 {
   grid-area: header;

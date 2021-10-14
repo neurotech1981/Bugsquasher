@@ -360,19 +360,23 @@ export default function ViewIssue(props) {
   const Status = [
     {
       value: 0,
-      label: "Åpen",
+      label: "🔓 Åpen",
+      id: "Åpen"
     },
     {
       value: 1,
-      label: "Løst",
+      label: "✅ Løst",
+      id: "Løst"
     },
     {
       value: 2,
-      label: "Lukket",
+      label: "🔐 Lukket",
+      id: "Lukket"
     },
     {
       value: 3,
-      label: "Under arbeid",
+      label: "👷 Under arbeid",
+      id: "Under arbeid"
     },
   ];
 
@@ -471,7 +475,7 @@ export default function ViewIssue(props) {
           <div className="form-grid">
             <div className="item0">
               <IconButton onClick={goHome}>
-                <ArrowBackIcon />
+                <ArrowBackIcon style={{ fontSize: "2rem" }} />
               </IconButton>
             </div>
             <div className="item1" style={{ paddingLeft: "5rem" }}>
@@ -759,7 +763,7 @@ export default function ViewIssue(props) {
                   }
                 >
                   {Status.map((option, key) => (
-                    <MenuItem key={key} value={option.label}>
+                    <MenuItem key={key} value={option.id}>
                       {option.label}
                     </MenuItem>
                   ))}

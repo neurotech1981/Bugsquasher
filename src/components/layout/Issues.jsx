@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     width: "20px",
     height: "20px",
     verticalAlign: "text-bottom",
-    paddingRight: "5px"
+    paddingRight: "5px",
   },
   colorPrimary: {
     backgroundImage:
@@ -151,7 +151,17 @@ export default function Issues() {
                   : "",
               padding: "0.7em",
             }}
-          >{data.status}</div>
+          >
+            {data.status === "Åpen" ?
+              "🔓 Åpen"
+              : "" || data.status === "Løst" ?
+              "✅ Løst"
+              : "" || data.status === "Lukket" ?
+              "🔐 Lukket"
+              : "" || data.status === "Under arbeid" ?
+              "👷 Under arbeid"
+              : ""}
+          </div>
         ),
         headerStyle: { width: "16.66%" },
       },

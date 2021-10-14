@@ -1,15 +1,34 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from "react";
 import useReactRouter from "use-react-router";
-import { makeStyles } from "@material-ui/core/styles";
+import {
+  makeStyles,
+  createTheme,
+  ThemeProvider,
+  withStyles,
+} from "@material-ui/core/styles";
 import issueService from "../../services/issueService";
-import MenuItem from "@material-ui/core/MenuItem";
-import TextField from "@material-ui/core/TextField";
 import Icon from "@material-ui/core/Icon";
-import Button from "@material-ui/core/Button";
-import Container from "@material-ui/core/Container";
-import Snackbar from "@material-ui/core/Snackbar";
 // eslint-disable-neAlertxt-line no-unused-vars
+import {
+  EditorState,
+  //convertFromRaw,
+  convertToRaw,
+  ContentState,
+} from "draft-js";
+import {
+  Typography,
+  Snackbar,
+  TextField,
+  Container,
+  Grid,
+  Button,
+  CssBaseline,
+} from "@material-ui/core";
+import MuiMenuItem from "@material-ui/core/MenuItem";
+import { Editor } from "react-draft-wysiwyg";
+//import draftToHtml from "draftjs-to-html";
+import htmlToDraft from "html-to-draftjs";
 import MuiAlert from "@material-ui/lab/Alert";
 import { AlertTitle } from "@material-ui/lab";
 import { useSelector } from "react-redux";
@@ -161,6 +180,15 @@ const reprodusere = [
     color: "#7B0C1D",
   },
 ];
+
+const MenuItem = withStyles({
+  root: {
+    display: "table",
+    width: "100%",
+    justifyContent: "flex-end",
+  },
+})(MuiMenuItem);
+
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
@@ -212,6 +240,7 @@ const useStyles = makeStyles((theme) => ({
   textField: {
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
+    width: "90%",
   },
   BoxErrorField: {
     backgroundColor: "#ffe4e7",
@@ -247,6 +276,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const theme = createTheme({
+  typography: {
+    body1: {
+      fontWeight: 600,
+      padding: "0.3rem",
+    },
+  },
+});
+
 export default function CreateIssue(props) {
   const { match } = useReactRouter();
   const initialState = {
@@ -260,9 +298,18 @@ export default function CreateIssue(props) {
     setOppsummering: "",
     setBeskrivelse: "",
     setStegReprodusere: "",
-    setTillegg: "",
     setImageName: [""],
   };
+
+  const contentBlock = htmlToDraft("");
+  const initState = contentBlock ?
+    EditorState.createWithContent(
+        ContentState.createFromBlockArray(contentBlock.contentBlocks)
+      )
+    : EditorState.createEmpty();
+
+  const [editorStateDesc, setEditorStateDesc] = useState(initState);
+  const [editorStateRep, setEditorStateRep] = useState(initState);
 
   const classes = useStyles();
   const [values, setValues] = useState(initialState);
@@ -311,9 +358,9 @@ export default function CreateIssue(props) {
 
   useEffect(() => {
     if (!users.length) {
-      init(match.params.userId);
+      init(match.params.id);
     }
-  }, [match.params.userId, users.length]);
+  }, [match.params.id, users.length]);
 
   const handleChange = (name) => (event) => {
     console.log(JSON.stringify(images));
@@ -342,11 +389,21 @@ export default function CreateIssue(props) {
   };
 
   // Legg inn ny query / varelinje i database med backend API
-  const putDataToDB = async () => {
+  const createIssue = async () => {
     let imageNameValue = "[none]";
     if (!images) {
       imageNameValue = images.imageupload[1].name;
     }
+
+    const htmlContentStateDesc = JSON.stringify(
+      convertToRaw(editorStateDesc.getCurrentContent())
+    );
+    values.setBeskrivelse = htmlContentStateDesc;
+
+    const htmlContentStateRep = JSON.stringify(
+      convertToRaw(editorStateRep.getCurrentContent())
+    );
+    values.setStegReprodusere = htmlContentStateRep;
 
     let data = {
       name: userinfo.user.name,
@@ -359,7 +416,6 @@ export default function CreateIssue(props) {
       summary: values.setOppsummering,
       delegated: values.setDelegated,
       step_reproduce: values.setStegReprodusere,
-      additional_info: values.setTillegg,
       imageName: imageNameValue,
       // eslint-disable-next-line no-underscore-dangle
       userid: userinfo.user._id,
@@ -392,7 +448,15 @@ export default function CreateIssue(props) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // setImages(prevState => ({...prevState, setImageName: [...images.imageupload[1].name]}));
-    putDataToDB();
+    createIssue();
+  };
+
+  const onEditorStateChangeDesc = (editorState) => {
+    setEditorStateDesc(editorState);
+  };
+
+  const onEditorStateChangeRep = (editorState) => {
+    setEditorStateRep(editorState);
   };
 
   return (
@@ -405,332 +469,429 @@ export default function CreateIssue(props) {
           onSubmit={(e) => handleSubmit(e)}
         >
           <h3 className={classes.headerOne}>Skriv inn saksdetaljer</h3>
-          <TextField
-            id="outlined-select-delegert"
-            select
-            label="Deleger til"
-            name="delegert"
-            defaultValue="Ingen valgt"
-            className={classes.textField}
-            value={values.setDelegated || initialState.setDelegated}
-            onChange={handleChange("setDelegated")}
-            InputProps={{
-              className: classes.input,
-            }}
-            SelectProps={{
-              MenuProps: {
-                className: classes.menu,
-              },
-            }}
-            margin="normal"
-            variant="outlined"
+          <Box textAlign="center">
+            <Typography variant="body2">
+              Alle felt merket med en stjerne (*) er obligatoriske
+            </Typography>
+          </Box>
+          <Grid
+            container
+            alignItems="flex-start"
+            spacing={2}
+            style={{ padding: "1rem" }}
           >
-            {users.map((option) => (
-              <MenuItem key={option._id} value={option._id}>
-                {option.name}
-              </MenuItem>
-            ))}
-          </TextField>
-          {errors.delegated ? (
-            <Box
-              className={classes.BoxErrorField}
-              fontFamily="Monospace"
-              color="error.main"
-              p={1}
-              m={1}
-            >
-              {errors.delegated} ⚠️
-            </Box>
-          ) : (
-            ""
-          )}
-          <TextField
-            id="outlined-select-alvorlighetsgrad"
-            select
-            label="Kategori"
-            name="kategori"
-            className={classes.textField}
-            value={values.setKategori || "Ingen valgt"}
-            onChange={handleChange("setKategori")}
-            InputProps={{
-              className: classes.input,
-            }}
-            SelectProps={{
-              MenuProps: {
-                className: classes.menu,
-              },
-            }}
-            margin="normal"
-            variant="outlined"
-          >
-            {Kategori.map((option) => (
-              <MenuItem key={option.value} value={option.label}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
-          {errors.category ? (
-            <Box
-              className={classes.BoxErrorField}
-              fontFamily="Monospace"
-              color="error.main"
-              p={1}
-              m={1}
-            >
-              {errors.category} ⚠️
-            </Box>
-          ) : (
-            ""
-          )}
-          <TextField
-            id="outlined-select-alvorlighetsgrad"
-            select
-            name="alvorlighetsgrad"
-            label="Alvorlighetsgrad"
-            value={values.setAlvorlighetsgrad || "Ingen valgt"}
-            className={classes.textField}
-            onChange={handleChange("setAlvorlighetsgrad")}
-            InputProps={{
-              className: classes.input,
-            }}
-            SelectProps={{
-              MenuProps: {
-                className: classes.menu,
-              },
-            }}
-            margin="normal"
-            variant="outlined"
-          >
-            {alvorlighetsGrad.map((option) => (
-              <MenuItem key={option.value} value={option.label}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
-          {errors.severity ? (
-            <Box
-              className={classes.BoxErrorField}
-              fontFamily="Monospace"
-              color="error.main"
-              p={1}
-              m={1}
-            >
-              {errors.severity} ⚠️
-            </Box>
-          ) : (
-            ""
-          )}
-          <TextField
-            id="outlined-select-prioritet"
-            select
-            name="prioritet"
-            label="Prioritet"
-            className={classes.textField}
-            value={values.setPrioritet || "Ingen valgt"}
-            onChange={handleChange("setPrioritet")}
-            InputProps={{
-              className: classes.input,
-            }}
-            SelectProps={{
-              MenuProps: {
-                className: classes.menu,
-              },
-            }}
-            margin="normal"
-            variant="outlined"
-          >
-            {prioritet.map((option) => (
-              <MenuItem key={option.value} value={option.label}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
-          {errors.priority ? (
-            <Box
-              className={classes.BoxErrorField}
-              fontFamily="Monospace"
-              color="error.main"
-              p={1}
-              m={1}
-            >
-              {errors.priority} ⚠️
-            </Box>
-          ) : (
-            ""
-          )}
-          <TextField
-            id="outlined-select-prioritet"
-            select
-            name="reprodusere"
-            label="Reprodusere"
-            className={classes.textField}
-            value={values.setReprodusere || "Ingen valgt"}
-            onChange={handleChange("setReprodusere")}
-            InputProps={{
-              className: classes.input,
-            }}
-            SelectProps={{
-              MenuProps: {
-                className: classes.menu,
-              },
-            }}
-            margin="normal"
-            variant="outlined"
-          >
-            {reprodusere.map((option) => (
-              <MenuItem
-                key={option.value}
-                value={option.label}
-                selected
+            <CssBaseline />
+            <Grid item xs={6}>
+              <TextField
+                id="outlined-select-delegert"
+                select
+                label="Deleger til"
+                name="delegert"
+                defaultValue="Ingen valgt"
+                className={classes.textField}
+                value={values.setDelegated || initialState.setDelegated}
+                onChange={handleChange("setDelegated")}
+                InputProps={{
+                  className: classes.input,
+                }}
+                SelectProps={{
+                  MenuProps: {
+                    className: classes.menu,
+                  },
+                }}
+                margin="normal"
+                variant="outlined"
+              >
+                {users.map((option) => (
+                  <MenuItem key={option._id} value={option._id}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              {errors.delegated ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
+                >
+                  {errors.delegated} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                id="outlined-select-alvorlighetsgrad"
+                select
+                label="Kategori *"
+                name="kategori"
+                className={classes.textField}
+                value={values.setKategori || "Ingen valgt"}
+                onChange={handleChange("setKategori")}
+                InputProps={{
+                  className: classes.input,
+                }}
+                SelectProps={{
+                  MenuProps: {
+                    className: classes.menu,
+                  },
+                }}
+                margin="normal"
+                variant="outlined"
+              >
+                {Kategori.map((option) => (
+                  <MenuItem key={option.value} value={option.label}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              {errors.category ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
+                >
+                  {errors.category} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                id="outlined-select-alvorlighetsgrad"
+                select
+                name="alvorlighetsgrad"
+                label="Alvorlighetsgrad *"
+                value={values.setAlvorlighetsgrad || "Ingen valgt"}
+                className={classes.textField}
+                onChange={handleChange("setAlvorlighetsgrad")}
+                InputProps={{
+                  className: classes.input,
+                }}
+                SelectProps={{
+                  MenuProps: {
+                    className: classes.menu,
+                  },
+                }}
+                margin="normal"
+                variant="outlined"
+              >
+                {alvorlighetsGrad.map((option) => (
+                  <MenuItem key={option.value} value={option.label}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              {errors.severity ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
+                >
+                  {errors.severity} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                id="outlined-select-prioritet"
+                select
+                name="prioritet"
+                label="Prioritet *"
+                className={classes.textField}
+                value={values.setPrioritet || "Ingen valgt"}
+                onChange={handleChange("setPrioritet")}
+                InputProps={{
+                  className: classes.input,
+                }}
+                SelectProps={{
+                  MenuProps: {
+                    className: classes.menu,
+                  },
+                }}
+                margin="normal"
+                variant="outlined"
+              >
+                {prioritet.map((option) => (
+                  <MenuItem key={option.value} value={option.label}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              {errors.priority ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
+                >
+                  {errors.priority} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                id="outlined-select-prioritet"
+                select
+                name="reprodusere"
+                label="Reprodusere *"
+                className={classes.textField}
+                value={values.setReprodusere || "Ingen valgt"}
+                onChange={handleChange("setReprodusere")}
+                InputProps={{
+                  className: classes.input,
+                }}
+                SelectProps={{
+                  MenuProps: {
+                    className: classes.menu,
+                  },
+                }}
+                margin="normal"
+                variant="outlined"
+              >
+                {reprodusere.map((option) => (
+                  <MenuItem
+                    key={option.value}
+                    value={option.label}
+                    selected
+                    style={{
+                      backgroundColor: option.color,
+                      color: "white",
+                    }}
+                  >
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              {errors.reproduce ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
+                >
+                  {errors.reproduce} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                id="outlined-oppsummering"
+                label="Oppsummering *"
+                name="oppsummering"
+                value={[values.setOppsummering]}
+                onChange={handleChange("setOppsummering")}
+                className={classes.textField}
+                InputProps={{
+                  className: classes.input,
+                }}
+                margin="normal"
+                variant="outlined"
+              />
+              {errors.summary ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
+                >
+                  {errors.summary} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </Grid>
+            <Grid item xs={12} style={{ padding: "1rem" }}>
+              <ThemeProvider theme={theme}>
+                <Typography variant="body1">Beskrivelse *</Typography>
+              </ThemeProvider>
+              <Editor
+                placeholder="Skriv inn tekst her..."
+                editorState={editorStateDesc}
+                editorStyle={{
+                  backgroundColor: "white",
+                  border: "1px solid lightgray",
+                  borderTop: "0px solid lightgray",
+                  minHeight: "100%",
+                  height: "350px",
+                  padding: 10,
+                  borderRadius: "0 0 0.5rem 0.5rem",
+                }}
+                toolbarStyle={{
+                  borderRadius: "0.5rem 0.5rem 0 0",
+                  marginBottom: "1px",
+                }}
+                wrapperClassName="wrapper"
+                toolbarClassName="toolbar"
+                editorClassName="editor"
+                onEditorStateChange={onEditorStateChangeDesc}
+                toolbar={{
+                  link: { inDropdown: true },
+                  list: { inDropdown: true },
+                  options: [
+                    "fontFamily",
+                    "inline",
+                    "blockType",
+                    "fontSize",
+                    "list",
+                    "image",
+                    "textAlign",
+                    "colorPicker",
+                    "link",
+                    "embedded",
+                    "emoji",
+                    "remove",
+                    "history",
+                  ],
+                  inline: {
+                    options: [
+                      "bold",
+                      "italic",
+                      "underline",
+                      "strikethrough",
+                      "monospace",
+                    ],
+                  },
+                }}
+                hashtag={{
+                  separator: " ",
+                  trigger: "#",
+                }}
+              />
+              {errors.description ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
+                >
+                  {errors.description} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </Grid>
+            <Grid item xs={12} style={{ padding: "1rem" }}>
+              <ThemeProvider theme={theme}>
+                <Typography variant="body1">Steg for å reprodusere</Typography>
+              </ThemeProvider>
+              <Editor
+                placeholder="Skriv inn tekst her..."
+                editorState={editorStateRep}
+                editorStyle={{
+                  backgroundColor: "white",
+                  border: "1px solid lightgray",
+                  borderTop: "0px solid lightgray",
+                  minHeight: "100%",
+                  height: "350px",
+                  padding: 10,
+                  borderRadius: "0 0 0.5rem 0.5rem",
+                }}
+                toolbarStyle={{
+                  borderRadius: "0.5rem 0.5rem 0 0",
+                  marginBottom: "1px",
+                }}
+                wrapperClassName="wrapper"
+                toolbarClassName="toolbar"
+                editorClassName="editor"
+                onEditorStateChange={onEditorStateChangeRep}
+                toolbar={{
+                  link: { inDropdown: true },
+                  list: { inDropdown: true },
+                  options: [
+                    "fontFamily",
+                    "inline",
+                    "blockType",
+                    "fontSize",
+                    "list",
+                    "image",
+                    "textAlign",
+                    "colorPicker",
+                    "link",
+                    "embedded",
+                    "emoji",
+                    "remove",
+                    "history",
+                  ],
+                  inline: {
+                    options: [
+                      "bold",
+                      "italic",
+                      "underline",
+                      "strikethrough",
+                      "monospace",
+                    ],
+                  },
+                }}
+                hashtag={{
+                  separator: " ",
+                  trigger: "#",
+                }}
+              />
+              {errors.step_reproduce ? (
+                <Box
+                  className={classes.BoxErrorField}
+                  fontFamily="Monospace"
+                  color="error.main"
+                  p={1}
+                  m={1}
+                >
+                  {errors.step_reproduce} ⚠️
+                </Box>
+              ) : (
+                ""
+              )}
+            </Grid>
+            <Grid item xs={12}>
+              <Previews onChange={(e) => onChangeImageDrop(e)} />
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                type="submit"
+                value="Submit"
+                variant="contained"
+                color="primary"
+                className={classes.button}
                 style={{
-                  backgroundColor: option.color,
-                  color: "white",
+                  margin: "0 auto",
+                  display: "flex",
+                  padding: "1rem",
+                  borderRadius: "1em",
                 }}
               >
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
-          {errors.reproduce ? (
-            <Box
-              className={classes.BoxErrorField}
-              fontFamily="Monospace"
-              color="error.main"
-              p={1}
-              m={1}
-            >
-              {errors.reproduce} ⚠️
-            </Box>
-          ) : (
-            ""
-          )}
-          <TextField
-            id="outlined-oppsummering"
-            label="Oppsummering"
-            name="oppsummering"
-            value={[values.setOppsummering]}
-            onChange={handleChange("setOppsummering")}
-            className={classes.textField}
-            InputProps={{
-              className: classes.input,
-            }}
-            margin="normal"
-            variant="outlined"
-          />
-          {errors.summary ? (
-            <Box
-              className={classes.BoxErrorField}
-              fontFamily="Monospace"
-              color="error.main"
-              p={1}
-              m={1}
-            >
-              {errors.summary} ⚠️
-            </Box>
-          ) : (
-            ""
-          )}
-          <TextField
-            id="outlined-beskrivelse-input"
-            label="Beskrivelse"
-            name="beskrivelse"
-            value={[values.setBeskrivelse]}
-            onChange={handleChange("setBeskrivelse")}
-            className={classes.textField}
-            InputProps={{
-              className: classes.input,
-            }}
-            multiline
-            rows="8"
-            margin="normal"
-            variant="outlined"
-          />
-          {errors.description ? (
-            <Box
-              className={classes.BoxErrorField}
-              fontFamily="Monospace"
-              color="error.main"
-              p={1}
-              m={1}
-            >
-              {errors.description} ⚠️
-            </Box>
-          ) : (
-            ""
-          )}
-          <TextField
-            id="outlined-reprodusere-input"
-            label="Steg for å reprodusere	"
-            className={classes.textField}
-            value={values.setStegReprodusere}
-            onChange={handleChange("setStegReprodusere")}
-            InputProps={{
-              className: classes.input,
-            }}
-            name="reprodusere"
-            multiline
-            rows="8"
-            margin="normal"
-            variant="outlined"
-          />
-          {errors.step_reproduce ? (
-            <Box
-              className={classes.BoxErrorField}
-              fontFamily="Monospace"
-              color="error.main"
-              p={1}
-              m={1}
-            >
-              {errors.step_reproduce} ⚠️
-            </Box>
-          ) : (
-            ""
-          )}
-          <TextField
-            id="outlined-multiline-static"
-            label="Tilleggsinformasjon"
-            name="tilleggsinformasjon"
-            multiline
-            rows="8"
-            className={classes.textField}
-            value={values.setTillegg}
-            onChange={handleChange("setTillegg")}
-            InputProps={{
-              className: classes.input,
-            }}
-            margin="normal"
-            variant="outlined"
-          />
-          {errors.additional_info ? (
-            <Box
-              className={classes.BoxErrorField}
-              fontFamily="Monospace"
-              color="error.main"
-              p={1}
-              m={1}
-            >
-              {errors.additional_info} ⚠️
-            </Box>
-          ) : (
-            ""
-          )}
-          <Previews onChange={(e) => onChangeImageDrop(e)} />
-          <Button
-            type="submit"
-            value="Submit"
-            variant="contained"
-            color="primary"
-            className={classes.button}
-          >
-            Send inn sak
-            <Icon className={classes.rightIcon}>send</Icon>
-          </Button>
-          <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
-            <Alert onClose={handleClose} severity="success" variant="standard">
-              <AlertTitle>Suksess</AlertTitle>
-              Sak ble opprettet!
-            </Alert>
-          </Snackbar>
+                Send inn sak
+                <Icon className={classes.rightIcon}>send</Icon>
+              </Button>
+            </Grid>
+            <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
+              <Alert
+                onClose={handleClose}
+                severity="success"
+                variant="standard"
+              >
+                <AlertTitle>Suksess</AlertTitle>
+                Sak ble opprettet!
+              </Alert>
+            </Snackbar>
+          </Grid>
         </form>
       </Container>
     </div>

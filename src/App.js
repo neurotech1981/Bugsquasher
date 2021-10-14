@@ -22,7 +22,7 @@ import { ThemeProvider } from '@material-ui/styles';
 const theme = createTheme({
   typography: {
     fontFamily: [
-      'Inter',
+      'Sora',
       'Space Mono',
       'Roboto',
       'Helvetica Neue',
@@ -43,7 +43,7 @@ class App extends Component {
               <PrivateRoute path="/user/:userId" component={Profile} />
               <PrivateRoute path="/landing" component={Landing} />
               <PrivateRoute exact path="/" component={Landing} />
-              <PrivateRoute path="/legg-til-sak/:userId" component={CreateIssue}/>
+              <PrivateRoute path="/legg-til-sak/:id" component={CreateIssue}/>
               <PrivateRoute path="/saker/:userId" component={Issues} />
               <PrivateRoute path="/vis-sak/:id" component={ViewIssue} />
               <PrivateRoute path="/bruker-admin/:userId" component={Users} />

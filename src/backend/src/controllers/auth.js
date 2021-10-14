@@ -35,7 +35,7 @@ export const signin = (req, res) => {
       token,
       user: { _id: user._id, name: user.name, email: user.email }
     })
-  })
+  }).select('+hashedPassword +salt')
 }
 
 export const signout = (req, res) => {

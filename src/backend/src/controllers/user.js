@@ -60,6 +60,7 @@ export const getUsers = (req, res, next) => {
         error: err,
       });
     }
+
     return res.json({
       data: data,
     });

@@ -27,13 +27,14 @@ ReactDOM.render(
 WebFont.load({
   google: {
     families: [
-      'Sora',
+      'Sora:300,400,500,600,700',
+      'Inter',
       'Inter',
       'Nunito Sans:300,400,700',
       'IBM Plex Sans',
       'Poppins',
-      'Lobster',
       'Montserrat',
+      'Open Sans',
       'Roboto',
       'Space Mono',
       'sans-serif'

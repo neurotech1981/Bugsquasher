@@ -2,7 +2,11 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import useReactRouter from "use-react-router";
-import { makeStyles } from "@material-ui/core/styles";
+import {
+  makeStyles,
+  createTheme,
+  ThemeProvider,
+} from "@material-ui/core/styles";
 import issueService from "../../services/issueService";
 import "../../App.css";
 import CommentForm from "../Comments/CommentForm";
@@ -20,8 +24,8 @@ import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import { AlertTitle } from "@material-ui/lab";
 import DeleteIcon from "@material-ui/icons/Delete";
-import UpdateIcon from '@material-ui/icons/Update';
-import AccessTimeIcon from '@material-ui/icons/AccessTime';
+import UpdateIcon from "@material-ui/icons/Update";
+import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import Avatar from "@material-ui/core/Avatar";
 import MenuItem from "@material-ui/core/MenuItem";
 import ModalImage from "react-modal-image";
@@ -32,6 +36,8 @@ import { Link } from "react-router-dom";
 import EditIcon from "@material-ui/icons/Edit";
 import { useHistory } from "react-router-dom";
 import auth from "../auth/auth-helper";
+import { EditorState, convertFromRaw, ContentState } from "draft-js";
+import { Editor } from "react-draft-wysiwyg";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -41,6 +47,10 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import { findUserProfile, getUsers } from "../utils/api-user";
+import Divider from "@material-ui/core/Divider";
+
+import draftToHtml from "draftjs-to-html";
+import htmlToDraft from "html-to-draftjs";
 
 const drawerWidth = 240;
 
@@ -48,6 +58,14 @@ function Alert(props) {
   return <MuiAlert elevation={1} variant="filled" {...props} />;
 }
 const formattedDate = (value) => moment(value).format("DD/MM-YYYY");
+
+const theme = createTheme({
+  typography: {
+    body1: {
+      fontWeight: 600, // or 'bold'
+    },
+  },
+});
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -154,6 +172,17 @@ export default function ViewIssue(props) {
 
   const classes = useStyles();
   const [dataset, setData] = useState([""]);
+
+  const contentBlock = htmlToDraft("");
+  const initState = contentBlock ?
+    EditorState.createWithContent(
+        ContentState.createFromBlockArray(contentBlock.contentBlocks)
+      )
+    : EditorState.createEmpty();
+
+  const [editorStateDesc, setEditorStateDesc] = useState(initState);
+  const [editorStateRep, setEditorStateRep] = useState(initState);
+
   const [images, setImages] = useState([]);
   const [openStatusUpdate, setOpenStatusUpdate] = useState({
     openStatusSnackbar: false,
@@ -247,6 +276,18 @@ export default function ViewIssue(props) {
     const res = issueService.getIssueByID(id, token);
     res.then(function (result) {
       setData(result);
+
+      let editorStateDesc = EditorState.createWithContent(
+        convertFromRaw(JSON.parse(result.description))
+      );
+
+      setEditorStateDesc(editorStateDesc);
+
+      let editorStateRep = EditorState.createWithContent(
+        convertFromRaw(JSON.parse(result.step_reproduce))
+      );
+
+      setEditorStateRep(editorStateRep);
     });
 
     if (
@@ -389,6 +430,14 @@ export default function ViewIssue(props) {
     return () => (isSubscribed = false);
   }, [setData, setComments]);
 
+  const onEditorStateChangeDesc = (editorState) => {
+    setEditorStateDesc(editorState);
+  };
+
+  const onEditorStateChangeRep = (editorState) => {
+    setEditorStateRep(editorState);
+  };
+
   const { verticalStatusUpdate, horizontalStatusUpdate, openStatusSnackbar } =
     openStatusUpdate;
 
@@ -426,8 +475,8 @@ export default function ViewIssue(props) {
               </IconButton>
             </div>
             <div className="item1" style={{ paddingLeft: "5rem" }}>
-              {dataset.reporter != null ? dataset.reporter.name : "Laster..."}
-              <Typography>
+            <Typography variant="h6">{dataset.reporter != null ? dataset.reporter.name : "Laster..."}</Typography>
+              <Typography variant="subtitle2">
                 Opprettet: {formattedDate(dataset.createdAt)}
               </Typography>
             </div>
@@ -535,44 +584,112 @@ export default function ViewIssue(props) {
               />
             </div>
             <div className="item11">
-              <TextField
-                multiline
-                rowsMax="8"
-                variant="standard"
-                label="Beskrivelse"
-                value={[dataset.description ? dataset.description : ""]}
-                className={classes.textField}
-                margin="normal"
-                InputProps={{
-                  readOnly: true,
+              <ThemeProvider theme={theme}>
+                <Typography gutterBottom variant="body1">
+                  Beskrivelse
+                </Typography>
+              </ThemeProvider>
+              <Editor
+                placeholder="Skriv inn tekst her..."
+                editorState={editorStateDesc}
+                readOnly={true}
+                toolbarHidden={true}
+                editorStyle={{
+                  minHeight: "100%",
+                  padding: 10,
+                  backgroundColor: "white",
+                  borderRadius: "0.5rem 0.5rem 0.5rem 0.5rem",
+                }}
+                wrapperClassName="demo-wrapper"
+                toolbarClassName="flex sticky top-0 z-20 !justify-start"
+                editorClassName="mt-5 shadow-sm border min-h-editor p-2"
+                onEditorStateChange={onEditorStateChangeDesc}
+                toolbar={{
+                  link: { inDropdown: true },
+                  list: { inDropdown: true },
+                  options: [
+                    "fontFamily",
+                    "inline",
+                    "blockType",
+                    "fontSize",
+                    "list",
+                    "image",
+                    "textAlign",
+                    "colorPicker",
+                    "link",
+                    "embedded",
+                    "emoji",
+                    "remove",
+                    "history",
+                  ],
+                  inline: {
+                    options: [
+                      "bold",
+                      "italic",
+                      "underline",
+                      "strikethrough",
+                      "monospace",
+                    ],
+                  },
+                }}
+                hashtag={{
+                  separator: " ",
+                  trigger: "#",
                 }}
               />
             </div>
             <div className="item13">
-              <TextField
-                multiline
-                variant="standard"
-                rows="10"
-                label="Steg for å reprodusere"
-                value={[dataset.step_reproduce ? dataset.step_reproduce : ""]}
-                className={classes.textField}
-                margin="normal"
-                InputProps={{
-                  readOnly: true,
+              <ThemeProvider theme={theme}>
+                <Typography gutterBottom variant="body1">
+                  Steg for å reprodusere
+                </Typography>
+              </ThemeProvider>{" "}
+              <Editor
+                placeholder="Skriv inn tekst her..."
+                readOnly={true}
+                toolbarHidden={true}
+                editorState={editorStateRep}
+                editorStyle={{
+                  minHeight: "100%",
+                  padding: 10,
+                  backgroundColor: "white",
+                  borderRadius: "0.5rem 0.5rem 0.5rem 0.5rem",
                 }}
-              />
-            </div>
-            <div className="item10">
-              <TextField
-                multiline
-                rows="10"
-                variant="standard"
-                label="Tilleggsinformasjon"
-                value={[dataset.additional_info ? dataset.additional_info : ""]}
-                className={classes.textField}
-                margin="normal"
-                InputProps={{
-                  readOnly: true,
+                wrapperClassName="demo-wrapper"
+                toolbarClassName="flex sticky top-0 z-20 !justify-start"
+                editorClassName="mt-5 shadow-sm border min-h-editor p-2"
+                onEditorStateChange={onEditorStateChangeRep}
+                toolbar={{
+                  link: { inDropdown: true },
+                  list: { inDropdown: true },
+                  options: [
+                    "fontFamily",
+                    "inline",
+                    "blockType",
+                    "fontSize",
+                    "list",
+                    "image",
+                    "textAlign",
+                    "colorPicker",
+                    "link",
+                    "embedded",
+                    "emoji",
+                    "remove",
+                    "history",
+                  ],
+                  inline: {
+                    options: [
+                      "bold",
+                      "italic",
+                      "underline",
+                      "strikethrough",
+                      "monospace",
+                    ],
+                  },
+                }}
+                hashtag={{
+                  separator: " ",
+                  trigger: "#",
                 }}
               />
             </div>
@@ -727,7 +844,10 @@ export default function ViewIssue(props) {
                 className={classes.dateText}
                 primary={
                   <Typography type="body2" style={{ color: "#000" }}>
-                    Opprettet <AccessTimeIcon style={{ fontSize: "18",verticalAlign: "text-top" }} />
+                    Opprettet{" "}
+                    <AccessTimeIcon
+                      style={{ fontSize: "18", verticalAlign: "text-top" }}
+                    />
                   </Typography>
                 }
                 secondary={
@@ -738,12 +858,15 @@ export default function ViewIssue(props) {
               />
             </ListItem>
             <ListItem>
-            <ListItemText
+              <ListItemText
                 disableTypography
                 className={classes.dateText}
                 primary={
                   <Typography type="body2" style={{ color: "#000" }}>
-                    Oppdatert <UpdateIcon style={{ fontSize: "18",verticalAlign: "text-top" }}/>
+                    Oppdatert{" "}
+                    <UpdateIcon
+                      style={{ fontSize: "18", verticalAlign: "text-top" }}
+                    />
                   </Typography>
                 }
                 secondary={

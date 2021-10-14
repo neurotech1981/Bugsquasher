@@ -1104,7 +1104,6 @@ ProtectedRoutes.post("/new-issue", async function (req, res) {
   data.reproduce = req.body.data.reproduce;
   data.severity = req.body.data.severity;
   data.priority = req.body.data.priority;
-  data.additional_info = req.body.data.additional_info;
   data.userid = req.body.data.userid;
   data.imageName = req.body.data.imageName;
 

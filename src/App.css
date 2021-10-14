@@ -102,7 +102,7 @@ body {
 }
 
 .link {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .priority {
@@ -372,6 +372,8 @@ a:focus {
 }
 .item11 {
   grid-area: oppsummering;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 .item12 {
   grid-area: beskrivelse;
@@ -381,13 +383,15 @@ a:focus {
 }
 .item14 {
   grid-area: vedlegg;
-  padding: 2rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 .item15 {
   grid-area: delegated;
 }
 .item16 {
   grid-area: comments;
+  margin-top: 2rem;
 }
 .item17 {
   grid-area: commentform;

@@ -2,7 +2,11 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import useReactRouter from "use-react-router";
-import { makeStyles } from "@material-ui/core/styles";
+import {
+  makeStyles,
+  createTheme,
+  ThemeProvider,
+} from "@material-ui/core/styles";
 import issueService from "../../services/issueService";
 import "../../App.css";
 import moment from "moment";
@@ -22,7 +26,12 @@ import ModalImage from "react-modal-image";
 import { deepPurple } from "@material-ui/core/colors";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
-import { EditorState, convertToRaw, ContentState } from "draft-js";
+import {
+  EditorState,
+  convertFromRaw,
+  convertToRaw,
+  ContentState,
+} from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import draftToHtml from "draftjs-to-html";
 import htmlToDraft from "html-to-draftjs";
@@ -190,12 +199,25 @@ const reprodusere = [
   },
 ];
 
+const theme = createTheme({
+  typography: {
+    body1: {
+      fontWeight: 600, // or 'bold'
+    },
+  },
+});
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "grid",
   },
   button: {
     margin: theme.spacing(1),
+  },
+  typography: {
+    body1: {
+      fontWeight: 600, // or 'bold'
+    },
   },
   drawer: {
     [theme.breakpoints.up("sm")]: {
@@ -282,14 +304,15 @@ export default function EditIssue(props) {
   const [myself, setMyself] = useState([]);
   const [users, setUsers] = useState([]);
 
-  const contentBlock = htmlToDraft("");
+  const contentBlock = htmlToDraft("<h1>Hello world</h1>");
   const initState = contentBlock ?
     EditorState.createWithContent(
         ContentState.createFromBlockArray(contentBlock.contentBlocks)
       )
     : EditorState.createEmpty();
 
-  const [editorState, setEditorState] = useState(initState);
+  const [editorStateDesc, setEditorStateDesc] = useState(initState);
+  const [editorStateRep, setEditorStateRep] = useState(initState);
 
   const [selectedDate, setSelectedDate] = useState(dataset.updatedAt);
   const history = useHistory();
@@ -341,13 +364,26 @@ export default function EditIssue(props) {
 
     getIssueByID(id, jwt.token);
     if (!users.length) {
-      init(match.params.userId);
+      init(match.params.id);
     }
-  }, [id, match.params.userId, users.length]);
+  }, [id, match.params.id, users.length]);
 
   const getIssueByID = async (id, token) => {
     console.log(token);
     const res = await issueService.getIssueByID(id, token);
+
+    let editorStateDesc = EditorState.createWithContent(
+      convertFromRaw(JSON.parse(res.description))
+    );
+
+    setEditorStateDesc(editorStateDesc);
+
+    let editorStateRep = EditorState.createWithContent(
+      convertFromRaw(JSON.parse(res.step_reproduce))
+    );
+
+    setEditorStateRep(editorStateRep);
+
     setData(res);
     console.log("Imagename: ", res.imageName);
     if (
@@ -366,6 +402,16 @@ export default function EditIssue(props) {
     const jwt = auth.isAuthenticated();
     const id = dataset._id;
 
+    const htmlContentStateDesc = JSON.stringify(
+      convertToRaw(editorStateDesc.getCurrentContent())
+    );
+    dataset.description = htmlContentStateDesc;
+
+    const htmlContentStateRep = JSON.stringify(
+      convertToRaw(editorStateRep.getCurrentContent())
+    );
+    dataset.step_reproduce = htmlContentStateRep;
+
     await issueService
       .upDateIssue(id, { dataset }, jwt.token)
       .then((response) => {
@@ -377,6 +423,8 @@ export default function EditIssue(props) {
         }, 1000);
 
         const { data } = response.data;
+        data.description = htmlContentStateDesc;
+        data.step_reproduce = htmlContentStateRep;
         setData({ ...dataset, data });
       })
       .catch((e) => {
@@ -446,8 +494,12 @@ export default function EditIssue(props) {
     );
   });
 
-  const onEditorStateChange = (editorState) => {
-    setEditorState(editorState);
+  const onEditorStateChangeDesc = (editorState) => {
+    setEditorStateDesc(editorState);
+  };
+
+  const onEditorStateChangeRep = (editorState) => {
+    setEditorStateRep(editorState);
   };
 
   return (
@@ -738,20 +790,19 @@ export default function EditIssue(props) {
               />
             </div>
             <div className="item11">
-              <Typography type="body1">
-                Beskrivelse
-              </Typography>
+              <ThemeProvider theme={theme}>
+                <Typography variant="body1">Beskrivelse</Typography>
+              </ThemeProvider>
               <Editor
-                placeholder="Type here.."
-                editorState={editorState}
+                placeholder="Skriv inn tekst her..."
+                editorState={editorStateDesc}
                 editorStyle={{
                   backgroundColor: "white",
                   border: "1px solid lightgray",
                   borderTop: "0px solid lightgray",
-                  minHeight: 180,
+                  minHeight: "100%",
                   padding: 10,
                   borderRadius: "0 0 0.5rem 0.5rem",
-                  lineHeight: "5px",
                 }}
                 toolbarStyle={{
                   borderRadius: "0.5rem 0.5rem 0 0",
@@ -760,7 +811,7 @@ export default function EditIssue(props) {
                 wrapperClassName="demo-wrapper"
                 toolbarClassName="flex sticky top-0 z-20 !justify-start"
                 editorClassName="mt-5 shadow-sm border min-h-editor p-2"
-                onEditorStateChange={onEditorStateChange}
+                onEditorStateChange={onEditorStateChangeDesc}
                 toolbar={{
                   link: { inDropdown: true },
                   list: { inDropdown: true },
@@ -779,6 +830,15 @@ export default function EditIssue(props) {
                     "remove",
                     "history",
                   ],
+                  inline: {
+                    options: [
+                      "bold",
+                      "italic",
+                      "underline",
+                      "strikethrough",
+                      "monospace",
+                    ],
+                  },
                 }}
                 hashtag={{
                   separator: " ",
@@ -787,27 +847,62 @@ export default function EditIssue(props) {
               />
             </div>
             <div className="item13">
-              <TextField
-                multiline
-                variant="outlined"
-                onChange={handleDataChange("step_reproduce")}
-                rows="10"
-                label="Steg for å reprodusere"
-                value={[dataset.step_reproduce ? dataset.step_reproduce : ""]}
-                className={classes.textField}
-                margin="normal"
-              />
-            </div>
-            <div className="item10">
-              <TextField
-                multiline
-                rows="10"
-                onChange={handleDataChange("additional_info")}
-                variant="outlined"
-                label="Tilleggsinformasjon"
-                value={[dataset.additional_info ? dataset.additional_info : ""]}
-                className={classes.textField}
-                margin="normal"
+              <ThemeProvider theme={theme}>
+                <Typography variant="body1">
+                  Steg for å reprodusere
+                </Typography>
+              </ThemeProvider>
+              <Editor
+                placeholder="Skriv inn tekst her..."
+                editorState={editorStateRep}
+                editorStyle={{
+                  backgroundColor: "white",
+                  border: "1px solid lightgray",
+                  borderTop: "0px solid lightgray",
+                  minHeight: "100%",
+                  padding: 10,
+                  borderRadius: "0 0 0.5rem 0.5rem",
+                }}
+                toolbarStyle={{
+                  borderRadius: "0.5rem 0.5rem 0 0",
+                  marginBottom: "1px",
+                }}
+                wrapperClassName="demo-wrapper"
+                toolbarClassName="flex sticky top-0 z-20 !justify-start"
+                editorClassName="mt-5 shadow-sm border min-h-editor p-2"
+                onEditorStateChange={onEditorStateChangeRep}
+                toolbar={{
+                  link: { inDropdown: true },
+                  list: { inDropdown: true },
+                  options: [
+                    "fontFamily",
+                    "inline",
+                    "blockType",
+                    "fontSize",
+                    "list",
+                    "image",
+                    "textAlign",
+                    "colorPicker",
+                    "link",
+                    "embedded",
+                    "emoji",
+                    "remove",
+                    "history",
+                  ],
+                  inline: {
+                    options: [
+                      "bold",
+                      "italic",
+                      "underline",
+                      "strikethrough",
+                      "monospace",
+                    ],
+                  },
+                }}
+                hashtag={{
+                  separator: " ",
+                  trigger: "#",
+                }}
               />
             </div>
             <Snackbar open={open} autohideduration={3000} onClose={handleClose}>

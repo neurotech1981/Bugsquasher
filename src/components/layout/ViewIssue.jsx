@@ -288,18 +288,19 @@ export default function ViewIssue(props) {
       );
 
       setEditorStateRep(editorStateRep);
-    });
 
-    if (
-      res.imageName === "" ||
-      res.imageName === "[none]" ||
-      res.imageName === "none" ||
-      res.imageName === undefined
-    ) {
-      setImages(["none"]);
-    } else {
-      setImages(res.imageName); //[0]
-    }
+      if (
+        result.imageName[0].name === "" ||
+        result.imageName[0].name === "[none]" ||
+        result.imageName[0].name === "none" ||
+        result.imageName[0].name === undefined
+      ) {
+        setImages(["none"]);
+      } else {
+        setImages(result.imageName[0].name); //[0]
+      }
+
+    });
   };
 
   const getComments = async () => {
@@ -393,7 +394,7 @@ export default function ViewIssue(props) {
       return <div key={index}>Ingen vedlegg</div>;
     }
     return (
-      <div style={{ display: "grid", margin: "1em" }} key={index}>
+      <div style={{ display: "grid", margin: "1em", top: "23rem"}} key={index}>
         <ModalImage
           small={process.env.PUBLIC_URL + "/uploads/" + file.path}
           large={process.env.PUBLIC_URL + "/uploads/" + file.path}

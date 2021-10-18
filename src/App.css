@@ -340,6 +340,10 @@ a:focus {
   justify-content: flex-end !important;
 }
 
+.__react_modal_image__modal_container {
+  top: 23rem !important;
+}
+
 .item0 {
   grid-area: top;
   margin-bottom: 2rem;

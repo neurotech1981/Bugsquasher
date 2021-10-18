@@ -153,7 +153,8 @@ export async function refreshToken({ token, ipAddress }) {
 }
 
 export async function getRefreshToken(token) {
-  const refreshToken = await db.RefreshToken.findOne({ token }).populate(
+  console.log("TOKEN : " , token);
+  const refreshToken = await account.RefreshToken.findOne({ token }).populate(
     "account"
   );
   if (!refreshToken || !refreshToken.isActive) throw "Invalid token";
@@ -161,10 +162,12 @@ export async function getRefreshToken(token) {
 }
 
 export async function resetPassword({ token, password }) {
+  console.log("TOKEN : " , token, password);
+
   const account = await User.findOne({
     "resetToken.token": token,
     "resetToken.expires": { $gt: Date.now() },
-  });
+  }).select('hashedPassword salt');
 
   if (!account) throw "Invalid token";
 
@@ -224,8 +227,8 @@ export async function sendAlreadyRegisteredEmail(email, origin) {
 export async function sendPasswordResetEmail(account, origin) {
   let message;
   if (origin) {
-    const resetUrl = `${origin}/account/resett-passord?token=${account.resetToken.token}`;
-    message = `<p>Klikk på lenken nedenfor for å tilbakestille passordet ditt, linken vil være gyldig i 1 dag:</p>
+    const resetUrl = `${origin}/tilbakestill-passord/${account.resetToken.token}`;
+    message = `<p>Klikk på lenken nedenfor for å tilbakestille passordet ditt, lenken vil være gyldig i 1 dag:</p>
                    <p><a href="${resetUrl}">${resetUrl}</a></p>`;
   } else {
     message = `<p>Bruk token nedenfor for å tilbakestille passordet ditt med<code>/account/resett-passord</code> api ruten:</p>

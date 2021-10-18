@@ -29,9 +29,7 @@ import CardBody from "../Card/CardBody.js";
 import CardFooter from "../Card/CardFooter.js";
 import issueService from "../../services/issueService";
 import auth from "../auth/auth-helper";
-import Link from "@material-ui/core/Link";
 
-import { bugs, website, server } from "../../variables/general.js";
 
 import {
   dailySalesChart,

@@ -14,7 +14,7 @@ const userSchema = new Schema({
     type: String,
     trim: true,
     unique: "E-posten eksisterer allerede",
-    match: [/.+\\@.+\..+/, "Vennligst fyll ut en gyldig e-post"],
+    match: [/.+\@.+\..+/, "Vennligst fyll ut en gyldig e-post"],
     required: "E-post er påkrevd",
   },
   hashedPassword: {

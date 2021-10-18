@@ -55,7 +55,7 @@ export const hasAuthorization = (req, res) => {
   const authorized = req.profile && req.auth && req.profile._id === req.auth._id
   if (!authorized) {
     return res.status(403).json({
-      error: 'Bruker er ikke autorisert!'
+      error: 'You are not authorized!'
     })
   }
 }

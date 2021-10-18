@@ -33,11 +33,11 @@ const DataSchema = new Schema(
     assigned: { type: Schema.Types.ObjectId, ref: "User" },
     comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
     userid: Schema.Types.ObjectId,
-    imageName: {
-      type: String,
+    imageName: [{
+      type: Object,
       default: "none",
       required: false,
-    },
+    }],
   },
   { timestamps: true }
 );

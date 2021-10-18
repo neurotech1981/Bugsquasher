@@ -6,6 +6,7 @@ import Icon from '@material-ui/core/Icon'
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded'
 import Snackbar from '@material-ui/core/Snackbar'
 import axios from 'axios'
+import auth from "../auth/auth-helper";
 import MuiAlert from '@material-ui/lab/Alert'
 import { AlertTitle } from '@material-ui/lab';
 import LinearProgress from '@material-ui/core/LinearProgress'
@@ -147,6 +148,8 @@ function Previews () {
   }
 
   const uploadToServer = async (e) => {
+    const jwt = auth.isAuthenticated();
+    let token = jwt.token;
     console.log(acceptedFiles.map((file) => file.name))
     e.preventDefault()
     /* eslint-disable no-unused-vars */
@@ -163,9 +166,7 @@ function Previews () {
 
       axios.post('/api/uploadImage', imageFormObj,
       {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-      },
+        headers: { Authorization: token , 'Content-Type': 'multipart/form-data'},
         onUploadProgress: (progressEvent) => {
         const { loaded, total, lengthComputable } = progressEvent
         if (lengthComputable && total > 0) {

@@ -334,20 +334,21 @@ export default function EditIssue(props) {
 
   const { id } = props.match.params;
 
-  const init = (userId) => {
+  const init = () => {
     const jwt = auth.isAuthenticated();
 
     getUsers({ t: jwt.token }).then((data) => {
       if (data.error) {
         setValues({ redirectToSignin: true });
       } else {
+        console.log("Inside init >> ", data);
         setUsers(data.data);
       }
     });
   };
 
   const handleDataChange = (name) => (event) => {
-    console.log("Updated ", name);
+    console.log("Updated ", name, event);
     setData({
       ...dataset,
       [name]: event.target.value,
@@ -385,6 +386,7 @@ export default function EditIssue(props) {
     setEditorStateRep(editorStateRep);
 
     setData(res);
+    console.log("Result Dataset: >>>>" , res)
     console.log("Imagename: ", res.imageName);
     if (
       res.imageName === "" ||
@@ -742,10 +744,13 @@ export default function EditIssue(props) {
                 id="outlined-select-delegert"
                 select
                 label="Delegert til"
-                name="delegert"
-                defaultValue="Ingen valgt"
+                name="delegated"
                 className={classes.textField}
-                value={dataset.delegated || "Ingen valgt"}
+                value={[
+                  dataset.delegated != null ?
+                    dataset.delegated.id
+                    : "Laster...",
+                ]}
                 onChange={handleDataChange("delegated")}
                 InputProps={{
                   className: classes.input,

@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     paddingTop: "65px",
-    margin: "2rem",
+    marginLeft: "1.2rem",
   },
   statusImg: {
     width: "20px",

@@ -385,15 +385,15 @@ export default function CreateIssue(props) {
       ...prevState,
       setImageName: [...images.imageupload[1].name],
     }));
-    console.log(images.imageupload[1]);
+    console.log("IMAGE UPLOAD FILE >>>", images.imageupload[1]);
   };
 
   // Legg inn ny query / varelinje i database med backend API
   const createIssue = async () => {
-    let imageNameValue = "[none]";
-    if (!images) {
-      imageNameValue = images.imageupload[1].name;
-    }
+     console.log("Images 1: ", images.imageupload[1].file)
+
+     let imageNameValue = images.imageupload[1];
+
 
     const htmlContentStateDesc = JSON.stringify(
       convertToRaw(editorStateDesc.getCurrentContent())

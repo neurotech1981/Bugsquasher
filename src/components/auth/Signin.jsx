@@ -38,14 +38,11 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
   },
   passwordLink: {
-    fontSize: "1em",
-    color: "black !important",
     "&:hover": {
       transition: theme.transitions.create("margin", {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
       }),
-      color: "pink !important",
     },
   },
   card: {

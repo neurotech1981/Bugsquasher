@@ -24,10 +24,14 @@ const cookieParser = require("cookie-parser");
 const AccessControl = require("accesscontrol");
 const rateLimit = require("express-rate-limit");
 const csrf = require("csurf");
-
+const OS = require('os');
 // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 // see https://expressjs.com/en/guide/behind-proxies.html
 // app.set('trust proxy', 1);
+
+process.env.UV_THREADPOOL_SIZE = OS.cpus().length;
+
+console.log("Threadpool size set to: ", OS.cpus().length);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -192,6 +196,7 @@ ProtectedRoutes.use((req, res, next) => {
   // check header for the token
   //console.log("ProtectedRoutes headers: ", req.headers)
   var token = req.headers.authorization;
+  console.log("Checking token...", token);
 
   if (token === undefined) {
     token = req.body.token;
@@ -203,6 +208,7 @@ ProtectedRoutes.use((req, res, next) => {
     try {
       jwt.verify(token, app.get("jwtSecret"), (err, decoded) => {
         if (err) {
+          console.log("Invalid token")
           return res.json({ message: "invalid token" });
         } else {
           // if everything is good, save to request for use in other routes
@@ -224,6 +230,7 @@ ProtectedRoutes.use((req, res, next) => {
 ProtectedRoutes.route("/uploadimage", multipartMiddleware).post(
   upload.array("imageData", 12),
   function (req, res, next) {
+    console.log("Inside image uploader")
     const file = req.files;
     if (!file) {
       const error = new Error("En feil oppstod");

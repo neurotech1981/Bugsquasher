@@ -5,11 +5,10 @@ import config from '../../config/index'
 
 export const signin = (req, res) => {
   const { email } = req.body
-  console.log("Signing in....");
   User.findOne({ email: email }, (err, user) => {
     if (err || !user) {
       return res.status(401).json({
-        error: 'Bruker ikke funnet'
+        error: 'Bruker ikke funnet ' + err
       })
     }
     if (!user.authenticate(req.body.password)) {

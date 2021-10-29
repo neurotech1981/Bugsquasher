@@ -94,7 +94,6 @@ export default function Signin() {
   };
 
   const clickSubmit = () => {
-    console.log("SIGNING IN")
     const user = {
       email: values.email || undefined,
       password: values.password || undefined,

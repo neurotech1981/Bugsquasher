@@ -52,7 +52,6 @@ export const changePassword = async (token, password, passwordConfirm, credentia
 
 export const changePasswordProfile = async (_id, password, passwordConfirm,credentials) => {
   try {
-    console.log("Inside change password profile")
     const response = await fetch('/api/change-password/', {
       method: 'POST',
       headers: {

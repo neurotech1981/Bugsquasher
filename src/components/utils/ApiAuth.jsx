@@ -5,7 +5,6 @@ const instance = axios.create();
 export default {
     SignIn: async (auth) => {
       const res = await instance.post("/auth/signin/", auth, {withCredentials: true});
-      console.log("SignIn ", res)
       return res.data || [];
     },
     SignOut: async () => {

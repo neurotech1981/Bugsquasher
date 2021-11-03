@@ -1,4 +1,4 @@
-const getErrorMessage = (err) => {
+ const getErrorMessage = (err) => {
   let message = ''
   if (err.code) {
     switch (err.code) {
@@ -18,7 +18,7 @@ const getErrorMessage = (err) => {
   return message
 }
 
-const getUniqueErrorMessage = (err) => {
+ const getUniqueErrorMessage = (err) => {
   let output
   console.log(err);
   try {
@@ -30,7 +30,8 @@ const getUniqueErrorMessage = (err) => {
   } catch (ex) {
     output = 'Field Already Exists!'
   }
-  return output
+  return output;
 }
 
-module.exports = { getErrorMessage, getUniqueErrorMessage }
+//module.exports = { getErrorMessage, getUniqueErrorMessage }
+export default {getErrorMessage, getUniqueErrorMessage};

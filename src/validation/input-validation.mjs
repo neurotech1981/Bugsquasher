@@ -1,9 +1,9 @@
-const validator = require('validator')
+import validator from 'validator'
 // eslint-disable-next-line no-underscore-dangle
-const _isEmpty = require('./is-empty')
+import _isEmpty from './is-empty.js'
 
 // eslint-disable-next-line no-undef
-module.exports = function validateInput (data) {
+const validateInput = (data) => {
   const errors = {}
 
   data.name = !_isEmpty(data.name) ? data.name : ''
@@ -54,3 +54,5 @@ module.exports = function validateInput (data) {
     isValid: _isEmpty(errors)
   }
 }
+
+export default validateInput;

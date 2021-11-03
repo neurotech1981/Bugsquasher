@@ -390,9 +390,8 @@ export default function CreateIssue(props) {
 
   // Legg inn ny query / varelinje i database med backend API
   const createIssue = async () => {
-     console.log("Images 1: ", images.imageupload[1].file)
 
-     let imageNameValue = images.imageupload[1];
+    let imageNameValue = images.imageupload[1];
 
 
     const htmlContentStateDesc = JSON.stringify(

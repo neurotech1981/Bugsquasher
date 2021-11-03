@@ -441,7 +441,7 @@ a:focus {
   grid-area: aside;
   position: -webkit-sticky;
   position: fixed;
-  right: 360px;
+  right: 400px;
 }
 
 .two-columns__main {

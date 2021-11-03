@@ -1,7 +1,7 @@
 // /backend/data.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const Schema = mongoose.Schema;
-const Populate = require('../util/autopopulate');
+import Populate from '../util/autopopulate.js';
 //const Schema = _Schema;
 // {
 //        type: String,
@@ -26,4 +26,5 @@ CommentsSchema
   .pre('find', Populate('comments'));
 
 // export the new Schema so we could modify it using Node.js
-module.exports = mongoose.model('Comment', CommentsSchema)
+//module.exports = mongoose.model('Comment', CommentsSchema)
+export default mongoose.model('Comment', CommentsSchema)

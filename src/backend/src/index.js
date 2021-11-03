@@ -2,29 +2,50 @@
 /* eslint-disable no-undef */
 // import dependencies
 import jwt from "jsonwebtoken";
-import userRoutes from "./routes/user";
-import authRoutes from "./routes/auth";
-import config from "../config/index";
-const express = require("express");
-const mongoSanitize = require("express-mongo-sanitize");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const helmet = require("helmet");
-const morgan = require("morgan");
-const mongoose = require("mongoose");
-const Data = require("./models/issue");
-const User = require("./models/user");
-const Comments = require("./models/comment");
-const path = require("path");
-const logger = require("morgan");
-const moment = require("moment");
-const multer = require("multer");
-var multipart = require("connect-multiparty");
-const cookieParser = require("cookie-parser");
-const AccessControl = require("accesscontrol");
-const rateLimit = require("express-rate-limit");
-const csrf = require("csurf");
-const OS = require('os');
+import userRoutes from "./routes/user.js";
+import authRoutes from "./routes/auth.js";
+import validateInput from "../../validation/input-validation.mjs";
+import validateCommentInput from "../../validation/comment-validation.js";
+import config from "../config/index.js";
+import express from "express";
+import mongoSanitize from "express-mongo-sanitize";
+import bodyParser from "body-parser";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import mongoose from "mongoose";
+import Data from "./models/issue.js";
+import User from "./models/user.js";
+import Comments from "./models/comment.js";
+import path from "path";
+import logger from "morgan";
+import moment from "moment";
+import multer from "multer";
+import multipart from "connect-multiparty";
+import cookieParser from "cookie-parser";
+import AccessControl from "accesscontrol";
+import rateLimit from "express-rate-limit";
+import csrf from "csurf";
+import AccountController from "./accounts/account.controller.js";
+import OS from 'os';
+import cluster from 'cluster';
+import process from 'process';
+
+
+const totalCPUs = OS.cpus().length;
+
+
+process.on('unhandledRejection', (rejectionErr) => {
+  // Won't execute
+  console.log('unhandledRejection Err::', rejectionErr);
+  console.log('unhandledRejection Stack::', JSON.stringify(rejectionErr.stack));
+});
+
+process.on('uncaughtException', (uncaughtExc) => {
+  console.log('uncaughtException Err::', uncaughtExc);
+  console.log('uncaughtException Stack::', JSON.stringify(uncaughtExc.stack));
+});
+
 // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 // see https://expressjs.com/en/guide/behind-proxies.html
 // app.set('trust proxy', 1);
@@ -105,9 +126,6 @@ var upload = multer({
 // const dbRoute =
 const API_PORT = 3001;
 
-const validateInput = require("../../validation/input-validation");
-const validateCommentInput = require("../../validation/comment-validation");
-
 // Use the Data object (data) to find all Data records
 Data.find(Data);
 // connects our back end code with the database
@@ -133,18 +151,36 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"));
 mongoose.Promise = global.Promise;
 
 
-module.exports = {
-  UserAccount: require("../src/models/user"),
-  RefreshToken: require("../src/accounts/refresh-tokens"),
-  isValidId,
-};
+//module.exports = {
+//  UserAccount: require("../src/models/user.js"),
+//  RefreshToken: require("../src/accounts/refresh-tokens.js"),
+//  isValidId,
+//};
 
 function isValidId(id) {
   return mongoose.Types.ObjectId.isValid(id);
 }
 
+if (cluster.isPrimary) {
+  console.log(`Number of CPUs is ${totalCPUs}`);
+  console.log(`Master ${process.pid} is running`);
+
+  // Fork workers.
+  for (let i = 0; i < totalCPUs; i++) {
+    cluster.fork();
+  }
+
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`worker ${worker.process.pid} died`);
+    console.log("Let's fork another worker!");
+    cluster.fork();
+  });
+
+} else {
+
 // define the Express app
 const app = express();
+console.log(`Worker ${process.pid} started`);
 const ProtectedRoutes = express.Router();
 
 app.use(cookieParser());
@@ -165,6 +201,7 @@ app.use(logger("dev"));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use("/uploads", express.static("../assets/uploads"));
 // Redirect to react build
+let __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, "../build")));
 app.get("/", function (req, res, next) {
   res.sendFile(path.resolve("../build/index.html"));
@@ -651,7 +688,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                     day_year: {
                       $concat: [
                         {
-                          $arrayElemAt: [daysArray, { $subtract: ["$$m1", 8] }],
+                          $arrayElemAt: [daysArray, { $subtract: ["$$m1", 7] }],
                         },
                         "-",
                         "$start_week",
@@ -669,7 +706,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                     day_year: {
                       $concat: [
                         {
-                          $arrayElemAt: [daysArray, { $subtract: ["$$m2", 8] }],
+                          $arrayElemAt: [daysArray, { $subtract: ["$$m2", 7] }],
                         },
                         "-",
                         "$end_week",
@@ -720,6 +757,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
       if (err) {
         res.send(err.message);
       } else {
+        console.log("Weekly issues >>>>", result);
         res.json(result);
       }
     }
@@ -1175,12 +1213,16 @@ ProtectedRoutes.post("/issue/comments/:id", async function (req, res) {
 });
 
 // api routes
-app.use("/accounts", require("./accounts/account.controller"));
+app.use("/accounts", AccountController);
 
 // append /api for our http requests
 app.use("/api", ProtectedRoutes);
 
 // start the server
 app.listen(API_PORT, () => {
-  console.log(`LISTENING ON PORT ${API_PORT}`);
+  console.log(`Started server on =>`, '\x1b[33m' ,
+              `http://localhost:${API_PORT}`,
+              '\x1b[0m',
+              `for Process ID =>`, '\x1b[44m',`${process.pid}`,'\x1b[0m');
 });
+}

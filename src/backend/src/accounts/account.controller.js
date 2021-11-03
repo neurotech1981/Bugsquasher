@@ -1,11 +1,11 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const Joi = require('@hapi/joi');
-const Role = require('../../../helpers/role');
-const accountService = require('../controllers/user');
-const validateRequest = require('../../_middleware/validate-request');
+import Joi from '@hapi/joi';
+import Role from '../../../helpers/role.js';
+import accountService from '../controllers/user.js';
+import validateRequest from '../../_middleware/validate-request.js';
 
 // routes
 router.post('/refresh-token', refreshToken);
@@ -14,7 +14,7 @@ router.post('/bekreft-epost', verifyEmailSchema, verifyEmail);
 router.post('/glemt-passord', forgotPasswordSchema, forgotPassword);
 router.post('/validate-reset-token', validateResetTokenSchema, validateResetToken);
 router.post('/tilbakestill-passord', resetPasswordSchema, resetPassword);
-module.exports = router;
+export default router;
 
 
 function refreshToken(req, res, next) {

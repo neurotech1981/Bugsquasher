@@ -1,14 +1,17 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-const User = require("../models/user");
-const Comment = require("../models/comment").default;
-const db = require("../index");
-const errorHandler = require("../../../helpers/dbErrorHandler");
-const Role = require("../../../helpers/role");
-const Rights = require("../../../helpers/rights");
-const sendEmail = require("../../../helpers/send-email");
-const crypto = require("crypto");
-const bcrypt = require("bcrypt");
+
+import User from "../models/user.js";
+import Comment from "../models/comment.js";
+//import db from "../index.js";
+import dbErr from "../../../helpers/dbErrorHandler.mjs";
+import Role from "../../../helpers/role.js";
+import Rights from "../../../helpers/rights.js";
+import sendEmail from "../../../helpers/send-email.js";
+import crypto from "crypto";
+import bcrypt from "bcrypt";
+
+const { getErrorMessage, getUniqueErrorMessage } = dbErr;
+
+export default User;
 
 export const registerUser = async (req, res, next) => {
   const user = new User(req.body);
@@ -21,7 +24,7 @@ export const registerUser = async (req, res, next) => {
   user.save((err, result) => {
     if (err) {
       return res.status(400).json({
-        error: errorHandler.getErrorMessage(err),
+        error: getErrorMessage(err),
       });
     }
     res.status(200).json({
@@ -41,7 +44,7 @@ export const addComment = async (req, res, next) => {
   comment.save((err, result) => {
     if (err) {
       return res.status(400).json({
-        error: errorHandler.getErrorMessage(err),
+        error: getErrorMessage(err),
       });
     }
     console.log(result);
@@ -102,7 +105,7 @@ export async function changePassword(req, res, next) {
   await account.save((err, result) => {
     if (err) {
       return res.status(400).json({
-        error: errorHandler.getErrorMessage(err),
+        error: getErrorMessage(err),
       });
     }
     return res.status(200).json({

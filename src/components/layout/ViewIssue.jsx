@@ -134,7 +134,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const thumbsContainer = {
-  display: "flex",
+  display: "grid",
   flexDirection: "row",
   flexWrap: "wrap",
   marginTop: 16,
@@ -142,7 +142,7 @@ const thumbsContainer = {
 };
 
 const thumb = {
-  display: "inline-flex",
+  display: "inline-grid",
   position: "relative",
   borderRadius: 2,
   border: "3px solid #eaeaea",
@@ -288,12 +288,9 @@ export default function ViewIssue(props) {
       );
 
       setEditorStateRep(editorStateRep);
-
+      console.log("Imagename in ViewIssue>> ", JSON.stringify(result.imageName[0]));
       if (
-        result.imageName[0].name === "" ||
-        result.imageName[0].name === "[none]" ||
-        result.imageName[0].name === "none" ||
-        result.imageName[0].name === undefined
+        result.imageName[0] === "none" || result.imageName[0] === "[none]" || result.imageName[0] === undefined
       ) {
         setImages(["none"]);
       } else {
@@ -390,11 +387,11 @@ export default function ViewIssue(props) {
   );
 
   const imgList = images.map((file, index) => {
-    if (file === "none" || file === undefined) {
+    if (file === "none" || file === undefined || file === "[none]") {
       return <div key={index}>Ingen vedlegg</div>;
     }
     return (
-      <div style={{ display: "grid", margin: "1em", top: "23rem"}} key={index}>
+      <div key={index}>
         <ModalImage
           small={process.env.PUBLIC_URL + "/uploads/" + file.path}
           large={process.env.PUBLIC_URL + "/uploads/" + file.path}
@@ -513,7 +510,7 @@ export default function ViewIssue(props) {
               <InputLabel shrink htmlFor="select-multiple-native">
                 Vedlegg
               </InputLabel>
-              <aside style={thumbsContainer}>{imgList}</aside>
+              <div style={thumb}>{imgList}</div>
             </div>
             <div className="item4">
               <TextField

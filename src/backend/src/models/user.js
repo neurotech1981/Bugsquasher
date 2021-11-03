@@ -122,7 +122,10 @@ userSchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("User", userSchema);
+//module.exports = mongoose.model("User", userSchema);
+
+export default mongoose.model("User", userSchema);
+
 export function findByIdAndRemove(arg0, arg1) {
   throw new Error("Function not implemented.");
 }

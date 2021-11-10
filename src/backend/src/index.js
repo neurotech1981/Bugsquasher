@@ -688,7 +688,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                     day_year: {
                       $concat: [
                         {
-                          $arrayElemAt: [daysArray, { $subtract: ["$$m1", 7] }],
+                          $arrayElemAt: [daysArray, { $subtract: ["$$m1", 8] }],
                         },
                         "-",
                         "$start_week",
@@ -706,7 +706,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                     day_year: {
                       $concat: [
                         {
-                          $arrayElemAt: [daysArray, { $subtract: ["$$m2", 7] }],
+                          $arrayElemAt: [daysArray, { $subtract: ["$$m2", 8] }],
                         },
                         "-",
                         "$end_week",

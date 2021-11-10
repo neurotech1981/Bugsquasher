@@ -604,7 +604,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
   //var end = moment().format();
   var start = moment().startOf("isoweek").format(); // set to 12:00 am today
   var end = moment().endOf("isoweek").format(); // set to 23:59 pm today
-
+  console.log("Weekly count : ", start + "<< >>", end);
   Data.aggregate(
     [
       {
@@ -640,7 +640,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                   {
                     $subtract: [
                       { $toInt: { $substrCP: ["$_id.year_day", 8, 2] } },
-                      18,
+                      8,
                     ],
                   },
                 ],

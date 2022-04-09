@@ -116,13 +116,13 @@ const emailsSubscriptionChart = {
 const completedTasksChart = {
   options: {
     lineSmooth: Chartist.Interpolation.simple({
-    divisor: 2
+    divisor: 4
   }),
     low: 0,
-    high: 12, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
+    high: 6, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
     chartPadding: {
       top: 0,
-      right: 20,
+      right: 10,
       bottom: 0,
       left: 0
     }

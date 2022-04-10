@@ -622,7 +622,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
        */
       {
         $group: {
-          _id: { year_day: { $substrCP: ["$createdAt", 0, 18] } },
+          _id: { year_day: { $substrCP: ["$createdAt", 0, 24] } },
         },
       },
       {
@@ -640,7 +640,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                   {
                     $subtract: [
                       { $toInt: { $substrCP: ["$_id.year_day", 8, 2] } },
-                      8,
+                      4,
                     ],
                   },
                 ],
@@ -653,7 +653,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
       },
       {
         $group: {
-          _id: null,
+          _id: 0,
           data: { $push: { k: "$day_year", v: "$count" } },
         },
       },
@@ -663,14 +663,14 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
           end_week: { $substrCP: [end, 0, 4] },
           months1: {
             $range: [
-              LAST_DAY,
-              { $add: [{ $toInt: { $substrCP: [end, 5, 2] } }, 0] },
+              FIRST_DAY,
+              { $add: [{ $toInt: { $substrCP: [end, 8, 2] } }, 0] },
             ],
           },
           months2: {
             $range: [
-              FIRST_DAY,
-              { $add: [{ $toInt: { $substrCP: [start, 5, 2] } }, 0] },
+              LAST_DAY,
+              { $add: [{ $toInt: { $substrCP: [start, 8, 2] } }, 0] },
             ],
           },
         },
@@ -767,33 +767,45 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
 ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
   // Work out days for start of tomorrow and one week before
   const oneDay = 1000 * 60 * 60 * 24,
-    oneWeek = oneDay * 7;
+  oneWeek = oneDay * 7;
 
   let d = Date.now();
   let lastDay = d - (d % oneDay) + oneDay;
   let firstDay = lastDay - oneWeek;
 
   const FIRST_HOUR = 0;
-  const LAST_HOUR = 9;
+  const LAST_HOUR = 24;
   const hoursArray = [
     "00:00",
+    "01:00",
+    "02:00",
     "03:00",
+    "04:00",
+    "05:00",
     "06:00",
+    "07:00",
+    "08:00",
     "09:00",
+    "10:00",
+    "11:00",
     "12:00",
+    "13:00",
+    "14:00",
     "15:00",
+    "16:00",
+    "17:00",
     "18:00",
+    "19:00",
+    "20:00",
     "21:00",
+    "22:00",
     "23:59",
   ];
 
-  //var start = moment().subtract(12, 'months').format();
-  //var end = moment().format();
-  var start = moment().startOf("day").format(); // set to 12:00 am today
+  var start = moment().startOf("day").format(); // set to  00:00 am today
   var end = moment().endOf("day").format(); // set to 23:59 pm today
-  //let end = "2021-07-06T23:59:59"
-  //let start = "2019-04-07T00:00:00"
-  console.log(start + " <:> " + end)
+
+  console.log("24 hour solved count: ",start + " <:> " + end)
 
   Data.aggregate(
     [
@@ -814,11 +826,6 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
        */
       {
         $group: {
-          /*_id : {
-                     month: { $month: "$createdAt" },
-                     year: { $year: "$createdAt" } },
-                     count : {$sum : 1}
-             }*/
           _id: { year_day: { $substrCP: ["$updatedAt", 0, 24] } },
         },
       },
@@ -837,7 +844,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
                   {
                     $subtract: [
                       { $toInt: { $substrCP: ["$_id.year_day", 11, 2] } },
-                      23,
+                      24,
                     ],
                   },
                 ],

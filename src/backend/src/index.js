@@ -847,7 +847,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
                   {
                     $subtract: [
                       { $toInt: { $substrCP: ["$_id.year_day", 11, 2] } },
-                      24,
+                      22,
                     ],
                   },
                 ],

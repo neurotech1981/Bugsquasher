@@ -266,7 +266,6 @@ function NavBar(props) {
                 <ListItem selected={items.path === location.pathname} button key={items.key} to={items.path}>
                   <ListItemIcon>{items.icon}</ListItemIcon>
                   <ListItemText primary={items.label} />
-                  {console.log(items.path)}
                 </ListItem>
               </Link>
             ))}

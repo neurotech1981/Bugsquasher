@@ -602,8 +602,9 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
   const daysArray = ["Man", "Tirs", "Ons", "Tors", "Fre", "Lør", "Søn"];
   //var start = moment().subtract(12, 'months').format();
   //var end = moment().format();
-  var start = moment().startOf("isoweek").format(); // set to 12:00 am today
-  var end = moment().endOf("isoweek").format(); // set to 23:59 pm today
+  var start = moment().startOf("isoweek").format(); // set to 12:00 am start of week
+  var end = moment().endOf("isoweek").format(); // set to 23:59 pm end of week
+  var today = new Date()
   console.log("Weekly count : ", start + "<< >>", end);
   Data.aggregate(
     [
@@ -623,6 +624,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
       {
         $group: {
           _id: { year_day: { $substrCP: ["$createdAt", 0, 24] } },
+          count: { $sum: -1 }
         },
       },
       {
@@ -640,7 +642,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                   {
                     $subtract: [
                       { $toInt: { $substrCP: ["$_id.year_day", 8, 2] } },
-                      4,
+                      11,
                     ],
                   },
                 ],
@@ -663,14 +665,14 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
           end_week: { $substrCP: [end, 0, 4] },
           months1: {
             $range: [
-              FIRST_DAY,
-              { $add: [{ $toInt: { $substrCP: [end, 8, 2] } }, 0] },
+              LAST_DAY,
+              { $add: [{ $toInt: { $substrCP: [end, 5, 2] } }, 4] },
             ],
           },
           months2: {
             $range: [
-              LAST_DAY,
-              { $add: [{ $toInt: { $substrCP: [start, 8, 2] } }, 0] },
+              FIRST_DAY,
+              { $add: [{ $toInt: { $substrCP: [start, 5, 2] } }, 4] },
             ],
           },
         },
@@ -688,7 +690,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                     day_year: {
                       $concat: [
                         {
-                          $arrayElemAt: [daysArray, { $subtract: ["$$m1", 8] }],
+                          $arrayElemAt: [daysArray, { $subtract: ["$$m1", 1] }],
                         },
                         "-",
                         "$start_week",
@@ -706,7 +708,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                     day_year: {
                       $concat: [
                         {
-                          $arrayElemAt: [daysArray, { $subtract: ["$$m2", 8] }],
+                          $arrayElemAt: [daysArray, { $subtract: ["$$m2", 1] }],
                         },
                         "-",
                         "$end_week",
@@ -755,6 +757,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
     function (err, result) {
       // results in here
       if (err) {
+        console.log("Weekly issues Error >>>>", err.message);
         res.send(err.message);
       } else {
         console.log("Weekly issues >>>>", result);

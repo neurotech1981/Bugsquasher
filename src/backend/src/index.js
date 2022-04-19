@@ -183,6 +183,8 @@ const app = express();
 console.log(`Worker ${process.pid} started`);
 const ProtectedRoutes = express.Router();
 
+app.set('view engine', 'ejs');
+
 app.use(cookieParser());
 //app.use(csrf({ cookie: true }));
 //set secret
@@ -1047,7 +1049,7 @@ ProtectedRoutes.post("/upDateIssue/:id", async function (req, res, next) {
   });
 });
 
-ProtectedRoutes.route("/getIssueByID/:id").get(async function (req, res) {
+ProtectedRoutes.route("/getIssueByID/:id").post(async function (req, res) {
   try {
   await Data.findOne({ _id: req.params.id })
     .populate([
@@ -1075,6 +1077,69 @@ ProtectedRoutes.route("/getIssueByID/:id").get(async function (req, res) {
   }
 });
 
+// CREATE REPLY
+ProtectedRoutes.route('/issue/:issueId/comments/:commentId/replies').post(async function (
+  req,
+  res,
+  next
+) {
+  // TURN REPLY INTO A COMMENT OBJECT
+  const reply = new Comments(req.body);
+
+  reply.author = req.body.user;
+  // LOOKUP THE PARENT POST
+  Data.findById(req.params.issueId)
+    .then((post) => {
+      // FIND THE CHILD COMMENT
+      console.log("POST: ", post);
+
+      Promise.all([
+        reply.save(),
+        Comments.findById(req.params.commentId)
+      ])
+        .then(([reply, comment]) => {
+          // ADD THE REPLY
+          console.log("REPLY: ", reply);
+          comment.comments.unshift(reply._id);
+          return Promise.all([
+            comment.save(),
+          ]);
+        })
+        .then(response => res.json({
+          success: true,
+          data: response,
+        }))
+        .catch(console.error);
+      // SAVE THE CHANGE TO THE PARENT DOCUMENT
+      return post.save();
+    });
+});
+
+ProtectedRoutes.route("/issue/:issueId/comments/:commentId/replies/new").get(async function (req, res) {
+  const currentUser = req.body.user;
+  let issue;
+  try {
+    Data.findById(req.params.issueId).lean()
+      .then((p) => {
+        issue = p;
+        console.log("Inside then P", p);
+        return Comments.findById(req.params.commentId).lean();
+      })
+      .then((result) => {
+        console.log("Inside then issue", result);
+        issue.comments.unshift(result);
+
+        res.render('replies-new', { issue, result, currentUser });
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  } catch(e) {
+    // database error
+    res.status(500).send("database error", e.message);
+  }
+});
+
 ProtectedRoutes.route("/get-comments/:id").get(async function (req, res) {
   const currentUser =  req.body.user;
   try {
@@ -1094,6 +1159,7 @@ ProtectedRoutes.route("/get-comments/:id").get(async function (req, res) {
     res.status(500).send("database error " + e);
   }
 });
+
 
 // this is our old update method
 // this method overwrites existing data in our database
@@ -1186,7 +1252,7 @@ ProtectedRoutes.post("/issue/comments/:id", async function (req, res) {
     return res.status(400).json(errors);
   } */
   const comment = new Comments(req.body);
-
+  console.log("Inside new comment");
   comment
   .save()
   .then(() => Promise.all([

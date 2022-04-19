@@ -1,5 +1,6 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import React, { useState } from "react";
+//import { useParams } from "react-router-dom";
+import { makeStyles, fade } from "@material-ui/core/styles";
 import {
   List,
   ListItem,
@@ -7,7 +8,10 @@ import {
   ListItemAvatar,
   Avatar,
   Typography,
-  IconButton
+  IconButton,
+  Button,
+  TextField,
+  Box
 } from "@material-ui/core";
 import QueryBuilderIcon from "@material-ui/icons/QueryBuilder";
 import AlternateEmailIcon from "@material-ui/icons/AlternateEmail";
@@ -38,6 +42,20 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "0.8em",
     verticalAlign: "middle",
   },
+  commentIndent: {
+    marginLeft: 20,
+    paddingLeft: "20px",
+    borderLeft: `1px dashed ${fade(theme.palette.text.primary, 0.4)}`
+  },
+  indent: {
+    marginLeft: 20,
+    paddingLeft: "12px",
+    borderLeft: `2px solid ${fade(theme.palette.text.primary, 0.4)}`,
+  },
+  indentAvatarImg: {
+    marginLeft: 20,
+    paddingLeft: "12px",
+  },
   inline: {
     display: "inline",
   },
@@ -55,7 +73,18 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Comments = ({ comments }) => {
+  //const { id } = useParams();
+
   const jwt = auth.isAuthenticated();
+  const [hidden, setHidden] = useState({});
+  const toggleHide = index => {
+    setHidden({ ...hidden, [index]: !hidden[index] });
+  };
+  const [hiddenReply, setHiddenReply] = useState({});
+  const toggleHideReply = index => {
+    setHiddenReply({ ...hiddenReply, [index]: !hiddenReply[index] });
+  };
+
 
   const classes = useStyles();
   return (
@@ -64,36 +93,32 @@ const Comments = ({ comments }) => {
     Kommentarer ({comments.length})
   </Typography>
     <List className={classes.root}>
-      {comments.map((result) => {
+      {comments.map((result, index) => {
         return (
           <React.Fragment key={result._id}>
+
             <ListItem key={result._id} alignItems="flex-start">
-              <ListItemAvatar>
-                <Avatar alt="avatar" src={Faker.image.avatar()} />
-              </ListItemAvatar>
               <ListItemText
                 primary={
                   <>
-                    <Typography
-                      component={"span"}
-                      variant={"body2"}
-                      className={classes.fontName}
-                    >
-                      <PersonPinIcon className={classes.iconDate} />
+                    <ListItem className={classes.fontBody} style={{ width: '100%', maxWidth: "50%", left: '-120px', top: '-10px' }}>
+                      <ListItemAvatar>
+                        <Avatar alt="avatar" src={Faker.image.avatar()} />
+                      </ListItemAvatar>
                       {result.author.name}
-                    </Typography>
                     {result.author._id === jwt.user._id ?
                     <>
                     <IconButton size="small" aria-label="delete" color="secondary">
                       <DeleteIcon />
                     </IconButton>
-                    <IconButton size="small" aria-label="delete" color="primary">
+                    <IconButton size="small" aria-label="edit" color="primary">
                       <EditIcon />
                     </IconButton>
                     </>
-                    : <IconButton size="small" aria-label="delete" color="primary">
-                        <ReplyIcon />
+                    : <IconButton size="small" aria-label="reply" color="primary">
+                        <ReplyIcon key={result._id} onClick={() => toggleHide(index)}/>
                       </IconButton>}
+                    </ListItem>
                     <ListItemText>
                       <Typography
                         component={"span"}
@@ -116,8 +141,70 @@ const Comments = ({ comments }) => {
                       <AlternateEmailIcon className={classes.iconDate} />
                       {result.author.email}
                     </Typography>
+                    {!!hidden[index] && <div key={index} >
+                        <TextField id="outlined-basic" key={index} label="Svar" variant="outlined" />
+                        <Box mt={1}>
+                          <Typography component={"p"} variant={"subtitle"} >
+                            <Button variant="contained" color="primary">Svar</Button>
+                          </Typography>
+                        </Box>
+                        </div>
+                        }
+                    {result.comments.map((result, index) => {
+                      return (
+                      <>
+                      <br />
+                        <Typography
+                        component={"span"}
+                        variant={"body2"}
+                        className={classes.fontName}
+                      >
+                        <PersonPinIcon className={classes.iconDate} />
+                        {result.author.name}
+                      </Typography>
+                      {result.author._id === jwt.user._id ?
+                      <>
+                      <Typography
+                        component={"p"}
+                        variant={"body2"}
+                        className={[classes.fontName, classes.commentIndent].join(" ")}
+                      >
+                        <PersonPinIcon className={classes.iconDate} />
+                        {result.author.name}
+                      </Typography>
+                      <IconButton size="small" aria-label="delete" color="secondary">
+                        <DeleteIcon />
+                      </IconButton>
+                      <IconButton size="small" aria-label="delete" color="primary">
+                        <EditIcon />
+                      </IconButton>
+                      </>
+                      : <IconButton size="small" aria-label="delete" color="primary">
+                          <ReplyIcon key={result._id} onClick={() => toggleHideReply(index)}/>
+                        </IconButton>}
+                      <ListItemText>
+                        <Typography
+                          component={"span"}
+                          variant={"subtitle1"}
+                          className={[classes.fontBody, classes.commentIndent].join(" ")}
+                        >
+                          {result.content}
+                        </Typography>
+                        {!!hiddenReply[index] && <div key={index} >
+                        <TextField id="outlined-basic" key={index} label="Svar" variant="outlined" />
+                        <Box mt={1}>
+                          <Typography component={"p"} variant={"subtitle"} >
+                            <Button variant="contained" color="primary">Svar</Button>
+                          </Typography>
+                        </Box>
+                        </div>
+                        }
+                      </ListItemText>
+                      </>
+                    )})}
                   </>
                 }
+                className={classes.indent}
               />
             </ListItem>
           </React.Fragment>

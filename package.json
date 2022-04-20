@@ -16,7 +16,7 @@
     "dotenv": "^10.0.0",
     "draft-js": "^0.11.7",
     "draftjs-to-html": "^0.9.1",
-    "express-jwt": "^6.0.0",
+    "express-jwt": "^6.1.2",
     "express-session": "^1.17.2",
     "faker": "^5.5.3",
     "formidable": "^1.2.2",

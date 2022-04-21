@@ -157,7 +157,7 @@ const Comments = ({ comments }) => {
                         <Typography
                         component={"span"}
                         variant={"body2"}
-                        className={classes.fontName}
+                        className={[classes.fontName, classes.commentIndent].join(" ")}
                       >
                         <PersonPinIcon className={classes.iconDate} />
                         {result.author.name}
@@ -189,6 +189,10 @@ const Comments = ({ comments }) => {
                           className={[classes.fontBody, classes.commentIndent].join(" ")}
                         >
                           {result.content}
+                        </Typography>
+                        <Typography component={"p"} variant={"body1"}>
+                          <QueryBuilderIcon className={classes.iconDate} />
+                          {formattedDate(result.updatedAt)}
                         </Typography>
                         {!!hiddenReply[index] && <div key={index} >
                         <TextField id="outlined-basic" key={index} label="Svar" variant="outlined" />

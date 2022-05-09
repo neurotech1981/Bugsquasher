@@ -343,7 +343,10 @@ a:focus {
 }
 
 .__react_modal_image__modal_container {
-  top: 23rem !important;
+  margin: 0;
+  flex: 1;
+  align-items: undefined;
+  justify-content: undefined;
 }
 
 .item0 {

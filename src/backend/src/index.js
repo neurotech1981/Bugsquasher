@@ -28,9 +28,9 @@ import rateLimit from "express-rate-limit";
 import csrf from "csurf";
 import AccountController from "./accounts/account.controller.js";
 import OS from 'os';
+import fs from 'fs';
 import cluster from 'cluster';
 import process from 'process';
-
 
 const totalCPUs = OS.cpus().length;
 
@@ -150,7 +150,6 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 mongoose.Promise = global.Promise;
 
-
 //module.exports = {
 //  UserAccount: require("../src/models/user.js"),
 //  RefreshToken: require("../src/accounts/refresh-tokens.js"),
@@ -269,7 +268,6 @@ ProtectedRoutes.use((req, res, next) => {
 ProtectedRoutes.route("/uploadimage", multipartMiddleware).post(
   upload.array("imageData", 12),
   function (req, res, next) {
-    console.log("Inside image uploader")
     const file = req.files;
     if (!file) {
       const error = new Error("En feil oppstod");
@@ -1049,7 +1047,7 @@ ProtectedRoutes.post("/upDateIssue/:id", async function (req, res, next) {
   });
 });
 
-ProtectedRoutes.route("/getIssueByID/:id").post(async function (req, res) {
+ProtectedRoutes.route("/getIssueByID/:id").get(async function (req, res) {
   try {
   await Data.findOne({ _id: req.params.id })
     .populate([
@@ -1193,12 +1191,21 @@ ProtectedRoutes.route("/removeUser/:id").post(async function (req, res) {
 // this method removes existing data in our database
 ProtectedRoutes.get("/deleteIssueByID/:id", async function (req, res, next) {
   const { id } = req.params;
-  Data.findByIdAndDelete(id, (err) => {
+  Data.findByIdAndDelete(id, (err, result) => {
+    result.imageName.forEach((e) => {
+      e.name.forEach(element => {
+        if(element.path) {
+          fs.unlinkSync(path.join(__dirname, '..', '/assets/uploads/', element.path)); //delete image when delete issue
+        }
+      });
+
+    });
     if (err) return res.send(err);
     return res.json({
       success: true,
     });
   });
+
 });
 
 // this is our create method

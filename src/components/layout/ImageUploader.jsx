@@ -26,7 +26,7 @@ function LinearProgressWithLabel (props) {
   return (
     <Box display="flex" alignItems="center" style={{ padding: '1em' }}>
       <Box width="100%" mr={1}>
-        <LinearProgress variant="determinate" {...props} />
+        <LinearProgress variant="buffer" {...props} />
       </Box>
       <Box minWidth={25}>
         <Typography variant="body2" color="textSecondary">{`${Math.round(
@@ -67,12 +67,12 @@ const useStyles = makeStyles(() => ({
     borderStyle: 'double',
     borderColor: 'black',
     color: 'black',
-    backgroundColor: 'lightskyblue',
-    boxShadow: '0 3px 5px 2px rgba(0, 0, 0, .3)',
+    backgroundColor: 'lightgrey',
+    boxShadow: '0 3px 2px 1px rgba(0, 0, 0, .2)',
     transition: 'box-shadow 0.3s ease-in-out',
     '&:hover': {
       color: 'purple',
-      boxShadow: '0 0px 2px 1px rgba(0, 0, 0, .3)'
+      boxShadow: '0 0px 0px 0px rgba(0, 0, 0, .3)'
     }
   }
 }))
@@ -266,7 +266,7 @@ function Previews () {
         </Icon>
       </Button>
       </p>
-      <Snackbar open={open} onClose={handleClose} autohideduration={2000}>
+      <Snackbar open={open} onClose={handleClose} autoHideDuration={2000}>
         <Alert onClose={handleClose} severity="success" variant="filled">
           <AlertTitle>Suksess</AlertTitle>
       { files.length } {files.length > 1 ? 'bilder' : 'bilde'} ble lastet opp!

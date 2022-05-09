@@ -142,13 +142,12 @@ const thumbsContainer = {
 };
 
 const thumb = {
-  display: "inline-grid",
+  display: "-webkit-inline-box",
   position: "relative",
   borderRadius: 2,
   border: "3px solid #eaeaea",
   marginBottom: 8,
-  marginRight: 4,
-  width: 150,
+  marginRight: "1em",
   height: 150,
   padding: 4,
   boxSizing: "border-box",
@@ -183,7 +182,7 @@ export default function ViewIssue(props) {
   const [editorStateDesc, setEditorStateDesc] = useState(initState);
   const [editorStateRep, setEditorStateRep] = useState(initState);
 
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState([123]);
   const [openStatusUpdate, setOpenStatusUpdate] = useState({
     openStatusSnackbar: false,
     verticalStatusUpdate: "bottom",
@@ -288,13 +287,13 @@ export default function ViewIssue(props) {
       );
 
       setEditorStateRep(editorStateRep);
-      console.log("Imagename in ViewIssue>> ", JSON.stringify(result.imageName[0]));
       if (
-        result.imageName[0] === "none" || result.imageName[0] === "[none]" || result.imageName[0] === undefined
+        result.imageName === "none" || result.imageName === "[none]" || result.imageName === undefined
       ) {
         setImages(["none"]);
+
       } else {
-        setImages(result.imageName[0].name); //[0]
+        setImages(result.imageName[2].name);
       }
 
     });
@@ -391,11 +390,12 @@ export default function ViewIssue(props) {
       return <div key={index}>Ingen vedlegg</div>;
     }
     return (
-      <div key={index}>
+      <div key={index} style={thumb}>
         <ModalImage
-          small={process.env.PUBLIC_URL + "/uploads/" + file.path}
-          large={process.env.PUBLIC_URL + "/uploads/" + file.path}
-          alt={file.path}
+          small={process.env.PUBLIC_URL + "/uploads/" + file}
+          large={process.env.PUBLIC_URL + "/uploads/" + file}
+          alt={file}
+          key={index}
           imageBackgroundColor="transparent"
         />
       </div>
@@ -510,7 +510,7 @@ export default function ViewIssue(props) {
               <InputLabel shrink htmlFor="select-multiple-native">
                 Vedlegg
               </InputLabel>
-              <div style={thumb}>{imgList}</div>
+              {imgList}
             </div>
             <div className="item4">
               <TextField

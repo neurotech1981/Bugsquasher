@@ -392,7 +392,7 @@ export default function CreateIssue(props) {
   const createIssue = async () => {
 
     let imageNameValue = images.imageupload;
-
+    console.log("Create issue IMAGE: ", imageNameValue);
 
     const htmlContentStateDesc = JSON.stringify(
       convertToRaw(editorStateDesc.getCurrentContent())

@@ -1192,13 +1192,11 @@ ProtectedRoutes.route("/removeUser/:id").post(async function (req, res) {
 ProtectedRoutes.get("/deleteIssueByID/:id", async function (req, res, next) {
   const { id } = req.params;
   Data.findByIdAndDelete(id, (err, result) => {
-    result.imageName.forEach((e) => {
-      e.name.forEach(element => {
+    result.imageName.forEach((element) => {
+      console.log(element);
         if(element.path) {
           fs.unlinkSync(path.join(__dirname, '..', '/assets/uploads/', element.path)); //delete image when delete issue
         }
-      });
-
     });
     if (err) return res.send(err);
     return res.json({
@@ -1233,7 +1231,7 @@ ProtectedRoutes.post("/new-issue", async function (req, res) {
   data.severity = req.body.data.severity;
   data.priority = req.body.data.priority;
   data.userid = req.body.data.userid;
-  data.imageName = req.body.data.imageName;
+  data.imageName = req.body.data.imageName[1][0].name;
 
   data.save((err) => {
     if (err) {

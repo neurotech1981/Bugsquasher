@@ -182,7 +182,7 @@ export default function ViewIssue(props) {
   const [editorStateDesc, setEditorStateDesc] = useState(initState);
   const [editorStateRep, setEditorStateRep] = useState(initState);
 
-  const [images, setImages] = useState([123]);
+  const [images, setImages] = useState([]);
   const [openStatusUpdate, setOpenStatusUpdate] = useState({
     openStatusSnackbar: false,
     verticalStatusUpdate: "bottom",
@@ -293,7 +293,7 @@ export default function ViewIssue(props) {
         setImages(["none"]);
 
       } else {
-        setImages(result.imageName[2].name);
+        setImages(result.imageName);
       }
 
     });
@@ -380,21 +380,21 @@ export default function ViewIssue(props) {
   useEffect(
     () => {
       // Make sure to revoke the data uris to avoid memory leaks
-      images.forEach((file) => URL.revokeObjectURL(file.path));
+      images.forEach((file) => URL.revokeObjectURL(file.preview));
     },
     [images] // files
   );
 
   const imgList = images.map((file, index) => {
-    if (file === "none" || file === undefined || file === "[none]") {
+    if (file.path === "none" || file.path === undefined || file.path === "[none]") {
       return <div key={index}>Ingen vedlegg</div>;
     }
     return (
       <div key={index} style={thumb}>
         <ModalImage
-          small={process.env.PUBLIC_URL + "/uploads/" + file}
-          large={process.env.PUBLIC_URL + "/uploads/" + file}
-          alt={file}
+          small={process.env.PUBLIC_URL + "/uploads/" + file.path}
+          large={process.env.PUBLIC_URL + "/uploads/" + file.path}
+          alt={file.path}
           key={index}
           imageBackgroundColor="transparent"
         />

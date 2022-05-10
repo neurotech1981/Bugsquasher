@@ -26,7 +26,7 @@ function LinearProgressWithLabel (props) {
   return (
     <Box display="flex" alignItems="center" style={{ padding: '1em' }}>
       <Box width="100%" mr={1}>
-        <LinearProgress variant="buffer" {...props} />
+        <LinearProgress variant="determinate" {...props} />
       </Box>
       <Box minWidth={25}>
         <Typography variant="body2" color="textSecondary">{`${Math.round(
@@ -64,11 +64,11 @@ const useStyles = makeStyles(() => ({
     top: '0',
     right: '0',
     cursor: 'pointer',
-    borderStyle: 'double',
+    //borderStyle: 'double',
     borderColor: 'black',
     color: 'black',
-    backgroundColor: 'lightgrey',
-    boxShadow: '0 3px 2px 1px rgba(0, 0, 0, .2)',
+    backgroundColor: 'transparent',
+    //boxShadow: '0 3px 2px 1px rgba(0, 0, 0, .2)',
     transition: 'box-shadow 0.3s ease-in-out',
     '&:hover': {
       color: 'purple',
@@ -150,19 +150,15 @@ function Previews () {
   const uploadToServer = async (e) => {
     const jwt = auth.isAuthenticated();
     let token = jwt.token;
-    console.log(acceptedFiles.map((file) => file.name))
+
     e.preventDefault()
     /* eslint-disable no-unused-vars */
     await new Promise((resolve, reject) => {
-      const imageFormObj = new FormData()
-      for (let x = 0; x < acceptedFiles.length; x++) {
-        imageFormObj.append('imageName', images.imageupload[1].name[x].path)
-        imageFormObj.append('imageData', images.imageupload[1].name[x])
-      }
+      const imageFormObj = new FormData();
 
-      addImage({
-        name: acceptedFiles.map((file) => file.name)
-      })
+      for (let x = 0; x < acceptedFiles.length; x++) {
+        imageFormObj.append('imageData', images.imageupload[1][0].name[x])
+      }
 
       axios.post('/api/uploadImage', imageFormObj,
       {
@@ -197,9 +193,9 @@ function Previews () {
           })
         )
       )
-      addImage({
+      addImage([{
         name: acceptedFiles.map((file) => file)
-      })
+      }])
     }
   })
 
@@ -246,7 +242,7 @@ function Previews () {
         <p>Dra og slipp filer her, eller klikk for å velge fil(er)</p>
       </div>
       <aside style={thumbsContainer}>{thumbs}</aside>
-      { progress ? <LinearProgressWithLabel autohideduration={300} className={classes.borderProgress} value={progress} /> : null }
+      { progress ? <LinearProgressWithLabel autohideduration={3000} className={classes.borderProgress} value={progress} /> : null }
       <p>
       <Button
         disabled={!files.length > 0}

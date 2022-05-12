@@ -112,7 +112,7 @@ const img = {
 }
 
 function Previews (props) {
-  const { imageBool, issueID } = props;
+  const { imageBool, issueID, func_image } = props;
   console.log(imageBool, issueID);
   const classes = useStyles()
   const [files, setFiles] = useState([])
@@ -167,11 +167,9 @@ function Previews (props) {
       let image = images.imageupload[1][0].name;
 
       if(imageBool) {
+        func_image(image);
         issueService
           .addImageToIssue(id, { image }, jwt.token)
-          .then(() => {
-            console.log("Success adding image(s) to use")
-          })
           .catch((e) => {
             console.log("Error adding image to issue: ", e);
           });
@@ -189,6 +187,9 @@ function Previews (props) {
       ).then((data) => {
         if (Promise.resolve('Success').then) {
           setOpen(true)
+          if(imageBool) {
+            setTimeout(function(){ setFiles([]); }, 2000);
+          }
         }
       })
       setProgress(0)

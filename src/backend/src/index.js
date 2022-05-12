@@ -1283,27 +1283,20 @@ ProtectedRoutes.post("/new-issue", async function (req, res) {
 // this is our add image to issue method
 // this method adds new image(s) to existing issue
 ProtectedRoutes.route("/issue/add-image").post(async function (req, res) {
-  console.log("Inside add-image to issue >>> ", req.body.name);
-  /*Data
-  .findByIdAndUpdate(req.body.issueID)
-  .then(() => Promise.all([
-    Data.findById(req.params.id),
-  ]))
-  .then(([issue]) => {
-    issue.push(req.body.image.name.path);
-    return Promise.all([
-      issue.save(),
-    ]);
-  })
-  .then(response => {
-    res.json({
-      success: true,
-      data: response,
-    });
-  })
-  .catch((err) => {
-    console.log(err);
-  });*/
+  Data.updateOne({ _id: req.body.issueID }, {$push:{ imageName: req.body.name.image }}, function(
+    err,
+    result
+  ) {
+    if (err) {
+      res.json({
+        success: false,
+      });
+    } else {
+      res.json({
+        success: true,
+      });
+    }
+  });
 });
 
 // this is our create method

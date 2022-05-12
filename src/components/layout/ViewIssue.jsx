@@ -197,14 +197,11 @@ export default function ViewIssue(props) {
     redirectToSignin: false,
   });
   const [errors, setErrors] = useState("");
-  const [myself, setMyself] = useState([]);
   const [open, setOpen] = useState(false);
-  const [openDeleteImage, setOpenDeleteImage] = useState(false);
   const [opennewcomment, setOpenNewComment] = useState(false);
   const [comments, setComments] = useState([]);
   const [users, setUsers] = useState([]);
 
-  const [selectedDate, setSelectedDate] = useState(dataset.updatedAt);
   const history = useHistory();
 
   const pull_data = (data) => {
@@ -218,6 +215,14 @@ export default function ViewIssue(props) {
       }
     }
   }
+
+  const image_changes = (data) => {
+    let array = [...images]
+    console.log("IIIIIIIIMMAAAAGEEES: ", array);
+    array.push(data[0]);
+    setImages(array);
+  }
+
 
   const init = (userId) => {
     const jwt = auth.isAuthenticated();
@@ -262,36 +267,12 @@ export default function ViewIssue(props) {
     setOpen(false);
   };
 
-  const handleClickOpenDeleteImg = () => {
-    setOpenDeleteImage(true);
-  };
-
-  const handleCloseDeleteImg = () => {
-    setOpenDeleteImage(false);
-  };
-
   const handleStatusUpdateClose = () => {
     setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: false });
   };
 
   const handleConfirmDelete = () => {
     onDelete();
-  };
-
-  const handleChange = (event) => {
-    setData(event.target.value);
-  };
-
-  const handleDataChange = (name) => (event) => {
-    setData({
-      ...dataset,
-      [name]: event.target.value,
-    });
-    upDateIssueStatus(id, event.target.value, myself.role);
-  };
-
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
   };
 
   const { id } = props.match.params;
@@ -544,7 +525,7 @@ export default function ViewIssue(props) {
                 Vedlegg
               </InputLabel>
               {imgList}
-              <Previews imageBool={true} issueID={dataset._id}/>
+              <Previews imageBool={true} issueID={dataset._id} func_image={image_changes} />
             </div>
             <div className="item4">
               <TextField

@@ -17,6 +17,7 @@ import Typography from '@material-ui/core/Typography'
 import Box from '@material-ui/core/Box'
 import PropTypes from 'prop-types'
 import { v4 as uuid } from 'uuid'
+import issueService from "../../services/issueService";
 
 function Alert (props) {
   return <MuiAlert elevation={1} variant="filled" {...props} />
@@ -110,7 +111,9 @@ const img = {
   height: '100%'
 }
 
-function Previews () {
+function Previews (props) {
+  const { imageBool, issueID } = props;
+  console.log(imageBool, issueID);
   const classes = useStyles()
   const [files, setFiles] = useState([])
   const [open, setOpen] = useState(false)
@@ -160,23 +163,36 @@ function Previews () {
         imageFormObj.append('imageData', images.imageupload[1][0].name[x])
       }
 
+      let id = issueID;
+      let image = images.imageupload[1][0].name;
+
+      if(imageBool) {
+        issueService
+          .addImageToIssue(id, { image }, jwt.token)
+          .then(() => {
+            console.log("Success adding image(s) to use")
+          })
+          .catch((e) => {
+            console.log("Error adding image to issue: ", e);
+          });
+      }
       axios.post('/api/uploadImage', imageFormObj,
       {
         headers: { Authorization: token , 'Content-Type': 'multipart/form-data'},
         onUploadProgress: (progressEvent) => {
-        const { loaded, total, lengthComputable } = progressEvent
-        if (lengthComputable && total > 0) {
-          setProgress(Math.round(loaded * 100) / total)
+          const { loaded, total, lengthComputable } = progressEvent
+          if (lengthComputable && total > 0) {
+            setProgress(Math.round(loaded * 100) / total)
+          }
         }
       }
-    }
       ).then((data) => {
         if (Promise.resolve('Success').then) {
           setOpen(true)
         }
       })
       setProgress(0)
-    }, 2000)
+    })
   }
 
   const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
@@ -256,7 +272,7 @@ function Previews () {
           borderRadius: '1em'
         }}
       >
-        Last opp bilder
+        Last opp bilde(r)
         <Icon style={{ marginLeft: '15px' }} className={classes.rightIcon}>
           cloud_upload
         </Icon>

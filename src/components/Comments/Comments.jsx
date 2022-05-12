@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 //import { useParams } from "react-router-dom";
-import { makeStyles, fade } from "@material-ui/core/styles";
+import { makeStyles, alpha } from "@material-ui/core/styles";
 import {
   List,
   ListItem,
@@ -16,7 +16,7 @@ import {
 import QueryBuilderIcon from "@material-ui/icons/QueryBuilder";
 import AlternateEmailIcon from "@material-ui/icons/AlternateEmail";
 import PersonPinIcon from "@material-ui/icons/PersonPin";
-import Faker from "faker";
+import { randAvatar } from '@ngneat/falso';
 import moment from "moment";
 import auth from "../auth/auth-helper";
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -45,12 +45,12 @@ const useStyles = makeStyles((theme) => ({
   commentIndent: {
     marginLeft: 20,
     paddingLeft: "20px",
-    borderLeft: `1px dashed ${fade(theme.palette.text.primary, 0.4)}`
+    borderLeft: `1px dashed ${alpha(theme.palette.text.primary, 0.4)}`
   },
   indent: {
     marginLeft: 20,
     paddingLeft: "12px",
-    borderLeft: `2px solid ${fade(theme.palette.text.primary, 0.4)}`,
+    borderLeft: `2px solid ${alpha(theme.palette.text.primary, 0.4)}`,
   },
   indentAvatarImg: {
     marginLeft: 20,
@@ -103,7 +103,7 @@ const Comments = ({ comments }) => {
                   <>
                     <ListItem className={classes.fontBody} style={{ width: '100%', maxWidth: "50%", left: '-120px', top: '-10px' }}>
                       <ListItemAvatar>
-                        <Avatar alt="avatar" src={Faker.image.avatar()} />
+                        <Avatar loading="lazy" alt="avatar" src={randAvatar()} />
                       </ListItemAvatar>
                       {result.author.name}
                     {result.author._id === jwt.user._id ?

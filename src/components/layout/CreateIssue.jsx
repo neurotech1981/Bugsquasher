@@ -860,7 +860,7 @@ export default function CreateIssue(props) {
               )}
             </Grid>
             <Grid item xs={12}>
-              <Previews onChange={(e) => onChangeImageDrop(e)} />
+              <Previews imageBool={false} onChange={(e) => onChangeImageDrop(e)} />
             </Grid>
             <Grid item xs={12}>
               <Button

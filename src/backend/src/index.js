@@ -238,6 +238,12 @@ ProtectedRoutes.use((req, res, next) => {
 
   if (token === undefined) {
     token = req.body.token;
+    console.log("Retrying...Checking token...", token);
+  }
+
+  if (token === undefined) {
+    token = req.body.headers.Authorization;
+    console.log("Retrying...Checking token...", token);
   }
 
   // decode token
@@ -250,6 +256,7 @@ ProtectedRoutes.use((req, res, next) => {
           return res.json({ message: "invalid token" });
         } else {
           // if everything is good, save to request for use in other routes
+          console.log("Token was accepted...");
           req.decoded = decoded;
           next();
         }
@@ -1192,10 +1199,10 @@ ProtectedRoutes.route("/removeUser/:id").post(async function (req, res) {
 ProtectedRoutes.get("/deleteIssueByID/:id", async function (req, res, next) {
   const { id } = req.params;
   Data.findByIdAndDelete(id, (err, result) => {
+    //delete image(s) when deleting an issue
     result.imageName.forEach((element) => {
-      console.log(element);
         if(element.path) {
-          fs.unlinkSync(path.join(__dirname, '..', '/assets/uploads/', element.path)); //delete image when delete issue
+          fs.unlinkSync(path.join(__dirname, '..', '/assets/uploads/', element.path));
         }
     });
     if (err) return res.send(err);
@@ -1203,7 +1210,32 @@ ProtectedRoutes.get("/deleteIssueByID/:id", async function (req, res, next) {
       success: true,
     });
   });
+});
 
+// this is our delete method
+// this method removes existing data in our database
+ProtectedRoutes.post("/delete-image/:id", async function (req, res, next) {
+  const { image, name } = req.body;
+  const { id } = req.params;
+
+  Data.findByIdAndUpdate(
+      { _id: id },
+      { $pull: { imageName: { id: image} } },
+      { new: true },
+      (err, result) => {
+        try {
+          fs.unlinkSync(path.join(__dirname, '..', '/assets/uploads/', name));
+        } catch (error) {
+          return res.json({
+            success: false,
+            message: error
+          });
+        }
+    if (err) return res.send(err);
+    return res.json({
+      success: true,
+    });
+  });
 });
 
 // this is our create method
@@ -1231,7 +1263,8 @@ ProtectedRoutes.post("/new-issue", async function (req, res) {
   data.severity = req.body.data.severity;
   data.priority = req.body.data.priority;
   data.userid = req.body.data.userid;
-  data.imageName = req.body.data.imageName[1][0].name;
+  console.log(Object.keys(req.body.data.imageName).length);
+  data.imageName = req.body.data.imageName.length > 1 ? req.body.data.imageName[1][0].name : "none";
 
   data.save((err) => {
     if (err) {
@@ -1245,6 +1278,32 @@ ProtectedRoutes.post("/new-issue", async function (req, res) {
       document: data,
     });
   });
+});
+
+// this is our add image to issue method
+// this method adds new image(s) to existing issue
+ProtectedRoutes.route("/issue/add-image").post(async function (req, res) {
+  console.log("Inside add-image to issue >>> ", req.body.name);
+  /*Data
+  .findByIdAndUpdate(req.body.issueID)
+  .then(() => Promise.all([
+    Data.findById(req.params.id),
+  ]))
+  .then(([issue]) => {
+    issue.push(req.body.image.name.path);
+    return Promise.all([
+      issue.save(),
+    ]);
+  })
+  .then(response => {
+    res.json({
+      success: true,
+      data: response,
+    });
+  })
+  .catch((err) => {
+    console.log(err);
+  });*/
 });
 
 // this is our create method

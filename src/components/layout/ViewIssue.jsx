@@ -7,6 +7,7 @@ import {
   createTheme,
   ThemeProvider,
 } from "@material-ui/core/styles";
+import { useSelector } from "react-redux";
 import issueService from "../../services/issueService";
 import "../../App.css";
 import CommentForm from "../Comments/CommentForm";
@@ -14,6 +15,7 @@ import Comments from "../Comments/Comments";
 import moment from "moment";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Button from "@material-ui/core/Button";
+import DeleteIcon from '@material-ui/icons/Delete';
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
@@ -23,7 +25,6 @@ import FormControl from "@material-ui/core/FormControl";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import { AlertTitle } from "@material-ui/lab";
-import DeleteIcon from "@material-ui/icons/Delete";
 import UpdateIcon from "@material-ui/icons/Update";
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import Avatar from "@material-ui/core/Avatar";
@@ -47,10 +48,9 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import { findUserProfile, getUsers } from "../utils/api-user";
-import Divider from "@material-ui/core/Divider";
-
-import draftToHtml from "draftjs-to-html";
+import DeleteImageDialog from "../Dialogs/DeleteImage";
 import htmlToDraft from "html-to-draftjs";
+import Previews from "./ImageUploader";
 
 const drawerWidth = 240;
 
@@ -131,43 +131,47 @@ const useStyles = makeStyles((theme) => ({
     padding: "1rem",
     backgroundColor: "azure",
   },
+  icon: {
+    margin: 'theme.spacing(1)',
+    fontSize: 24,
+    position: 'absolute',
+    top: '0',
+    right: '0',
+    cursor: 'pointer',
+    //borderStyle: 'double',
+    borderColor: 'black',
+    color: 'gray',
+    backgroundColor: 'transparent',
+    //boxShadow: '0 3px 2px 1px rgba(0, 0, 0, .2)',
+    transition: 'box-shadow 0.3s ease-in-out',
+    '&:hover': {
+      color: 'darkred',
+      boxShadow: '0 0px 0px 0px rgba(0, 0, 0, .3)'
+    }
+  },
+  thumb: {
+    display: "-webkit-inline-box",
+    position: "relative",
+    borderRadius: 2,
+    border: "3px solid #eaeaea",
+    marginBottom: 8,
+    height: 150,
+    padding: 4,
+    boxSizing: "border-box",
+    marginLeft: "10px",
+    margin: "0 auto",
+    '&:after': {
+      content: '',
+      display: 'table',
+      clear: 'both',
+    }
+  }
 }));
-
-const thumbsContainer = {
-  display: "grid",
-  flexDirection: "row",
-  flexWrap: "wrap",
-  marginTop: 16,
-  textAlign: "left",
-};
-
-const thumb = {
-  display: "-webkit-inline-box",
-  position: "relative",
-  borderRadius: 2,
-  border: "3px solid #eaeaea",
-  marginBottom: 8,
-  marginRight: "1em",
-  height: 150,
-  padding: 4,
-  boxSizing: "border-box",
-  margin: "0 auto",
-};
-
-const thumbInner = {
-  display: "flex",
-  minWidth: 0,
-  overflow: "hidden",
-};
-
-const img = {
-  display: "block",
-  width: "auto",
-  height: "100%",
-};
 
 export default function ViewIssue(props) {
   const { match } = useReactRouter();
+
+  const newImage = useSelector((state) => state);
 
   const classes = useStyles();
   const [dataset, setData] = useState([""]);
@@ -195,12 +199,25 @@ export default function ViewIssue(props) {
   const [errors, setErrors] = useState("");
   const [myself, setMyself] = useState([]);
   const [open, setOpen] = useState(false);
+  const [openDeleteImage, setOpenDeleteImage] = useState(false);
   const [opennewcomment, setOpenNewComment] = useState(false);
   const [comments, setComments] = useState([]);
   const [users, setUsers] = useState([]);
 
   const [selectedDate, setSelectedDate] = useState(dataset.updatedAt);
   const history = useHistory();
+
+  const pull_data = (data) => {
+    let array = [...images]
+    if (data !== -1) {
+      array = images.filter((_, index) => index !== data);
+      if(array.length > 0){
+        setImages(array);
+      } else {
+        setImages(["none"]);
+      }
+    }
+  }
 
   const init = (userId) => {
     const jwt = auth.isAuthenticated();
@@ -245,6 +262,14 @@ export default function ViewIssue(props) {
     setOpen(false);
   };
 
+  const handleClickOpenDeleteImg = () => {
+    setOpenDeleteImage(true);
+  };
+
+  const handleCloseDeleteImg = () => {
+    setOpenDeleteImage(false);
+  };
+
   const handleStatusUpdateClose = () => {
     setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: false });
   };
@@ -287,13 +312,13 @@ export default function ViewIssue(props) {
       );
 
       setEditorStateRep(editorStateRep);
-      if (
-        result.imageName === "none" || result.imageName === "[none]" || result.imageName === undefined
-      ) {
-        setImages(["none"]);
-
-      } else {
+      if (result.imageName.length > 0)
+      {
+        console.log("a l", result.imageName.length);
         setImages(result.imageName);
+      } else {
+        console.log("arr len", result.imageName.length);
+        setImages([]);
       }
 
     });
@@ -386,17 +411,25 @@ export default function ViewIssue(props) {
   );
 
   const imgList = images.map((file, index) => {
-    if (file.path === "none" || file.path === undefined || file.path === "[none]") {
+    if (file === null || file === undefined || file === "none") {
       return <div key={index}>Ingen vedlegg</div>;
     }
     return (
-      <div key={index} style={thumb}>
+      <div key={index} className={classes.thumb} >
+        <DeleteImageDialog
+          imageIndex={index}
+          images={images}
+          func={pull_data}
+          issueID={dataset._id}
+          name={file.path}
+        />
         <ModalImage
           small={process.env.PUBLIC_URL + "/uploads/" + file.path}
           large={process.env.PUBLIC_URL + "/uploads/" + file.path}
           alt={file.path}
           key={index}
           imageBackgroundColor="transparent"
+          loading="lazy"
         />
       </div>
     );
@@ -455,15 +488,15 @@ export default function ViewIssue(props) {
         <DialogTitle id="alert-dialog-title">{"Slett sak"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Er du helt sikker på at du vil slette sak ?
+            Er du sikker på at du vil slette sak ?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="default">
-            Avbryt
+          <Button onClick={handleConfirmDelete} color="primary" variant="contained">
+            Ja
           </Button>
-          <Button onClick={handleConfirmDelete} color="primary" autoFocus>
-            Slett sak
+          <Button onClick={handleClose} variant="outlined" color="default">
+            Nei
           </Button>
         </DialogActions>
       </Dialog>
@@ -511,6 +544,7 @@ export default function ViewIssue(props) {
                 Vedlegg
               </InputLabel>
               {imgList}
+              <Previews imageBool={true} issueID={dataset._id}/>
             </div>
             <div className="item4">
               <TextField
@@ -772,7 +806,7 @@ export default function ViewIssue(props) {
                   value={[
                     dataset.delegated != null ?
                       dataset.delegated._id
-                      : "Laster...",
+                      : "",
                   ]}
                   label="Deleger til"
                   name="delegert"

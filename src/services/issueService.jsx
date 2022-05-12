@@ -52,10 +52,25 @@ export default {
       headers: { Authorization: auth },
     });
   },
+  addImageToIssue: async (issueID, name, auth) => {
+    console.log("issueID: ", issueID, "name: ", name, "auth: ", auth);
+    console.log("NAMEEEE ", JSON.stringify(name));
+    return await instance.post(`/api/issue/add-image/`, {
+       headers: { Authorization: auth },
+       name: name,
+       issueID: issueID },
+      {
+    });
+  },
   deleteIssueByID: async (id, auth) => {
-    console.log("Inside deleteIssueByID ", id + " " + auth);
     return await instance.get(`/api/deleteIssueByID/${id}`, {
       headers: { Authorization: auth },
+    });
+  },
+  deleteImage: async (id, imageID, name, auth) => {
+    return await instance.post(`/api/delete-image/${id}`,
+      { image: imageID, name: name },
+      { headers: { Authorization: auth },
     });
   },
   countIssues: async (auth) => {

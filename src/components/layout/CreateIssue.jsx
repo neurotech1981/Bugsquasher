@@ -379,19 +379,19 @@ export default function CreateIssue(props) {
     </Snackbar>
   );
 
-  const onChangeImageDrop = (event) => {
+  /*const onChangeImageDrop = (event) => {
     event.preventDefault();
     setValues((prevState) => ({
       ...prevState,
       setImageName: [...images.imageupload],
     }));
     console.log("IMAGE UPLOAD FILE >>>", images.imageupload);
-  };
+  };*/
 
   // Legg inn ny sak
   const createIssue = async () => {
-
-    let imageNameValue = images.imageupload;
+    console.log("IMAGES>>>> ", images);
+    let imageNameValue = images.state.imageupload[1];
     console.log("Create issue IMAGE: ", imageNameValue);
 
     const htmlContentStateDesc = JSON.stringify(
@@ -860,10 +860,11 @@ export default function CreateIssue(props) {
               )}
             </Grid>
             <Grid item xs={12}>
-              <Previews imageBool={false} onChange={(e) => onChangeImageDrop(e)} />
+              <Previews imageBool={false} />
             </Grid>
             <Grid item xs={12}>
               <Button
+                disabled={images.imgUploadState}
                 type="submit"
                 value="Submit"
                 variant="contained"

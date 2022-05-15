@@ -31,8 +31,11 @@ import OS from 'os';
 import fs from 'fs';
 import cluster from 'cluster';
 import process from 'process';
+import crypto from "crypto";
 
 const totalCPUs = OS.cpus().length;
+const uniqueID = crypto.randomBytes(16).toString("hex");
+
 
 
 process.on('unhandledRejection', (rejectionErr) => {
@@ -101,7 +104,7 @@ const storage = multer.diskStorage({
     cb(null, "../assets/uploads");
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    cb(null, uniqueID + '-' + file.originalname);
   },
 });
 
@@ -1240,13 +1243,21 @@ ProtectedRoutes.post("/delete-image/:id", async function (req, res, next) {
 
 // this is our create method
 // this method adds new data in our database
-ProtectedRoutes.post("/new-issue", async function (req, res) {
+ProtectedRoutes.post("/new-issue", async function (req, res, uuid) {
   const { errors, isValid } = validateInput(req.body.data);
   // Check Validation
   if (!isValid) {
     // If any errors, send 400 with errors object
     return res.status(400).json(errors);
   }
+
+  let fileData = {
+    path: "",
+    id: "",
+    preview: "",
+  };
+
+  let fileArray = [];
 
   const data = new Data();
   data.name = req.body.data.name;
@@ -1264,7 +1275,24 @@ ProtectedRoutes.post("/new-issue", async function (req, res) {
   data.priority = req.body.data.priority;
   data.userid = req.body.data.userid;
   console.log(Object.keys(req.body.data.imageName).length);
-  data.imageName = req.body.data.imageName.length > 1 ? req.body.data.imageName[1][0].name : "none";
+
+
+ /*if(req.body.data.imageName[1][0].name.length > 1) {
+    req.body.data.imageName[1][0].name.forEach((element) => {
+        fileData.id = element.id;
+        fileData.path = element.path;
+        fileData.preview = element.preview;
+        fileArray.push(fileData);
+        fileData = {
+          path: "",
+          id: "",
+          preview: "",
+        };
+    });
+    console.log(fileArray);
+  }*/
+  console.log("IMAGE ISSUE", JSON.stringify(req.body.data.imageName));
+  data.imageName = req.body.data.imageName[0].name.length > 1 ? req.body.data.imageName[0].name : "none";
 
   data.save((err) => {
     if (err) {
@@ -1283,7 +1311,7 @@ ProtectedRoutes.post("/new-issue", async function (req, res) {
 // this is our add image to issue method
 // this method adds new image(s) to existing issue
 ProtectedRoutes.route("/issue/add-image").post(async function (req, res) {
-  Data.updateOne({ _id: req.body.issueID }, {$push:{ imageName: req.body.name.image }}, function(
+  Data.updateOne({ _id: req.body.issueID }, {$push:{ imageName: req.body.name.fileArray }}, function(
     err,
     result
   ) {

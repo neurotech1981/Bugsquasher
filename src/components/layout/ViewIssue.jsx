@@ -171,8 +171,6 @@ const useStyles = makeStyles((theme) => ({
 export default function ViewIssue(props) {
   const { match } = useReactRouter();
 
-  const newImage = useSelector((state) => state);
-
   const classes = useStyles();
   const [dataset, setData] = useState([""]);
 
@@ -295,10 +293,8 @@ export default function ViewIssue(props) {
       setEditorStateRep(editorStateRep);
       if (result.imageName.length > 0)
       {
-        console.log("a l", result.imageName.length);
         setImages(result.imageName);
       } else {
-        console.log("arr len", result.imageName.length);
         setImages([]);
       }
 

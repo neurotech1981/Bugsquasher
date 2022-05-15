@@ -12,7 +12,7 @@ import { AlertTitle } from '@material-ui/lab';
 import LinearProgress from '@material-ui/core/LinearProgress'
 import { makeStyles } from '@material-ui/styles'
 import { useDispatch, useSelector } from 'react-redux'
-import { addImageAction, deleteImageAction, clearAction } from '../../redux/store'
+import { addImageAction, deleteImageAction, clearAction, ImgUploadStateAction } from '../../redux/store'
 import Typography from '@material-ui/core/Typography'
 import Box from '@material-ui/core/Box'
 import PropTypes from 'prop-types'
@@ -121,6 +121,7 @@ function Previews (props) {
   const addImage = (files) => dispatch(addImageAction(files))
   const deleteImage = (files) => dispatch(deleteImageAction(files))
   const clearStoreImage = (files) => dispatch(clearAction(files))
+  const ImgUploadState = (images) => dispatch(ImgUploadStateAction(images))
   const [progress, setProgress] = useState(0)
 
   const handleClose = (event, reason) => {
@@ -132,6 +133,7 @@ function Previews (props) {
   }
 
   const images = useSelector((state) => state)
+
 
   const removeImage = (imageIndex) => {
     let array = [...files]
@@ -148,6 +150,8 @@ function Previews (props) {
       acceptedFiles.splice(acceptedFiles.indexOf(imageIndex), 1)
       deleteImage({ name: array.map((file) => file) })
     }
+
+    ImgUploadState(false);
   }
 
   const uploadToServer = async (e) => {
@@ -158,22 +162,20 @@ function Previews (props) {
     /* eslint-disable no-unused-vars */
     await new Promise((resolve, reject) => {
       const imageFormObj = new FormData();
-
+      console.log("I M A G E S : ", images);
       for (let x = 0; x < acceptedFiles.length; x++) {
-        imageFormObj.append('imageData', images.imageupload[1][0].name[x])
+        imageFormObj.append('imageData', images.state.imageupload[1][0].name[x])
       }
+
+      let fileData = {
+        path: "",
+        id: "",
+      };
+
+      let fileArray = [];
 
       let id = issueID;
-      let image = images.imageupload[1][0].name;
 
-      if(imageBool) {
-        func_image(image);
-        issueService
-          .addImageToIssue(id, { image }, jwt.token)
-          .catch((e) => {
-            console.log("Error adding image to issue: ", e);
-          });
-      }
       axios.post('/api/uploadImage', imageFormObj,
       {
         headers: { Authorization: token , 'Content-Type': 'multipart/form-data'},
@@ -184,13 +186,43 @@ function Previews (props) {
           }
         }
       }
-      ).then((data) => {
+      ).then((response) => {
         if (Promise.resolve('Success').then) {
           setOpen(true)
+
+          response.data.forEach((element) => {
+            fileData.id = uuid();
+            fileData.path = element.filename;
+            fileArray.push(fileData);
+            fileData = {
+              path: "",
+              id: "",
+            };
+          });
+          console.log("File Array >>>", fileArray);
+
+         /* addImage([{
+            name: fileArray
+          }]);*/
+
+          addImage([{
+            name: fileArray.map((file) => file)
+          }])
+
+          console.log("Image BOOL", imageBool);
           if(imageBool) {
+            //let image = images.imageupload[2][0].name;
+            func_image(fileArray);
+            issueService
+              .addImageToIssue(id, { fileArray }, jwt.token)
+              .catch((e) => {
+                console.log("Error adding image to issue: ", e);
+              });
             setTimeout(function(){ setFiles([]); }, 2000);
           }
         }
+        ImgUploadState(false);
+
       })
       setProgress(0)
     })
@@ -213,6 +245,7 @@ function Previews (props) {
       addImage([{
         name: acceptedFiles.map((file) => file)
       }])
+      ImgUploadState(true);
     }
   })
 

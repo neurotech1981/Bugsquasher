@@ -117,7 +117,7 @@ export default function Signup () {
           />
           <br />
           <TextField
-            autoComplete="off"
+            autocomplete="new-password"
             id="password"
             type="password"
             label="Passord"
@@ -128,7 +128,7 @@ export default function Signup () {
             variant="outlined"
           />
           <TextField
-            autoComplete="off"
+            autocomplete="new-password"
             id="passwordConfirmation"
             type="password"
             label="Gjenta passord"

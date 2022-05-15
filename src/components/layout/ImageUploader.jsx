@@ -292,7 +292,7 @@ function Previews (props) {
         <p>Dra og slipp filer her, eller klikk for å velge fil(er)</p>
       </div>
       <aside style={thumbsContainer}>{thumbs}</aside>
-      { progress ? <LinearProgressWithLabel autohideduration={3000} className={classes.borderProgress} value={progress} /> : null }
+      { progress ? <LinearProgressWithLabel autoHideDuration={3000} className={classes.borderProgress} value={progress} /> : null }
       <p>
       <Button
         disabled={!files.length > 0}

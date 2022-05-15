@@ -1,9 +1,7 @@
 import React, { useEffect } from "react";
-import { makeStyles } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
 import { useForm, Controller } from "react-hook-form";
-import { Typography } from "@material-ui/core";
+import { Typography, Snackbar, Button, makeStyles } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import { AlertTitle } from "@material-ui/lab";
 
@@ -53,15 +51,17 @@ const CommentForm = ({ onSubmit, openNewComment, setOpenNewComment }) => {
   };
 
   const SuccessAlert = () => (
-    <Alert
-      elevation={0}
-      onClose={handleClose}
-      severity="info"
-      variant="standard"
-    >
-      <AlertTitle>Ny kommentar</AlertTitle>
-      Kommentaren din ble lagt til.
-    </Alert>
+    <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+      <Alert
+        elevation={0}
+        onClose={handleClose}
+        severity="info"
+        variant="standard"
+      >
+        <AlertTitle>Ny kommentar</AlertTitle>
+        Kommentaren din ble lagt til.
+      </Alert>
+    </Snackbar>
   );
 
   useEffect(() => {

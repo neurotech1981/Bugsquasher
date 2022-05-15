@@ -49,7 +49,7 @@ function Alert(props) {
 }
 
 const errorAlert = (error) => (
-  <Snackbar autohideduration={6000} onClose={handleClose}>
+  <Snackbar autoHideDuration={6000} onClose={handleClose}>
     <Alert onClose={handleClose} severity="error" variant="standard">
       <AlertTitle>Feil</AlertTitle>
       Noe gikk galt - {error}!
@@ -910,7 +910,7 @@ export default function EditIssue(props) {
                 }}
               />
             </div>
-            <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
+            <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
               <Alert
                 onClose={handleClose}
                 severity="success"

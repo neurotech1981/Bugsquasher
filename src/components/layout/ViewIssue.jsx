@@ -707,7 +707,7 @@ export default function ViewIssue(props) {
               />
             </div>
             <div className="item16">
-              {comments ? (
+              {comments.length > 0 ? (
                 <Comments comments={comments} />
               ) : (
                 <Typography component={"p"} variant={"subtitle1"}>
@@ -820,7 +820,7 @@ export default function ViewIssue(props) {
                 )}
                 <Snackbar
                   open={openStatusSnackbar}
-                  autohideduration={3000}
+                  autoHideDuration={3000}
                   onClose={handleStatusUpdateClose}
                   anchorOrigin={{
                     vertical: verticalStatusUpdate,

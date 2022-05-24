@@ -612,6 +612,8 @@ export default function ViewIssue(props) {
                   padding: 10,
                   backgroundColor: "white",
                   borderRadius: "0.5rem 0.5rem 0.5rem 0.5rem",
+                  boxShadow:
+                    "0.2px 0.1px 1.7px -5px rgba(0, 0, 0, 0.02), 0.5px 0.3px 4px -5px rgba(0, 0, 0, 0.028),0.9px 0.5px 7.5px -5px rgba(0, 0, 0, 0.035), 1.6px 0.9px 13.4px -5px rgba(0, 0, 0, 0.042),2.9px 1.7px 25.1px -5px rgba(0, 0, 0, 0.05),7px 4px 60px -5px rgba(0, 0, 0, 0.07)",
                 }}
                 wrapperClassName="demo-wrapper"
                 toolbarClassName="flex sticky top-0 z-20 !justify-start"
@@ -667,6 +669,8 @@ export default function ViewIssue(props) {
                   padding: 10,
                   backgroundColor: "white",
                   borderRadius: "0.5rem 0.5rem 0.5rem 0.5rem",
+                  boxShadow:
+                    "0.2px 0.1px 1.7px -5px rgba(0, 0, 0, 0.02), 0.5px 0.3px 4px -5px rgba(0, 0, 0, 0.028),0.9px 0.5px 7.5px -5px rgba(0, 0, 0, 0.035), 1.6px 0.9px 13.4px -5px rgba(0, 0, 0, 0.042),2.9px 1.7px 25.1px -5px rgba(0, 0, 0, 0.05),7px 4px 60px -5px rgba(0, 0, 0, 0.07)",
                 }}
                 wrapperClassName="demo-wrapper"
                 toolbarClassName="flex sticky top-0 z-20 !justify-start"
@@ -708,7 +712,7 @@ export default function ViewIssue(props) {
             </div>
             <div className="item16">
               {comments.length > 0 ? (
-                <Comments comments={comments} />
+                <Comments comments={comments} issueID={dataset._id} userID={dataset.userid} />
               ) : (
                 <Typography component={"p"} variant={"subtitle1"}>
                   Ingen kommentarer
@@ -833,7 +837,7 @@ export default function ViewIssue(props) {
                     onClose={handleStatusUpdateClose}
                   >
                     <AlertTitle>Suksess</AlertTitle>
-                    Status ble oppdatert!
+                    Status ble endret!
                   </Alert>
                 </Snackbar>
               </FormControl>

@@ -27,6 +27,9 @@ ReactDOM.render(
 WebFont.load({
   google: {
     families: [
+      'Space Mono',
+      'Manrope:400',
+      'Lato:400',
       'Sora:300,400,500,600,700',
       'Inter',
       'Nunito Sans:300,400,700',
@@ -35,7 +38,6 @@ WebFont.load({
       'Montserrat',
       'Open Sans',
       'Roboto',
-      'Space Mono',
       'sans-serif'
     ]
   }

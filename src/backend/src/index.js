@@ -1123,29 +1123,66 @@ ProtectedRoutes.route('/issue/:issueId/comments/:commentId/replies').post(async 
     });
 });
 
-ProtectedRoutes.route("/issue/:issueId/comments/:commentId/replies/new").get(async function (req, res) {
-  const currentUser = req.body.user;
-  let issue;
-  try {
-    Data.findById(req.params.issueId).lean()
-      .then((p) => {
-        issue = p;
-        console.log("Inside then P", p);
-        return Comments.findById(req.params.commentId).lean();
-      })
-      .then((result) => {
-        console.log("Inside then issue", result);
-        issue.comments.unshift(result);
+// Create new reply to comment
+ProtectedRoutes.route("/issue/:issueId/comments/:commentId/replies/new").post(async function (req, res) {
+  const reply = new Comments(req);
+  reply.author = req.body.reply.userID;
+  reply.content = req.body.reply.content;
+  console.log("Reply: ", req.body.reply);
 
-        res.render('replies-new', { issue, result, currentUser });
+  /*try {
+    Data.findById(req.params.commentId).lean()
+    .then((issue) => {
+        // FIND THE CHILD COMMENT
+        Promise.all([
+          reply.save(),
+          Comments.findById(req.params.commentId),
+        ])
+      .then(([reply, comment]) => {
+          // ADD THE REPLY
+          comment.comments.unshift(reply._id);
+          return Promise.all([
+            comment.save(),
+          ]);
+        })
       })
-      .catch((err) => {
-        console.log(err.message);
-      });
-  } catch(e) {
-    // database error
-    res.status(500).send("database error", e.message);
-  }
+      .then((response) => {
+        res.json({
+          success: true,
+          data: { response },
+        });
+      })
+          // SAVE THE CHANGE TO THE PARENT DOCUMENT
+      return issue.save();
+    } catch(e) {
+      // database error
+      res.status(500).send("database error", e.message);
+    }*/
+
+    Data.findById(req.params.commentId).lean()
+    .then((issue) => {
+      // FIND THE CHILD COMMENT
+      Promise.all([
+        reply.save(),
+        Comments.findById(req.params.commentId),
+      ])
+        .then(([reply, comment]) => {
+          // ADD THE REPLY
+          comment.comments.unshift(reply._id);
+          return Promise.all([
+            comment.save(),
+          ]);
+        })
+        .then((result) => {
+          return res.json({
+            success: true,
+            response: result
+          });
+        })
+        .catch(console.error);
+    });
+
+
 });
 
 ProtectedRoutes.route("/get-comments/:id").get(async function (req, res) {
@@ -1328,7 +1365,6 @@ ProtectedRoutes.route("/issue/add-image").post(async function (req, res) {
 });
 
 // this is our create method
-// this method adds new data in our database
 ProtectedRoutes.post("/issue/comments/:id", async function (req, res) {
  /*  const { errors, isValid } = validateCommentInput(req.body);
   // Check Validation

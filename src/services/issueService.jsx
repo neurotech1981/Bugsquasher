@@ -17,6 +17,13 @@ export default {
     );
     return res.data.data || [];
   },
+  getCommentsReplies: async (issueId, commentId, auth) => {
+    const res = await instance.get(
+      `/api/issue/${issueId}/comments/${commentId}/replies`,
+      { headers: { Authorization: auth } }
+    );
+    return res.data.data || [];
+  },
   getIssueByID: async (id, auth) => {
     const res = await instance.get(`/api/getIssueByID/${id}`, {
       headers: { Authorization: auth },
@@ -52,9 +59,16 @@ export default {
       headers: { Authorization: auth },
     });
   },
+  addCommentReply: async (userID, data, auth, issueId, commentId) => {
+    return await instance.post(`/api/issue/${issueId}/comments/${commentId}/replies/new`, {
+      headers: { Authorization: auth },
+      reply: {
+        content: data,
+        userID: userID
+      },
+    });
+  },
   addImageToIssue: async (issueID, name, auth) => {
-    console.log("issueID: ", issueID, "name: ", name, "auth: ", auth);
-    console.log("NAMEEEE ", JSON.stringify(name));
     return await instance.post(`/api/issue/add-image/`, {
        headers: { Authorization: auth },
        name: name,

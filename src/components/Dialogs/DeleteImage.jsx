@@ -31,10 +31,12 @@ const useStyles = makeStyles(() => ({
     top: '0',
     right: '0',
     cursor: 'pointer',
-    borderColor: 'black',
-    color: 'gray',
+    borderColor: 'darkgray',
+    color: 'black',
+    stroke: "red",
+    strokeWidth: 1,
     '&:hover': {
-      color: 'darkred',
+      color: 'white',
     }
   }
 }));

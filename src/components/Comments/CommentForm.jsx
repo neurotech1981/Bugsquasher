@@ -92,7 +92,7 @@ const CommentForm = ({ onSubmit, openNewComment, setOpenNewComment }) => {
               type="text"
               multiline
               placeholder="Kommentar"
-              rows={5}
+              minRows={5}
             />
             {errors.content?.type === 'required' && "Kommentarfelt er tomt"}
             {errors.content?.type === 'maxLength' && "Det er ikke tillatt med mer en 150 bokstaver"}

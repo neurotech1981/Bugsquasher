@@ -1159,6 +1159,8 @@ ProtectedRoutes.route("/issue/:issueId/comments/:commentId/replies/new").post(as
       res.status(500).send("database error", e.message);
     }*/
 
+    let comments = [];
+
     Data.findById(req.params.commentId).lean()
     .then((issue) => {
       // FIND THE CHILD COMMENT
@@ -1169,15 +1171,22 @@ ProtectedRoutes.route("/issue/:issueId/comments/:commentId/replies/new").post(as
         .then(([reply, comment]) => {
           // ADD THE REPLY
           comment.comments.unshift(reply._id);
+          comments = comment;
           return Promise.all([
             comment.save(),
           ]);
         })
         .then((result) => {
-          return res.json({
-            success: true,
-            response: result
-          });
+          Promise.all([
+            Comments.findById(req.params.commentId),
+          ]).then((result) => {
+            return res.json({
+              success: true,
+              response: result
+            });
+          })
+
+
         })
         .catch(console.error);
     });

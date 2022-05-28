@@ -19,7 +19,7 @@
     "draftjs-to-html": "^0.9.1",
     "express-jwt": "^6.1.2",
     "express-session": "^1.17.2",
-    "formidable": "^1.2.2",
+    "formidable": "^3.2.4",
     "html-to-draftjs": "^1.5.0",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.4",

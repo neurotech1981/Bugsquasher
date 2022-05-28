@@ -1,6 +1,6 @@
 {
   "git.ignoreLimitWarning": true,
-  "editor.fontFamily": "JetBrains Mono",
+  "editor.fontFamily": "Noto Mono",
   "editor.fontSize": 18,
   "editor.lineHeight": 22,
   "editor.defaultFormatter": "esbenp.prettier-vscode",

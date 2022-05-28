@@ -216,7 +216,6 @@ export default function ViewIssue(props) {
 
   const image_changes = (data) => {
     let array = [...images]
-    console.log("IIIIIIIIMMAAAAGEEES: ", array);
     array.push(data[0]);
     setImages(array);
   }

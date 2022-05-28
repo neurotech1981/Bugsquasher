@@ -391,7 +391,11 @@ export default function CreateIssue(props) {
   // Legg inn ny sak
   const createIssue = async () => {
     console.log("IMAGES>>>> ", images);
-    let imageNameValue = images.state.imageupload[1];
+
+    let imageNameValue = "none";
+    if (images.imageupload.length > 0) {
+      imageNameValue = images.imageupload;
+    }
     console.log("Create issue IMAGE: ", imageNameValue);
 
     const htmlContentStateDesc = JSON.stringify(

@@ -1126,38 +1126,9 @@ ProtectedRoutes.route('/issue/:issueId/comments/:commentId/replies').post(async 
 // Create new reply to comment
 ProtectedRoutes.route("/issue/:issueId/comments/:commentId/replies/new").post(async function (req, res) {
   const reply = new Comments(req);
+  let index = req.body.reply.index;
   reply.author = req.body.reply.userID;
   reply.content = req.body.reply.content;
-  console.log("Reply: ", req.body.reply);
-
-  /*try {
-    Data.findById(req.params.commentId).lean()
-    .then((issue) => {
-        // FIND THE CHILD COMMENT
-        Promise.all([
-          reply.save(),
-          Comments.findById(req.params.commentId),
-        ])
-      .then(([reply, comment]) => {
-          // ADD THE REPLY
-          comment.comments.unshift(reply._id);
-          return Promise.all([
-            comment.save(),
-          ]);
-        })
-      })
-      .then((response) => {
-        res.json({
-          success: true,
-          data: { response },
-        });
-      })
-          // SAVE THE CHANGE TO THE PARENT DOCUMENT
-      return issue.save();
-    } catch(e) {
-      // database error
-      res.status(500).send("database error", e.message);
-    }*/
 
     let comments = [];
 
@@ -1170,7 +1141,7 @@ ProtectedRoutes.route("/issue/:issueId/comments/:commentId/replies/new").post(as
       ])
         .then(([reply, comment]) => {
           // ADD THE REPLY
-          comment.comments.unshift(reply._id);
+          comment.comments.splice(index, 0, reply);
           comments = comment;
           return Promise.all([
             comment.save(),
@@ -1178,20 +1149,19 @@ ProtectedRoutes.route("/issue/:issueId/comments/:commentId/replies/new").post(as
         })
         .then((result) => {
           Promise.all([
-            Comments.findById(req.params.commentId),
+            Data.findById(req.params.issueId).populate(
+              {
+                path: "comments",
+              }),
           ]).then((result) => {
             return res.json({
               success: true,
               response: result
             });
           })
-
-
         })
         .catch(console.error);
     });
-
-
 });
 
 ProtectedRoutes.route("/get-comments/:id").get(async function (req, res) {
@@ -1203,6 +1173,7 @@ ProtectedRoutes.route("/get-comments/:id").get(async function (req, res) {
   })
     .lean()
     .then(response => {
+
       res.json({
         success: true,
         data: { response, currentUser },
@@ -1320,7 +1291,7 @@ ProtectedRoutes.post("/new-issue", async function (req, res, uuid) {
   data.severity = req.body.data.severity;
   data.priority = req.body.data.priority;
   data.userid = req.body.data.userid;
-  console.log(Object.keys(req.body.data.imageName).length);
+  //console.log(Object.keys(req.body.data.imageName).length);
 
 
  /*if(req.body.data.imageName[1][0].name.length > 1) {
@@ -1338,8 +1309,10 @@ ProtectedRoutes.post("/new-issue", async function (req, res, uuid) {
     console.log(fileArray);
   }*/
   console.log("IMAGE ISSUE", JSON.stringify(req.body.data.imageName));
-  data.imageName = req.body.data.imageName[0].name.length > 1 ? req.body.data.imageName[0].name : "none";
 
+  if(req.body.data.imageName !== "none") {
+    data.imageName = req.body.data.imageName[0].name.length > 1 ? req.body.data.imageName[0].name : "none";
+  }
   data.save((err) => {
     if (err) {
       return res.status(400).json({

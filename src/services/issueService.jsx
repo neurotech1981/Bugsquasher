@@ -18,7 +18,7 @@ export default {
     return res.data.data || [];
   },
   getCommentsReplies: async (issueId, commentId, auth) => {
-    const res = await instance.get(
+    const res = await instance.post(
       `/api/issue/${issueId}/comments/${commentId}/replies`,
       { headers: { Authorization: auth } }
     );
@@ -59,12 +59,13 @@ export default {
       headers: { Authorization: auth },
     });
   },
-  addCommentReply: async (userID, data, auth, issueId, commentId) => {
+  addCommentReply: async (userID, data, auth, issueId, commentId, index) => {
     return await instance.post(`/api/issue/${issueId}/comments/${commentId}/replies/new`, {
       headers: { Authorization: auth },
       reply: {
         content: data,
-        userID: userID
+        userID: userID,
+        index: index,
       },
     });
   },

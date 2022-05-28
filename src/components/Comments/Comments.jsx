@@ -1,34 +1,21 @@
-import React, { useState, useEffect } from "react";
-import { makeStyles, alpha } from "@material-ui/core/styles";
 import {
-  List,
-  ListItemText,
-  Avatar,
-  Typography,
-  IconButton,
-  Button,
-  TextField,
-  Box,
-  Divider,
-  Zoom,
-  Snackbar,
-  Collapse,
-  ListItem,
+  Avatar, Box, Button, Collapse, Divider, Grid, IconButton, List, ListItem, ListItemText, Snackbar, TextField, Typography, Zoom
 } from "@material-ui/core";
-import QueryBuilderIcon from "@material-ui/icons/QueryBuilder";
-import PersonPinIcon from "@material-ui/icons/PersonPin";
-import { randAvatar } from '@ngneat/falso';
-import moment from "moment";
+import { alpha, makeStyles } from "@material-ui/core/styles";
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
-import ReplyIcon from '@material-ui/icons/Reply';
-import issueService from "../../services/issueService";
-import auth from "../auth/auth-helper";
-import { Grid } from "@material-ui/core";
-import MuiAlert from '@material-ui/lab/Alert'
-import { AlertTitle } from '@material-ui/lab'
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import PersonPinIcon from "@material-ui/icons/PersonPin";
+import QueryBuilderIcon from "@material-ui/icons/QueryBuilder";
+import ReplyIcon from '@material-ui/icons/Reply';
+import { AlertTitle } from '@material-ui/lab';
+import MuiAlert from '@material-ui/lab/Alert';
+import { randAvatar } from '@ngneat/falso';
+import moment from "moment";
+import React, { useEffect, useState } from "react";
+import issueService from "../../services/issueService";
+import auth from "../auth/auth-helper";
 
 function Alert (props) {
   // eslint-disable-next-line react/jsx-props-no-spreading
@@ -43,6 +30,10 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     backgroundColor: theme.palette.background.paper,
     borderRadius: "1rem",
+  },
+  commentField: {
+    minWidth: "90%",
+    backgroundColor: "white",
   },
   fontName: {
     fontWeight: "bold",
@@ -93,6 +84,7 @@ const Comments = ({ comments, issueID, userID }) => {
     setHidden({ ...hidden, [index]: !hidden[index] });
   };
   const [hiddenReply, setHiddenReply] = useState({});
+
   const toggleHideReply = index => {
     setHiddenReply({ ...hiddenReply, [index]: !hiddenReply[index] });
   };
@@ -125,19 +117,22 @@ const Comments = ({ comments, issueID, userID }) => {
     setComments(comments);
   }, [comments]);
 
-  const submitReply = (e, commentID) => {
-    console.log("submit reply", reply, commentID, issueID, userID);
+  const submitReply = (e, commentID, index) => {
+    console.log("submit reply", reply, commentID, issueID, userID, index);
     const jwt = auth.isAuthenticated();
 
-    issueService.addCommentReply(userID, reply, jwt.token, issueID, commentID).then((data) => {
-      setComments(data.data.response);
+    issueService.addCommentReply(userID, reply, jwt.token, issueID, commentID, index).then((data) => {
+      console.log(data);
+      setComments(data.data.response[0].comments);
       if(data.data.success)
       {
         setOpen(true);
         setReply("");
+        toggleHideReply(index-1);
+        setHidden({ ...hidden, [index]: hidden[index] });
+
         e.preventDefault();
         e.stopPropagation();
-
       }
     }).catch((error) =>
     {
@@ -155,111 +150,204 @@ const Comments = ({ comments, issueID, userID }) => {
   <ListItem button onClick={handleClickCommentCollapse} style={{ minWidth: "100vh", marginBottom: "2em"}}>
   {collapseComments ? <><ExpandLess aria-label="Skjul" /><Typography>{"Skjul kommentarer"}</Typography></> : <><ExpandMore aria-label="Vis mer" /><Typography>{"Vis kommentarer"}</Typography></>}
   </ListItem>
-
   <Collapse in={collapseComments} timeout="auto" unmountOnExit>
-
       {comment.map((result, index) => {
+        let parentId = result._id;
         return (
-
-          <React.Fragment key={index}>
-
-
-            <Grid justifyContent="flex-start" container wrap="nowrap" spacing={1} key={result._id}>
+          <React.Fragment key={result._id}>
+            <Grid
+              justifyContent="flex-start"
+              container
+              wrap="nowrap"
+              spacing={1}
+              key={result._id}
+            >
               <Grid item>
                 <Avatar alt="Profil bilde" src={randAvatar()} />
               </Grid>
               <Grid item xs zeroMinWidth>
-               {result.author.name}
-                {result.author._id === jwt.user._id ?
-                    <>
-                    <IconButton size="small" aria-label="delete" color="secondary">
+                {result.author.name}
+                {result.author._id === jwt.user._id ? (
+                  <>
+                    <IconButton
+                      size="small"
+                      aria-label="delete"
+                      color="secondary"
+                    >
                       <DeleteIcon />
                     </IconButton>
                     <IconButton size="small" aria-label="edit" color="primary">
                       <EditIcon />
                     </IconButton>
-                    </>
-                    : <IconButton size="small" aria-label="reply" color="primary">
-                        <ReplyIcon key={result._id} onClick={() => toggleHide(index)}/>
-                      </IconButton>
-                }
-                <p style={{ textAlign: "left" }}>
-                  {result.content}{" "}
-                </p>
+                  </>
+                ) : (
+                  <IconButton size="small" aria-label="reply" color="primary">
+                    <ReplyIcon
+                      key={result._id}
+                      onClick={() => toggleHide(index)}
+                    />
+                  </IconButton>
+                )}
+                <p style={{ textAlign: "left" }}>{result.content} </p>
                 <p style={{ textAlign: "left", color: "gray" }}>
                   postet {formattedDate(result.updatedAt)}
                   {result._id}
                 </p>
                 {successAlert("Svaret ble lagt til")}
 
-                {!!hidden[index] && <Zoom in={hidden[index]}><div key={index} >
-                  <TextField id="outlined-basic" key={index} label="Svar" variant="outlined" onChange={(e) => handleChange(e)}/>
-                  <Box mt={1}>
-                    <Typography component={"p"} variant={"subtitle1"} >
-                      <Button variant="contained" color="primary" onClick={(e) => submitReply(e, result._id)}>Svar</Button>
-                    </Typography>
-                  </Box>
-                  </div>
+                {!!hidden[index] && (
+                  <Zoom in={hidden[index]}>
+                    <div key={index} style={{ textAlign: "start" }}>
+                      <TextField
+                        id="outlined-basic"
+                        key={index}
+                        label="Svar"
+                        className={classes.commentField}
+                        multiline={true}
+                        rows={2}
+                        variant="outlined"
+                        onChange={(e) => handleChange(e)}
+                      />
+                      <Box mt={1} mb={3}>
+                        <Typography component={"p"} variant={"subtitle1"}>
+                          <Button
+                            style={{ marginRight: "1em" }}
+                            variant="contained"
+                            color="primary"
+                            onClick={(e) => submitReply(e, result._id, 0)}
+                          >
+                            Svar
+                          </Button>
+                          <Button
+                            key={index}
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => toggleHide(index)}
+                          >
+                           Avbryt
+                          </Button>
+                        </Typography>
+                      </Box>
+                    </div>
                   </Zoom>
-                }
+                )}
               </Grid>
             </Grid>
-              {result.comments.map((result, index) => {
-                      return (
-                      <>
-                      <Grid className={classes.commentIndent} item xs zeroMinWidth key={index}>
-                        <Grid item>
-                          <List style={{ textAlign: "left", color: "gray" }} className={classes.commentIndent}>
-                          <PersonPinIcon className={classes.iconDate} />
-                            {result.author.name}
-                          {result.author._id === jwt.user._id ?
+            {result.comments?.map((result, index) => {
+              return (
+                <>
+                  <Grid
+                    className={classes.commentIndent}
+                    item
+                    xs
+                    zeroMinWidth
+                    key={result._id}
+                  >
+                    <Grid item>
+                      <List
+                        style={{ textAlign: "left", color: "gray" }}
+                        className={classes.commentIndent}
+                      >
+                        <PersonPinIcon className={classes.iconDate} />
+                        {result.author.name}
+                        {result.author._id === jwt.user._id ? (
                           <>
-                          <IconButton size="small" aria-label="delete" color="secondary">
-                            <DeleteIcon />
-                          </IconButton>
-                          <IconButton size="small" aria-label="delete" color="primary">
-                            <EditIcon />
-                          </IconButton>
-                          </>
-                          : <IconButton size="small" aria-label="delete" color="primary">
-                              <ReplyIcon key={index} onClick={() => toggleHideReply(index)}/>
-                            </IconButton>}
-                          <ListItemText>
-                            <Typography
-                              component={"span"}
-                              variant={"subtitle1"}
-                              className={classes.fontBody}
+                            <IconButton
+                              size="small"
+                              aria-label="delete"
+                              color="secondary"
                             >
-                              {result.content}
-                            </Typography>
-                            <Typography component={"p"} variant={"body1"} style={{ textAlign: "left", color: "gray" }}>
-                              <QueryBuilderIcon className={classes.iconDate} />
-                              {formattedDate(result.updatedAt)}
-                            </Typography>
-                            {successAlert("Svaret ble lagt til")}
-
-                            {!!hiddenReply[index] && <Zoom in={hiddenReply[index]}><div key={index}>
-                              {result._id}
-                                <TextField id="outlined-basic" key={index} label="Svar" variant="outlined" onChange={(e) => handleChange(e)} />
+                              <DeleteIcon />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              aria-label="delete"
+                              color="primary"
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          </>
+                        ) : (
+                          <IconButton
+                            size="small"
+                            aria-label="delete"
+                            color="primary"
+                          >
+                            <ReplyIcon
+                              key={index}
+                              onClick={() => toggleHideReply(index)}
+                            />
+                          </IconButton>
+                        )}
+                        <ListItemText>
+                          <Typography
+                            component={"span"}
+                            variant={"subtitle1"}
+                            className={classes.fontBody}
+                          >
+                            {result.content}
+                          </Typography>
+                          <Typography
+                            component={"p"}
+                            variant={"body1"}
+                            style={{ textAlign: "left", color: "gray" }}
+                          >
+                            <QueryBuilderIcon className={classes.iconDate} />
+                            {formattedDate(result.updatedAt)}
+                          </Typography>
+                          {successAlert("Svaret ble lagt til")}
+                          {!!hiddenReply[index] && (
+                            <Zoom in={hiddenReply[index]}>
+                              <div key={index} style={{ paddingTop: "1em" }}>
+                                <TextField
+                                  id="outlined-basic"
+                                  key={index}
+                                  label="Svar"
+                                  className={classes.commentField}
+                                  variant="outlined"
+                                  multiline={true}
+                                  rows={2}
+                                  defaultValue={'@' + result.author.name + ' '}
+                                  onChange={(e) => handleChange(e)}
+                                />
                                 <Box mt={1}>
-                                  <Typography component={"p"} variant={"subtitle"} >
-                                    <Button variant="contained" color="primary" onClick={(e) => submitReply(e, result._id)}>Svar</Button>
+                                  <Typography
+                                    component={"p"}
+                                    variant={"subtitle"}
+                                  >
+                                    <Button
+                                      style={{ marginRight: "1em" }}
+                                      variant="contained"
+                                      color="primary"
+                                      onClick={(e) =>
+                                        submitReply(e, parentId, index + 1)
+                                      }
+                                    >
+                                      Svar
+                                    </Button>
+                                    <Button
+                                      key={index}
+                                      variant="contained"
+                                      color="secondary"
+                                      onClick={() => toggleHideReply(index)}
+                                    >
+                                    Avbryt
+                                    </Button>
                                   </Typography>
                                 </Box>
-                                </div>
-                              </Zoom>
-                            }
-                          </ListItemText>
-                          </List>
-                        </Grid>
-                      </Grid>
-                      </>
-              )})}
+                              </div>
+                            </Zoom>
+                          )}
+                        </ListItemText>
+                      </List>
+                    </Grid>
+                  </Grid>
+                </>
+              );
+            })}
 
             <Divider variant="fullWidth" style={{ margin: "10px 0" }} />
-
           </React.Fragment>
-
         );
       })}
       </Collapse>

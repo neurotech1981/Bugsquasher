@@ -64,7 +64,6 @@
     "eject": "react-scripts eject",
     "lint": "eslint src/**/*.js src/**/*.jsx"
   },
-  "proxy": "http://localhost:3001",
   "secure": false,
   "eslintConfig": {
     "extends": "react-app"

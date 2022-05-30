@@ -119,7 +119,6 @@ const Comments = ({ comments, issueID, userID }) => {
         } else {
           setCollapseCommentReply(index);
         }
-    //setCollapseCommentReply(({ [index]: true }));
   };
 
   const handleClose = (event, reason) => {
@@ -278,12 +277,16 @@ const Comments = ({ comments, issueID, userID }) => {
                 {index === collapseCommentReply ? (
                   <>
                     <ExpandLess aria-label="Skjul" />
-                    <Typography>{"Skjul svar"}</Typography>
+                    <Typography>
+                      {"Skjul svar" + " (" + result.comments.length + ")"}
+                    </Typography>
                   </>
                 ) : (
                   <>
                     <ExpandMore aria-label="Vis mer" />
-                    <Typography>{"Vis svar"}</Typography>
+                    <Typography>
+                      {"Vis svar" + " (" + result.comments.length + ")"}
+                    </Typography>
                   </>
                 )}
               </ListItem>
@@ -301,7 +304,7 @@ const Comments = ({ comments, issueID, userID }) => {
                       item
                       xs
                       zeroMinWidth
-                      key={index}
+                      key={result._id}
                     >
                       <Grid item>
                         <List

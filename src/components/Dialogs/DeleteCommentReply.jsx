@@ -97,7 +97,7 @@ export default function DeleteCommentReply(props) {
           >
             Slett svar
           </Button>
-          <Button onClick={handleClose} color="default">
+          <Button onClick={() => {handleClose()}} color="default">
             Avbryt
           </Button>
         </DialogActions>

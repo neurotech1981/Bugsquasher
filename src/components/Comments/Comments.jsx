@@ -1,8 +1,7 @@
 import {
-  Avatar, Box, Button, Collapse, Divider, Grid, IconButton, List, ListItem, ListItemText, Snackbar, TextField, Typography, Zoom
+  Avatar, Box, Button, Collapse, Divider, Grid, IconButton, Tooltip, List, ListItem, ListItemText, Snackbar, TextField, Typography, Zoom
 } from "@material-ui/core";
 import { alpha, makeStyles } from "@material-ui/core/styles";
-import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
@@ -16,10 +15,12 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import issueService from "../../services/issueService";
 import auth from "../auth/auth-helper";
+import DeleteCommentDialog from "../Dialogs/DeleteComment";
+import DeleteCommentReplyDialog from "../Dialogs/DeleteCommentReply";
 
 function Alert (props) {
   // eslint-disable-next-line react/jsx-props-no-spreading
-  return <MuiAlert elevation={1} variant="filled" {...props} />
+  return <MuiAlert elevation={0} variant="filled" {...props} />
 }
 
 const formattedDate = (value) => moment(value).format("DD/MM-YYYY HH:mm");
@@ -77,8 +78,23 @@ const Comments = ({ comments, issueID, userID }) => {
   const [hidden, setHidden] = useState({});
   const [reply, setReply] = useState("");
   const [comment, setComments] = useState([]);
+  const [message, setMessage] = useState("");
   const [open, setOpen] = useState(false)
-  const [collapseComments, setCollapseComments] = useState(false);
+  const [collapseComments, setCollapseComments] = useState(true);
+  const [collapseCommentReply, setCollapseCommentReply] = useState("");
+
+
+  const pull_data = (data) => {
+    setMessage("Kommentaren din ble slettet");
+    setOpen(true);
+    setComments(data)
+  };
+
+  const pull_data_reply = (data) => {
+    setMessage("Svaret ditt ble slettet");
+    setOpen(true);
+    setComments(data);
+  };
 
   const toggleHide = index => {
     setHidden({ ...hidden, [index]: !hidden[index] });
@@ -97,6 +113,15 @@ const Comments = ({ comments, issueID, userID }) => {
     setCollapseComments(!collapseComments);
   };
 
+  const handleClickCommentReplyCollapse = index => {
+        if (collapseCommentReply === index) {
+          setCollapseCommentReply("");
+        } else {
+          setCollapseCommentReply(index);
+        }
+    //setCollapseCommentReply(({ [index]: true }));
+  };
+
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return
@@ -104,48 +129,47 @@ const Comments = ({ comments, issueID, userID }) => {
     setOpen(false)
   }
 
-  const successAlert = (message) => (
+  const SuccessAlert = () => (
     <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
-      <Alert onClose={handleClose} severity="success" variant="standard">
+      <Alert onClose={handleClose} severity="success" variant="filled">
         <AlertTitle>Suksess</AlertTitle>
         {message}
       </Alert>
     </Snackbar>
-  )
+  );
 
   useEffect(() => {
     setComments(comments);
   }, [comments]);
 
-  const submitReply = (e, commentID, index) => {
-    console.log("submit reply", reply, commentID, issueID, userID, index);
+  const submitReply = (e, commentID, index, indexInput) => {
     const jwt = auth.isAuthenticated();
+    setMessage("Svaret ble lagt til");
+    issueService
+      .addCommentReply(userID, reply, jwt.token, issueID, commentID, index)
+      .then((data) => {
+        setComments(data.data.response[0].comments);
+        if (data.data.success) {
+          setOpen(true);
+          setReply("");
+          toggleHideReply(index - 1);
+          toggleHide(indexInput);
 
-    issueService.addCommentReply(userID, reply, jwt.token, issueID, commentID, index).then((data) => {
-      console.log(data);
-      setComments(data.data.response[0].comments);
-      if(data.data.success)
-      {
-        setOpen(true);
-        setReply("");
-        toggleHideReply(index-1);
-        setHidden({ ...hidden, [index]: hidden[index] });
-
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }).catch((error) =>
-    {
-      console.log("Error", error);
-    });
-  }
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      })
+      .catch((error) => {
+        console.log("Error", error);
+      });
+  };
 
 
   const classes = useStyles();
   return (
     <>
   <Typography component={"span"} variant={"subtitle1"}>
-    Kommentarer ({comments.length})
+    Kommentarer ({comment.length})
   </Typography>
   <ListItem button onClick={handleClickCommentCollapse} style={{ minWidth: "100vh", marginBottom: "2em"}}>
   {collapseComments ? <><ExpandLess aria-label="Skjul" /><Typography>{"Skjul kommentarer"}</Typography></> : <><ExpandMore aria-label="Vis mer" /><Typography>{"Vis kommentarer"}</Typography></>}
@@ -154,13 +178,13 @@ const Comments = ({ comments, issueID, userID }) => {
       {comment.map((result, index) => {
         let parentId = result._id;
         return (
-          <React.Fragment key={result._id}>
+          <React.Fragment key={index}>
             <Grid
               justifyContent="flex-start"
               container
               wrap="nowrap"
               spacing={1}
-              key={result._id}
+              key={index}
             >
               <Grid item>
                 <Avatar alt="Profil bilde" src={randAvatar()} />
@@ -173,27 +197,34 @@ const Comments = ({ comments, issueID, userID }) => {
                       size="small"
                       aria-label="delete"
                       color="secondary"
+                      //onClick={(e) => deleteComment(e, issueID, result._id)}
                     >
-                      <DeleteIcon />
+                      <DeleteCommentDialog
+                        func={pull_data}
+                        commentId={result._id}
+                        id={issueID}
+                      />
                     </IconButton>
-                    <IconButton size="small" aria-label="edit" color="primary">
-                      <EditIcon />
+                    <IconButton
+                      size="small"
+                      aria-label="edit"
+                      color="primary"
+                      style={{ verticalAlign: "top" }}
+                    >
+                      <Tooltip title="Rediger">
+                        <EditIcon />
+                      </Tooltip>
                     </IconButton>
                   </>
                 ) : (
                   <IconButton size="small" aria-label="reply" color="primary">
-                    <ReplyIcon
-                      key={result._id}
-                      onClick={() => toggleHide(index)}
-                    />
+                    <ReplyIcon key={index} onClick={() => toggleHide(index)} />
                   </IconButton>
                 )}
                 <p style={{ textAlign: "left" }}>{result.content} </p>
                 <p style={{ textAlign: "left", color: "gray" }}>
                   postet {formattedDate(result.updatedAt)}
-                  {result._id}
                 </p>
-                {successAlert("Svaret ble lagt til")}
 
                 {!!hidden[index] && (
                   <Zoom in={hidden[index]}>
@@ -214,7 +245,9 @@ const Comments = ({ comments, issueID, userID }) => {
                             style={{ marginRight: "1em" }}
                             variant="contained"
                             color="primary"
-                            onClick={(e) => submitReply(e, result._id, 0)}
+                            onClick={(e) =>
+                              submitReply(e, result._id, 0, index)
+                            }
                           >
                             Svar
                           </Button>
@@ -224,7 +257,7 @@ const Comments = ({ comments, issueID, userID }) => {
                             color="secondary"
                             onClick={() => toggleHide(index)}
                           >
-                           Avbryt
+                            Avbryt
                           </Button>
                         </Typography>
                       </Box>
@@ -233,119 +266,154 @@ const Comments = ({ comments, issueID, userID }) => {
                 )}
               </Grid>
             </Grid>
-            {result.comments?.map((result, index) => {
-              return (
-                <>
-                  <Grid
-                    className={classes.commentIndent}
-                    item
-                    xs
-                    zeroMinWidth
-                    key={result._id}
-                  >
-                    <Grid item>
-                      <List
-                        style={{ textAlign: "left", color: "gray" }}
-                        className={classes.commentIndent}
-                      >
-                        <PersonPinIcon className={classes.iconDate} />
-                        {result.author.name}
-                        {result.author._id === jwt.user._id ? (
-                          <>
-                            <IconButton
-                              size="small"
-                              aria-label="delete"
-                              color="secondary"
-                            >
-                              <DeleteIcon />
-                            </IconButton>
+            {!!result.comments.length > 0 && (
+              <ListItem
+                button
+                key={index}
+                onClick={() => {
+                  handleClickCommentReplyCollapse(index);
+                }}
+                style={{ minWidth: "100vh", marginBottom: "1em" }}
+              >
+                {index === collapseCommentReply ? (
+                  <>
+                    <ExpandLess aria-label="Skjul" />
+                    <Typography>{"Skjul svar"}</Typography>
+                  </>
+                ) : (
+                  <>
+                    <ExpandMore aria-label="Vis mer" />
+                    <Typography>{"Vis svar"}</Typography>
+                  </>
+                )}
+              </ListItem>
+            )}
+            <Collapse
+              in={index === collapseCommentReply}
+              timeout="auto"
+              unmountOnExit
+            >
+              {result.comments?.map((result, index) => {
+                return (
+                  <>
+                    <Grid
+                      className={classes.commentIndent}
+                      item
+                      xs
+                      zeroMinWidth
+                      key={index}
+                    >
+                      <Grid item>
+                        <List
+                          style={{ textAlign: "left", color: "gray" }}
+                          className={classes.commentIndent}
+                        >
+                          <PersonPinIcon className={classes.iconDate} />
+                          {result.author.name}
+                          {result.author._id === jwt.user._id ? (
+                            <>
+                              <IconButton
+                                size="small"
+                                aria-label="delete"
+                                color="secondary"
+                              >
+                                <DeleteCommentReplyDialog
+                                  func_reply={pull_data_reply}
+                                  parentId={parentId}
+                                  childId={result._id}
+                                  id={issueID}
+                                />
+                              </IconButton>
+                              <IconButton
+                                size="small"
+                                aria-label="delete"
+                                color="primary"
+                                style={{ verticalAlign: "top" }}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                            </>
+                          ) : (
                             <IconButton
                               size="small"
                               aria-label="delete"
                               color="primary"
                             >
-                              <EditIcon />
+                              <ReplyIcon
+                                key={index}
+                                onClick={() => toggleHideReply(index)}
+                              />
                             </IconButton>
-                          </>
-                        ) : (
-                          <IconButton
-                            size="small"
-                            aria-label="delete"
-                            color="primary"
-                          >
-                            <ReplyIcon
-                              key={index}
-                              onClick={() => toggleHideReply(index)}
-                            />
-                          </IconButton>
-                        )}
-                        <ListItemText>
-                          <Typography
-                            component={"span"}
-                            variant={"subtitle1"}
-                            className={classes.fontBody}
-                          >
-                            {result.content}
-                          </Typography>
-                          <Typography
-                            component={"p"}
-                            variant={"body1"}
-                            style={{ textAlign: "left", color: "gray" }}
-                          >
-                            <QueryBuilderIcon className={classes.iconDate} />
-                            {formattedDate(result.updatedAt)}
-                          </Typography>
-                          {successAlert("Svaret ble lagt til")}
-                          {!!hiddenReply[index] && (
-                            <Zoom in={hiddenReply[index]}>
-                              <div key={index} style={{ paddingTop: "1em" }}>
-                                <TextField
-                                  id="outlined-basic"
-                                  key={index}
-                                  label="Svar"
-                                  className={classes.commentField}
-                                  variant="outlined"
-                                  multiline={true}
-                                  rows={2}
-                                  defaultValue={'@' + result.author.name + ' '}
-                                  onChange={(e) => handleChange(e)}
-                                />
-                                <Box mt={1}>
-                                  <Typography
-                                    component={"p"}
-                                    variant={"subtitle"}
-                                  >
-                                    <Button
-                                      style={{ marginRight: "1em" }}
-                                      variant="contained"
-                                      color="primary"
-                                      onClick={(e) =>
-                                        submitReply(e, parentId, index + 1)
-                                      }
-                                    >
-                                      Svar
-                                    </Button>
-                                    <Button
-                                      key={index}
-                                      variant="contained"
-                                      color="secondary"
-                                      onClick={() => toggleHideReply(index)}
-                                    >
-                                    Avbryt
-                                    </Button>
-                                  </Typography>
-                                </Box>
-                              </div>
-                            </Zoom>
                           )}
-                        </ListItemText>
-                      </List>
+                          <ListItemText>
+                            <Typography
+                              component={"span"}
+                              variant={"subtitle1"}
+                              className={classes.fontBody}
+                            >
+                              {result.content}
+                            </Typography>
+                            <Typography
+                              component={"p"}
+                              variant={"body1"}
+                              style={{ textAlign: "left", color: "gray" }}
+                            >
+                              <QueryBuilderIcon className={classes.iconDate} />
+                              {formattedDate(result.updatedAt)}
+                            </Typography>
+                            {SuccessAlert()}
+                            {!!hiddenReply[index] && (
+                              <Zoom in={hiddenReply[index]}>
+                                <div key={index} style={{ paddingTop: "1em" }}>
+                                  <TextField
+                                    id="outlined-basic"
+                                    key={index}
+                                    label="Svar"
+                                    className={classes.commentField}
+                                    variant="outlined"
+                                    multiline={true}
+                                    rows={2}
+                                    defaultValue={
+                                      "@" + result.author.name + " "
+                                    }
+                                    onChange={(e) => handleChange(e)}
+                                  />
+                                  <Box mt={1}>
+                                    <Typography
+                                      component={"p"}
+                                      variant={"subtitle"}
+                                    >
+                                      <Button
+                                        style={{ marginRight: "1em" }}
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={(e) =>
+                                          submitReply(e, parentId, index + 1)
+                                        }
+                                      >
+                                        Svar
+                                      </Button>
+                                      <Button
+                                        key={index}
+                                        variant="contained"
+                                        color="secondary"
+                                        onClick={() => toggleHideReply(index)}
+                                      >
+                                        Avbryt
+                                      </Button>
+                                    </Typography>
+                                  </Box>
+                                </div>
+                              </Zoom>
+                            )}
+                          </ListItemText>
+                        </List>
+                      </Grid>
                     </Grid>
-                  </Grid>
-                </>
-              );
-            })}
-
+                  </>
+                );
+              })}
+            </Collapse>
             <Divider variant="fullWidth" style={{ margin: "10px 0" }} />
           </React.Fragment>
         );

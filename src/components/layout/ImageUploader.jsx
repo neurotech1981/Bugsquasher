@@ -113,7 +113,6 @@ const img = {
 
 function Previews (props) {
   const { imageBool, issueID, func_image } = props;
-  console.log(imageBool, issueID);
   const classes = useStyles()
   const [files, setFiles] = useState([])
   const [open, setOpen] = useState(false)

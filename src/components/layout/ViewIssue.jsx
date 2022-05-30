@@ -468,7 +468,11 @@ export default function ViewIssue(props) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleConfirmDelete} color="primary" variant="contained">
+          <Button
+            onClick={handleConfirmDelete}
+            color="primary"
+            variant="contained"
+          >
             Ja
           </Button>
           <Button onClick={handleClose} variant="outlined" color="default">
@@ -481,12 +485,15 @@ export default function ViewIssue(props) {
         <section className="two-columns__main">
           <div className="form-grid">
             <div className="item0">
-              <IconButton onClick={goHome}>
-                <ArrowBackIcon style={{ fontSize: "2rem" }} />
-              </IconButton>
+              <Button onClick={goHome}>
+                <IconButton />
+              </Button>
+              <ArrowBackIcon style={{ fontSize: "2rem" }} />
             </div>
             <div className="item1" style={{ paddingLeft: "5rem" }}>
-            <Typography variant="h6">{dataset.reporter != null ? dataset.reporter.name : "Laster..."}</Typography>
+              <Typography variant="h6">
+                {dataset.reporter != null ? dataset.reporter.name : "Laster..."}
+              </Typography>
               <Typography variant="subtitle2">
                 Opprettet: {formattedDate(dataset.createdAt)}
               </Typography>
@@ -520,7 +527,11 @@ export default function ViewIssue(props) {
                 Vedlegg
               </InputLabel>
               {imgList}
-              <Previews imageBool={true} issueID={dataset._id} func_image={image_changes} />
+              <Previews
+                imageBool={true}
+                issueID={dataset._id}
+                func_image={image_changes}
+              />
             </div>
             <div className="item4">
               <TextField
@@ -571,7 +582,7 @@ export default function ViewIssue(props) {
                 label="Delegert til"
                 value={[
                   dataset.delegated != null ?
-                    dataset.delegated.name
+                     dataset.delegated.name
                     : "Laster...",
                 ]}
                 className={classes.textField}
@@ -711,7 +722,11 @@ export default function ViewIssue(props) {
             </div>
             <div className="item16">
               {comments.length > 0 ? (
-                <Comments comments={comments} issueID={dataset._id} userID={dataset.userid} />
+                <Comments
+                  comments={comments}
+                  issueID={dataset._id}
+                  userID={dataset.userid}
+                />
               ) : (
                 <Typography component={"p"} variant={"subtitle1"}>
                   Ingen kommentarer
@@ -784,9 +799,7 @@ export default function ViewIssue(props) {
                   id="outlined-select-delegert"
                   select
                   value={[
-                    dataset.delegated != null ?
-                      dataset.delegated._id
-                      : "",
+                    dataset.delegated != null ? dataset.delegated._id : "",
                   ]}
                   label="Deleger til"
                   name="delegert"
@@ -802,8 +815,8 @@ export default function ViewIssue(props) {
                   margin="normal"
                   variant="outlined"
                 >
-                  {users.map((option) => (
-                    <MenuItem key={option._id} value={option._id}>
+                  {users.map((option, index) => (
+                    <MenuItem key={index} value={option._id}>
                       {option.name}
                     </MenuItem>
                   ))}

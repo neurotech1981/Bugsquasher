@@ -1234,7 +1234,7 @@ ProtectedRoutes.get("/deleteIssueByID/:id", async function (req, res, next) {
 
 // this is our delete method
 // this method removes existing data in our database
-ProtectedRoutes.post("/delete-image/:id", async function (req, res, next) {
+ProtectedRoutes.route("/delete-image/:id").post(async function (req, res, next) {
   const { image, name } = req.body;
   const { id } = req.params;
 
@@ -1256,6 +1256,57 @@ ProtectedRoutes.post("/delete-image/:id", async function (req, res, next) {
       success: true,
     });
   });
+});
+
+// this is our delete method
+// this method removes existing data in our database
+ProtectedRoutes.route("/delete-comment/:id").post(async function (req, res) {
+  const { id } = req.params;
+  const { commentId } = req.body;
+  console.log("Delete comment", id, commentId);
+  Data.findByIdAndUpdate(
+    { _id: id },
+    { $pullAll: { comments: [commentId] } },
+    { new: true },
+    (err, result) => {
+      if (err) return res.send(err);
+      return res.json({
+        success: true,
+        response: result,
+      });
+    }
+  ).populate({
+    path: "comments",
+  });
+});
+
+// this is our delete method
+// this method removes existing data in our database
+ProtectedRoutes.route("/delete-reply/:id").post(async function (
+  req,
+  res,
+) {
+  const { id } = req.params;
+  const { parentId, childId } = req.body;
+  console.log("Delete reply", id, parentId);
+  await Comments.findByIdAndUpdate(
+    { _id: parentId },
+    { $pullAll: { comments: [childId] } },
+    { new: true }
+  ).clone()
+    .then((result) => {
+      Promise.all([
+        Data.findById(id).populate({
+          path: "comments",
+        }),
+      ]).then((result) => {
+        return res.json({
+          success: true,
+          response: result,
+        });
+      });
+    })
+    .catch(console.error);
 });
 
 // this is our create method

@@ -29,7 +29,7 @@
     "express-jwt": "^6.1.2",
     "express-mongo-sanitize": "^2.1.0",
     "express-rate-limit": "^5.2.6",
-    "helmet": "^3.23.3",
+    "helmet": "^5.1.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.2",
     "mongoose": "^6.0.4",

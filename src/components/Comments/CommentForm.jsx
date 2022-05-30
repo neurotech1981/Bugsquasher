@@ -55,8 +55,8 @@ const CommentForm = ({ onSubmit, openNewComment, setOpenNewComment }) => {
       <Alert
         elevation={0}
         onClose={handleClose}
-        severity="info"
-        variant="standard"
+        severity="success"
+        variant="filled"
       >
         <AlertTitle>Ny kommentar</AlertTitle>
         Kommentaren din ble lagt til.

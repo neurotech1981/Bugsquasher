@@ -105,10 +105,10 @@ export default function DraggableDialog(props) {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => removeImage(imageIndex)} variant="contained" color="secondary">
-            Ja
+            Slett bilde
           </Button>
           <Button onClick={handleClose} color="default">
-            Nei
+            Avbryt
           </Button>
         </DialogActions>
       </Dialog>

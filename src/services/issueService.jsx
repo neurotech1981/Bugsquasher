@@ -11,10 +11,9 @@ export default {
     return res.data.data || [];
   },
   getComments: async (id, auth) => {
-    const res = await instance.get(
-      `/api/get-comments/${id}`,
-      { headers: { Authorization: auth } }
-    );
+    const res = await instance.get(`/api/get-comments/${id}`, {
+      headers: { Authorization: auth },
+    });
     return res.data.data || [];
   },
   getCommentsReplies: async (issueId, commentId, auth) => {
@@ -60,22 +59,28 @@ export default {
     });
   },
   addCommentReply: async (userID, data, auth, issueId, commentId, index) => {
-    return await instance.post(`/api/issue/${issueId}/comments/${commentId}/replies/new`, {
-      headers: { Authorization: auth },
-      reply: {
-        content: data,
-        userID: userID,
-        index: index,
-      },
-    });
+    return await instance.post(
+      `/api/issue/${issueId}/comments/${commentId}/replies/new`,
+      {
+        headers: { Authorization: auth },
+        reply: {
+          content: data,
+          userID: userID,
+          index: index,
+        },
+      }
+    );
   },
   addImageToIssue: async (issueID, name, auth) => {
-    return await instance.post(`/api/issue/add-image/`, {
-       headers: { Authorization: auth },
-       name: name,
-       issueID: issueID },
+    return await instance.post(
+      `/api/issue/add-image/`,
       {
-    });
+        headers: { Authorization: auth },
+        name: name,
+        issueID: issueID,
+      },
+      {}
+    );
   },
   deleteIssueByID: async (id, auth) => {
     return await instance.get(`/api/deleteIssueByID/${id}`, {
@@ -83,10 +88,25 @@ export default {
     });
   },
   deleteImage: async (id, imageID, name, auth) => {
-    return await instance.post(`/api/delete-image/${id}`,
+    return await instance.post(
+      `/api/delete-image/${id}`,
       { image: imageID, name: name },
-      { headers: { Authorization: auth },
-    });
+      { headers: { Authorization: auth } }
+    );
+  },
+  deleteComment: async (id, commentId, auth) => {
+    return await instance.post(
+      `/api/delete-comment/${id}`,
+      { commentId: commentId },
+      { headers: { Authorization: auth } }
+    );
+  },
+  deleteCommentReply: async (id, parentId, childId, auth) => {
+    return await instance.post(
+      `/api/delete-reply/${id}`,
+      { parentId: parentId, childId: childId  },
+      { headers: { Authorization: auth } }
+    );
   },
   countIssues: async (auth) => {
     return await instance.get("/api/countIssues", {

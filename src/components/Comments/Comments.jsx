@@ -6,7 +6,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import PersonPinIcon from "@material-ui/icons/PersonPin";
-import QueryBuilderIcon from "@material-ui/icons/QueryBuilder";
+//import QueryBuilderIcon from "@material-ui/icons/QueryBuilder";
 import ReplyIcon from '@material-ui/icons/Reply';
 import { AlertTitle } from '@material-ui/lab';
 import MuiAlert from '@material-ui/lab/Alert';
@@ -76,13 +76,15 @@ const Comments = ({ comments, issueID, userID }) => {
 
   const jwt = auth.isAuthenticated();
   const [hidden, setHidden] = useState({});
+  const [hiddenEdit, setHiddenEdit] = useState({});
   const [reply, setReply] = useState("");
   const [comment, setComments] = useState([]);
   const [message, setMessage] = useState("");
   const [open, setOpen] = useState(false)
   const [collapseComments, setCollapseComments] = useState(true);
   const [collapseCommentReply, setCollapseCommentReply] = useState("");
-
+  const [hiddenReply, setHiddenReply] = useState({});
+  //const [commentUpdate, setCommentUpdate] = useState("");
 
   const pull_data = (data) => {
     setMessage("Kommentaren din ble slettet");
@@ -99,14 +101,27 @@ const Comments = ({ comments, issueID, userID }) => {
   const toggleHide = index => {
     setHidden({ ...hidden, [index]: !hidden[index] });
   };
-  const [hiddenReply, setHiddenReply] = useState({});
+
+  const toggleHideCommentEdit = (index) => {
+    setHiddenEdit({ ...hiddenEdit, [index]: !hiddenEdit[index] });
+  };
 
   const toggleHideReply = index => {
     setHiddenReply({ ...hiddenReply, [index]: !hiddenReply[index] });
   };
 
   const handleChange = (event) => {
-    setReply(event.target.value);
+      setReply(event.target.value);
+  };
+
+  const handleChangeComment = (id, e) => {
+    setComments((prevState) => {
+      return prevState.map((item) => {
+        if (item._id === id) return { ...item, content: e.target.value };
+        console.log(item);
+        return item;
+      });
+    });
   };
 
   const handleClickCommentCollapse = () => {
@@ -163,264 +178,422 @@ const Comments = ({ comments, issueID, userID }) => {
       });
   };
 
+    const submitCommentEdit = (e, commentID, newContent, index) => {
+      const jwt = auth.isAuthenticated();
+      setMessage("Kommentar ble redigert");
+      console.log("Hmm");
+      issueService
+        .updateComment(
+          newContent,
+          issueID,
+          jwt.token,
+          commentID,
+          index
+        )
+        .then((data) => {
+          console.log("hm2")
+          setComments(data.data.response[0].comments);
+          if (data.data.success) {
+            setOpen(true);
+            setReply("");
+            //toggleHideReply(index - 1);
+            //toggleHide(indexInput);
+            toggleHideCommentEdit(index);
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        })
+        .catch((error) => {
+          console.log("Error", error);
+        });
+    };
+
 
   const classes = useStyles();
   return (
     <>
-  <Typography component={"span"} variant={"subtitle1"}>
-    Kommentarer ({comment.length})
-  </Typography>
-  <ListItem button onClick={handleClickCommentCollapse} style={{ minWidth: "100vh", marginBottom: "2em"}}>
-  {collapseComments ? <><ExpandLess aria-label="Skjul" /><Typography>{"Skjul kommentarer"}</Typography></> : <><ExpandMore aria-label="Vis mer" /><Typography>{"Vis kommentarer"}</Typography></>}
-  </ListItem>
-  <Collapse in={collapseComments} timeout="auto" unmountOnExit>
-      {comment.map((result, index) => {
-        let parentId = result._id;
-        return (
-          <React.Fragment key={index}>
-            <Grid
-              justifyContent="flex-start"
-              container
-              wrap="nowrap"
-              spacing={1}
-              key={index}
-            >
-              <Grid item>
-                <Avatar alt="Profil bilde" src={randAvatar()} />
-              </Grid>
-              <Grid item xs zeroMinWidth>
-                {result.author.name}
-                {result.author._id === jwt.user._id ? (
-                  <>
-                    <IconButton
-                      size="small"
-                      aria-label="delete"
-                      color="secondary"
-                      //onClick={(e) => deleteComment(e, issueID, result._id)}
-                    >
-                      <DeleteCommentDialog
-                        func={pull_data}
-                        commentId={result._id}
-                        id={issueID}
-                      />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      aria-label="edit"
-                      color="primary"
-                      style={{ verticalAlign: "top" }}
-                    >
-                      <Tooltip title="Rediger">
-                        <EditIcon />
-                      </Tooltip>
-                    </IconButton>
-                  </>
-                ) : (
-                  <IconButton size="small" aria-label="reply" color="primary">
-                    <ReplyIcon key={index} onClick={() => toggleHide(index)} />
-                  </IconButton>
-                )}
-                <p style={{ textAlign: "left" }}>{result.content} </p>
-                <p style={{ textAlign: "left", color: "gray" }}>
-                  postet {formattedDate(result.updatedAt)}
-                </p>
-
-                {!!hidden[index] && (
-                  <Zoom in={hidden[index]}>
-                    <div key={index} style={{ textAlign: "start" }}>
-                      <TextField
-                        id="outlined-basic"
-                        key={index}
-                        label="Svar"
-                        className={classes.commentField}
-                        multiline={true}
-                        rows={2}
-                        variant="outlined"
-                        onChange={(e) => handleChange(e)}
-                      />
-                      <Box mt={1} mb={3}>
-                        <Typography component={"p"} variant={"subtitle1"}>
-                          <Button
-                            style={{ marginRight: "1em" }}
-                            variant="contained"
-                            color="primary"
-                            onClick={(e) =>
-                              submitReply(e, result._id, 0, index)
-                            }
-                          >
-                            Svar
-                          </Button>
-                          <Button
-                            key={index}
-                            variant="contained"
-                            color="secondary"
-                            onClick={() => toggleHide(index)}
-                          >
-                            Avbryt
-                          </Button>
-                        </Typography>
-                      </Box>
-                    </div>
-                  </Zoom>
-                )}
-              </Grid>
-            </Grid>
-            {!!result.comments.length > 0 && (
-              <ListItem
-                button
-                key={index}
-                onClick={() => {
-                  handleClickCommentReplyCollapse(index);
-                }}
-                style={{ minWidth: "100vh", marginBottom: "1em" }}
+      <Typography component={"span"} variant={"subtitle1"}>
+        Kommentarer ({comment.length})
+      </Typography>
+      {SuccessAlert()}
+      <ListItem
+        button
+        onClick={handleClickCommentCollapse}
+        style={{ minWidth: "100vh", marginBottom: "2em" }}
+      >
+        {collapseComments ? (
+          <>
+            <ExpandLess aria-label="Skjul" />
+            <Typography>{"Skjul kommentarer"}</Typography>
+          </>
+        ) : (
+          <>
+            <ExpandMore aria-label="Vis mer" />
+            <Typography>{"Vis kommentarer"}</Typography>
+          </>
+        )}
+      </ListItem>
+      <Collapse in={collapseComments} timeout="auto" unmountOnExit>
+        {comment.map((result, index) => {
+          let parentId = result._id;
+          return (
+            <React.Fragment key={index}>
+              <Grid
+                justifyContent="flex-start"
+                container
+                wrap="nowrap"
+                spacing={1}
+                key={result._id}
               >
-                {index === collapseCommentReply ? (
-                  <>
-                    <ExpandLess aria-label="Skjul" />
-                    <Typography>
-                      {"Skjul svar" + " (" + result.comments.length + ")"}
-                    </Typography>
-                  </>
-                ) : (
-                  <>
-                    <ExpandMore aria-label="Vis mer" />
-                    <Typography>
-                      {"Vis svar" + " (" + result.comments.length + ")"}
-                    </Typography>
-                  </>
-                )}
-              </ListItem>
-            )}
-            <Collapse
-              in={index === collapseCommentReply}
-              timeout="auto"
-              unmountOnExit
-            >
-              {result.comments?.map((result, index) => {
-                return (
-                  <>
-                    <Grid
-                      className={classes.commentIndent}
-                      item
-                      xs
-                      zeroMinWidth
-                      key={result._id}
-                    >
-                      <Grid item>
-                        <List
-                          style={{ textAlign: "left", color: "gray" }}
-                          className={classes.commentIndent}
-                        >
-                          <PersonPinIcon className={classes.iconDate} />
-                          {result.author.name}
-                          {result.author._id === jwt.user._id ? (
-                            <>
-                              <IconButton
-                                size="small"
-                                aria-label="delete"
-                                color="secondary"
-                              >
-                                <DeleteCommentReplyDialog
-                                  func_reply={pull_data_reply}
-                                  parentId={parentId}
-                                  childId={result._id}
-                                  id={issueID}
-                                />
-                              </IconButton>
+                <Grid item>
+                  <Avatar alt="Profil bilde" src={randAvatar()} />
+                </Grid>
+                <Grid item xs zeroMinWidth>
+                  {result.author.name}
+                  {result.author._id === jwt.user._id ? (
+                    <>
+                      <IconButton
+                        size="small"
+                        aria-label="delete"
+                        color="secondary"
+                      >
+                        <DeleteCommentDialog
+                          func={pull_data}
+                          commentId={result._id}
+                          id={issueID}
+                        />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        aria-label="edit"
+                        color="primary"
+                        style={{ verticalAlign: "top" }}
+                      >
+                        <Tooltip title="Rediger">
+                          <EditIcon
+                            key={index}
+                            onClick={() => toggleHideCommentEdit(index)}
+                          />
+                        </Tooltip>
+                      </IconButton>
+                    </>
+                  ) : (
+                    <IconButton size="small" aria-label="reply" color="primary">
+                      <ReplyIcon
+                        key={index}
+                        onClick={() => toggleHide(index)}
+                      />
+                    </IconButton>
+                  )}
+                  {!hiddenEdit[index] && (
+                    <>
+                      <p style={{ textAlign: "left" }}>{result.content} </p>
+                      <p style={{ textAlign: "left", color: "gray" }}>
+                        postet {formattedDate(result.updatedAt)}
+                      </p>
+                    </>
+                  )}
+                  {!!hiddenEdit[index] && (
+                    <Zoom in={hiddenEdit[index]}>
+                      <div key={index} style={{ textAlign: "start" }}>
+                        <TextField
+                          id="content"
+                          name="content"
+                          key={result._id}
+                          label="Rediger"
+                          className={classes.commentField}
+                          multiline={true}
+                          rows={2}
+                          onChange={(e) => handleChangeComment(result._id, e)}
+                          value={comment.find(i => i._id === result._id).content}
+                          variant="outlined"
+                        />
+                        <Box mt={1} mb={3}>
+                          <Typography component={"p"} variant={"subtitle1"}>
+                            <Button
+                              style={{ marginRight: "1em" }}
+                              variant="contained"
+                              color="primary"
+                              onClick={(e) =>
+                                submitCommentEdit(
+                                  e,
+                                  result._id,
+                                  comment[index],
+                                  index
+                                )
+                              }
+                            >
+                              Oppdater
+                            </Button>
+                            <Button
+                              key={index}
+                              variant="contained"
+                              color="secondary"
+                              onClick={() => toggleHideCommentEdit(index)}
+                            >
+                              Avbryt
+                            </Button>
+                          </Typography>
+                        </Box>
+                      </div>
+                    </Zoom>
+                  )}
+                  {!!hidden[index] && (
+                    <Zoom in={hidden[index]}>
+                      <div key={index} style={{ textAlign: "start" }}>
+                        <TextField
+                          id="outlined-basic"
+                          key={index}
+                          label="Svar"
+                          className={classes.commentField}
+                          multiline={true}
+                          rows={2}
+                          variant="outlined"
+                          onChange={(e) => handleChange(e)}
+                        />
+                        <Box mt={1} mb={3}>
+                          <Typography component={"p"} variant={"subtitle1"}>
+                            <Button
+                              style={{ marginRight: "1em" }}
+                              variant="contained"
+                              color="primary"
+                              onClick={(e) =>
+                                submitReply(e, result._id, 0, index)
+                              }
+                            >
+                              Svar
+                            </Button>
+                            <Button
+                              key={index}
+                              variant="contained"
+                              color="secondary"
+                              onClick={() => toggleHide(index)}
+                            >
+                              Avbryt
+                            </Button>
+                          </Typography>
+                        </Box>
+                      </div>
+                    </Zoom>
+                  )}
+                </Grid>
+              </Grid>
+              {!!result.comments.length > 0 && (
+                <ListItem
+                  button
+                  key={index}
+                  onClick={() => {
+                    handleClickCommentReplyCollapse(index);
+                  }}
+                  style={{ minWidth: "100vh", marginBottom: "0.5em" }}
+                >
+                  {index === collapseCommentReply ? (
+                    <>
+                      <ExpandLess aria-label="Skjul" />
+                      <Typography>
+                        {"Skjul svar" + " (" + result.comments.length + ")"}
+                      </Typography>
+                    </>
+                  ) : (
+                    <>
+                      <ExpandMore aria-label="Vis mer" />
+                      <Typography>
+                        {"Vis svar" + " (" + result.comments.length + ")"}
+                      </Typography>
+                    </>
+                  )}
+                </ListItem>
+              )}
+              <Collapse
+                in={index === collapseCommentReply}
+                timeout="auto"
+                unmountOnExit
+              >
+                {result.comments?.map((result, index) => {
+                  return (
+                    <>
+                      <Grid
+                        className={classes.commentIndent}
+                        item
+                        xs
+                        zeroMinWidth
+                        key={result._id}
+                      >
+                        <Grid item>
+                          <List
+                            style={{ textAlign: "left", color: "gray" }}
+                            className={classes.commentIndent}
+                          >
+                            <PersonPinIcon className={classes.iconDate} />
+                            {result.author.name}
+                            {result.author._id === jwt.user._id ? (
+                              <>
+                                <IconButton
+                                  size="small"
+                                  aria-label="delete"
+                                  color="secondary"
+                                >
+                                  <DeleteCommentReplyDialog
+                                    func_reply={pull_data_reply}
+                                    parentId={parentId}
+                                    childId={result._id}
+                                    id={issueID}
+                                  />
+                                </IconButton>
+                                <IconButton
+                                  size="small"
+                                  aria-label="delete"
+                                  color="primary"
+                                  style={{ verticalAlign: "top" }}
+                                >
+                                  <EditIcon
+                                    key={result._id}
+                                    onClick={() =>
+                                      toggleHideCommentEdit(result._id)
+                                    }
+                                  />
+                                </IconButton>
+                              </>
+                            ) : (
                               <IconButton
                                 size="small"
                                 aria-label="delete"
                                 color="primary"
-                                style={{ verticalAlign: "top" }}
                               >
-                                <EditIcon />
+                                <ReplyIcon
+                                  key={result._id}
+                                  onClick={() => toggleHideReply(result._id)}
+                                />
                               </IconButton>
-                            </>
-                          ) : (
-                            <IconButton
-                              size="small"
-                              aria-label="delete"
-                              color="primary"
-                            >
-                              <ReplyIcon
-                                key={index}
-                                onClick={() => toggleHideReply(index)}
-                              />
-                            </IconButton>
-                          )}
-                          <ListItemText>
-                            <Typography
-                              component={"span"}
-                              variant={"subtitle1"}
-                              className={classes.fontBody}
-                            >
-                              {result.content}
-                            </Typography>
-                            <Typography
-                              component={"p"}
-                              variant={"body1"}
-                              style={{ textAlign: "left", color: "gray" }}
-                            >
-                              <QueryBuilderIcon className={classes.iconDate} />
-                              {formattedDate(result.updatedAt)}
-                            </Typography>
-                            {SuccessAlert()}
-                            {!!hiddenReply[index] && (
-                              <Zoom in={hiddenReply[index]}>
-                                <div key={index} style={{ paddingTop: "1em" }}>
-                                  <TextField
-                                    id="outlined-basic"
-                                    key={index}
-                                    label="Svar"
-                                    className={classes.commentField}
-                                    variant="outlined"
-                                    multiline={true}
-                                    rows={2}
-                                    defaultValue={
-                                      "@" + result.author.name + " "
-                                    }
-                                    onChange={(e) => handleChange(e)}
-                                  />
-                                  <Box mt={1}>
-                                    <Typography
-                                      component={"p"}
-                                      variant={"subtitle"}
-                                    >
-                                      <Button
-                                        style={{ marginRight: "1em" }}
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={(e) =>
-                                          submitReply(e, parentId, index + 1)
-                                        }
-                                      >
-                                        Svar
-                                      </Button>
-                                      <Button
-                                        key={index}
-                                        variant="contained"
-                                        color="secondary"
-                                        onClick={() => toggleHideReply(index)}
-                                      >
-                                        Avbryt
-                                      </Button>
-                                    </Typography>
-                                  </Box>
-                                </div>
-                              </Zoom>
                             )}
-                          </ListItemText>
-                        </List>
+                            <ListItemText>
+                              {!hiddenEdit[result._id] && (
+                                <>
+                                  <p
+                                    style={{
+                                      textAlign: "left",
+                                      color: "black",
+                                    }}
+                                  >
+                                    {result.content}{" "}
+                                  </p>
+                                  <p
+                                    style={{
+                                      textAlign: "left",
+                                      color: "gray",
+                                      fontSize: "0.875rem",
+                                    }}
+                                  >
+                                    postet {formattedDate(result.updatedAt)}
+                                  </p>
+                                </>
+                              )}
+                              {!!hiddenEdit[result._id] && (
+                                <Zoom in={hiddenEdit[result._id]}>
+                                  <div
+                                    key={result._id}
+                                    style={{ textAlign: "start" }}
+                                  >
+                                    <TextField
+                                      id="outlined-basic"
+                                      key={result._id}
+                                      label="Rediger"
+                                      className={classes.commentField}
+                                      multiline={true}
+                                      rows={2}
+                                      value={result.content}
+                                      variant="outlined"
+                                      onChange={(e) => handleChange(e)}
+                                    />
+                                    <Box mt={1} mb={3}>
+                                      <Typography
+                                        component={"p"}
+                                        variant={"subtitle1"}
+                                      >
+                                        <Button
+                                          style={{ marginRight: "1em" }}
+                                          variant="contained"
+                                          color="primary"
+                                          //onClick={(e) =>
+                                          //  submitEditComment(e, result._id, 0, index)
+                                          //}
+                                        >
+                                          Oppdater
+                                        </Button>
+                                        <Button
+                                          key={result._id}
+                                          variant="contained"
+                                          color="secondary"
+                                          onClick={() =>
+                                            toggleHideCommentEdit(result._id)
+                                          }
+                                        >
+                                          Avbryt
+                                        </Button>
+                                      </Typography>
+                                    </Box>
+                                  </div>
+                                </Zoom>
+                              )}
+                              {!!hiddenReply[result._id] && (
+                                <Zoom in={hiddenReply[result._id]}>
+                                  <div
+                                    key={index}
+                                    style={{ paddingTop: "1em" }}
+                                  >
+                                    <TextField
+                                      id="outlined-basic"
+                                      key={index}
+                                      label="Svar"
+                                      className={classes.commentField}
+                                      variant="outlined"
+                                      multiline={true}
+                                      rows={2}
+                                      defaultValue={
+                                        "@" + result.author.name + " "
+                                      }
+                                      onChange={(e) => handleChange(e)}
+                                    />
+                                    <Box mt={1}>
+                                      <Typography
+                                        component={"p"}
+                                        variant={"subtitle"}
+                                      >
+                                        <Button
+                                          style={{ marginRight: "1em" }}
+                                          variant="contained"
+                                          color="primary"
+                                          onClick={(e) =>
+                                            submitReply(e, parentId, index + 1)
+                                          }
+                                        >
+                                          Svar
+                                        </Button>
+                                        <Button
+                                          key={index}
+                                          variant="contained"
+                                          color="secondary"
+                                          onClick={() => toggleHideReply(index)}
+                                        >
+                                          Avbryt
+                                        </Button>
+                                      </Typography>
+                                    </Box>
+                                  </div>
+                                </Zoom>
+                              )}
+                            </ListItemText>
+                          </List>
+                        </Grid>
                       </Grid>
-                    </Grid>
-                  </>
-                );
-              })}
-            </Collapse>
-            <Divider variant="fullWidth" style={{ margin: "10px 0" }} />
-          </React.Fragment>
-        );
-      })}
+                    </>
+                  );
+                })}
+              </Collapse>
+              <Divider variant="fullWidth" style={{ margin: "10px 0" }} />
+            </React.Fragment>
+          );
+        })}
       </Collapse>
     </>
   );

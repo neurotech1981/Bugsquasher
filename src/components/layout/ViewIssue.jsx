@@ -220,7 +220,6 @@ export default function ViewIssue(props) {
     setImages(array);
   }
 
-
   const init = (userId) => {
     const jwt = auth.isAuthenticated();
 

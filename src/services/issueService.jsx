@@ -43,6 +43,15 @@ export default {
       { body: { status: data.status } }
     );
   },
+  updateComment: async (newContent, id, auth, commentID) => {
+    return await instance.post(`/api/update-comment/${id}`, {
+      headers: { Authorization: auth },
+      comment: {
+        newContent: [newContent],
+        commentId: commentID,
+      },
+    });
+  },
   upDateIssue: async (id, data, auth) => {
     return await instance.post(`/api/upDateIssue/${id}`, data, {
       headers: { Authorization: auth },
@@ -104,7 +113,7 @@ export default {
   deleteCommentReply: async (id, parentId, childId, auth) => {
     return await instance.post(
       `/api/delete-reply/${id}`,
-      { parentId: parentId, childId: childId  },
+      { parentId: parentId, childId: childId },
       { headers: { Authorization: auth } }
     );
   },

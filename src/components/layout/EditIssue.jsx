@@ -353,11 +353,6 @@ export default function EditIssue(props) {
       ...dataset,
       [name]: event.target.value,
     });
-    //
-  };
-
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
   };
 
   useEffect(() => {
@@ -417,7 +412,6 @@ export default function EditIssue(props) {
     await issueService
       .upDateIssue(id, { dataset }, jwt.token)
       .then((response) => {
-        console.log("UPDATED", response);
         setOpen(true);
 
         setTimeout(() => {
@@ -435,7 +429,6 @@ export default function EditIssue(props) {
   };
 
   const onDelete = async () => {
-    console.log("ID DELETE", dataset._id);
     const id = dataset._id;
     await issueService
       .deleteIssueByID(id)

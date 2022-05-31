@@ -1309,6 +1309,31 @@ ProtectedRoutes.route("/delete-reply/:id").post(async function (
     .catch(console.error);
 });
 
+// this is our delete method
+// this method removes existing data in our database
+ProtectedRoutes.route("/update-comment/:id").post(async function (req, res) {
+  const { id } = req.params;
+  const { commentId, newContent } = req.body.comment;
+  console.log("New content", newContent);
+  await Comments.findByIdAndUpdate(
+    { _id: commentId }, newContent[0],
+  )
+    .clone()
+    .then((result) => {
+      Promise.all([
+        Data.findById(id).populate({
+          path: "comments",
+        }),
+      ]).then((result) => {
+        return res.json({
+          success: true,
+          response: result,
+        });
+      });
+    })
+    .catch(console.error);
+});
+
 // this is our create method
 // this method adds new data in our database
 ProtectedRoutes.post("/new-issue", async function (req, res, uuid) {

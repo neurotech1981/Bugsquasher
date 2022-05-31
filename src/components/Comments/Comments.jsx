@@ -118,7 +118,6 @@ const Comments = ({ comments, issueID, userID }) => {
     setComments((prevState) => {
       return prevState.map((item) => {
         if (item._id === id) return { ...item, content: e.target.value };
-        console.log(item);
         return item;
       });
     });
@@ -181,7 +180,6 @@ const Comments = ({ comments, issueID, userID }) => {
     const submitCommentEdit = (e, commentID, newContent, index) => {
       const jwt = auth.isAuthenticated();
       setMessage("Kommentar ble redigert");
-      console.log("Hmm");
       issueService
         .updateComment(
           newContent,
@@ -196,8 +194,6 @@ const Comments = ({ comments, issueID, userID }) => {
           if (data.data.success) {
             setOpen(true);
             setReply("");
-            //toggleHideReply(index - 1);
-            //toggleHide(indexInput);
             toggleHideCommentEdit(index);
             e.preventDefault();
             e.stopPropagation();

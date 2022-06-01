@@ -356,7 +356,7 @@ a:focus {
 
 .item0 {
   grid-area: top;
-  margin-bottom: 2rem;
+  margin-bottom: 2em;
 }
 .item1 {
   grid-area: header;
@@ -407,7 +407,7 @@ a:focus {
 .item16 {
   grid-area: comments;
   margin-top: 2rem;
-  justify-self: start;
+  justify-self: auto;
 }
 .item17 {
   grid-area: commentform;

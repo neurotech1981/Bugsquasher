@@ -448,6 +448,7 @@ const Comments = ({ comments, issueID, userID }) => {
                                       toggleHideCommentEdit(result._id)
                                     }
                                   />
+                                  111111
                                 </IconButton>
                               </>
                             ) : (
@@ -484,6 +485,10 @@ const Comments = ({ comments, issueID, userID }) => {
                                   </p>
                                 </>
                               )}
+                              <Typography style={{ color: "black" }}>
+                                {result._id}
+                              </Typography>
+
                               {!!hiddenEdit[result._id] && (
                                 <Zoom in={hiddenEdit[result._id]}>
                                   <div
@@ -496,10 +501,22 @@ const Comments = ({ comments, issueID, userID }) => {
                                       label="Rediger"
                                       className={classes.commentField}
                                       multiline={true}
-                                      rows={2}
-                                      value={result.content}
+                                      minRows={2}
                                       variant="outlined"
-                                      onChange={(e) => handleChange(e)}
+                                      onChange={(e) =>
+                                        handleChangeComment(result._id, e)
+                                      }
+                                      value={comment.find((item) => {
+                                        if (
+                                          typeof item.comments[index]
+                                            ?.content === "string"
+                                        ) {
+                                          let text = item.comments[index];
+                                          return JSON.stringify(text);
+                                        }
+                                        //return console.log(item.comments[index]?.content);
+                                      })} //(_, i) => i !== index);
+                                      //i => { return console.log(i.comments[index]) }
                                     />
                                     <Box mt={1} mb={3}>
                                       <Typography
@@ -510,9 +527,14 @@ const Comments = ({ comments, issueID, userID }) => {
                                           style={{ marginRight: "1em" }}
                                           variant="contained"
                                           color="primary"
-                                          //onClick={(e) =>
-                                          //  submitEditComment(e, result._id, 0, index)
-                                          //}
+                                          onClick={(e) =>
+                                            submitCommentEdit(
+                                              e,
+                                              result._id,
+                                              0,
+                                              index
+                                            )
+                                          }
                                         >
                                           Oppdater
                                         </Button>
@@ -521,7 +543,7 @@ const Comments = ({ comments, issueID, userID }) => {
                                           variant="contained"
                                           color="secondary"
                                           onClick={() =>
-                                            toggleHideCommentEdit(result._id)
+                                            toggleHideCommentEdit(index)
                                           }
                                         >
                                           Avbryt

@@ -484,10 +484,9 @@ export default function ViewIssue(props) {
         <section className="two-columns__main">
           <div className="form-grid">
             <div className="item0">
-              <Button onClick={goHome}>
-                <IconButton />
-              </Button>
-              <ArrowBackIcon style={{ fontSize: "2rem" }} />
+              <IconButton size={"small"} onClick={goHome}>
+              <ArrowBackIcon style={{ fontSize: "3rem", color: "black", borderRadius: "100vh" }} />
+              </IconButton>
             </div>
             <div className="item1" style={{ paddingLeft: "5rem" }}>
               <Typography variant="h6">
@@ -580,8 +579,7 @@ export default function ViewIssue(props) {
               <TextField
                 label="Delegert til"
                 value={[
-                  dataset.delegated != null ?
-                     dataset.delegated.name
+                  dataset.delegated != null ? dataset.delegated.name
                     : "Laster...",
                 ]}
                 className={classes.textField}

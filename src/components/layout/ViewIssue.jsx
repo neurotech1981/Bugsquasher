@@ -616,7 +616,7 @@ export default function ViewIssue(props) {
                 toolbarHidden={true}
                 editorStyle={{
                   minHeight: "100%",
-                  padding: 10,
+                  padding: "1em",
                   backgroundColor: "white",
                   borderRadius: "0.5rem 0.5rem 0.5rem 0.5rem",
                   boxShadow:
@@ -673,7 +673,7 @@ export default function ViewIssue(props) {
                 editorState={editorStateRep}
                 editorStyle={{
                   minHeight: "100%",
-                  padding: 10,
+                  padding: "2em",
                   backgroundColor: "white",
                   borderRadius: "0.5rem 0.5rem 0.5rem 0.5rem",
                   boxShadow:

@@ -1314,7 +1314,7 @@ ProtectedRoutes.route("/delete-reply/:id").post(async function (
 ProtectedRoutes.route("/update-comment/:id").post(async function (req, res) {
   const { id } = req.params;
   const { commentId, newContent } = req.body.comment;
-  console.log("New content", newContent);
+  console.log("New content", newContent, commentId, id);
   await Comments.findByIdAndUpdate(
     { _id: commentId }, newContent[0],
   )

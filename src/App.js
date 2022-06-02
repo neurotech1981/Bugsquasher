@@ -22,16 +22,17 @@ import { ThemeProvider } from '@material-ui/styles';
 const theme = createTheme({
   typography: {
     fontFamily: [
-      'Sora',
-      'Manrope',
-      'Lato',
-      'Inter',
-      'Roboto',
-      'Space Mono',
-      'Helvetica Neue',
-      'Arial',
-      'sans-serif'
-    ].join(','),
+      "IBM Plex Mono",
+      "Sora",
+      "Manrope",
+      "Lato",
+      "Inter",
+      "Roboto",
+      "Space Mono",
+      "Helvetica Neue",
+      "Arial",
+      "sans-serif",
+    ].join(","),
   },
 });
 class App extends Component {

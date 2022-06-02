@@ -186,6 +186,7 @@ const Comments = ({ comments, issueID, userID }) => {
       .then((data) => {
         setComments(data.data.response[0].comments);
         if (data.data.success) {
+          console.log(data.data.response[0].comments);
           setOpen(true);
           setReply("");
           toggleHideReply(index - 1);
@@ -200,7 +201,7 @@ const Comments = ({ comments, issueID, userID }) => {
       });
   };
 
-    const submitCommentEdit = (e, commentID, newContent, index) => {
+    const submitCommentEdit = (e, commentID, newContent, index, reply) => {
       const jwt = auth.isAuthenticated();
       setMessage("Kommentar ble redigert");
       issueService
@@ -212,12 +213,17 @@ const Comments = ({ comments, issueID, userID }) => {
           index
         )
         .then((data) => {
-          console.log("hm2")
           setComments(data.data.response[0].comments);
           if (data.data.success) {
             setOpen(true);
             setReply("");
-            toggleHideCommentEdit(index);
+            if(reply) {
+              console.log("Yeah");
+              toggleHideCommentEdit(commentID);
+            } else {
+              console.log("Nai");
+              toggleHideCommentEdit(index);
+            }
             e.preventDefault();
             e.stopPropagation();
           }
@@ -339,7 +345,8 @@ const Comments = ({ comments, issueID, userID }) => {
                                   e,
                                   result._id,
                                   comment[index],
-                                  index
+                                  index,
+                                  false
                                 )
                               }
                             >
@@ -473,7 +480,6 @@ const Comments = ({ comments, issueID, userID }) => {
                                       toggleHideCommentEdit(result._id)
                                     }
                                   />
-                                  111111
                                 </IconButton>
                               </>
                             ) : (
@@ -510,9 +516,6 @@ const Comments = ({ comments, issueID, userID }) => {
                                   </p>
                                 </>
                               )}
-                              <Typography style={{ color: "black" }}>
-                                {result._id}
-                              </Typography>
 
                               {!!hiddenEdit[result._id] && (
                                 <Zoom in={hiddenEdit[result._id]}>
@@ -557,8 +560,11 @@ const Comments = ({ comments, issueID, userID }) => {
                                             submitCommentEdit(
                                               e,
                                               result._id,
-                                              0,
-                                              parentIndex
+                                              comment[parentIndex].comments[
+                                                index
+                                              ],
+                                              index,
+                                              true
                                             )
                                           }
                                         >
@@ -569,7 +575,7 @@ const Comments = ({ comments, issueID, userID }) => {
                                           variant="contained"
                                           color="secondary"
                                           onClick={() =>
-                                            toggleHideCommentEdit(index)
+                                            toggleHideCommentEdit(result._id)
                                           }
                                         >
                                           Avbryt

@@ -27,21 +27,22 @@ ReactDOM.render(
 WebFont.load({
   google: {
     families: [
-      'Space Mono',
-      'Manrope:400',
-      'Lato:400',
-      'Sora:300,400,500,600,700',
-      'Inter',
-      'Nunito Sans:300,400,700',
-      'IBM Plex Sans',
-      'Poppins',
-      'Montserrat',
-      'Open Sans',
-      'Roboto',
-      'sans-serif'
-    ]
-  }
-})
+      "IBM Plex Mono:400",
+      "Space Mono",
+      "Manrope:400",
+      "Lato:400",
+      "Sora:300,400,500,600,700",
+      "Inter",
+      "Nunito Sans:300,400,700",
+      "IBM Plex Sans",
+      "Poppins",
+      "Montserrat",
+      "Open Sans",
+      "Roboto",
+      "sans-serif",
+    ],
+  },
+});
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

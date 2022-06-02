@@ -117,10 +117,33 @@ const Comments = ({ comments, issueID, userID }) => {
   const handleChangeComment = (id, e) => {
     setComments((prevState) => {
       return prevState.map((item) => {
-        if (item._id === id) return { ...item, content: e.target.value };
-        return item;
+        if (item._id === id)
+          return { ...item, content: e.target.value };
+          return item;
       });
     });
+  };
+
+
+  const handleChangeCommentReplies = (
+    e,
+    commentChildIndex,
+    commentIndex
+  ) => {
+    setComments(
+      comment.map((x, index) => {
+        if (index !== commentIndex) return x;
+        x.comments = x.comments.map((subItem, subIndex) => {
+          if (subIndex !== commentChildIndex) return subItem;
+          return {
+            ...subItem,
+            content: e.target.value,
+          };
+        });
+
+        return x;
+      })
+    );
   };
 
   const handleClickCommentCollapse = () => {
@@ -232,6 +255,7 @@ const Comments = ({ comments, issueID, userID }) => {
       <Collapse in={collapseComments} timeout="auto" unmountOnExit>
         {comment.map((result, index) => {
           let parentId = result._id;
+          let parentIndex = index;
           return (
             <React.Fragment key={index}>
               <Grid
@@ -406,6 +430,7 @@ const Comments = ({ comments, issueID, userID }) => {
                 unmountOnExit
               >
                 {result.comments?.map((result, index) => {
+
                   return (
                     <>
                       <Grid
@@ -492,31 +517,32 @@ const Comments = ({ comments, issueID, userID }) => {
                               {!!hiddenEdit[result._id] && (
                                 <Zoom in={hiddenEdit[result._id]}>
                                   <div
-                                    key={result._id}
+                                    key={index}
                                     style={{ textAlign: "start" }}
                                   >
                                     <TextField
-                                      id="outlined-basic"
+                                      id="content"
+                                      name="content"
                                       key={result._id}
                                       label="Rediger"
                                       className={classes.commentField}
                                       multiline={true}
                                       minRows={2}
                                       variant="outlined"
-                                      onChange={(e) =>
-                                        handleChangeComment(result._id, e)
+                                      value={
+                                        comment.find((i) => {
+                                          if (i._id === parentId) {
+                                            return i.comments[0];
+                                          }
+                                        }).comments[index].content
                                       }
-                                      value={comment.find((item) => {
-                                        if (
-                                          typeof item.comments[index]
-                                            ?.content === "string"
-                                        ) {
-                                          let text = item.comments[index];
-                                          return JSON.stringify(text);
-                                        }
-                                        //return console.log(item.comments[index]?.content);
-                                      })} //(_, i) => i !== index);
-                                      //i => { return console.log(i.comments[index]) }
+                                      onChange={(e) =>
+                                        handleChangeCommentReplies(
+                                          e,
+                                          index,
+                                          parentIndex
+                                        )
+                                      }
                                     />
                                     <Box mt={1} mb={3}>
                                       <Typography
@@ -532,7 +558,7 @@ const Comments = ({ comments, issueID, userID }) => {
                                               e,
                                               result._id,
                                               0,
-                                              index
+                                              parentIndex
                                             )
                                           }
                                         >

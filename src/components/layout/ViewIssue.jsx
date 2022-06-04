@@ -220,9 +220,10 @@ export default function ViewIssue(props) {
     setImages(array);
   }
 
-  const init = (userId) => {
+  const init = () => {
     const jwt = auth.isAuthenticated();
-
+    let userId = auth.isAuthenticated().user._id;
+    console.log("USER ID : ", userId);
     findUserProfile(
       {
         userId,
@@ -231,6 +232,7 @@ export default function ViewIssue(props) {
     ).then((data) => {
       if (data.error) {
         setUserinfo({ redirectToSignin: true });
+        console.log("data error: ", data.error);
       } else {
         setUserinfo({ user: data });
       }
@@ -247,9 +249,9 @@ export default function ViewIssue(props) {
 
   useEffect(() => {
     if (!users.length) {
-      init(match.params.userId);
+      init()
     }
-  }, [match.params.userId, users.length]);
+  }, [users.length]);
 
   const goHome = () => {
     history.push("/saker/" + auth.isAuthenticated().user._id);
@@ -485,7 +487,13 @@ export default function ViewIssue(props) {
           <div className="form-grid">
             <div className="item0">
               <IconButton size={"small"} onClick={goHome}>
-              <ArrowBackIcon style={{ fontSize: "3rem", color: "black", borderRadius: "100vh" }} />
+                <ArrowBackIcon
+                  style={{
+                    fontSize: "3rem",
+                    color: "black",
+                    borderRadius: "100vh",
+                  }}
+                />
               </IconButton>
             </div>
             <div className="item1" style={{ paddingLeft: "5rem" }}>
@@ -719,11 +727,14 @@ export default function ViewIssue(props) {
             </div>
             <div className="item16">
               {comments.length > 0 ? (
-                <Comments
-                  comments={comments}
-                  issueID={dataset._id}
-                  userID={dataset.userid}
-                />
+                <>
+                  <Comments
+                    comments={comments}
+                    issueID={dataset._id}
+                    userID={userinfo.user.id}
+                  />
+                  {JSON.stringify(userinfo.user.id)}
+                </>
               ) : (
                 <Typography component={"p"} variant={"subtitle1"}>
                   Ingen kommentarer

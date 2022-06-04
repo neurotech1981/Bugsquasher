@@ -12,7 +12,6 @@ import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Fade from "@material-ui/core/Fade";
 import auth from "../auth/auth-helper";
-
 import highest from "../../images/highest.svg";
 import high from "../../images/high.svg";
 import medium from "../../images/medium.svg";

@@ -180,6 +180,7 @@ const Comments = ({ comments, issueID, userID }) => {
 
   const submitReply = (e, commentID, index, indexInput) => {
     const jwt = auth.isAuthenticated();
+    console.log(userID);
     setMessage("Svaret ble lagt til");
     issueService
       .addCommentReply(userID, reply, jwt.token, issueID, commentID, index)
@@ -218,10 +219,8 @@ const Comments = ({ comments, issueID, userID }) => {
             setOpen(true);
             setReply("");
             if(reply) {
-              console.log("Yeah");
               toggleHideCommentEdit(commentID);
             } else {
-              console.log("Nai");
               toggleHideCommentEdit(index);
             }
             e.preventDefault();
@@ -394,7 +393,7 @@ const Comments = ({ comments, issueID, userID }) => {
                               key={index}
                               variant="contained"
                               color="secondary"
-                              onClick={() => toggleHide(index)}
+                              onClick={() => toggleHide(result._id)}
                             >
                               Avbryt
                             </Button>
@@ -560,9 +559,7 @@ const Comments = ({ comments, issueID, userID }) => {
                                             submitCommentEdit(
                                               e,
                                               result._id,
-                                              comment[parentIndex].comments[
-                                                index
-                                              ],
+                                              comment[parentIndex].comments[index],
                                               index,
                                               true
                                             )
@@ -623,7 +620,9 @@ const Comments = ({ comments, issueID, userID }) => {
                                           key={index}
                                           variant="contained"
                                           color="secondary"
-                                          onClick={() => toggleHideReply(index)}
+                                          onClick={() =>
+                                            toggleHideReply(result._id)
+                                          }
                                         >
                                           Avbryt
                                         </Button>

@@ -172,44 +172,40 @@ const useStyles = makeStyles((theme) => ({
 
 function NavBar(props) {
   const items = [
-    { label: "Dashboard", icon: <Dashboard />, path: !auth.isAuthenticated()
-      ? "/landing/"
+    { label: "Dashboard", icon: <Dashboard />, path: !auth.isAuthenticated() ? "/landing/"
       : "/landing/" + auth.isAuthenticated().user._id,
     },
-    {
-      label: "Prosjekt oversikt",
-      icon: <PageviewRoundedIcon />,
-      /*eslint operator-linebreak: [2, "after", { "overrides": { "?": "ignore", ":": "ignore"} }]*/
-      path: !auth.isAuthenticated()
-        ? "/prosjekt-oversikt/"
-        : "/prosjekt-oversikt/" + auth.isAuthenticated().user._id,
-    },
-    {
-      label: "Opprett prosjekt",
-      icon: <NoteAddRoundedIcon />,
-      path: !auth.isAuthenticated()
-        ? "/opprett-prosjekt/"
-        : "/opprett-prosjekt/" + auth.isAuthenticated().user._id,
-    },
+    //{
+    //  label: "Prosjekt oversikt",
+    //  icon: <PageviewRoundedIcon />,
+    //  /*eslint operator-linebreak: [2, "after", { "overrides": { "?": "ignore", ":": "ignore"} }]*/
+    //  path: !auth.isAuthenticated()
+    //    ? "/prosjekt-oversikt/"
+    //    : "/prosjekt-oversikt/" + auth.isAuthenticated().user._id,
+    //},
+    //{
+    //  label: "Opprett prosjekt",
+    //  icon: <NoteAddRoundedIcon />,
+    //  path: !auth.isAuthenticated()
+    //    ? "/opprett-prosjekt/"
+    //    : "/opprett-prosjekt/" + auth.isAuthenticated().user._id,
+    //},
     {
       label: "Legg til sak",
       icon: <NoteAddRoundedIcon />,
-      path: !auth.isAuthenticated()
-        ? "/legg-til-sak/"
+      path: !auth.isAuthenticated() ? "/legg-til-sak/"
         : "/legg-til-sak/" + auth.isAuthenticated().user._id,
     },
     {
       label: "Vis saker",
       icon: <PageviewRoundedIcon />,
-      path: !auth.isAuthenticated()
-        ? "/saker/"
+      path: !auth.isAuthenticated() ? "/saker/"
         : "/saker/" + auth.isAuthenticated().user._id,
     },
     {
       label: "Bruker administrasjon",
       icon: <GroupRoundedIcon />,
-      path: !auth.isAuthenticated()
-        ? "/bruker-admin/"
+      path: !auth.isAuthenticated() ? "/bruker-admin/"
         : "/bruker-admin/" + auth.isAuthenticated().user._id,
     },
     { label: "Innstillinger", icon: <Settings />, path: "/innstillinger" },

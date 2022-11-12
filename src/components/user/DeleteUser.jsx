@@ -58,23 +58,26 @@ export default function DeleteUser (props) {
       <Dialog open={values.open} onClose={() => handleRequestClose()}>
         <DialogTitle>Delete Account</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Confirm to delete your account.
-          </DialogContentText>
+          <DialogContentText>Confirm to delete your account.</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => handleRequestClose()} color="primary">
+          <Button
+            onClick={() => handleRequestClose()}
+            color="primary"
+            variant="contained"
+          >
             Cancel
           </Button>
           <Button
             onClick={() => deleteAccount()}
             color="secondary"
             autoFocus="autoFocus"
+            variant="contained"
           >
             Confirm
           </Button>
         </DialogActions>
       </Dialog>
     </span>
-  )
+  );
 }

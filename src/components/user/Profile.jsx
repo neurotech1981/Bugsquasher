@@ -137,7 +137,7 @@ export default function Profile () {
       </Typography>
       <Divider />
       <List>
-        <ListItem button>
+        <ListItem>
           <ListItemAvatar>
             <Avatar>
               <Person />

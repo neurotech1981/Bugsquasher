@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from "react";
-import useReactRouter from "use-react-router";
+import { useParams } from "react-router-dom";
 import {
   makeStyles,
   createTheme,
@@ -286,7 +286,8 @@ const theme = createTheme({
 });
 
 export default function CreateIssue(props) {
-  const { match } = useReactRouter();
+  const { id } = useParams();
+  console.log("USER ID", id);
   const initialState = {
     setID: 0,
     setNavn: "",
@@ -316,7 +317,7 @@ export default function CreateIssue(props) {
   const [errors, setErrors] = useState("");
   const [users, setUsers] = useState([]);
   const [userinfo, setUserinfo] = useState({
-    user: [""],
+    user: [],
     redirectToSignin: false,
   });
   const [open, setOpen] = useState(false);
@@ -332,7 +333,7 @@ export default function CreateIssue(props) {
 
   const init = (userId) => {
     const jwt = auth.isAuthenticated();
-
+    console.log("User ID: ", userId);
     findUserProfile(
       {
         userId,
@@ -357,10 +358,11 @@ export default function CreateIssue(props) {
   };
 
   useEffect(() => {
+    console.log("Users: ", users)
     if (!users.length) {
-      init(match.params.id);
+      init(id);
     }
-  }, [match.params.id, users.length]);
+  }, [id, users.length]);
 
   const handleChange = (name) => (event) => {
     console.log(JSON.stringify(images));
@@ -390,13 +392,11 @@ export default function CreateIssue(props) {
 
   // Legg inn ny sak
   const createIssue = async () => {
-    console.log("IMAGES>>>> ", images);
 
     let imageNameValue = "none";
     if (images.imageupload.length > 0) {
       imageNameValue = images.imageupload;
     }
-    console.log("Create issue IMAGE: ", imageNameValue);
 
     const htmlContentStateDesc = JSON.stringify(
       convertToRaw(editorStateDesc.getCurrentContent())
@@ -407,7 +407,7 @@ export default function CreateIssue(props) {
       convertToRaw(editorStateRep.getCurrentContent())
     );
     values.setStegReprodusere = htmlContentStateRep;
-
+     console.log(userinfo);
     let data = {
       name: userinfo.user.name,
       reporter_id: userinfo.user._id,
@@ -432,7 +432,7 @@ export default function CreateIssue(props) {
           setOpen(true);
           clearState();
           setTimeout(function () {
-            props.history.push("/saker/" + match.params.userId);
+            props.history.push("/saker/" + id);
           }, 2000);
         }
       })

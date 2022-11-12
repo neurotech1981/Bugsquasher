@@ -8,11 +8,10 @@ import Typography from "@material-ui/core/Typography";
 import Icon from "@material-ui/core/Icon";
 import { makeStyles } from "@material-ui/core/styles";
 import auth from "./auth-helper";
-import { Redirect } from "react-router-dom";
+import { Redirect, Link, useLocation } from "react-router-dom";
 import ApiAuth from "../utils/ApiAuth";
 import useReactRouter from "use-react-router";
 import VpnKeyIcon from "@material-ui/icons/VpnKey";
-import { Link } from "react-router-dom";
 import Box from "@material-ui/core/Box";
 import PersonAddRoundedIcon from "@material-ui/icons/PersonAddTwoTone";
 import Visibility from "@material-ui/icons/Visibility";
@@ -74,7 +73,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Signin() {
-  const { location } = useReactRouter();
+  const { location } = useLocation();
   const initialState = {
     email: "",
     password: "",
@@ -123,7 +122,7 @@ export default function Signin() {
 
   const classes = useStyles();
 
-  const { from } = location.state || {
+  const { from } = location || {
     from: {
       pathname: "/",
     },

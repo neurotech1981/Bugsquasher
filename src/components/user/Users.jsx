@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import useReactRouter from "use-react-router";
+import { useParams } from "react-router-dom";
 import Paper from "@material-ui/core/Paper";
 import MaterialTable from "material-table";
 import axios from "axios";
@@ -137,7 +137,7 @@ export default function Users() {
     ],
   });
 
-  const { match } = useReactRouter();
+  const { userId  } = useParams();
   const state = {
     redirectToSignin: false,
   };
@@ -173,9 +173,9 @@ export default function Users() {
 
   useEffect(() => {
     if (!myself.length) {
-      init(match.params.userId);
+      init(userId);
     }
-  }, [myself.length, match.params.userId]);
+  }, [myself.length, userId]);
 
   // Slett bruker
   const deleteFromDB = (idTodelete) => {
@@ -183,7 +183,7 @@ export default function Users() {
     axios.post(`/api/removeUser/${idTodelete}`, {
       token: jwt.token,
     });
-    init(match.params.userId);
+    init(userId);
   };
 
   // Rediger bruker
@@ -264,7 +264,7 @@ export default function Users() {
                         data[index].email
                       );
                     }
-                    init(match.params.userId);
+                    init(userId);
                     resolve(newData);
                     reject(new Error("Noe gikk galt!"));
                   }, 1000);
@@ -277,7 +277,7 @@ export default function Users() {
                       const index = data.indexOf(oldData);
                       deleteFromDB(data[index]._id);
                     }
-                    init(match.params.userId);
+                    init(userId);
                     resolve();
                   }, 1000);
                 }),

@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from "react";
 import auth from "../auth/auth-helper";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useHistory } from "react-router-dom";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import useReactRouter from "use-react-router";
 import Divider from "@material-ui/core/Divider";
@@ -211,7 +211,7 @@ function NavBar(props) {
     { label: "Innstillinger", icon: <Settings />, path: "/innstillinger" },
   ];
 
-  const { history } = useReactRouter();
+  const { history } = useHistory();
   const location = useLocation()
   const { container } = props;
   //const [mobileOpen, setMobileOpen] = React.useState(false)

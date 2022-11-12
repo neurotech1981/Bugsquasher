@@ -608,7 +608,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
 ) {
 
   const FIRST_DAY = 1;
-  const LAST_DAY = 8;
+  const LAST_DAY = 7;
   const daysArray = ["Man", "Tirs", "Ons", "Tors", "Fre", "Lør", "Søn"];
   //var start = moment().subtract(12, 'months').format();
   //var end = moment().format();
@@ -633,8 +633,8 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
        */
       {
         $group: {
-          _id: { year_day: { $substrCP: ["$createdAt", 0, 24] } },
-          count: { $sum: -1 }
+          _id: { year_day: { $substrCP: ["$createdAt", 0, 25] } },
+          count: { $sum: 1 },
         },
       },
       {
@@ -652,13 +652,13 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
                   {
                     $subtract: [
                       { $toInt: { $substrCP: ["$_id.year_day", 8, 2] } },
-                      11,
+                      1,
                     ],
                   },
                 ],
               },
               "-",
-              { $substrCP: ["$_id.year_day", 0, 4] },
+              { $substrCP: ["$_id.year_day", 8, 2] },
             ],
           },
         },
@@ -671,18 +671,30 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
       },
       {
         $addFields: {
-          start_week: { $substrCP: [start, 0, 4] },
-          end_week: { $substrCP: [end, 0, 4] },
-          months1: {
+          start_week: { $substrCP: [start, 8, 2] },
+          end_week: { $substrCP: [end, 8, 2] },
+          /*months1: {
             $range: [
-              LAST_DAY,
-              { $add: [{ $toInt: { $substrCP: [end, 5, 2] } }, 4] },
+             LAST_DAY,
+              { $add: [{ $toInt: { $substrCP: [end, 8, 2] } }, 1] },
             ],
           },
           months2: {
             $range: [
               FIRST_DAY,
-              { $add: [{ $toInt: { $substrCP: [start, 5, 2] } }, 4] },
+              { $add: [{ $toInt: { $substrCP: [start, 5, 2] } }, 2] },
+            ],
+          },*/
+          months1: {
+            $range: [
+              { $toInt: { $substrCP: [start, 8, 2] } },
+              { $add: [LAST_DAY, 1] },
+            ],
+          },
+          months2: {
+            $range: [
+              FIRST_DAY,
+              { $add: [{ $toInt: { $substrCP: [end, 8, 2] } }, 6] },
             ],
           },
         },
@@ -767,7 +779,7 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
     function (err, result) {
       // results in here
       if (err) {
-        console.log("Weekly issues Error >>>>", err.message);
+        console.log("Weekly issues Error >>>>", err.message, result);
         res.send(err.message);
       } else {
         console.log("Weekly issues >>>>", result);
@@ -857,7 +869,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
                   {
                     $subtract: [
                       { $toInt: { $substrCP: ["$_id.year_day", 11, 2] } },
-                      22,
+                      20,
                     ],
                   },
                 ],

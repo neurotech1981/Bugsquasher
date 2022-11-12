@@ -169,7 +169,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function ViewIssue(props) {
-  const { match } = useReactRouter();
 
   const classes = useStyles();
   const [dataset, setData] = useState([""]);
@@ -733,7 +732,6 @@ export default function ViewIssue(props) {
                     issueID={dataset._id}
                     userID={userinfo.user.id}
                   />
-                  {JSON.stringify(userinfo.user.id)}
                 </>
               ) : (
                 <Typography component={"p"} variant={"subtitle1"}>

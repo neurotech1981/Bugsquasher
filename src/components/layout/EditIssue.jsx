@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
-import useReactRouter from "use-react-router";
+import { useParams } from "react-router-dom";
 import {
   makeStyles,
   createTheme,
@@ -294,7 +294,7 @@ const img = {
 };
 
 export default function EditIssue(props) {
-  const { match } = useReactRouter();
+  const { id } = useParams();
 
   const [open, setOpen] = useState(false);
   const classes = useStyles();
@@ -332,8 +332,6 @@ export default function EditIssue(props) {
     setData(event.target.value);
   };
 
-  const { id } = props.match.params;
-
   const init = () => {
     const jwt = auth.isAuthenticated();
 
@@ -360,9 +358,9 @@ export default function EditIssue(props) {
 
     getIssueByID(id, jwt.token);
     if (!users.length) {
-      init(match.params.id);
+      init(id);
     }
-  }, [id, match.params.id, users.length]);
+  }, [id, users.length]);
 
   const getIssueByID = async (id, token) => {
     console.log(token);

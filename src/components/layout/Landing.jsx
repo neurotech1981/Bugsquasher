@@ -406,9 +406,6 @@ function Landing() {
             </CardBody>
           </Card>
         </GridItem>
-        <Button variant="contained" onClick={notify}>
-          Contained
-        </Button>
       </GridContainer>
     </div>
   )

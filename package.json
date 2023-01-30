@@ -23,7 +23,7 @@
     "draftjs-to-html": "^0.9.1",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "express-jwt": "^6.1.2",
+    "express-jwt": "^8.4.0",
     "express-session": "^1.17.2",
     "formidable": "^3.2.4",
     "html-to-draftjs": "^1.5.0",

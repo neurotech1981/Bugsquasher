@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
-import { Redirect, useHistory } from 'react-router-dom'
+import { Redirect, withRouter } from 'react-router-dom'
 import { changePassword } from '../utils/api-user'
 import useReactRouter from 'use-react-router'
 import VpnKeyIcon from '@material-ui/icons/VpnKey'
@@ -59,7 +59,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export default function ChangePassword () {
+function ChangePassword (props) {
   const { location } = useReactRouter()
   const initialState = {
     token: '',
@@ -81,9 +81,8 @@ export default function ChangePassword () {
     setOpen(false)
   }
 
-  const history = useHistory()
   const goHome = () => {
-    history.push('/signin')
+    props.history.push('/signin')
   }
 
   const successAlert = () => (
@@ -135,12 +134,7 @@ export default function ChangePassword () {
     <form className={classes.root} noValidate>
       <Card className={classes.card}>
         <CardContent>
-          <Typography
-            type="headline"
-            variant="h3"
-            gutterBottom
-            className={classes.title}
-          >
+          <Typography type="headline" variant="h3" gutterBottom className={classes.title}>
             Velg nytt passord.
           </Typography>
           <TextField
@@ -162,35 +156,25 @@ export default function ChangePassword () {
             value={values.confirmPassword}
             onChange={handleChange('confirmPassword')}
             margin="normal"
-            autoComplete="off"
+            autocomplete="new-password"
             variant="outlined"
           />
         </CardContent>
         <CardActions>
           <Box justifyContent="center">
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={() => clickSubmit()}
-            className={classes.button}
-          >
-            <VpnKeyIcon className={classes.extendedIcon} />
-            Sett passord
-          </Button>
-          <Button
-            color="default"
-            variant="contained"
-            onClick={goHome}
-            className={classes.button}
-          >
-            Gå tilbake
-          </Button>
-          {successAlert()}
-        </Box>
+            <Button color="primary" variant="contained" onClick={() => clickSubmit()} className={classes.button}>
+              <VpnKeyIcon className={classes.extendedIcon} />
+              Sett passord
+            </Button>
+            <Button color="default" variant="contained" onClick={goHome} className={classes.button}>
+              Gå tilbake
+            </Button>
+            {successAlert()}
+          </Box>
         </CardActions>
       </Card>
-      </form>
+    </form>
   )
 }
 
-// export default withStyles(styles)(Signin);
+export default withRouter(ChangePassword);

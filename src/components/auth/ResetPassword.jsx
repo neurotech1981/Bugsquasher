@@ -11,7 +11,7 @@ import { forgotPassword } from "../../../src/components/utils/api-user";
 import useReactRouter from "use-react-router";
 import VpnKeyIcon from "@material-ui/icons/VpnKey";
 import Box from "@material-ui/core/Box";
-import { useHistory } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import { AlertTitle } from "@material-ui/lab";
@@ -60,8 +60,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ResetPassword() {
-  const { location } = useReactRouter();
+function ResetPassword(props) {
   const initialState = {
     email: "",
     error: "",
@@ -79,10 +78,10 @@ export default function ResetPassword() {
     goHome();
   };
 
-  const history = useHistory();
+  //const history = useHistory();
 
   const goHome = () => {
-    history.push("/signin");
+    props.history.push("/signin");
   };
 
   const successAlert = () => (
@@ -119,7 +118,7 @@ export default function ResetPassword() {
 
   const classes = useStyles();
 
-  const { from } = location.state || {
+  const { from } = props.location.state || {
     from: {
       pathname: "/",
     },
@@ -183,4 +182,4 @@ export default function ResetPassword() {
   );
 }
 
-// export default withStyles(styles)(Signin);
+export default withRouter(ResetPassword);

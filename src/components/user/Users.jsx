@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useParams } from "react-router-dom";
 import Paper from "@material-ui/core/Paper";
-import MaterialTable from "material-table";
+import MaterialTable from '@material-table/core'
 import axios from "axios";
 import TextField from "@material-ui/core/TextField";
 import { registerUser, getUsers, findUserProfile } from "../utils/api-user";

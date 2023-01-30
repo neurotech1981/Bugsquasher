@@ -30,7 +30,6 @@ import CardFooter from "../Card/CardFooter.js";
 import issueService from "../../services/issueService";
 import auth from "../auth/auth-helper";
 
-
 import {
   dailySalesChart,
   emailsSubscriptionChart,
@@ -38,6 +37,7 @@ import {
 } from "../../variables/charts.js";
 
 import styles from "../../assets/styles/dashboardStyle.js";
+import { Button } from "@material-ui/core";
 
 const useStyles = makeStyles(styles);
 
@@ -102,6 +102,7 @@ function Landing() {
     ],
     series: [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
   });
+
 
   useEffect(() => {
     let isSubscribed = true;
@@ -168,6 +169,7 @@ function Landing() {
     const jwt = auth.isAuthenticated();
     const res = await issueService.getThisYearCaseCount(jwt.token);
     console.log("This year: ", res);
+
     if (Object.values(res.data).length !== 0) {
       var valueArr = Object.values(res.data[0].data).map((element) => {
         return element;
@@ -179,19 +181,42 @@ function Landing() {
   };
 
   const getThisWeekIssueCount = async () => {
-    const jwt = auth.isAuthenticated();
-    const res = await issueService.getThisWeeklyCaseCount(jwt.token);
-    console.log(
-      "Data from this weeks issue count: " + JSON.stringify(res.data)
-    );
-    if (Object.values(res.data).length !== 0) {
-      var valueArr = Object.values(res.data[0].data).map((element) => {
-        return element;
-      });
+    const jwt = auth.isAuthenticated()
+    const res = await issueService.getThisWeeklyCaseCount(jwt.token)
+
+    let data = JSON.stringify(res.data)
+    let parsedData = JSON.parse(data)
+
+    let combinedData = parsedData.reduce((acc, current) => {
+      let existing = acc.find((item) => item.day === current.day)
+      if (existing) {
+        existing.count += current.count
+      } else {
+        acc.push(current)
+      }
+      return acc
+    }, [])
+
+    let daysArray = [{"Man": 0, "Tirs": 0, "Ons": 0, "Tors": 0, "Fre": 0, "Lør": 0, "Søn": 0}];
+
+    daysArray.forEach((dayObject) => {
+      Object.keys(dayObject).forEach((day) => {
+        if(Object.prototype.hasOwnProperty.call(combinedData[0], "key")) {
+          dayObject[day] = combinedData[0][day]
+        }
+      })
+    })
+
+    let valueArr = [];
+    if (Object.values(combinedData[0].data).length !== 0) {
+      valueArr = Object.values(combinedData[0].data).map((element) => {
+        return element
+      })
     } else {
-      return null;
+      return null
     }
-    setThisWeekCountIssues({ ...weeklyCountIssues, series: [valueArr] });
+
+    setThisWeekCountIssues({ ...weeklyCountIssues, series: [valueArr] })
   };
 
   const getDailyIssueCount = async () => {
@@ -206,6 +231,9 @@ function Landing() {
     }
   };
 
+    const notify = () => toast('Wow so easy!')
+
+
   return (
     <div className={classes.root}>
       <GridContainer>
@@ -216,9 +244,9 @@ function Landing() {
                 <Icon>content_copy</Icon>
               </CardIcon>
               <p className={classes.cardCategory}>Antall saker totalt</p>
-              <h3 className={classes.cardTitle}>
+              <div className={classes.cardTitle}>
                 <h1>{issueCount}</h1>
-              </h3>
+              </div>
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
@@ -236,9 +264,9 @@ function Landing() {
                 <PlaylistAddIcon />
               </CardIcon>
               <p className={classes.cardCategory}>Nye saker</p>
-              <h3 className={classes.cardTitle}>
+              <div className={classes.cardTitle}>
                 <h1>{todaysIssues}</h1>
-              </h3>
+              </div>
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
@@ -255,9 +283,9 @@ function Landing() {
                 <CheckCircleIcon />
               </CardIcon>
               <p className={classes.cardCategory}>Løste saker</p>
-              <h3 className={classes.cardTitle}>
+              <div className={classes.cardTitle}>
                 <h1>{solvedIssues}</h1>
-              </h3>
+              </div>
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
@@ -275,9 +303,9 @@ function Landing() {
               </CardIcon>
 
               <p className={classes.cardCategory}>Åpne saker</p>
-              <h3 className={classes.cardTitle}>
+              <div className={classes.cardTitle}>
                 <h1>{openIssues}</h1>
-              </h3>
+              </div>
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
@@ -311,7 +339,7 @@ function Landing() {
             </CardBody>
             <CardFooter chart>
               <div className={classes.stats}>
-                <AccessTime /> 4 minutter siden sist oppdatering
+                <AccessTime /> Nåværende uke
               </div>
             </CardFooter>
           </Card>
@@ -330,9 +358,7 @@ function Landing() {
             </CardHeader>
             <CardBody>
               <h4 className={classes.cardTitle}>Saker over ett år</h4>
-              <p className={classes.cardCategory}>
-                Saker over en 12 måneders periode
-              </p>
+              <p className={classes.cardCategory}>Saker over en 12 måneders periode</p>
             </CardBody>
             <CardFooter chart>
               <div className={classes.stats}>
@@ -354,9 +380,7 @@ function Landing() {
             </CardHeader>
             <CardBody>
               <h4 className={classes.cardTitle}>Løste saker</h4>
-              <p className={classes.cardCategory}>
-                Løste saker i løpet av en dag
-              </p>
+              <p className={classes.cardCategory}>Løste saker i løpet av en dag</p>
             </CardBody>
             <CardFooter chart>
               <div className={classes.stats}>
@@ -376,15 +400,18 @@ function Landing() {
             <CardBody>
               <Table
                 tableHeaderColor="warning"
-                tableHead={["Dato", "Oppsummering", "Prioritet", "Alvorlighet"]}
+                tableHead={['Dato', 'Oppsummering', 'Prioritet', 'Alvorlighet']}
                 tableData={latestCases}
               />
             </CardBody>
           </Card>
         </GridItem>
+        <Button variant="contained" onClick={notify}>
+          Contained
+        </Button>
       </GridContainer>
     </div>
-  );
+  )
 }
 
 Landing.propTypes = {

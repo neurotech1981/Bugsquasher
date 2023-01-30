@@ -173,23 +173,19 @@ export default function Issues (props) {
             rowsPerPage={rowsPerPage}
             page={page}
             backIconButtonProps={{
-              'aria-label': 'previous page'
+              'aria-label': 'previous page',
             }}
             nextIconButtonProps={{
-              'aria-label': 'next page'
+              'aria-label': 'next page',
             }}
-            onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangeRowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
           />
           <Table className={classes.table}>
             <TableHead>
               <TableRow>
-                {columns.map(column => (
-                  <StyledTableCell
-                    key={column.id}
-                    align={column.align}
-                    style={{ minWidth: column.minWidth }}
-                  >
+                {columns.map((column) => (
+                  <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
                     {column.label}
                   </StyledTableCell>
                 ))}
@@ -219,13 +215,13 @@ export default function Issues (props) {
             rowsPerPage={rowsPerPage}
             page={page}
             backIconButtonProps={{
-              'aria-label': 'previous page'
+              'aria-label': 'previous page',
             }}
             nextIconButtonProps={{
-              'aria-label': 'next page'
+              'aria-label': 'next page',
             }}
-            onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangeRowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </React.Fragment>
       </div>

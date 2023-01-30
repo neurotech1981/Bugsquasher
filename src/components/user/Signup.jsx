@@ -117,18 +117,18 @@ export default function Signup () {
           />
           <br />
           <TextField
-            autocomplete="new-password"
-            id="password"
+             id="password"
             type="password"
             label="Passord"
             className={classes.textField}
             value={values.password}
             onChange={handleChange('password')}
             margin="normal"
+            autocomplete="new-password"
             variant="outlined"
           />
           <TextField
-            autocomplete="new-password"
+            autoComplete="new-password"
             id="passwordConfirmation"
             type="password"
             label="Gjenta passord"
@@ -138,32 +138,21 @@ export default function Signup () {
             margin="normal"
             variant="outlined"
           />
-          <br />
-          {' '}
+          <br />{' '}
           {values.error && (
             <Typography component="p" color="error">
               <Icon color="error" className={classes.error}>
-              error
+                error
               </Icon>
               {values.error}
             </Typography>
           )}
         </CardContent>
         <CardActions>
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={() => clickSubmit()}
-            className={classes.submit}
-          >
+          <Button color="primary" variant="contained" onClick={() => clickSubmit()} className={classes.submit}>
             Registrer bruker
           </Button>
-          <Button
-            color="default"
-            variant="contained"
-            onClick={goHome}
-            className={classes.submit}
-          >
+          <Button color="default" variant="contained" onClick={goHome} className={classes.submit}>
             Gå tilbake
           </Button>
         </CardActions>
@@ -171,9 +160,7 @@ export default function Signup () {
       <Dialog open={values.open} disableBackdropClick>
         <DialogTitle>Ny bruker</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Ny bruker lagt til.
-          </DialogContentText>
+          <DialogContentText>Ny bruker lagt til.</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Link to="/signin">

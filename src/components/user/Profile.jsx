@@ -168,7 +168,7 @@ export default function Profile () {
               variant="outlined"
               pattern="[0-9a-fA-F]{4,8}"
               onChange={handleChange('password')}
-              autocomplete="new-password"
+              autoComplete="new-password"
               endAdornment={
               <InputAdornment position="end">
                 <IconButton
@@ -192,7 +192,7 @@ export default function Profile () {
               variant="outlined"
               pattern="[0-9a-fA-F]{4,8}"
               onChange={handleChange('repeatPassword')}
-              autocomplete="new-password"
+              autoComplete="new-password"
               endAdornment={
               <InputAdornment position="end">
                 <IconButton

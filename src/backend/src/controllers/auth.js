@@ -25,9 +25,9 @@ export const signin = (req, res) => {
     )
 
     res.cookie('t', token, {
-      expire: new Date() + 9999,
+      expire: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       SameSite: 'None',
-      secure: true
+      secure: true,
     })
 
     return res.json({

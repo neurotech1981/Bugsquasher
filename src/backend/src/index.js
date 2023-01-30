@@ -32,10 +32,65 @@ import fs from 'fs';
 import cluster from 'cluster';
 import process from 'process';
 import crypto from "crypto";
+import { createServer } from 'http'
 
 const totalCPUs = OS.cpus().length;
 const uniqueID = crypto.randomBytes(16).toString("hex");
 
+import { Server } from 'socket.io'
+
+const httpServer = createServer()
+const io = new Server(httpServer, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+    transports: ['websocket', 'polling'],
+    credentials: true,
+    forceNew: false,
+    secure: true,
+  },
+  allowEIO3: true,
+})
+
+  let eventList = []
+
+  io.on('connection', (socket) => {
+    console.log(`⚡: ${socket.id} user just connected!`)
+
+    socket.on('msg', function (msg) {
+      console.log('entered!') // <--- It will print now !
+      console.log('message: ' + msg)
+    })
+
+    socket.on('user_connect', async (userId) => {
+      const user = await User.findById(userId)
+      if (user) {
+        user.socketId = socket.id
+        await user.save()
+      }
+    })
+
+      /*
+      The event listener adds the new event
+          to the top of the array, and
+          sends the array to the React app
+      */
+    socket.on('new_issue', (issue, userId) => {
+      console.log("new issue >>>>>>>>>>>>>>>>>>>>>>>>>>><", issue)
+      User.findById(userId).then((user) => {
+        if (user && user.socketId) {
+          console.log("Sending message, SOCKET ID >>>>>>>>>>>>>>>>>>>>>>>>>>>", user.socketId);
+          io.to(user.socketId).emit('new_issue', issue, userId)
+        }
+      })
+    })
+
+    socket.on('disconnect', () => {
+      socket.disconnect()
+    })
+  })
+
+  httpServer.listen(4000)
 
 
 process.on('unhandledRejection', (rejectionErr) => {
@@ -207,6 +262,7 @@ app.use("/uploads", express.static("../assets/uploads"));
 // Redirect to react build
 let __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, "../build")));
+
 app.get("/", function (req, res, next) {
   res.sendFile(path.resolve("../build/index.html"));
 });
@@ -459,7 +515,7 @@ ProtectedRoutes.route("/thisYearIssuesCount").get(async function (
         },
       },
       {
-        $sort: { "_id.year_month": 1 },
+        $sort: { "_id.year_month": -1 },
       },
       {
         $project: {
@@ -607,15 +663,17 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
   res,
 ) {
 
-  const FIRST_DAY = 1;
-  const LAST_DAY = 7;
   const daysArray = ["Man", "Tirs", "Ons", "Tors", "Fre", "Lør", "Søn"];
-  //var start = moment().subtract(12, 'months').format();
-  //var end = moment().format();
-  var start = moment().startOf("isoweek").format(); // set to 12:00 am start of week
-  var end = moment().endOf("isoweek").format(); // set to 23:59 pm end of week
-  var today = new Date()
+
+  var start = moment().isoWeekday(1).startOf('isoweek').format('YYYY-MM-DD')
+  var end = moment().isoWeekday(1).endOf('isoweek').format('YYYY-MM-DD')
   console.log("Weekly count : ", start + "<< >>", end);
+
+  const initialDays = daysArray.reduce((acc, day) => {
+    acc[day] = 0
+    return acc
+  }, {});
+
   Data.aggregate(
     [
       {
@@ -625,168 +683,90 @@ ProtectedRoutes.route("/weekdayIssueCount").get(async function (
             $lte: new Date(end),
           },
         },
-        // Your matching logic
       },
-      /* Now grouping users based on _id or id parameter for each day
-       from the above match results.
-       $createdAt can be replaced by date property present in your database.
-       */
       {
-        $group: {
-          _id: { year_day: { $substrCP: ["$createdAt", 0, 25] } },
-          count: { $sum: 1 },
+        $sort: {
+          createdAt: 1,
         },
       },
       {
-        $sort: { "_id.year_day": 1 },
+        $project: {
+          day: {
+            $dayOfMonth: '$createdAt',
+          },
+          month: {
+            $month: '$createdAt',
+          },
+          year: {
+            $year: '$createdAt',
+          },
+          weekDay: {
+            $isoDayOfWeek: '$createdAt',
+          },
+        },
+      },
+      {
+        $addFields: {
+          weekDay: {
+            $arrayElemAt: [daysArray, { $subtract: ['$weekDay',
+            1] }],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$weekDay',
+          count: {
+            $sum: 1,
+          },
+        },
       },
       {
         $project: {
           _id: 0,
-          count: { $sum: 1 },
-          day_year: {
-            $concat: [
-              {
-                $arrayElemAt: [
-                  daysArray,
-                  {
-                    $subtract: [
-                      { $toInt: { $substrCP: ["$_id.year_day", 8, 2] } },
-                      1,
-                    ],
-                  },
-                ],
-              },
-              "-",
-              { $substrCP: ["$_id.year_day", 8, 2] },
-            ],
-          },
+          weekDay: '$_id',
+          count: '$count',
         },
       },
       {
         $group: {
-          _id: 0,
-          data: { $push: { k: "$day_year", v: "$count" } },
-        },
-      },
-      {
-        $addFields: {
-          start_week: { $substrCP: [start, 8, 2] },
-          end_week: { $substrCP: [end, 8, 2] },
-          /*months1: {
-            $range: [
-             LAST_DAY,
-              { $add: [{ $toInt: { $substrCP: [end, 8, 2] } }, 1] },
-            ],
-          },
-          months2: {
-            $range: [
-              FIRST_DAY,
-              { $add: [{ $toInt: { $substrCP: [start, 5, 2] } }, 2] },
-            ],
-          },*/
-          months1: {
-            $range: [
-              { $toInt: { $substrCP: [start, 8, 2] } },
-              { $add: [LAST_DAY, 1] },
-            ],
-          },
-          months2: {
-            $range: [
-              FIRST_DAY,
-              { $add: [{ $toInt: { $substrCP: [end, 8, 2] } }, 6] },
-            ],
-          },
-        },
-      },
-      {
-        $addFields: {
-          template_data: {
-            $concatArrays: [
-              {
-                $map: {
-                  input: "$months1",
-                  as: "m1",
-                  in: {
-                    count: 0,
-                    day_year: {
-                      $concat: [
-                        {
-                          $arrayElemAt: [daysArray, { $subtract: ["$$m1", 1] }],
-                        },
-                        "-",
-                        "$start_week",
-                      ],
-                    },
-                  },
-                },
-              },
-              {
-                $map: {
-                  input: "$months2",
-                  as: "m2",
-                  in: {
-                    count: 0,
-                    day_year: {
-                      $concat: [
-                        {
-                          $arrayElemAt: [daysArray, { $subtract: ["$$m2", 1] }],
-                        },
-                        "-",
-                        "$end_week",
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-          },
-        },
-      },
-      {
-        $addFields: {
+          _id: null,
           data: {
-            $map: {
-              input: "$template_data",
-              as: "t",
-              in: {
-                k: "$$t.day_year",
-                v: {
-                  $reduce: {
-                    input: "$data",
-                    initialValue: 0,
-                    in: {
-                      $cond: [
-                        { $eq: ["$$t.day_year", "$$this.k"] },
-                        { $add: ["$$this.v", "$$value"] },
-                        { $add: [0, "$$value"] },
-                      ],
-                    },
-                  },
-                },
-              },
+            $push: {
+              k: '$weekDay',
+              v: '$count',
             },
           },
         },
       },
       {
         $project: {
-          data: { $arrayToObject: "$data" },
           _id: 0,
+          data: {
+            $arrayToObject: '$data',
+          },
+        },
+      },
+      {
+        $addFields: {
+          data: {
+            $mergeObjects: [initialDays, '$data'],
+          },
         },
       },
     ],
     function (err, result) {
       // results in here
+      console.log('Weekly sum : ', result)
       if (err) {
-        console.log("Weekly issues Error >>>>", err.message, result);
-        res.send(err.message);
+        console.log('Weekly issues Error >>>>', err.message, result)
+        res.send(err.message)
       } else {
-        console.log("Weekly issues >>>>", result);
-        res.json(result);
+        console.log('Weekly issues >>>>', result)
+        res.json(result)
       }
     }
-  );
+  )
 });
 
 ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
@@ -851,7 +831,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
        */
       {
         $group: {
-          _id: { year_day: { $substrCP: ["$updatedAt", 0, 24] } },
+          _id: { year_day: { $substrCP: ["$updatedAt", 0, 25] } },
         },
       },
       {
@@ -869,7 +849,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
                   {
                     $subtract: [
                       { $toInt: { $substrCP: ["$_id.year_day", 11, 2] } },
-                      20,
+                      1,
                     ],
                   },
                 ],
@@ -882,7 +862,7 @@ ProtectedRoutes.route("/dailyIssueCount").get(async function (req, res) {
       },
       {
         $group: {
-          _id: null,
+          _id: 0,
           data: { $push: { k: "$day_year", v: "$count" } },
         },
       },

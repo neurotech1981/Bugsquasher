@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from "react";
 import auth from "../auth/auth-helper";
-import { Link, useLocation, useHistory } from "react-router-dom";
+import { Link, useLocation, withRouter } from 'react-router-dom'
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import useReactRouter from "use-react-router";
 import Divider from "@material-ui/core/Divider";
@@ -211,7 +211,6 @@ function NavBar(props) {
     { label: "Innstillinger", icon: <Settings />, path: "/innstillinger" },
   ];
 
-  const { history } = useHistory();
   const location = useLocation()
   const { container } = props;
   //const [mobileOpen, setMobileOpen] = React.useState(false)
@@ -298,23 +297,20 @@ function NavBar(props) {
   const renderMenu = auth.isAuthenticated() && (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      transformOrigin={{ vertical: "top", horizontal: "right" }}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
       <MenuItem>
         <IconButton color="inherit">
-          <Badge badgeContent={4} color="secondary">
+          <Badge overlap="rectangular" badgeContent={4} color="secondary">
             <MailIcon />
           </Badge>
         </IconButton>
         <p>Messages</p>
       </MenuItem>
-      <MenuItem
-        component={Link}
-        to={"/user/" + auth.isAuthenticated().user._id}
-      >
+      <MenuItem component={Link} to={'/user/' + auth.isAuthenticated().user._id}>
         <IconButton color="inherit">
           <AccountCircle />
         </IconButton>
@@ -323,7 +319,7 @@ function NavBar(props) {
 
       <MenuItem
         onClick={() => {
-          auth.signout(() => history.push("/signin"));
+          auth.signout(() => props.history.push('/signin'))
         }}
       >
         <IconButton color="inherit">
@@ -332,19 +328,19 @@ function NavBar(props) {
         <p>Logg ut</p>
       </MenuItem>
     </Menu>
-  );
+  )
 
   const renderMobileMenu = auth.isAuthenticated() && (
     <Menu
       anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      transformOrigin={{ vertical: "top", horizontal: "right" }}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
         <IconButton color="inherit">
-          <Badge badgeContent={4} color="secondary">
+          <Badge overlap="rectangular" badgeContent={4} color="secondary">
             <MailIcon />
           </Badge>
         </IconButton>
@@ -360,7 +356,7 @@ function NavBar(props) {
         <MenuItem
           onClose={handleMobileMenuClose}
           onClick={() => {
-            auth.signout(() => history.push("/signin"));
+            auth.signout(() => history.push('/signin'))
           }}
         >
           <IconButton color="inherit">
@@ -370,7 +366,7 @@ function NavBar(props) {
         </MenuItem>
       )}
     </Menu>
-  );
+  )
 
   return (
     auth.isAuthenticated() && (
@@ -390,18 +386,8 @@ function NavBar(props) {
               </IconButton>
             )}
 
-            <img
-              className="svgLogoIcon"
-              alt="Logo"
-              src={BugIcon}
-              type="image/svg+xml"
-            />
-            <Typography
-              className={classes.title}
-              variant="h6"
-              noWrap
-              style={{ fontFamily: "Poppins" }}
-            >
+            <img className="svgLogoIcon" alt="Logo" src={BugIcon} type="image/svg+xml" />
+            <Typography className={classes.title} variant="h6" noWrap style={{ fontFamily: 'Poppins' }}>
               BugSquasher
             </Typography>
             <div className={classes.buttons}>
@@ -413,7 +399,7 @@ function NavBar(props) {
                         <Drawer
                           container={container}
                           variant="temporary"
-                          anchor={theme.direction === "rtl" ? "right" : "left"}
+                          anchor={theme.direction === 'rtl' ? 'right' : 'left'}
                           open={open}
                           edge="start"
                           onClose={handleDrawerToggle}
@@ -446,18 +432,18 @@ function NavBar(props) {
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
               <IconButton color="inherit">
-                <Badge badgeContent={0} color="secondary">
+                <Badge overlap="rectangular" badgeContent={0} color="secondary">
                   <MailIcon />
                 </Badge>
               </IconButton>
               <IconButton color="inherit">
-                <Badge badgeContent={0} color="secondary">
+                <Badge overlap="rectangular" badgeContent={0} color="secondary">
                   <NotificationsIcon />
                 </Badge>
               </IconButton>
               <IconButton
                 edge="end"
-                aria-owns={isMenuOpen ? "material-appbar" : undefined}
+                aria-owns={isMenuOpen ? 'material-appbar' : undefined}
                 aria-haspopup="true"
                 onClick={handleProfileMenuOpen}
                 color="inherit"
@@ -466,11 +452,7 @@ function NavBar(props) {
               </IconButton>
             </div>
             <div className={classes.sectionMobile}>
-              <IconButton
-                aria-haspopup="true"
-                onClick={handleMobileMenuOpen}
-                color="inherit"
-              >
+              <IconButton aria-haspopup="true" onClick={handleMobileMenuOpen} color="inherit">
                 <MoreIcon />
               </IconButton>
             </div>
@@ -480,7 +462,7 @@ function NavBar(props) {
         {renderMobileMenu}
       </div>
     )
-  );
+  )
 }
 
-export default NavBar;
+export default withRouter(NavBar);

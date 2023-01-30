@@ -1,6 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import openSocket from 'socket.io-client'
+
+const socket = openSocket('http://localhost:4000')
+
 import {
   makeStyles,
   createTheme,
@@ -214,15 +220,14 @@ const useStyles = makeStyles((theme) => ({
     display: "grid",
     flexWrap: "wrap",
     borderRadius: "1em",
-    boxShadow:
-      "0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 5px 15px -3px rgba(0, 0, 0, 0.05)",
+    boxShadow: "0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 5px 15px -3px rgba(0, 0, 0, 0.05)",
     backgroundRepeat: "no-repeat",
     backgroundAttachment: "fixed",
     height: "80%",
     margin: "0 auto",
     backdropFilter: "blur(6px) saturate(180%)",
     webkitBackdropFilter: "blur(6px) saturate(180%)",
-    backgroundColor: "rgba(255, 255, 255, 0.55)",
+    backgroundColor: "rgba(255, 255, 255, 1.0)",
     [theme.breakpoints.up("xs")]: {
       maxWidth: "100%",
       width: "100%",
@@ -287,7 +292,7 @@ const theme = createTheme({
 
 export default function CreateIssue(props) {
   const { id } = useParams();
-  console.log("USER ID", id);
+
   const initialState = {
     setID: 0,
     setNavn: "",
@@ -407,7 +412,7 @@ export default function CreateIssue(props) {
       convertToRaw(editorStateRep.getCurrentContent())
     );
     values.setStegReprodusere = htmlContentStateRep;
-     console.log(userinfo);
+    console.log(userinfo);
     let data = {
       name: userinfo.user.name,
       reporter_id: userinfo.user._id,
@@ -429,6 +434,12 @@ export default function CreateIssue(props) {
       .addIssue({ data }, jwt.token)
       .then((response) => {
         if (response.status === 200) {
+          console.log("Response on create issue: ", response.data);
+          let issueData = {
+              issue_id: response.data.document._id,
+              reporter: userinfo.user.name,
+          };
+          socket.emit('new_issue', issueData, values.setDelegated)
           setOpen(true);
           clearState();
           setTimeout(function () {

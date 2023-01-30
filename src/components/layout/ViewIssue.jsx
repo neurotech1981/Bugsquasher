@@ -32,6 +32,8 @@ import MenuItem from "@material-ui/core/MenuItem";
 import ModalImage from "react-modal-image";
 import { deepPurple } from "@material-ui/core/colors";
 import Grid from "@material-ui/core/Grid";
+import Stack from '@mui/material/Stack'
+import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest'
 import Box from "@material-ui/core/Box";
 import { Link } from "react-router-dom";
 import EditIcon from "@material-ui/icons/Edit";
@@ -172,6 +174,11 @@ export default function ViewIssue(props) {
 
   const classes = useStyles();
   const [dataset, setData] = useState([""]);
+  const [showAside, setShowAside] = useState(true);
+
+  const toggleAside = () => {
+    setShowAside(!showAside)
+  }
 
   const contentBlock = htmlToDraft("");
   const initState = contentBlock ?
@@ -222,7 +229,7 @@ export default function ViewIssue(props) {
   const init = () => {
     const jwt = auth.isAuthenticated();
     let userId = auth.isAuthenticated().user._id;
-    console.log("USER ID : ", userId);
+
     findUserProfile(
       {
         userId,
@@ -248,6 +255,8 @@ export default function ViewIssue(props) {
 
   useEffect(() => {
     if (!users.length) {
+      let toggled = window.screen.width >= 1024 ? true : false;
+      setShowAside(toggled);
       init()
     }
   }, [users.length]);
@@ -461,18 +470,12 @@ export default function ViewIssue(props) {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Slett sak"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{'Slett sak'}</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Er du sikker på at du vil slette sak ?
-          </DialogContentText>
+          <DialogContentText id="alert-dialog-description">Er du sikker på at du vil slette sak ?</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={handleConfirmDelete}
-            color="primary"
-            variant="contained"
-          >
+          <Button onClick={handleConfirmDelete} color="primary" variant="contained">
             Ja
           </Button>
           <Button onClick={handleClose} variant="outlined" color="default">
@@ -485,28 +488,41 @@ export default function ViewIssue(props) {
         <section className="two-columns__main">
           <div className="form-grid">
             <div className="item0">
-              <IconButton size={"small"} onClick={goHome}>
-                <ArrowBackIcon
-                  style={{
-                    fontSize: "3rem",
-                    color: "black",
-                    borderRadius: "100vh",
-                  }}
-                />
-              </IconButton>
+              <Stack justifyContent="flex-end" alignItems="flex-end" direction="row-reverse" spacing={1}>
+                <IconButton size={'small'} onClick={goHome} color="secondary">
+                  <ArrowBackIcon
+                    style={{
+                      fontSize: '3rem',
+                      borderRadius: '100vh',
+                    }}
+                  />
+                </IconButton>
+              </Stack>
             </div>
-            <div className="item1" style={{ paddingLeft: "5rem" }}>
-              <Typography variant="h6">
-                {dataset.reporter != null ? dataset.reporter.name : "Laster..."}
-              </Typography>
-              <Typography variant="subtitle2">
-                Opprettet: {formattedDate(dataset.createdAt)}
-              </Typography>
+            <div className="item0-right-toggle">
+              <Stack justifyContent="flex-end" alignItems="flex-end" direction="column" spacing={1}>
+                <IconButton
+                  size={'small'}
+                  style={{
+                    fontSize: '3rem',
+                    borderRadius: '100vh',
+                  }}
+                  aria-label="settings-suggestIcon"
+                  onClick={toggleAside}
+                  color="secondary"
+                >
+                  <SettingsSuggestIcon />
+                </IconButton>
+              </Stack>
+            </div>
+            <div className="item1" style={{ paddingLeft: '5rem' }}>
+              <Typography variant="h6">{dataset.reporter != null ? dataset.reporter.name : 'Laster...'}</Typography>
+              <Typography variant="subtitle2">Opprettet: {formattedDate(dataset.createdAt)}</Typography>
             </div>
             <div className="item2">
               <TextField
                 label="Priority"
-                value={[dataset.priority ? dataset.priority : ""]}
+                value={[dataset.priority ? dataset.priority : '']}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -532,16 +548,12 @@ export default function ViewIssue(props) {
                 Vedlegg
               </InputLabel>
               {imgList}
-              <Previews
-                imageBool={true}
-                issueID={dataset._id}
-                func_image={image_changes}
-              />
+              <Previews imageBool={true} issueID={dataset._id} func_image={image_changes} />
             </div>
             <div className="item4">
               <TextField
                 label="Kategori"
-                value={[dataset.category ? dataset.category : ""]}
+                value={[dataset.category ? dataset.category : '']}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -552,16 +564,13 @@ export default function ViewIssue(props) {
             </div>
             <div className="item1">
               <Grid container alignItems="flex-start">
-                <Avatar
-                  alt="Profile picture"
-                  className={classes.purpleAvatar}
-                ></Avatar>
+                <Avatar alt="Profile picture" className={classes.purpleAvatar}></Avatar>
               </Grid>
             </div>
             <div className="item7">
               <TextField
                 label="Alvorlighetsgrad"
-                value={[dataset.severity ? dataset.severity : ""]}
+                value={[dataset.severity ? dataset.severity : '']}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -573,7 +582,7 @@ export default function ViewIssue(props) {
             <div className="item8">
               <TextField
                 label="Mulighet å reprodusere"
-                value={[dataset.reproduce ? dataset.reproduce : ""]}
+                value={[dataset.reproduce ? dataset.reproduce : '']}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -585,10 +594,7 @@ export default function ViewIssue(props) {
             <div className="item15">
               <TextField
                 label="Delegert til"
-                value={[
-                  dataset.delegated != null ? dataset.delegated.name
-                    : "Laster...",
-                ]}
+                value={[dataset.delegated != null ? dataset.delegated.name : 'Laster...']}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -601,7 +607,7 @@ export default function ViewIssue(props) {
               <TextField
                 multiline
                 label="Oppsummering"
-                value={[dataset.summary ? dataset.summary : ""]}
+                value={[dataset.summary ? dataset.summary : '']}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -622,12 +628,12 @@ export default function ViewIssue(props) {
                 readOnly={true}
                 toolbarHidden={true}
                 editorStyle={{
-                  minHeight: "100%",
-                  padding: "1em",
-                  backgroundColor: "white",
-                  borderRadius: "0.5rem 0.5rem 0.5rem 0.5rem",
+                  minHeight: '400px',
+                  padding: '1em',
+                  backgroundColor: 'white',
+                  borderRadius: '0.5rem 0.5rem 0.5rem 0.5rem',
                   boxShadow:
-                    "0.2px 0.1px 1.7px -5px rgba(0, 0, 0, 0.02), 0.5px 0.3px 4px -5px rgba(0, 0, 0, 0.028),0.9px 0.5px 7.5px -5px rgba(0, 0, 0, 0.035), 1.6px 0.9px 13.4px -5px rgba(0, 0, 0, 0.042),2.9px 1.7px 25.1px -5px rgba(0, 0, 0, 0.05),7px 4px 60px -5px rgba(0, 0, 0, 0.07)",
+                    '0.2px 0.1px 1.7px -5px rgba(0, 0, 0, 0.02), 0.5px 0.3px 4px -5px rgba(0, 0, 0, 0.028),0.9px 0.5px 7.5px -5px rgba(0, 0, 0, 0.035), 1.6px 0.9px 13.4px -5px rgba(0, 0, 0, 0.042),2.9px 1.7px 25.1px -5px rgba(0, 0, 0, 0.05),7px 4px 60px -5px rgba(0, 0, 0, 0.07)',
                 }}
                 wrapperClassName="demo-wrapper"
                 toolbarClassName="flex sticky top-0 z-20 !justify-start"
@@ -637,33 +643,27 @@ export default function ViewIssue(props) {
                   link: { inDropdown: true },
                   list: { inDropdown: true },
                   options: [
-                    "fontFamily",
-                    "inline",
-                    "blockType",
-                    "fontSize",
-                    "list",
-                    "image",
-                    "textAlign",
-                    "colorPicker",
-                    "link",
-                    "embedded",
-                    "emoji",
-                    "remove",
-                    "history",
+                    'fontFamily',
+                    'inline',
+                    'blockType',
+                    'fontSize',
+                    'list',
+                    'image',
+                    'textAlign',
+                    'colorPicker',
+                    'link',
+                    'embedded',
+                    'emoji',
+                    'remove',
+                    'history',
                   ],
                   inline: {
-                    options: [
-                      "bold",
-                      "italic",
-                      "underline",
-                      "strikethrough",
-                      "monospace",
-                    ],
+                    options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace'],
                   },
                 }}
                 hashtag={{
-                  separator: " ",
-                  trigger: "#",
+                  separator: ' ',
+                  trigger: '#',
                 }}
               />
             </div>
@@ -672,19 +672,19 @@ export default function ViewIssue(props) {
                 <Typography gutterBottom variant="body1">
                   Steg for å reprodusere
                 </Typography>
-              </ThemeProvider>{" "}
+              </ThemeProvider>{' '}
               <Editor
-                placeholder="Skriv inn tekst her..."
+                placeholder=""
                 readOnly={true}
                 toolbarHidden={true}
                 editorState={editorStateRep}
                 editorStyle={{
-                  minHeight: "100%",
-                  padding: "2em",
-                  backgroundColor: "white",
-                  borderRadius: "0.5rem 0.5rem 0.5rem 0.5rem",
+                  minHeight: '400px',
+                  padding: '2em',
+                  backgroundColor: 'white',
+                  borderRadius: '0.5rem 0.5rem 0.5rem 0.5rem',
                   boxShadow:
-                    "0.2px 0.1px 1.7px -5px rgba(0, 0, 0, 0.02), 0.5px 0.3px 4px -5px rgba(0, 0, 0, 0.028),0.9px 0.5px 7.5px -5px rgba(0, 0, 0, 0.035), 1.6px 0.9px 13.4px -5px rgba(0, 0, 0, 0.042),2.9px 1.7px 25.1px -5px rgba(0, 0, 0, 0.05),7px 4px 60px -5px rgba(0, 0, 0, 0.07)",
+                    '0.2px 0.1px 1.7px -5px rgba(0, 0, 0, 0.02), 0.5px 0.3px 4px -5px rgba(0, 0, 0, 0.028),0.9px 0.5px 7.5px -5px rgba(0, 0, 0, 0.035), 1.6px 0.9px 13.4px -5px rgba(0, 0, 0, 0.042),2.9px 1.7px 25.1px -5px rgba(0, 0, 0, 0.05),7px 4px 60px -5px rgba(0, 0, 0, 0.07)',
                 }}
                 wrapperClassName="demo-wrapper"
                 toolbarClassName="flex sticky top-0 z-20 !justify-start"
@@ -694,226 +694,189 @@ export default function ViewIssue(props) {
                   link: { inDropdown: true },
                   list: { inDropdown: true },
                   options: [
-                    "fontFamily",
-                    "inline",
-                    "blockType",
-                    "fontSize",
-                    "list",
-                    "image",
-                    "textAlign",
-                    "colorPicker",
-                    "link",
-                    "embedded",
-                    "emoji",
-                    "remove",
-                    "history",
+                    'fontFamily',
+                    'inline',
+                    'blockType',
+                    'fontSize',
+                    'list',
+                    'image',
+                    'textAlign',
+                    'colorPicker',
+                    'link',
+                    'embedded',
+                    'emoji',
+                    'remove',
+                    'history',
                   ],
                   inline: {
-                    options: [
-                      "bold",
-                      "italic",
-                      "underline",
-                      "strikethrough",
-                      "monospace",
-                    ],
+                    options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace'],
                   },
                 }}
                 hashtag={{
-                  separator: " ",
-                  trigger: "#",
+                  separator: ' ',
+                  trigger: '#',
                 }}
               />
             </div>
             <div className="item16">
               {comments.length > 0 ? (
                 <>
-                  <Comments
-                    comments={comments}
-                    issueID={dataset._id}
-                    userID={userinfo.user.id}
-                  />
+                  <Comments comments={comments} issueID={dataset._id} userID={userinfo.user.id} />
                 </>
               ) : (
-                <Typography component={"p"} variant={"subtitle1"}>
+                <Typography component={'p'} variant={'subtitle1'}>
                   Ingen kommentarer
                 </Typography>
               )}
             </div>
             <div className="item17">
-              <CommentForm
-                onSubmit={onSubmit}
-                openNewComment={opennewcomment}
-                setOpenNewComment={setOpenNewComment}
-              />
+              <CommentForm onSubmit={onSubmit} openNewComment={opennewcomment} setOpenNewComment={setOpenNewComment} />
             </div>
           </div>
         </section>
-        <aside className="two-columns__aside">
-          <List className="side-menu">
-            <ListItem>
-              <Button
-                variant="outlined"
-                color="primary"
-                component={Link}
-                startIcon={<EditIcon />}
-                to={"/edit-issue/" + dataset._id}
-                size="small"
-                disabled={auth.isAuthenticated().user._id !== dataset.userid}
-              >
-                Rediger
-              </Button>
-              <Button
-                variant="outlined"
-                color="secondary"
-                className={classes.button}
-                startIcon={<DeleteIcon />}
-                size="small"
-                onClick={handleClickOpen}
-              >
-                Slett sak
-              </Button>
-            </ListItem>
-            <ListItem>
-              <FormControl className={classes.textFieldStatus}>
-                <TextField
-                  id="outlined-select-status"
-                  select
-                  label="Status"
+
+        <Box sx={{ visibility: showAside ? 'visible' : 'hidden' }}>
+          <aside className="two-columns__aside">
+            <List className="side-menu">
+              <ListItem>
+                <Button
                   variant="outlined"
-                  name="Status"
-                  value={[dataset.status ? dataset.status : "Åpen"]}
-                  InputProps={{
-                    className: classes.input,
-                  }}
-                  SelectProps={{
-                    MenuProps: {
-                      className: classes.menu,
-                    },
-                  }}
-                  inputProps={{ "aria-label": "naked" }}
-                  onChange={(e) =>
-                    upDateIssueStatus(dataset._id, e.target.value)
-                  }
+                  color="primary"
+                  component={Link}
+                  startIcon={<EditIcon />}
+                  to={'/edit-issue/' + dataset._id}
+                  size="small"
+                  disabled={auth.isAuthenticated().user._id !== dataset.userid}
                 >
-                  {Status.map((option, key) => (
-                    <MenuItem key={key} value={option.id}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <TextField
-                  id="outlined-select-delegert"
-                  select
-                  value={[
-                    dataset.delegated != null ? dataset.delegated._id : "",
-                  ]}
-                  label="Deleger til"
-                  name="delegert"
-                  onChange={(e) => upDateDelegated(dataset._id, e.target.value)}
-                  InputProps={{
-                    className: classes.input,
-                  }}
-                  SelectProps={{
-                    MenuProps: {
-                      className: classes.menu,
-                    },
-                  }}
-                  margin="normal"
+                  Rediger
+                </Button>
+                <Button
                   variant="outlined"
+                  color="secondary"
+                  className={classes.button}
+                  startIcon={<DeleteIcon />}
+                  size="small"
+                  onClick={handleClickOpen}
                 >
-                  {users.map((option, index) => (
-                    <MenuItem key={index} value={option._id}>
-                      {option.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                {errors.delegated ? (
-                  <Box
-                    className={classes.BoxErrorField}
-                    fontFamily="Monospace"
-                    color="error.main"
-                    p={1}
-                    m={1}
+                  Slett sak
+                </Button>
+              </ListItem>
+              <ListItem>
+                <FormControl className={classes.textFieldStatus}>
+                  <TextField
+                    id="outlined-select-status"
+                    select
+                    label="Status"
+                    variant="outlined"
+                    name="Status"
+                    value={[dataset.status ? dataset.status : 'Åpen']}
+                    InputProps={{
+                      className: classes.input,
+                    }}
+                    SelectProps={{
+                      MenuProps: {
+                        className: classes.menu,
+                      },
+                    }}
+                    inputProps={{ 'aria-label': 'naked' }}
+                    onChange={(e) => upDateIssueStatus(dataset._id, e.target.value)}
                   >
-                    {errors.delegated} ⚠️
+                    {Status.map((option, key) => (
+                      <MenuItem key={key} value={option.id}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  <TextField
+                    id="outlined-select-delegert"
+                    select
+                    value={[dataset.delegated != null ? dataset.delegated._id : 0]}
+                    label="Deleger til"
+                    name="delegert"
+                    onChange={(e) => upDateDelegated(dataset._id, e.target.value)}
+                    InputProps={{
+                      className: classes.input,
+                    }}
+                    SelectProps={{
+                      MenuProps: {
+                        className: classes.menu,
+                      },
+                    }}
+                    margin="normal"
+                    variant="outlined"
+                  >
+                    {users.map((option, index) => (
+                      <MenuItem key={index} value={option._id}>
+                        {option.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  {errors.delegated ? (
+                    <Box className={classes.BoxErrorField} fontFamily="Monospace" color="error.main" p={1} m={1}>
+                      {errors.delegated} ⚠️
+                    </Box>
+                  ) : (
+                    ''
+                  )}
+                  <Snackbar
+                    open={openStatusSnackbar}
+                    autoHideDuration={3000}
+                    onClose={handleStatusUpdateClose}
+                    anchorOrigin={{
+                      vertical: verticalStatusUpdate,
+                      horizontal: horizontalStatusUpdate,
+                    }}
+                  >
+                    <Alert severity="success" variant="standard" onClose={handleStatusUpdateClose}>
+                      <AlertTitle>Suksess</AlertTitle>
+                      Status ble endret!
+                    </Alert>
+                  </Snackbar>
+                </FormControl>
+                {errors.status ? (
+                  <Box className={classes.BoxErrorField} fontFamily="Monospace" color="error.main" p={1} m={1}>
+                    {errors.status} ⚠️
                   </Box>
                 ) : (
-                  ""
+                  ''
                 )}
-                <Snackbar
-                  open={openStatusSnackbar}
-                  autoHideDuration={3000}
-                  onClose={handleStatusUpdateClose}
-                  anchorOrigin={{
-                    vertical: verticalStatusUpdate,
-                    horizontal: horizontalStatusUpdate,
-                  }}
-                >
-                  <Alert
-                    severity="success"
-                    variant="standard"
-                    onClose={handleStatusUpdateClose}
-                  >
-                    <AlertTitle>Suksess</AlertTitle>
-                    Status ble endret!
-                  </Alert>
-                </Snackbar>
-              </FormControl>
-              {errors.status ? (
-                <Box
-                  className={classes.BoxErrorField}
-                  fontFamily="Monospace"
-                  color="error.main"
-                  p={1}
-                  m={1}
-                >
-                  {errors.status} ⚠️
-                </Box>
-              ) : (
-                ""
-              )}
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                disableTypography
-                className={classes.dateText}
-                primary={
-                  <Typography type="body2" style={{ color: "#000" }}>
-                    Opprettet{" "}
-                    <AccessTimeIcon
-                      style={{ fontSize: "18", verticalAlign: "text-top" }}
-                    />
-                  </Typography>
-                }
-                secondary={
-                  <Typography type="body2" style={{ color: "#555" }}>
-                    {formattedDate(dataset.createdAt)}
-                  </Typography>
-                }
-              />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                disableTypography
-                className={classes.dateText}
-                primary={
-                  <Typography type="body2" style={{ color: "#000" }}>
-                    Oppdatert{" "}
-                    <UpdateIcon
-                      style={{ fontSize: "18", verticalAlign: "text-top" }}
-                    />
-                  </Typography>
-                }
-                secondary={
-                  <Typography type="body2" style={{ color: "#555" }}>
-                    {formattedDate(dataset.updatedAt)}
-                  </Typography>
-                }
-              />
-            </ListItem>
-          </List>
-        </aside>
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  disableTypography
+                  className={classes.dateText}
+                  primary={
+                    <Typography type="body2" style={{ color: '#000' }}>
+                      Opprettet <AccessTimeIcon style={{ fontSize: '18', verticalAlign: 'text-top' }} />
+                    </Typography>
+                  }
+                  secondary={
+                    <Typography type="body2" style={{ color: '#555' }}>
+                      {formattedDate(dataset.createdAt)}
+                    </Typography>
+                  }
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  disableTypography
+                  className={classes.dateText}
+                  primary={
+                    <Typography type="body2" style={{ color: '#000' }}>
+                      Oppdatert <UpdateIcon style={{ fontSize: '18', verticalAlign: 'text-top' }} />
+                    </Typography>
+                  }
+                  secondary={
+                    <Typography type="body2" style={{ color: '#555' }}>
+                      {formattedDate(dataset.updatedAt)}
+                    </Typography>
+                  }
+                />
+              </ListItem>
+            </List>
+          </aside>
+        </Box>
       </div>
     </div>
-  );
+  )
 }

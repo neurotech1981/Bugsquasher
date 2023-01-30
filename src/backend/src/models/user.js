@@ -56,6 +56,7 @@ const userSchema = new Schema({
   passwordReset: Date,
   created: { type: Date, default: Date.now },
   updated: Date,
+  socketId: String,
 });
 
 userSchema

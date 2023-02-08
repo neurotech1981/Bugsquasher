@@ -1,255 +1,242 @@
 /* eslint-disable no-underscore-dangle */
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import openSocket from 'socket.io-client'
 
 const socket = openSocket('http://localhost:4000')
 
-import {
-  makeStyles,
-  createTheme,
-  ThemeProvider,
-  withStyles,
-} from "@material-ui/core/styles";
-import issueService from "../../services/issueService";
-import Icon from "@material-ui/core/Icon";
+import { makeStyles, createTheme, ThemeProvider, withStyles } from '@material-ui/core/styles'
+import issueService from '../../services/issueService'
+import Icon from '@material-ui/core/Icon'
 // eslint-disable-neAlertxt-line no-unused-vars
 import {
   EditorState,
   //convertFromRaw,
   convertToRaw,
   ContentState,
-} from "draft-js";
-import {
-  Typography,
-  Snackbar,
-  TextField,
-  Container,
-  Grid,
-  Button,
-  CssBaseline,
-} from "@material-ui/core";
-import MuiMenuItem from "@material-ui/core/MenuItem";
-import { Editor } from "react-draft-wysiwyg";
-//import draftToHtml from "draftjs-to-html";
-import htmlToDraft from "html-to-draftjs";
-import MuiAlert from "@material-ui/lab/Alert";
-import { AlertTitle } from "@material-ui/lab";
-import { useSelector } from "react-redux";
-import Box from "@material-ui/core/Box";
-import Previews from "./ImageUploader";
-import auth from "../auth/auth-helper";
-import { findUserProfile, getUsers } from "../utils/api-user";
+} from 'draft-js'
+import { Typography, Snackbar, TextField, Container, Grid, Button, CssBaseline } from '@material-ui/core'
+import MuiMenuItem from '@material-ui/core/MenuItem'
+import { Editor } from 'react-draft-wysiwyg'
+//import draftToHtml from 'draftjs-to-html';
+import htmlToDraft from 'html-to-draftjs'
+import MuiAlert from '@material-ui/lab/Alert'
+import { AlertTitle } from '@material-ui/lab'
+import { useSelector } from 'react-redux'
+import Box from '@material-ui/core/Box'
+import Previews from './ImageUploader'
+import auth from '../auth/auth-helper'
+import { findUserProfile, getUsers } from '../utils/api-user'
 
 function Alert(props) {
   // eslint-disable-next-line react/jsx-props-no-spreading
-  return <MuiAlert elevation={1} variant="filled" {...props} />;
+  return <MuiAlert elevation={1} variant="filled" {...props} />
 }
 
 const alvorlighetsGrad = [
   {
     value: 0,
-    label: "Ingen valgt",
+    label: 'Ingen valgt',
   },
   {
     value: 1,
-    label: "Tekst",
+    label: 'Tekst',
   },
   {
     value: 2,
-    label: "Justering",
+    label: 'Justering',
   },
   {
     value: 3,
-    label: "Triviell",
+    label: 'Triviell',
   },
   {
     value: 4,
-    label: "Mindre alvorlig",
+    label: 'Mindre alvorlig',
   },
   {
     value: 5,
-    label: "Alvorlig",
+    label: 'Alvorlig',
   },
   {
     value: 6,
-    label: "Kræsj",
+    label: 'Kræsj',
   },
   {
     value: 7,
-    label: "Blokkering",
+    label: 'Blokkering',
   },
-];
+]
 
 const Kategori = [
   {
     value: 0,
-    label: "Ingen valgt",
+    label: 'Ingen valgt',
   },
   {
     value: 1,
-    label: "Triviell",
+    label: 'Triviell',
   },
   {
     value: 2,
-    label: "Tekst",
+    label: 'Tekst',
   },
   {
     value: 3,
-    label: "Justering",
+    label: 'Justering',
   },
   {
     value: 4,
-    label: "Mindre alvorlig",
+    label: 'Mindre alvorlig',
   },
   {
     value: 5,
-    label: "Alvorlig",
+    label: 'Alvorlig',
   },
   {
     value: 6,
-    label: "Kræsj",
+    label: 'Kræsj',
   },
   {
     value: 7,
-    label: "Blokkering",
+    label: 'Blokkering',
   },
-];
+]
 
 const prioritet = [
   {
     value: 0,
-    label: "Ingen valgt",
+    label: 'Ingen valgt',
   },
   {
     value: 1,
-    label: "Ingen",
+    label: 'Ingen',
   },
   {
     value: 2,
-    label: "Lav",
+    label: 'Lav',
   },
   {
     value: 3,
-    label: "Normal",
+    label: 'Normal',
   },
   {
     value: 4,
-    label: "Høy",
+    label: 'Høy',
   },
   {
     value: 5,
-    label: "Haster",
+    label: 'Haster',
   },
   {
     value: 6,
-    label: "Øyeblikkelig",
+    label: 'Øyeblikkelig',
   },
-];
+]
 
 const reprodusere = [
   {
     value: 0,
-    label: "Ingen valgt",
-    color: "#F2CBD1",
+    label: 'Ingen valgt',
+    color: '#F2CBD1',
   },
   {
     value: 2,
-    label: "Alltid",
-    color: "#F2CBD1",
+    label: 'Alltid',
+    color: '#F2CBD1',
   },
   {
     value: 3,
-    label: "Noen ganger",
-    color: "#F49CA9",
+    label: 'Noen ganger',
+    color: '#F49CA9',
   },
   {
     value: 4,
-    label: "Tilfeldig",
-    color: "#F26A7E",
+    label: 'Tilfeldig',
+    color: '#F26A7E',
   },
   {
     value: 5,
-    label: "Har ikke forsøkt",
-    color: "#F20024",
+    label: 'Har ikke forsøkt',
+    color: '#F20024',
   },
   {
     value: 6,
-    label: "Kan ikke reprodusere",
-    color: "#870D1F",
+    label: 'Kan ikke reprodusere',
+    color: '#870D1F',
   },
   {
     value: 7,
-    label: "Ingen",
-    color: "#7B0C1D",
+    label: 'Ingen',
+    color: '#7B0C1D',
   },
-];
+]
 
 const MenuItem = withStyles({
   root: {
-    display: "table",
-    width: "100%",
-    justifyContent: "flex-end",
+    display: 'table',
+    width: '100%',
+    justifyContent: 'flex-end',
   },
-})(MuiMenuItem);
+})(MuiMenuItem)
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%",
-    margin: "0 auto",
-    "& > * + *": {
+    width: '100%',
+    margin: '0 auto',
+    '& > * + *': {
       marginTop: theme.spacing(2),
     },
   },
   headerOne: {
-    margin: "0 auto",
-    padding: "0.5em",
-    fontSize: "3em",
-    color: "darkslategray",
+    margin: '0 auto',
+    padding: '0.5em',
+    fontSize: '3em',
+    color: 'darkslategray',
   },
   active: {
-    backgroundColor: "rgba(155, 205, 155, 0.12)",
+    backgroundColor: 'rgba(155, 205, 155, 0.12)',
   },
   container: {
-    paddingTop: "20px",
-    marginTop: "100px",
-    marginBottom: "100px",
-    paddingBottom: "50px",
-    display: "grid",
-    flexWrap: "wrap",
-    borderRadius: "1em",
-    boxShadow: "0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 5px 15px -3px rgba(0, 0, 0, 0.05)",
-    backgroundRepeat: "no-repeat",
-    backgroundAttachment: "fixed",
-    height: "80%",
-    margin: "0 auto",
-    backdropFilter: "blur(6px) saturate(180%)",
-    webkitBackdropFilter: "blur(6px) saturate(180%)",
-    backgroundColor: "rgba(255, 255, 255, 1.0)",
-    [theme.breakpoints.up("xs")]: {
-      maxWidth: "100%",
-      width: "100%",
+    paddingTop: '20px',
+    marginTop: '100px',
+    marginBottom: '100px',
+    paddingBottom: '50px',
+    display: 'grid',
+    flexWrap: 'wrap',
+    borderRadius: '1em',
+    boxShadow: '0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 5px 15px -3px rgba(0, 0, 0, 0.05)',
+    backgroundRepeat: 'no-repeat',
+    backgroundAttachment: 'fixed',
+    height: '80%',
+    margin: '0 auto',
+    backdropFilter: 'blur(6px) saturate(180%)',
+    webkitBackdropFilter: 'blur(6px) saturate(180%)',
+    backgroundColor: 'rgb(225 245 239)',
+    [theme.breakpoints.up('xs')]: {
+      maxWidth: '100%',
+      width: '100%',
     },
   },
 
   input: {
     backgroundColor: theme.palette.background.paper,
-    maxWidth: "100%",
-    webkitTransition: "0.18s ease-out",
-    mozTransition: "0.18s ease-out",
-    oTransition: "0.18s ease-out",
-    transition: "0.18s ease-out",
+    maxWidth: '100%',
+    webkitTransition: '0.18s ease-out',
+    mozTransition: '0.18s ease-out',
+    oTransition: '0.18s ease-out',
+    transition: '0.18s ease-out',
   },
   textField: {
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
-    width: "90%",
+    width: '90%',
   },
   BoxErrorField: {
-    backgroundColor: "#ffe4e7",
-    color: "red",
+    backgroundColor: '#ffe4e7',
+    color: 'red',
   },
   dense: {
     marginTop: theme.spacing(2),
@@ -258,9 +245,9 @@ const useStyles = makeStyles((theme) => ({
     width: 200,
   },
   button: {
-    marginTop: "20px",
-    height: "50px",
-    margin: "0 auto",
+    marginTop: '20px',
+    height: '50px',
+    margin: '0 auto',
     fontSize: 20,
     borderRadius: 15,
   },
@@ -271,74 +258,72 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
   },
   iconSmall: {
-    fontSize: "1.2em",
+    fontSize: '1.2em',
   },
   selected: {
-    "&:hover": {
-      backgroundColor: "green",
-      color: "green",
+    '&:hover': {
+      backgroundColor: 'green',
+      color: 'green',
     },
   },
-}));
+}))
 
 const theme = createTheme({
   typography: {
     body1: {
       fontWeight: 600,
-      padding: "0.3rem",
+      padding: '0.3rem',
     },
   },
-});
+})
 
 export default function CreateIssue(props) {
-  const { id } = useParams();
+  const { id } = useParams()
 
   const initialState = {
     setID: 0,
-    setNavn: "",
-    setDelegated: "",
-    setKategori: "Ingen valgt",
-    setAlvorlighetsgrad: "Ingen valgt",
-    setPrioritet: "Ingen valgt",
-    setReprodusere: "Ingen valgt",
-    setOppsummering: "",
-    setBeskrivelse: "",
-    setStegReprodusere: "",
-    setImageName: [""],
-  };
+    setNavn: '',
+    setDelegated: '',
+    setKategori: 'Ingen valgt',
+    setAlvorlighetsgrad: 'Ingen valgt',
+    setPrioritet: 'Ingen valgt',
+    setReprodusere: 'Ingen valgt',
+    setOppsummering: '',
+    setBeskrivelse: '',
+    setStegReprodusere: '',
+    setImageName: [''],
+  }
 
-  const contentBlock = htmlToDraft("");
-  const initState = contentBlock ?
-    EditorState.createWithContent(
-        ContentState.createFromBlockArray(contentBlock.contentBlocks)
-      )
-    : EditorState.createEmpty();
+  const contentBlock = htmlToDraft('')
+  const initState = contentBlock
+    ? EditorState.createWithContent(ContentState.createFromBlockArray(contentBlock.contentBlocks))
+    : EditorState.createEmpty()
 
-  const [editorStateDesc, setEditorStateDesc] = useState(initState);
-  const [editorStateRep, setEditorStateRep] = useState(initState);
+  const [editorStateDesc, setEditorStateDesc] = useState(initState)
+  const [editorStateRep, setEditorStateRep] = useState(initState)
 
-  const classes = useStyles();
-  const [values, setValues] = useState(initialState);
-  const [errors, setErrors] = useState("");
-  const [users, setUsers] = useState([]);
+  const classes = useStyles()
+  const [values, setValues] = useState(initialState)
+  const [errors, setErrors] = useState('')
+  const [users, setUsers] = useState([])
   const [userinfo, setUserinfo] = useState({
     user: [],
     redirectToSignin: false,
-  });
-  const [open, setOpen] = useState(false);
+  })
+  const [open, setOpen] = useState(false)
 
   const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
+    if (reason === 'clickaway') {
+      return
     }
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
-  const images = useSelector((state) => state);
+  const images = useSelector((state) => state)
 
   const init = (userId) => {
-    const jwt = auth.isAuthenticated();
-    console.log("User ID: ", userId);
+    const jwt = auth.isAuthenticated()
+    console.log('User ID: ', userId)
     findUserProfile(
       {
         userId,
@@ -346,45 +331,44 @@ export default function CreateIssue(props) {
       { t: jwt.token }
     ).then((data) => {
       if (data.error) {
-        setUserinfo({ redirectToSignin: true });
+        setUserinfo({ redirectToSignin: true })
       } else {
-        setUserinfo({ user: data });
-        setValues({ setNavn: data.name });
+        setUserinfo({ user: data })
+        setValues({ setNavn: data.name })
       }
-    });
-
+    })
+    console.log('Token: ', jwt.token)
     getUsers({ t: jwt.token }).then((data) => {
       if (data.error) {
-        setValues({ redirectToSignin: true });
+        setValues({ redirectToSignin: true })
       } else {
-        setUsers(data.data);
+        setUsers(data.data)
       }
-    });
-  };
+    })
+  }
 
   useEffect(() => {
-    console.log("Users: ", users)
     if (!users.length) {
-      init(id);
+      init(id)
     }
-  }, [id, users.length]);
+  }, [id, users.length])
 
   const handleChange = (name) => (event) => {
-    console.log(JSON.stringify(images));
+    console.log(JSON.stringify(images))
     setValues({
       ...values,
       [name]: event.target.value,
-    });
-  };
+    })
+  }
 
   const errorAlert = (error) => (
-    <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+    <Snackbar open={open} autohideduration={6000} onClose={handleClose}>
       <Alert onClose={handleClose} severity="error" variant="standard">
         <AlertTitle>Feil</AlertTitle>
         Noe gikk galt - {error}!
       </Alert>
     </Snackbar>
-  );
+  )
 
   /*const onChangeImageDrop = (event) => {
     event.preventDefault();
@@ -392,27 +376,25 @@ export default function CreateIssue(props) {
       ...prevState,
       setImageName: [...images.imageupload],
     }));
-    console.log("IMAGE UPLOAD FILE >>>", images.imageupload);
+    console.log('IMAGE UPLOAD FILE >>>', images.imageupload);
   };*/
 
   // Legg inn ny sak
-  const createIssue = async () => {
+  const createIssue = async (e) => {
+    e.preventDefault()
+    console.log('Image 123', images)
 
-    let imageNameValue = "none";
-    if (images.imageupload.length > 0) {
-      imageNameValue = images.imageupload;
+    let imageNameValue = 'none'
+    if (images.state.imgUploadState) {
+      console.log('Upload state true')
+      imageNameValue = images.state.imageupload[1][0].name
     }
 
-    const htmlContentStateDesc = JSON.stringify(
-      convertToRaw(editorStateDesc.getCurrentContent())
-    );
-    values.setBeskrivelse = htmlContentStateDesc;
+    const htmlContentStateDesc = JSON.stringify(convertToRaw(editorStateDesc.getCurrentContent()))
+    values.setBeskrivelse = htmlContentStateDesc
 
-    const htmlContentStateRep = JSON.stringify(
-      convertToRaw(editorStateRep.getCurrentContent())
-    );
-    values.setStegReprodusere = htmlContentStateRep;
-    console.log(userinfo);
+    const htmlContentStateRep = JSON.stringify(convertToRaw(editorStateRep.getCurrentContent()))
+    values.setStegReprodusere = htmlContentStateRep
     let data = {
       name: userinfo.user.name,
       reporter_id: userinfo.user._id,
@@ -424,54 +406,53 @@ export default function CreateIssue(props) {
       summary: values.setOppsummering,
       delegated: values.setDelegated,
       step_reproduce: values.setStegReprodusere,
-      imageName: imageNameValue,
+      imageName: imageNameValue, //images.imgUploadState ? images.state.imageupload[1][0].name : 'none',
       // eslint-disable-next-line no-underscore-dangle
       userid: userinfo.user._id,
-    };
-    const jwt = auth.isAuthenticated();
+    }
+    const jwt = auth.isAuthenticated()
 
-    await issueService
+    issueService
       .addIssue({ data }, jwt.token)
       .then((response) => {
         if (response.status === 200) {
-          console.log("Response on create issue: ", response.data);
+          console.log('Response on create issue: ', response.data)
           let issueData = {
-              issue_id: response.data.document._id,
-              reporter: userinfo.user.name,
-          };
+            issue_id: response.data.document._id,
+            reporter: userinfo.user.name,
+          }
           socket.emit('new_issue', issueData, values.setDelegated)
-          setOpen(true);
-          clearState();
+          clearStoreImage(clearAction)
           setTimeout(function () {
-            props.history.push("/saker/" + id);
-          }, 2000);
+            props.history.push('/saker/' + issueData.issue_id)
+          }, 2000)
         }
       })
       .catch((err) => {
-        setErrors(err.response.data);
-        errorAlert(err.response.data);
-        window.scrollTo(0, 0);
-      });
+        setErrors(err.response.data)
+        errorAlert(err.response.data)
+        window.scrollTo(0, 0)
+      })
     // clear errors on submit if any present, before correcting old error
-  };
+  }
 
   const clearState = () => {
-    setValues({ ...initialState });
-  };
+    setValues({ ...initialState })
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     // setImages(prevState => ({...prevState, setImageName: [...images.imageupload[1].name]}));
-    createIssue();
-  };
+    createIssue()
+  }
 
   const onEditorStateChangeDesc = (editorState) => {
-    setEditorStateDesc(editorState);
-  };
+    setEditorStateDesc(editorState)
+  }
 
   const onEditorStateChangeRep = (editorState) => {
-    setEditorStateRep(editorState);
-  };
+    setEditorStateRep(editorState)
+  }
 
   return (
     <div className={classes.root}>
@@ -480,20 +461,13 @@ export default function CreateIssue(props) {
           encType="multipart/form-data"
           className={classes.container}
           autoComplete="disabled"
-          onSubmit={(e) => handleSubmit(e)}
+          //onSubmit={(e) => handleSubmit(e)}
         >
           <h3 className={classes.headerOne}>Skriv inn saksdetaljer</h3>
           <Box textAlign="center">
-            <Typography variant="body2">
-              Alle felt merket med en stjerne (*) er obligatoriske
-            </Typography>
+            <Typography variant="body2">Alle felt merket med en stjerne (*) er obligatoriske</Typography>
           </Box>
-          <Grid
-            container
-            alignItems="flex-start"
-            spacing={2}
-            style={{ padding: "1rem" }}
-          >
+          <Grid container alignItems="flex-start" spacing={2} style={{ padding: '1rem' }}>
             <CssBaseline />
             <Grid item xs={6}>
               <TextField
@@ -504,7 +478,7 @@ export default function CreateIssue(props) {
                 defaultValue="Ingen valgt"
                 className={classes.textField}
                 value={values.setDelegated || initialState.setDelegated}
-                onChange={handleChange("setDelegated")}
+                onChange={handleChange('setDelegated')}
                 InputProps={{
                   className: classes.input,
                 }}
@@ -523,17 +497,11 @@ export default function CreateIssue(props) {
                 ))}
               </TextField>
               {errors.delegated ? (
-                <Box
-                  className={classes.BoxErrorField}
-                  fontFamily="Monospace"
-                  color="error.main"
-                  p={1}
-                  m={1}
-                >
+                <Box className={classes.BoxErrorField} fontFamily="Monospace" color="error.main" p={1} m={1}>
                   {errors.delegated} ⚠️
                 </Box>
               ) : (
-                ""
+                ''
               )}
             </Grid>
             <Grid item xs={6}>
@@ -543,8 +511,8 @@ export default function CreateIssue(props) {
                 label="Kategori *"
                 name="kategori"
                 className={classes.textField}
-                value={values.setKategori || "Ingen valgt"}
-                onChange={handleChange("setKategori")}
+                value={values.setKategori || 'Ingen valgt'}
+                onChange={handleChange('setKategori')}
                 InputProps={{
                   className: classes.input,
                 }}
@@ -563,17 +531,11 @@ export default function CreateIssue(props) {
                 ))}
               </TextField>
               {errors.category ? (
-                <Box
-                  className={classes.BoxErrorField}
-                  fontFamily="Monospace"
-                  color="error.main"
-                  p={1}
-                  m={1}
-                >
+                <Box className={classes.BoxErrorField} fontFamily="Monospace" color="error.main" p={1} m={1}>
                   {errors.category} ⚠️
                 </Box>
               ) : (
-                ""
+                ''
               )}
             </Grid>
             <Grid item xs={6}>
@@ -582,9 +544,9 @@ export default function CreateIssue(props) {
                 select
                 name="alvorlighetsgrad"
                 label="Alvorlighetsgrad *"
-                value={values.setAlvorlighetsgrad || "Ingen valgt"}
+                value={values.setAlvorlighetsgrad || 'Ingen valgt'}
                 className={classes.textField}
-                onChange={handleChange("setAlvorlighetsgrad")}
+                onChange={handleChange('setAlvorlighetsgrad')}
                 InputProps={{
                   className: classes.input,
                 }}
@@ -603,17 +565,11 @@ export default function CreateIssue(props) {
                 ))}
               </TextField>
               {errors.severity ? (
-                <Box
-                  className={classes.BoxErrorField}
-                  fontFamily="Monospace"
-                  color="error.main"
-                  p={1}
-                  m={1}
-                >
+                <Box className={classes.BoxErrorField} fontFamily="Monospace" color="error.main" p={1} m={1}>
                   {errors.severity} ⚠️
                 </Box>
               ) : (
-                ""
+                ''
               )}
             </Grid>
             <Grid item xs={6}>
@@ -623,8 +579,8 @@ export default function CreateIssue(props) {
                 name="prioritet"
                 label="Prioritet *"
                 className={classes.textField}
-                value={values.setPrioritet || "Ingen valgt"}
-                onChange={handleChange("setPrioritet")}
+                value={values.setPrioritet || 'Ingen valgt'}
+                onChange={handleChange('setPrioritet')}
                 InputProps={{
                   className: classes.input,
                 }}
@@ -643,17 +599,11 @@ export default function CreateIssue(props) {
                 ))}
               </TextField>
               {errors.priority ? (
-                <Box
-                  className={classes.BoxErrorField}
-                  fontFamily="Monospace"
-                  color="error.main"
-                  p={1}
-                  m={1}
-                >
+                <Box className={classes.BoxErrorField} fontFamily="Monospace" color="error.main" p={1} m={1}>
                   {errors.priority} ⚠️
                 </Box>
               ) : (
-                ""
+                ''
               )}
             </Grid>
             <Grid item xs={6}>
@@ -663,8 +613,8 @@ export default function CreateIssue(props) {
                 name="reprodusere"
                 label="Reprodusere *"
                 className={classes.textField}
-                value={values.setReprodusere || "Ingen valgt"}
-                onChange={handleChange("setReprodusere")}
+                value={values.setReprodusere || 'Ingen valgt'}
+                onChange={handleChange('setReprodusere')}
                 InputProps={{
                   className: classes.input,
                 }}
@@ -683,7 +633,7 @@ export default function CreateIssue(props) {
                     selected
                     style={{
                       backgroundColor: option.color,
-                      color: "white",
+                      color: 'white',
                     }}
                   >
                     {option.label}
@@ -691,17 +641,11 @@ export default function CreateIssue(props) {
                 ))}
               </TextField>
               {errors.reproduce ? (
-                <Box
-                  className={classes.BoxErrorField}
-                  fontFamily="Monospace"
-                  color="error.main"
-                  p={1}
-                  m={1}
-                >
+                <Box className={classes.BoxErrorField} fontFamily="Monospace" color="error.main" p={1} m={1}>
                   {errors.reproduce} ⚠️
                 </Box>
               ) : (
-                ""
+                ''
               )}
             </Grid>
             <Grid item xs={6}>
@@ -710,7 +654,7 @@ export default function CreateIssue(props) {
                 label="Oppsummering *"
                 name="oppsummering"
                 value={[values.setOppsummering]}
-                onChange={handleChange("setOppsummering")}
+                onChange={handleChange('setOppsummering')}
                 className={classes.textField}
                 InputProps={{
                   className: classes.input,
@@ -719,20 +663,14 @@ export default function CreateIssue(props) {
                 variant="outlined"
               />
               {errors.summary ? (
-                <Box
-                  className={classes.BoxErrorField}
-                  fontFamily="Monospace"
-                  color="error.main"
-                  p={1}
-                  m={1}
-                >
+                <Box className={classes.BoxErrorField} fontFamily="Monospace" color="error.main" p={1} m={1}>
                   {errors.summary} ⚠️
                 </Box>
               ) : (
-                ""
+                ''
               )}
             </Grid>
-            <Grid item xs={12} style={{ padding: "1rem" }}>
+            <Grid item xs={12} style={{ padding: '1rem' }}>
               <ThemeProvider theme={theme}>
                 <Typography variant="body1">Beskrivelse *</Typography>
               </ThemeProvider>
@@ -740,17 +678,17 @@ export default function CreateIssue(props) {
                 placeholder="Skriv inn tekst her..."
                 editorState={editorStateDesc}
                 editorStyle={{
-                  backgroundColor: "white",
-                  border: "1px solid lightgray",
-                  borderTop: "0px solid lightgray",
-                  minHeight: "100%",
-                  height: "350px",
+                  backgroundColor: 'white',
+                  border: '1px solid lightgray',
+                  borderTop: '0px solid lightgray',
+                  minHeight: '100%',
+                  height: '350px',
                   padding: 10,
-                  borderRadius: "0 0 0.5rem 0.5rem",
+                  borderRadius: '0 0 0.5rem 0.5rem',
                 }}
                 toolbarStyle={{
-                  borderRadius: "0.5rem 0.5rem 0 0",
-                  marginBottom: "1px",
+                  borderRadius: '0.5rem 0.5rem 0 0',
+                  marginBottom: '1px',
                 }}
                 wrapperClassName="wrapper"
                 toolbarClassName="toolbar"
@@ -760,50 +698,38 @@ export default function CreateIssue(props) {
                   link: { inDropdown: true },
                   list: { inDropdown: true },
                   options: [
-                    "fontFamily",
-                    "inline",
-                    "blockType",
-                    "fontSize",
-                    "list",
-                    "image",
-                    "textAlign",
-                    "colorPicker",
-                    "link",
-                    "embedded",
-                    "emoji",
-                    "remove",
-                    "history",
+                    'fontFamily',
+                    'inline',
+                    'blockType',
+                    'fontSize',
+                    'list',
+                    'image',
+                    'textAlign',
+                    'colorPicker',
+                    'link',
+                    'embedded',
+                    'emoji',
+                    'remove',
+                    'history',
                   ],
                   inline: {
-                    options: [
-                      "bold",
-                      "italic",
-                      "underline",
-                      "strikethrough",
-                      "monospace",
-                    ],
+                    options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace'],
                   },
                 }}
                 hashtag={{
-                  separator: " ",
-                  trigger: "#",
+                  separator: ' ',
+                  trigger: '#',
                 }}
               />
               {errors.description ? (
-                <Box
-                  className={classes.BoxErrorField}
-                  fontFamily="Monospace"
-                  color="error.main"
-                  p={1}
-                  m={1}
-                >
+                <Box className={classes.BoxErrorField} fontFamily="Monospace" color="error.main" p={1} m={1}>
                   {errors.description} ⚠️
                 </Box>
               ) : (
-                ""
+                ''
               )}
             </Grid>
-            <Grid item xs={12} style={{ padding: "1rem" }}>
+            <Grid item xs={12} style={{ padding: '1rem' }}>
               <ThemeProvider theme={theme}>
                 <Typography variant="body1">Steg for å reprodusere</Typography>
               </ThemeProvider>
@@ -811,17 +737,17 @@ export default function CreateIssue(props) {
                 placeholder="Skriv inn tekst her..."
                 editorState={editorStateRep}
                 editorStyle={{
-                  backgroundColor: "white",
-                  border: "1px solid lightgray",
-                  borderTop: "0px solid lightgray",
-                  minHeight: "100%",
-                  height: "350px",
+                  backgroundColor: 'white',
+                  border: '1px solid lightgray',
+                  borderTop: '0px solid lightgray',
+                  minHeight: '100%',
+                  height: '350px',
                   padding: 10,
-                  borderRadius: "0 0 0.5rem 0.5rem",
+                  borderRadius: '0 0 0.5rem 0.5rem',
                 }}
                 toolbarStyle={{
-                  borderRadius: "0.5rem 0.5rem 0 0",
-                  marginBottom: "1px",
+                  borderRadius: '0.5rem 0.5rem 0 0',
+                  marginBottom: '1px',
                 }}
                 wrapperClassName="wrapper"
                 toolbarClassName="toolbar"
@@ -831,47 +757,35 @@ export default function CreateIssue(props) {
                   link: { inDropdown: true },
                   list: { inDropdown: true },
                   options: [
-                    "fontFamily",
-                    "inline",
-                    "blockType",
-                    "fontSize",
-                    "list",
-                    "image",
-                    "textAlign",
-                    "colorPicker",
-                    "link",
-                    "embedded",
-                    "emoji",
-                    "remove",
-                    "history",
+                    'fontFamily',
+                    'inline',
+                    'blockType',
+                    'fontSize',
+                    'list',
+                    'image',
+                    'textAlign',
+                    'colorPicker',
+                    'link',
+                    'embedded',
+                    'emoji',
+                    'remove',
+                    'history',
                   ],
                   inline: {
-                    options: [
-                      "bold",
-                      "italic",
-                      "underline",
-                      "strikethrough",
-                      "monospace",
-                    ],
+                    options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace'],
                   },
                 }}
                 hashtag={{
-                  separator: " ",
-                  trigger: "#",
+                  separator: ' ',
+                  trigger: '#',
                 }}
               />
               {errors.step_reproduce ? (
-                <Box
-                  className={classes.BoxErrorField}
-                  fontFamily="Monospace"
-                  color="error.main"
-                  p={1}
-                  m={1}
-                >
+                <Box className={classes.BoxErrorField} fontFamily="Monospace" color="error.main" p={1} m={1}>
                   {errors.step_reproduce} ⚠️
                 </Box>
               ) : (
-                ""
+                ''
               )}
             </Grid>
             <Grid item xs={12}>
@@ -879,29 +793,26 @@ export default function CreateIssue(props) {
             </Grid>
             <Grid item xs={12}>
               <Button
-                disabled={images.imgUploadState}
+                //disabled={images.imgUploadState}
                 type="submit"
                 value="Submit"
                 variant="contained"
                 color="primary"
                 className={classes.button}
+                onClick={(e) => createIssue(e)}
                 style={{
-                  margin: "0 auto",
-                  display: "flex",
-                  padding: "1rem",
-                  borderRadius: "1em",
+                  margin: '0 auto',
+                  display: 'flex',
+                  padding: '1rem',
+                  borderRadius: '1em',
                 }}
               >
                 Send inn sak
                 <Icon className={classes.rightIcon}>send</Icon>
               </Button>
             </Grid>
-            <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
-              <Alert
-                onClose={handleClose}
-                severity="success"
-                variant="standard"
-              >
+            <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
+              <Alert onClose={handleClose} severity="success" variant="standard">
                 <AlertTitle>Suksess</AlertTitle>
                 Sak ble opprettet!
               </Alert>
@@ -910,5 +821,5 @@ export default function CreateIssue(props) {
         </form>
       </Container>
     </div>
-  );
+  )
 }

@@ -15,58 +15,58 @@ import Snackbar from '@material-ui/core/Snackbar'
 import MuiAlert from '@material-ui/lab/Alert'
 import { AlertTitle } from '@material-ui/lab'
 
-function Alert (props) {
+function Alert(props) {
   // eslint-disable-next-line react/jsx-props-no-spreading
   return <MuiAlert elevation={1} variant="filled" {...props} />
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    margin: '0 auto'
+    margin: '0 auto',
   },
   button: {
     margin: theme.spacing(1),
     '&:hover': {
       transition: theme.transitions.create('margin', {
         easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen
+        duration: theme.transitions.duration.enteringScreen,
       }),
       backgroundColor: '#FFF00',
-      color: 'white'
-    }
+      color: 'white',
+    },
   },
   extendedIcon: {
-    marginRight: theme.spacing(1)
+    marginRight: theme.spacing(1),
   },
   card: {
     maxWidth: 600,
     margin: 'auto',
     textAlign: 'center',
     marginTop: theme.spacing(15),
-    paddingBottom: theme.spacing(2)
+    paddingBottom: theme.spacing(2),
   },
   error: {
-    verticalAlign: 'middle'
+    verticalAlign: 'middle',
   },
   title: {
     marginTop: theme.spacing(2),
-    color: theme.palette.openTitle
+    color: theme.palette.openTitle,
   },
   textField: {
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
-    width: 300
-  }
+    width: 300,
+  },
 }))
 
-function ChangePassword (props) {
+function ChangePassword(props) {
   const { location } = useReactRouter()
   const initialState = {
     token: '',
     password: '',
     confirmPassword: '',
     error: '',
-    message: ''
+    message: '',
   }
 
   const { match } = useReactRouter()
@@ -86,7 +86,7 @@ function ChangePassword (props) {
   }
 
   const successAlert = () => (
-    <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+    <Snackbar open={open} autohideduration={6000} onClose={handleClose}>
       <Alert onClose={handleClose} severity="success" variant="standard">
         <AlertTitle>Suksess</AlertTitle>
         {values.message}
@@ -98,10 +98,10 @@ function ChangePassword (props) {
     const user = {
       token: match.params.token || undefined,
       password: values.password || undefined,
-      confirmPassword: values.confirmPassword || undefined
+      confirmPassword: values.confirmPassword || undefined,
     }
 
-    changePassword(user).then(data => {
+    changePassword(user).then((data) => {
       if (data.error) {
         setValues({ error: data.error })
       } else {
@@ -112,10 +112,10 @@ function ChangePassword (props) {
     setValues({ email: '' })
   }
 
-  const handleChange = name => event => {
+  const handleChange = (name) => (event) => {
     setValues({
       ...values,
-      [name]: event.target.value
+      [name]: event.target.value,
     })
   }
 
@@ -123,8 +123,8 @@ function ChangePassword (props) {
 
   const { from } = location.state || {
     from: {
-      pathname: '/'
-    }
+      pathname: '/',
+    },
   }
   if (values.redirectToReferrer) {
     return <Redirect to={from} />
@@ -177,4 +177,4 @@ function ChangePassword (props) {
   )
 }
 
-export default withRouter(ChangePassword);
+export default withRouter(ChangePassword)

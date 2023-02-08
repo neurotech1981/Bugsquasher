@@ -1,65 +1,61 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from "react";
-import useReactRouter from "use-react-router";
-import {
-  makeStyles,
-  createTheme,
-  ThemeProvider,
-} from "@material-ui/core/styles";
-import { useSelector } from "react-redux";
-import issueService from "../../services/issueService";
-import "../../App.css";
-import CommentForm from "../Comments/CommentForm";
-import Comments from "../Comments/Comments";
-import moment from "moment";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Button from "@material-ui/core/Button";
-import DeleteIcon from '@material-ui/icons/Delete';
-import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-import InputLabel from "@material-ui/core/InputLabel";
-import IconButton from "@material-ui/core/IconButton";
-import FormControl from "@material-ui/core/FormControl";
-import Snackbar from "@material-ui/core/Snackbar";
-import MuiAlert from "@material-ui/lab/Alert";
-import { AlertTitle } from "@material-ui/lab";
-import UpdateIcon from "@material-ui/icons/Update";
-import AccessTimeIcon from "@material-ui/icons/AccessTime";
-import Avatar from "@material-ui/core/Avatar";
-import MenuItem from "@material-ui/core/MenuItem";
-import ModalImage from "react-modal-image";
-import { deepPurple } from "@material-ui/core/colors";
-import Grid from "@material-ui/core/Grid";
+import React, { useState, useEffect } from 'react'
+import useReactRouter from 'use-react-router'
+import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core/styles'
+import { useSelector } from 'react-redux'
+import issueService from '../../services/issueService'
+import '../../App.css'
+import CommentForm from '../Comments/CommentForm'
+import Comments from '../Comments/Comments'
+import moment from 'moment'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import Button from '@material-ui/core/Button'
+import DeleteIcon from '@material-ui/icons/Delete'
+import Typography from '@material-ui/core/Typography'
+import TextField from '@material-ui/core/TextField'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
+import InputLabel from '@material-ui/core/InputLabel'
+import IconButton from '@material-ui/core/IconButton'
+import FormControl from '@material-ui/core/FormControl'
+import Snackbar from '@material-ui/core/Snackbar'
+import MuiAlert from '@material-ui/lab/Alert'
+import { AlertTitle } from '@material-ui/lab'
+import UpdateIcon from '@material-ui/icons/Update'
+import AccessTimeIcon from '@material-ui/icons/AccessTime'
+import Avatar from '@material-ui/core/Avatar'
+import MenuItem from '@material-ui/core/MenuItem'
+import ModalImage from 'react-modal-image'
+import { deepPurple } from '@material-ui/core/colors'
+import Grid from '@material-ui/core/Grid'
 import Stack from '@mui/material/Stack'
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest'
-import Box from "@material-ui/core/Box";
-import { Link } from "react-router-dom";
-import EditIcon from "@material-ui/icons/Edit";
-import { useHistory } from "react-router-dom";
-import auth from "../auth/auth-helper";
-import { EditorState, convertFromRaw, ContentState } from "draft-js";
-import { Editor } from "react-draft-wysiwyg";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import { findUserProfile, getUsers } from "../utils/api-user";
-import DeleteImageDialog from "../Dialogs/DeleteImage";
-import htmlToDraft from "html-to-draftjs";
-import Previews from "./ImageUploader";
+import Box from '@material-ui/core/Box'
+import { Link } from 'react-router-dom'
+import EditIcon from '@material-ui/icons/Edit'
+import { useHistory } from 'react-router-dom'
+import auth from '../auth/auth-helper'
+import { EditorState, convertFromRaw, ContentState } from 'draft-js'
+import { Editor } from 'react-draft-wysiwyg'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+import { findUserProfile, getUsers } from '../utils/api-user'
+import DeleteImageDialog from '../Dialogs/DeleteImage'
+import htmlToDraft from 'html-to-draftjs'
+import Previews from './ImageUploader'
 
-const drawerWidth = 240;
+const drawerWidth = 240
 
 function Alert(props) {
-  return <MuiAlert elevation={1} variant="filled" {...props} />;
+  return <MuiAlert elevation={1} variant="filled" {...props} />
 }
-const formattedDate = (value) => moment(value).format("DD/MM-YYYY");
+const formattedDate = (value) => moment(value).format('DD/MM-YYYY')
 
 const theme = createTheme({
   typography: {
@@ -67,11 +63,11 @@ const theme = createTheme({
       fontWeight: 600, // or 'bold'
     },
   },
-});
+})
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "grid",
+    display: 'grid',
   },
   paper: {
     flexShrink: 0,
@@ -80,7 +76,7 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
   },
   drawer: {
-    [theme.breakpoints.up("sm")]: {
+    [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
       flexShrink: 0,
     },
@@ -88,27 +84,27 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(2),
-    paddingTop: "50px",
+    paddingTop: '50px',
   },
   container: {
-    display: "flex",
-    flexWrap: "wrap",
+    display: 'flex',
+    flexWrap: 'wrap',
   },
   textField: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
-    width: "100%",
+    width: '100%',
   },
   dateText: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
-    width: "100%",
-    color: "black",
+    width: '100%',
+    color: 'black',
   },
   textFieldStatus: {
     margin: theme.spacing(0),
-    width: "100%",
-    marginTop: "0",
+    width: '100%',
+    marginTop: '0',
   },
   avatar: {
     margin: 10,
@@ -116,22 +112,22 @@ const useStyles = makeStyles((theme) => ({
   purpleAvatar: {
     margin: 0,
     left: 0,
-    width: "70px",
-    height: "70px",
-    color: "#fff",
+    width: '70px',
+    height: '70px',
+    color: '#fff',
     backgroundColor: deepPurple[500],
   },
   formControl: {
     margin: theme.spacing(1),
   },
   flexContainer: {
-    display: "grid",
-    posistion: "absolute",
-    flexDirection: "row",
-    width: "50vh",
-    height: "50%",
-    padding: "1rem",
-    backgroundColor: "azure",
+    display: 'grid',
+    posistion: 'absolute',
+    flexDirection: 'row',
+    width: '50vh',
+    height: '50%',
+    padding: '1rem',
+    backgroundColor: 'azure',
   },
   icon: {
     margin: 'theme.spacing(1)',
@@ -148,87 +144,85 @@ const useStyles = makeStyles((theme) => ({
     transition: 'box-shadow 0.3s ease-in-out',
     '&:hover': {
       color: 'darkred',
-      boxShadow: '0 0px 0px 0px rgba(0, 0, 0, .3)'
-    }
+      boxShadow: '0 0px 0px 0px rgba(0, 0, 0, .3)',
+    },
   },
   thumb: {
-    display: "-webkit-inline-box",
-    position: "relative",
+    display: '-webkit-inline-box',
+    position: 'relative',
     borderRadius: 2,
-    border: "3px solid #eaeaea",
+    border: '3px solid #eaeaea',
     marginBottom: 8,
     height: 150,
     padding: 4,
-    boxSizing: "border-box",
-    marginLeft: "10px",
-    margin: "0 auto",
+    boxSizing: 'border-box',
+    marginLeft: '10px',
+    margin: '0 auto',
     '&:after': {
       content: '',
       display: 'table',
       clear: 'both',
-    }
-  }
-}));
+    },
+  },
+}))
 
 export default function ViewIssue(props) {
-
-  const classes = useStyles();
-  const [dataset, setData] = useState([""]);
-  const [showAside, setShowAside] = useState(true);
+  const classes = useStyles()
+  const [dataset, setData] = useState([''])
+  const [showAside, setShowAside] = useState(true)
 
   const toggleAside = () => {
     setShowAside(!showAside)
   }
 
-  const contentBlock = htmlToDraft("");
-  const initState = contentBlock ?
-    EditorState.createWithContent(
-        ContentState.createFromBlockArray(contentBlock.contentBlocks)
-      )
-    : EditorState.createEmpty();
+  const contentBlock = htmlToDraft('')
+  const initState = contentBlock
+    ? EditorState.createWithContent(ContentState.createFromBlockArray(contentBlock.contentBlocks))
+    : EditorState.createEmpty()
 
-  const [editorStateDesc, setEditorStateDesc] = useState(initState);
-  const [editorStateRep, setEditorStateRep] = useState(initState);
+  const [editorStateDesc, setEditorStateDesc] = useState(initState)
+  const [editorStateRep, setEditorStateRep] = useState(initState)
 
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState([])
   const [openStatusUpdate, setOpenStatusUpdate] = useState({
     openStatusSnackbar: false,
-    verticalStatusUpdate: "bottom",
-    horizontalStatusUpdate: "left",
-  });
+    verticalStatusUpdate: 'bottom',
+    horizontalStatusUpdate: 'left',
+  })
   const [userinfo, setUserinfo] = useState({
-    user: [""],
+    user: [''],
     redirectToSignin: false,
-  });
-  const [errors, setErrors] = useState("");
-  const [open, setOpen] = useState(false);
-  const [opennewcomment, setOpenNewComment] = useState(false);
-  const [comments, setComments] = useState([]);
-  const [users, setUsers] = useState([]);
+  })
+  const [errors, setErrors] = useState('')
+  const [open, setOpen] = useState(false)
+  const [opennewcomment, setOpenNewComment] = useState(false)
+  const [comments, setComments] = useState([])
+  const [users, setUsers] = useState([])
 
-  const history = useHistory();
+  const history = useHistory()
 
   const pull_data = (data) => {
+    console.log('pull data')
     let array = [...images]
     if (data !== -1) {
-      array = images.filter((_, index) => index !== data);
-      if(array.length > 0){
-        setImages(array);
-      } else {
-        setImages(["none"]);
-      }
+      array.splice(data, 1)
+      setImages(array.length > 0 ? array : ['none'])
     }
   }
 
   const image_changes = (data) => {
+    console.log('changes', data)
     let array = [...images]
-    array.push(data[0]);
-    setImages(array);
+    data.forEach((element) => {
+      array.push(element)
+    })
+    //array.push(data)
+    setImages(array)
   }
 
   const init = () => {
-    const jwt = auth.isAuthenticated();
-    let userId = auth.isAuthenticated().user._id;
+    const jwt = auth.isAuthenticated()
+    let userId = auth.isAuthenticated().user._id
 
     findUserProfile(
       {
@@ -237,229 +231,219 @@ export default function ViewIssue(props) {
       { t: jwt.token }
     ).then((data) => {
       if (data.error) {
-        setUserinfo({ redirectToSignin: true });
-        console.log("data error: ", data.error);
+        setUserinfo({ redirectToSignin: true })
+        console.log('data error: ', data.error)
       } else {
-        setUserinfo({ user: data });
+        setUserinfo({ user: data })
       }
-    });
+    })
 
     getUsers({ t: jwt.token }).then((data) => {
       if (data.error) {
-        setValues({ redirectToSignin: true });
+        setValues({ redirectToSignin: true })
       } else {
-        setUsers(data.data);
+        setUsers(data.data)
       }
-    });
-  };
+    })
+  }
 
   useEffect(() => {
     if (!users.length) {
-      let toggled = window.screen.width >= 1024 ? true : false;
-      setShowAside(toggled);
+      let toggled = window.screen.width >= 1024 ? true : false
+      setShowAside(toggled)
       init()
     }
-  }, [users.length]);
+  }, [users.length])
 
   const goHome = () => {
-    history.push("/saker/" + auth.isAuthenticated().user._id);
-  };
+    history.push('/saker/' + auth.isAuthenticated().user._id)
+  }
 
   const handleClickOpen = () => {
-    setOpen(true);
-  };
+    setOpen(true)
+  }
 
   const handleClose = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   const handleStatusUpdateClose = () => {
-    setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: false });
-  };
+    setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: false })
+  }
 
   const handleConfirmDelete = () => {
-    onDelete();
-  };
+    onDelete()
+  }
 
-  const { id } = props.match.params;
+  const { id } = props.match.params
 
   const getIssueByID = (id, token) => {
-    const res = issueService.getIssueByID(id, token);
+    const res = issueService.getIssueByID(id, token)
     res.then(function (result) {
-      setData(result);
+      setData(result)
 
-      let editorStateDesc = EditorState.createWithContent(
-        convertFromRaw(JSON.parse(result.description))
-      );
+      let editorStateDesc = EditorState.createWithContent(convertFromRaw(JSON.parse(result.description)))
 
-      setEditorStateDesc(editorStateDesc);
+      setEditorStateDesc(editorStateDesc)
 
-      let editorStateRep = EditorState.createWithContent(
-        convertFromRaw(JSON.parse(result.step_reproduce))
-      );
+      let editorStateRep = EditorState.createWithContent(convertFromRaw(JSON.parse(result.step_reproduce)))
 
-      setEditorStateRep(editorStateRep);
-      if (result.imageName.length > 0)
-      {
-        setImages(result.imageName);
-      } else {
-        setImages([]);
-      }
+      setEditorStateRep(editorStateRep)
 
-    });
-  };
+
+      setImages(result.imageName.length > 0 ? result.imageName : [])
+    })
+  }
 
   const getComments = async () => {
-    const jwt = auth.isAuthenticated();
+    const jwt = auth.isAuthenticated()
     await issueService
       .getComments(id, jwt.token)
       .then((response) => {
-        setComments(response.response.comments);
+        setComments(response.response.comments)
       })
       .catch((e) => {
-        console.log("Comment error: ", e);
-      });
-  };
+        console.error('Comment error: ', e)
+      })
+  }
 
   const upDateIssueStatus = async (id, data) => {
-    const jwt = auth.isAuthenticated();
+    const jwt = auth.isAuthenticated()
 
     await issueService
       .upDateIssueStatus(id, { status: data }, jwt.token)
       .then((response) => {
-        setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true });
-        setData({ ...dataset, status: data });
+        setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true })
+        setData({ ...dataset, status: data })
       })
       .catch((e) => {
-        console.log("ISSUE UPDATE: ", e);
-      });
-  };
+        console.error('Update issue error: ', e)
+      })
+  }
 
   const upDateDelegated = async (id, data) => {
-    const jwt = auth.isAuthenticated();
+    const jwt = auth.isAuthenticated()
 
     await issueService
       .upDateDelegated(id, { delegated: data }, jwt.token)
       .then((response) => {
-        setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true });
-        setData({ ...dataset, delegated: data });
+        setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true })
+        setData({ ...dataset, delegated: data })
       })
       .catch((e) => {
-        console.log("ISSUE UPDATE: ", e);
-      });
-  };
+        console.error('Update delegated user error: ', e)
+      })
+  }
 
   const onDelete = async () => {
-    const jwt = auth.isAuthenticated();
+    const jwt = auth.isAuthenticated()
 
-    const id = dataset._id;
+    const id = dataset._id
     await issueService
       .deleteIssueByID(id, jwt.token)
       .then(() => {
-        setOpen(false);
-        goHome();
+        setOpen(false)
+        goHome()
       })
       .catch((e) => {
-        console.log("DELETING ISSUE FAILED WITH ERROR: ", e);
-      });
-  };
+        console.error('Deleting issue error: ', e)
+      })
+  }
 
   const Status = [
     {
       value: 0,
-      label: "🔓 Åpen",
-      id: "Åpen"
+      label: '🔓 Åpen',
+      id: 'Åpen',
     },
     {
       value: 1,
-      label: "✅ Løst",
-      id: "Løst"
+      label: '✅ Løst',
+      id: 'Løst',
     },
     {
       value: 2,
-      label: "🔐 Lukket",
-      id: "Lukket"
+      label: '🔐 Lukket',
+      id: 'Lukket',
     },
     {
       value: 3,
-      label: "👷 Under arbeid",
-      id: "Under arbeid"
+      label: '👷 Under arbeid',
+      id: 'Under arbeid',
     },
-  ];
+  ]
 
   useEffect(
     () => {
       // Make sure to revoke the data uris to avoid memory leaks
-      images.forEach((file) => URL.revokeObjectURL(file.preview));
+      images.forEach((file) => URL.revokeObjectURL(file.preview))
     },
     [images] // files
-  );
+  )
 
-  const imgList = images.map((file, index) => {
-    if (file === null || file === undefined || file === "none") {
-      return <div key={index}>Ingen vedlegg</div>;
-    }
+  const ImageList = images.map((file, index) => {
+    console.log('file: ', file)
+    if (!file || file === 'none') return <div key={index}>Ingen vedlegg</div>
+
+    let path = file.path
+    if (!file.path) path = file[0].path
+    const smallImg = process.env.PUBLIC_URL + '/uploads/' + path
+    const largeImg = smallImg
+
     return (
-      <div key={index} className={classes.thumb} >
-        <DeleteImageDialog
-          imageIndex={index}
-          images={images}
-          func={pull_data}
-          issueID={dataset._id}
-          name={file.path}
-        />
+      <div key={index} className={classes.thumb}>
+        <DeleteImageDialog imageIndex={index} images={images} func={pull_data} issueID={dataset._id} name={path} />
         <ModalImage
-          small={process.env.PUBLIC_URL + "/uploads/" + file.path}
-          large={process.env.PUBLIC_URL + "/uploads/" + file.path}
-          alt={file.path}
+          small={smallImg}
+          large={largeImg}
+          alt={path}
           key={index}
           imageBackgroundColor="transparent"
           loading="lazy"
         />
       </div>
-    );
-  });
+    )
+  })
 
   const onSubmit = async (data) => {
-    const jwt = auth.isAuthenticated();
-    let { _id } = auth.isAuthenticated().user;
+    const jwt = auth.isAuthenticated()
+    let { _id } = auth.isAuthenticated().user
 
     const commentData = {
       author: _id || undefined,
       content: data.content || undefined,
-    };
+    }
 
     await issueService
       .addComment(commentData, jwt.token, id)
       .then(() => {
-        getComments();
-        setOpenNewComment(true);
+        getComments()
+        setOpenNewComment(true)
       })
       .catch((e) => {
-        console.log(e);
-      });
-  };
+        console.log(e)
+      })
+  }
 
   useEffect(() => {
-    let isSubscribed = true;
+    let isSubscribed = true
     if (isSubscribed) {
-      const jwt = auth.isAuthenticated();
-      getComments();
-      getIssueByID(id, jwt.token);
+      const jwt = auth.isAuthenticated()
+      getComments()
+      getIssueByID(id, jwt.token)
     }
-    return () => (isSubscribed = false);
-  }, [setData, setComments]);
+    return () => (isSubscribed = false)
+  }, [setData, setComments])
 
   const onEditorStateChangeDesc = (editorState) => {
-    setEditorStateDesc(editorState);
-  };
+    setEditorStateDesc(editorState)
+  }
 
   const onEditorStateChangeRep = (editorState) => {
-    setEditorStateRep(editorState);
-  };
+    setEditorStateRep(editorState)
+  }
 
-  const { verticalStatusUpdate, horizontalStatusUpdate, openStatusSnackbar } =
-    openStatusUpdate;
+  const { verticalStatusUpdate, horizontalStatusUpdate, openStatusSnackbar } = openStatusUpdate
 
   return (
     <div className={classes.root}>
@@ -547,7 +531,7 @@ export default function ViewIssue(props) {
               <InputLabel shrink htmlFor="select-multiple-native">
                 Vedlegg
               </InputLabel>
-              {imgList}
+              {ImageList}
               <Previews imageBool={true} issueID={dataset._id} func_image={image_changes} />
             </div>
             <div className="item4">
@@ -672,7 +656,7 @@ export default function ViewIssue(props) {
                 <Typography gutterBottom variant="body1">
                   Steg for å reprodusere
                 </Typography>
-              </ThemeProvider>{' '}
+              </ThemeProvider>
               <Editor
                 placeholder=""
                 readOnly={true}
@@ -820,7 +804,7 @@ export default function ViewIssue(props) {
                   )}
                   <Snackbar
                     open={openStatusSnackbar}
-                    autoHideDuration={3000}
+                    autohideduration={3000}
                     onClose={handleStatusUpdateClose}
                     anchorOrigin={{
                       vertical: verticalStatusUpdate,

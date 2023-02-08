@@ -12,16 +12,16 @@
 
 body {
   font-family: 'Space mono', sans-serif;
-  background-color: #edf5e1 !important;
-  /*background: url(./img/pattern6.webp) no-repeat center center fixed;*/
+  background-color: #fbfbfb !important;
+  background: url(./img/pattern6.webp) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  background-blend-mode: color-burn;
-  /* background-repeat: no-repeat;
+  background-blend-mode: soft-light;
+   background-repeat: no-repeat;
   background-clip: padding-box;
-  background-size: cover;*/
+  background-size: cover;
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
 }
@@ -203,10 +203,17 @@ body {
   border-color: #eeeeee;
   border-style: dashed;
   background-color: #fafafa;
-  color: #bdbdbd;
+  color: #2F1937;
   outline: none;
-  transition: border 0.24s ease-in-out;
+  transition: border 0.16s ease-in-out;
   margin-top: 20px;
+  cursor: pointer;
+}
+
+.dropzone:hover {
+  border-color: #c9b5d0;
+  color: #36233c;
+  background-color: #e6e1e1;
 }
 
 .aside {

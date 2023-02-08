@@ -9,9 +9,7 @@ const validateInput = (data) => {
   data.name = !_isEmpty(data.name) ? data.name : ''
   data.description = !_isEmpty(data.description) ? data.description : ''
   data.category = !_isEmpty(data.category) ? data.category : ''
-  data.step_reproduce = !_isEmpty(data.step_reproduce) ?
-    data.step_reproduce
-    : ''
+  data.step_reproduce = !_isEmpty(data.step_reproduce) ? data.step_reproduce : ''
   data.summary = !_isEmpty(data.summary) ? data.summary : ''
   data.reproduce = !_isEmpty(data.reproduce) ? data.reproduce : ''
   data.severity = !_isEmpty(data.severity) ? data.severity : ''
@@ -51,8 +49,8 @@ const validateInput = (data) => {
 
   return {
     errors,
-    isValid: _isEmpty(errors)
+    isValid: _isEmpty(errors),
   }
 }
 
-export default validateInput;
+export default validateInput

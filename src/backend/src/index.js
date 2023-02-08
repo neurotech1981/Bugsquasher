@@ -2,9 +2,10 @@
 /* eslint-disable no-undef */
 // import dependencies
 import jwt from 'jsonwebtoken'
+import Data from './models/issue.js'
 import userRoutes from './routes/user.js'
 import authRoutes from './routes/auth.js'
-import validateInput from '../../validation/input-validation.mjs'
+import issueRoutes from './routes/issue.js'
 import validateCommentInput from '../../validation/comment-validation.js'
 import config from '../config/index.js'
 import express from 'express'
@@ -14,7 +15,6 @@ import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import mongoose from 'mongoose'
-import Data from './models/issue.js'
 import User from './models/user.js'
 import Comments from './models/comment.js'
 import path from 'path'
@@ -183,7 +183,7 @@ var upload = multer({
 const API_PORT = 3001
 
 // Use the Data object (data) to find all Data records
-Data.find(Data)
+//Data.find(Data)
 // connects our back end code with the database
 const URI = config.mongoURI
 try {
@@ -273,9 +273,12 @@ if (cluster.isPrimary) {
   // log HTTP requests
   app.use(morgan('combined'))
 
-  // ADD routes
-  app.use('/', userRoutes)
   app.use('/', authRoutes)
+
+  //app.use(ProtectedRoutes)
+  app.use('/accounts', AccountController)
+  app.use('/', userRoutes)
+  app.use('/', issueRoutes)
 
   app.use((err, req, res, next) => {
     if (err.name === 'UnauthorizedError') {
@@ -287,8 +290,8 @@ if (cluster.isPrimary) {
     // check header for the token
     //console.log("ProtectedRoutes headers: ", req.headers)
     var token = req.headers.authorization
-    console.log('Checking token...', token)
-
+    console.log('Checking token #1...', token)
+    console.log('Route path: ', req.path)
     if (token === undefined) {
       token = req.body.token
       console.log('Retrying...Checking token...', token)
@@ -933,84 +936,6 @@ if (cluster.isPrimary) {
     })
   })
 
-  // this is our get method
-  // this method fetches all available data in our database
-  ProtectedRoutes.route('/getData').get(async function (req, res, next) {
-    Data.find((err, data) => {
-      if (err) {
-        return res.json({
-          success: false,
-          error: err,
-        })
-      }
-      return res.json({
-        success: true,
-        data: data,
-      })
-    })
-  })
-
-  ProtectedRoutes.route('/upDateIssueStatus/:id/:status').get(async function (req, res, next) {
-    const { update } = req.body
-    Data.findByIdAndUpdate({ _id: req.params.id }, { status: req.params.status }, function (err, data) {
-      if (err) return next(err)
-      return res.json({
-        success: true,
-        data: data,
-      })
-    })
-  })
-
-  ProtectedRoutes.route('/upDateDelegated/:id/:delegated').get(async function (req, res, next) {
-    const { update } = req.body
-    Data.findByIdAndUpdate({ _id: req.params.id }, { delegated: req.params.delegated }, function (err, data) {
-      if (err) return next(err)
-      return res.json({
-        success: true,
-        data: data,
-      })
-    })
-  })
-
-  ProtectedRoutes.post('/upDateIssue/:id', async function (req, res, next) {
-    const { dataset } = req.body
-    Data.findByIdAndUpdate({ _id: req.params.id }, dataset, function (err, data) {
-      if (err) return next(err)
-      return res.json({
-        success: true,
-        data: data,
-      })
-    })
-  })
-
-  ProtectedRoutes.route('/getIssueByID/:id').get(async function (req, res) {
-    try {
-      await Data.findOne({ _id: req.params.id })
-        .populate([
-          {
-            path: 'reporter',
-            select: 'name',
-            model: 'User',
-          },
-          {
-            path: 'delegated',
-            select: 'name',
-            model: 'User',
-          },
-        ])
-        .exec()
-        .then((response) => {
-          res.json({
-            success: true,
-            data: response,
-          })
-        })
-    } catch (e) {
-      // database error
-      res.status(500).send('database error')
-    }
-  })
-
   // CREATE REPLY
   ProtectedRoutes.route('/issue/:issueId/comments/:commentId/replies').post(async function (req, res, next) {
     // TURN REPLY INTO A COMMENT OBJECT
@@ -1020,12 +945,9 @@ if (cluster.isPrimary) {
     // LOOKUP THE PARENT POST
     Data.findById(req.params.issueId).then((post) => {
       // FIND THE CHILD COMMENT
-      console.log('POST: ', post)
-
       Promise.all([reply.save(), Comments.findById(req.params.commentId)])
         .then(([reply, comment]) => {
           // ADD THE REPLY
-          console.log('REPLY: ', reply)
           comment.comments.unshift(reply._id)
           return Promise.all([comment.save()])
         })
@@ -1127,46 +1049,6 @@ if (cluster.isPrimary) {
 
   // this is our delete method
   // this method removes existing data in our database
-  ProtectedRoutes.get('/deleteIssueByID/:id', async function (req, res, next) {
-    const { id } = req.params
-    Data.findByIdAndDelete(id, (err, result) => {
-      //delete image(s) when deleting an issue
-      result.imageName.forEach((element) => {
-        if (element.path) {
-          fs.unlinkSync(path.join(__dirname, '..', '/assets/uploads/', element.path))
-        }
-      })
-      if (err) return res.send(err)
-      return res.json({
-        success: true,
-      })
-    })
-  })
-
-  // this is our delete method
-  // this method removes existing data in our database
-  ProtectedRoutes.route('/delete-image/:id').post(async function (req, res, next) {
-    const { image, name } = req.body
-    const { id } = req.params
-
-    Data.findByIdAndUpdate({ _id: id }, { $pull: { imageName: { id: image } } }, { new: true }, (err, result) => {
-      try {
-        fs.unlinkSync(path.join(__dirname, '..', '/assets/uploads/', name))
-      } catch (error) {
-        return res.json({
-          success: false,
-          message: error,
-        })
-      }
-      if (err) return res.send(err)
-      return res.json({
-        success: true,
-      })
-    })
-  })
-
-  // this is our delete method
-  // this method removes existing data in our database
   ProtectedRoutes.route('/delete-comment/:id').post(async function (req, res) {
     const { id } = req.params
     const { commentId } = req.body
@@ -1229,94 +1111,6 @@ if (cluster.isPrimary) {
   })
 
   // this is our create method
-  // this method adds new data in our database
-  ProtectedRoutes.post('/new-issue', async function (req, res, uuid) {
-    const { errors, isValid } = validateInput(req.body.data)
-    // Check Validation
-    if (!isValid) {
-      // If any errors, send 400 with errors object
-      return res.status(400).json(errors)
-    }
-
-    let fileData = {
-      path: '',
-      id: '',
-      preview: '',
-    }
-
-    let fileArray = []
-
-    const data = new Data()
-    data.name = req.body.data.name
-    data.delegated = req.body.data.delegated
-    data.reporter = req.body.data.reporter_id
-    data.description = req.body.data.description
-    data.category = req.body.data.category
-    data.environment = req.body.data.environment
-    data.step_reproduce = req.body.data.step_reproduce
-    data.summary = req.body.data.summary
-    data.browser = req.body.data.browser
-    data.visual = req.body.data.visual
-    data.reproduce = req.body.data.reproduce
-    data.severity = req.body.data.severity
-    data.priority = req.body.data.priority
-    data.userid = req.body.data.userid
-    //console.log(Object.keys(req.body.data.imageName).length);
-
-    /*if(req.body.data.imageName[1][0].name.length > 1) {
-    req.body.data.imageName[1][0].name.forEach((element) => {
-        fileData.id = element.id;
-        fileData.path = element.path;
-        fileData.preview = element.preview;
-        fileArray.push(fileData);
-        fileData = {
-          path: "",
-          id: "",
-          preview: "",
-        };
-    });
-    console.log(fileArray);
-  }*/
-    console.log('IMAGE ISSUE', JSON.stringify(req.body.data.imageName))
-
-    if (req.body.data.imageName !== 'none') {
-      data.imageName = req.body.data.imageName[0].name.length > 1 ? req.body.data.imageName[0].name : 'none'
-    }
-    data.save((err) => {
-      if (err) {
-        return res.status(400).json({
-          success: false,
-          error: err,
-        })
-      }
-      return res.status(200).json({
-        success: true,
-        document: data,
-      })
-    })
-  })
-
-  // this is our add image to issue method
-  // this method adds new image(s) to existing issue
-  ProtectedRoutes.route('/issue/add-image').post(async function (req, res) {
-    Data.updateOne(
-      { _id: req.body.issueID },
-      { $push: { imageName: req.body.name.fileArray } },
-      function (err, result) {
-        if (err) {
-          res.json({
-            success: false,
-          })
-        } else {
-          res.json({
-            success: true,
-          })
-        }
-      }
-    )
-  })
-
-  // this is our create method
   ProtectedRoutes.post('/issue/comments/:id', async function (req, res) {
     /*  const { errors, isValid } = validateCommentInput(req.body);
   // Check Validation
@@ -1358,8 +1152,6 @@ if (cluster.isPrimary) {
   })
 
   // api routes
-  app.use('/accounts', AccountController)
-
   // append /api for our http requests
   app.use('/api', ProtectedRoutes)
 

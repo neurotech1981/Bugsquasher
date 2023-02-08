@@ -32,19 +32,19 @@ const socket = socketIO.connect('http://127.0.0.1:4000/', {
 const theme = createTheme({
   typography: {
     fontFamily: [
-      "IBM Plex Mono",
-      "Sora",
-      "Manrope",
-      "Lato",
-      "Inter",
-      "Roboto",
-      "Space Mono",
-      "Helvetica Neue",
-      "Arial",
-      "sans-serif",
-    ].join(","),
+      'Manrope',
+      'IBM Plex Mono',
+      'Sora',
+      'Lato',
+      'Inter',
+      'Roboto',
+      'Space Mono',
+      'Helvetica Neue',
+      'Arial',
+      'sans-serif',
+    ].join(','),
   },
-});
+})
 
 
 const App = () => {

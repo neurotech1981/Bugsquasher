@@ -9,7 +9,7 @@ export const registerUser = async (user) => {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(user)
+      body: JSON.stringify(user),
     })
     return response.json()
   } catch (err) {
@@ -25,7 +25,7 @@ export const forgotPassword = async (email) => {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(email)
+      body: JSON.stringify(email),
     })
     return response.json()
   } catch (err) {
@@ -40,9 +40,9 @@ export const changePassword = async (token, password, passwordConfirm, credentia
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: credentials
+        Authorization: credentials,
       },
-      body: JSON.stringify(token, password, passwordConfirm)
+      body: JSON.stringify(token, password, passwordConfirm),
     })
     return response.json()
   } catch (err) {
@@ -50,16 +50,16 @@ export const changePassword = async (token, password, passwordConfirm, credentia
   }
 }
 
-export const changePasswordProfile = async (_id, password, passwordConfirm,credentials) => {
+export const changePasswordProfile = async (_id, password, passwordConfirm, credentials) => {
   try {
     const response = await fetch('/api/change-password/', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: credentials
+        Authorization: credentials,
       },
-      body: JSON.stringify(_id, password, passwordConfirm)
+      body: JSON.stringify(_id, password, passwordConfirm),
     })
     return response.json()
   } catch (err) {
@@ -69,13 +69,14 @@ export const changePasswordProfile = async (_id, password, passwordConfirm,crede
 
 export const getUsers = async (credentials) => {
   try {
+    console.log('Credentials in getUsers: ', credentials)
     const response = await fetch('/api/userslist/', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: credentials
-      }
+        Authorization: credentials.t,
+      },
     })
     return response.json()
   } catch (err) {
@@ -85,13 +86,12 @@ export const getUsers = async (credentials) => {
 
 export const findUserProfile = async (params, credentials) => {
   try {
-    console.log("USERID >>>>>> ", params.userId);
     const response = await fetch('/api/users/' + params.userId, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: credentials
+        Authorization: credentials.t,
       },
     })
     return response.json()
@@ -120,17 +120,17 @@ export const findUserProfile = async (params, credentials) => {
 
 export const deleteUser = async (params, credentials) => {
   try {
-      await axios.delete('/api/removeUser', {
+    await axios.delete('/api/removeUser', {
       data: {
-        _id: params.userId
+        _id: params.userId,
       },
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: credentials
+        Authorization: credentials,
       },
     })
   } catch (err) {
-    return console.error("Something went wrong: ", err)
+    return console.error('Something went wrong: ', err)
   }
 }

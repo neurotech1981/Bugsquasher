@@ -1,162 +1,168 @@
 import {
-  Avatar, Box, Button, Collapse, Divider, Grid, IconButton, Tooltip, List, ListItem, ListItemText, Snackbar, TextField, Typography, Zoom
-} from "@material-ui/core";
-import { alpha, makeStyles } from "@material-ui/core/styles";
-import EditIcon from '@material-ui/icons/Edit';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
-import PersonPinIcon from "@material-ui/icons/PersonPin";
+  Avatar,
+  Box,
+  Button,
+  Collapse,
+  Divider,
+  Grid,
+  IconButton,
+  Tooltip,
+  List,
+  ListItem,
+  ListItemText,
+  Snackbar,
+  TextField,
+  Typography,
+  Zoom,
+} from '@material-ui/core'
+import { alpha, makeStyles } from '@material-ui/core/styles'
+import EditIcon from '@material-ui/icons/Edit'
+import ExpandLess from '@material-ui/icons/ExpandLess'
+import ExpandMore from '@material-ui/icons/ExpandMore'
+import PersonPinIcon from '@material-ui/icons/PersonPin'
 //import QueryBuilderIcon from "@material-ui/icons/QueryBuilder";
-import ReplyIcon from '@material-ui/icons/Reply';
-import { AlertTitle } from '@material-ui/lab';
-import MuiAlert from '@material-ui/lab/Alert';
-import { randAvatar } from '@ngneat/falso';
-import moment from "moment";
-import React, { useEffect, useState } from "react";
-import issueService from "../../services/issueService";
-import auth from "../auth/auth-helper";
-import DeleteCommentDialog from "../Dialogs/DeleteComment";
-import DeleteCommentReplyDialog from "../Dialogs/DeleteCommentReply";
+import ReplyIcon from '@material-ui/icons/Reply'
+import { AlertTitle } from '@material-ui/lab'
+import MuiAlert from '@material-ui/lab/Alert'
+import { randAvatar } from '@ngneat/falso'
+import moment from 'moment'
+import React, { useEffect, useState } from 'react'
+import issueService from '../../services/issueService'
+import auth from '../auth/auth-helper'
+import DeleteCommentDialog from '../Dialogs/DeleteComment'
+import DeleteCommentReplyDialog from '../Dialogs/DeleteCommentReply'
 
-function Alert (props) {
+function Alert(props) {
   // eslint-disable-next-line react/jsx-props-no-spreading
   return <MuiAlert elevation={0} variant="filled" {...props} />
 }
 
-const formattedDate = (value) => moment(value).format("DD/MM-YYYY HH:mm");
-
+const formattedDate = (value) => moment(value).format('DD/MM-YYYY HH:mm')
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%",
+    width: '100%',
     backgroundColor: theme.palette.background.paper,
-    borderRadius: "1rem",
+    borderRadius: '1rem',
   },
   commentField: {
-    minWidth: "90%",
-    backgroundColor: "white",
+    minWidth: '90%',
+    backgroundColor: 'white',
   },
   fontName: {
-    fontWeight: "bold",
-    color: "black",
-    verticalAlign: "middle",
+    fontWeight: 'bold',
+    color: 'black',
+    verticalAlign: 'middle',
   },
   fontEmail: {
-    color: "black",
-    fontSize: "0.8em",
-    verticalAlign: "middle",
+    color: 'black',
+    fontSize: '0.8em',
+    verticalAlign: 'middle',
   },
   commentIndent: {
     marginLeft: 20,
-    paddingLeft: "20px",
+    paddingLeft: '20px',
     //borderLeft: `2px solid ${alpha(theme.palette.text.primary, 0.4)}`,
   },
   indent: {
     marginLeft: 20,
-    paddingLeft: "12px",
+    paddingLeft: '12px',
     borderLeft: `2px solid ${alpha(theme.palette.text.primary, 0.4)}`,
   },
   inline: {
-    display: "inline",
+    display: 'inline',
   },
   fontBody: {
-    color: "black",
-    verticalAlign: "middle",
-    overflowWrap: "break-word",
+    color: 'black',
+    verticalAlign: 'middle',
+    overflowWrap: 'break-word',
   },
   iconDate: {
-    fontSize: "1.0rem",
-    verticalAlign: "sub",
-    fontWeight: "bold",
-    marginRight: "5px",
+    fontSize: '1.0rem',
+    verticalAlign: 'sub',
+    fontWeight: 'bold',
+    marginRight: '5px',
   },
-}));
+}))
 
 const Comments = ({ comments, issueID, userID }) => {
-
-  const jwt = auth.isAuthenticated();
-  const [hidden, setHidden] = useState({});
-  const [hiddenEdit, setHiddenEdit] = useState({});
-  const [reply, setReply] = useState("");
-  const [comment, setComments] = useState([]);
-  const [message, setMessage] = useState("");
+  const jwt = auth.isAuthenticated()
+  const [hidden, setHidden] = useState({})
+  const [hiddenEdit, setHiddenEdit] = useState({})
+  const [reply, setReply] = useState('')
+  const [comment, setComments] = useState([])
+  const [message, setMessage] = useState('')
   const [open, setOpen] = useState(false)
-  const [collapseComments, setCollapseComments] = useState(true);
-  const [collapseCommentReply, setCollapseCommentReply] = useState("");
-  const [hiddenReply, setHiddenReply] = useState({});
+  const [collapseComments, setCollapseComments] = useState(true)
+  const [collapseCommentReply, setCollapseCommentReply] = useState('')
+  const [hiddenReply, setHiddenReply] = useState({})
   //const [commentUpdate, setCommentUpdate] = useState("");
 
   const pull_data = (data) => {
-    setMessage("Kommentaren din ble slettet");
-    setOpen(true);
+    setMessage('Kommentaren din ble slettet')
+    setOpen(true)
     setComments(data)
-  };
+  }
 
   const pull_data_reply = (data) => {
-    setMessage("Svaret ditt ble slettet");
-    setOpen(true);
-    setComments(data);
-  };
+    setMessage('Svaret ditt ble slettet')
+    setOpen(true)
+    setComments(data)
+  }
 
-  const toggleHide = index => {
-    setHidden({ ...hidden, [index]: !hidden[index] });
-  };
+  const toggleHide = (index) => {
+    setHidden({ ...hidden, [index]: !hidden[index] })
+  }
 
   const toggleHideCommentEdit = (index) => {
-    setHiddenEdit({ ...hiddenEdit, [index]: !hiddenEdit[index] });
-  };
+    setHiddenEdit({ ...hiddenEdit, [index]: !hiddenEdit[index] })
+  }
 
-  const toggleHideReply = index => {
-    setHiddenReply({ ...hiddenReply, [index]: !hiddenReply[index] });
-  };
+  const toggleHideReply = (index) => {
+    setHiddenReply({ ...hiddenReply, [index]: !hiddenReply[index] })
+  }
 
   const handleChange = (event) => {
-      setReply(event.target.value);
-  };
+    setReply(event.target.value)
+  }
 
   const handleChangeComment = (id, e) => {
     setComments((prevState) => {
       return prevState.map((item) => {
-        if (item._id === id)
-          return { ...item, content: e.target.value };
-          return item;
-      });
-    });
-  };
+        if (item._id === id) return { ...item, content: e.target.value }
+        return item
+      })
+    })
+  }
 
-
-  const handleChangeCommentReplies = (
-    e,
-    commentChildIndex,
-    commentIndex
-  ) => {
+  const handleChangeCommentReplies = (e, commentChildIndex, commentIndex) => {
     setComments(
       comment.map((x, index) => {
-        if (index !== commentIndex) return x;
+        if (index !== commentIndex) return x
         x.comments = x.comments.map((subItem, subIndex) => {
-          if (subIndex !== commentChildIndex) return subItem;
+          if (subIndex !== commentChildIndex) return subItem
           return {
             ...subItem,
             content: e.target.value,
-          };
-        });
+          }
+        })
 
-        return x;
+        return x
       })
-    );
-  };
+    )
+  }
 
   const handleClickCommentCollapse = () => {
-    setCollapseComments(!collapseComments);
-  };
+    setCollapseComments(!collapseComments)
+  }
 
-  const handleClickCommentReplyCollapse = index => {
-        if (collapseCommentReply === index) {
-          setCollapseCommentReply("");
-        } else {
-          setCollapseCommentReply(index);
-        }
-  };
+  const handleClickCommentReplyCollapse = (index) => {
+    if (collapseCommentReply === index) {
+      setCollapseCommentReply('')
+    } else {
+      setCollapseCommentReply(index)
+    }
+  }
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -166,110 +172,93 @@ const Comments = ({ comments, issueID, userID }) => {
   }
 
   const SuccessAlert = () => (
-    <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+    <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
       <Alert onClose={handleClose} severity="success" variant="filled">
         <AlertTitle>Suksess</AlertTitle>
         {message}
       </Alert>
     </Snackbar>
-  );
+  )
 
   useEffect(() => {
-    setComments(comments);
-  }, [comments]);
+    setComments(comments)
+  }, [comments])
 
   const submitReply = (e, commentID, index, indexInput) => {
-    const jwt = auth.isAuthenticated();
-    console.log(userID);
-    setMessage("Svaret ble lagt til");
+    const jwt = auth.isAuthenticated()
+    console.log(userID)
+    setMessage('Svaret ble lagt til')
     issueService
       .addCommentReply(userID, reply, jwt.token, issueID, commentID, index)
       .then((data) => {
-        setComments(data.data.response[0].comments);
+        setComments(data.data.response[0].comments)
         if (data.data.success) {
-          console.log(data.data.response[0].comments);
-          setOpen(true);
-          setReply("");
-          toggleHideReply(index - 1);
-          toggleHide(indexInput);
+          console.log(data.data.response[0].comments)
+          setOpen(true)
+          setReply('')
+          toggleHideReply(index - 1)
+          toggleHide(indexInput)
 
-          e.preventDefault();
-          e.stopPropagation();
+          e.preventDefault()
+          e.stopPropagation()
         }
       })
       .catch((error) => {
-        console.log("Error", error);
-      });
-  };
+        console.log('Error', error)
+      })
+  }
 
-    const submitCommentEdit = (e, commentID, newContent, index, reply) => {
-      const jwt = auth.isAuthenticated();
-      setMessage("Kommentar ble redigert");
-      issueService
-        .updateComment(
-          newContent,
-          issueID,
-          jwt.token,
-          commentID,
-          index
-        )
-        .then((data) => {
-          setComments(data.data.response[0].comments);
-          if (data.data.success) {
-            setOpen(true);
-            setReply("");
-            if(reply) {
-              toggleHideCommentEdit(commentID);
-            } else {
-              toggleHideCommentEdit(index);
-            }
-            e.preventDefault();
-            e.stopPropagation();
+  const submitCommentEdit = (e, commentID, newContent, index, reply) => {
+    const jwt = auth.isAuthenticated()
+    setMessage('Kommentar ble redigert')
+    issueService
+      .updateComment(newContent, issueID, jwt.token, commentID, index)
+      .then((data) => {
+        setComments(data.data.response[0].comments)
+        if (data.data.success) {
+          setOpen(true)
+          setReply('')
+          if (reply) {
+            toggleHideCommentEdit(commentID)
+          } else {
+            toggleHideCommentEdit(index)
           }
-        })
-        .catch((error) => {
-          console.log("Error", error);
-        });
-    };
+          e.preventDefault()
+          e.stopPropagation()
+        }
+      })
+      .catch((error) => {
+        console.log('Error', error)
+      })
+  }
 
-
-  const classes = useStyles();
+  const classes = useStyles()
   return (
     <>
-      <Typography component={"span"} variant={"subtitle1"}>
+      <Typography component={'span'} variant={'subtitle1'}>
         Kommentarer ({comment.length})
       </Typography>
       {SuccessAlert()}
-      <ListItem
-        button
-        onClick={handleClickCommentCollapse}
-        style={{ minWidth: "100vh", marginBottom: "2em" }}
-      >
+      <ListItem button onClick={handleClickCommentCollapse} style={{ minWidth: '100vh', marginBottom: '2em' }}>
         {collapseComments ? (
           <>
             <ExpandLess aria-label="Skjul" />
-            <Typography>{"Skjul kommentarer"}</Typography>
+            <Typography>{'Skjul kommentarer'}</Typography>
           </>
         ) : (
           <>
             <ExpandMore aria-label="Vis mer" />
-            <Typography>{"Vis kommentarer"}</Typography>
+            <Typography>{'Vis kommentarer'}</Typography>
           </>
         )}
       </ListItem>
       <Collapse in={collapseComments} timeout="auto" unmountOnExit>
         {comment.map((result, index) => {
-          let parentId = result._id;
-          let parentIndex = index;
+          let parentId = result._id
+          let parentIndex = index
           return (
             <React.Fragment key={index}>
-              <Grid
-                justifyContent="flex-start"
-                container
-                wrap="nowrap"
-                spacing={1}
-                key={result._id}
-              >
+              <Grid justifyContent="flex-start" container wrap="nowrap" spacing={1} key={result._id}>
                 <Grid item>
                   <Avatar alt="Profil bilde" src={randAvatar()} />
                 </Grid>
@@ -277,50 +266,29 @@ const Comments = ({ comments, issueID, userID }) => {
                   {result.author.name}
                   {result.author._id === jwt.user._id ? (
                     <>
-                      <IconButton
-                        size="small"
-                        aria-label="delete"
-                        color="secondary"
-                      >
-                        <DeleteCommentDialog
-                          func={pull_data}
-                          commentId={result._id}
-                          id={issueID}
-                        />
+                      <IconButton size="small" aria-label="delete" color="secondary">
+                        <DeleteCommentDialog func={pull_data} commentId={result._id} id={issueID} />
                       </IconButton>
-                      <IconButton
-                        size="small"
-                        aria-label="edit"
-                        color="primary"
-                        style={{ verticalAlign: "top" }}
-                      >
+                      <IconButton size="small" aria-label="edit" color="primary" style={{ verticalAlign: 'top' }}>
                         <Tooltip title="Rediger">
-                          <EditIcon
-                            key={index}
-                            onClick={() => toggleHideCommentEdit(index)}
-                          />
+                          <EditIcon key={index} onClick={() => toggleHideCommentEdit(index)} />
                         </Tooltip>
                       </IconButton>
                     </>
                   ) : (
                     <IconButton size="small" aria-label="reply" color="primary">
-                      <ReplyIcon
-                        key={index}
-                        onClick={() => toggleHide(index)}
-                      />
+                      <ReplyIcon key={index} onClick={() => toggleHide(index)} />
                     </IconButton>
                   )}
                   {!hiddenEdit[index] && (
                     <>
-                      <p style={{ textAlign: "left" }}>{result.content} </p>
-                      <p style={{ textAlign: "left", color: "gray" }}>
-                        postet {formattedDate(result.updatedAt)}
-                      </p>
+                      <p style={{ textAlign: 'left' }}>{result.content} </p>
+                      <p style={{ textAlign: 'left', color: 'gray' }}>postet {formattedDate(result.updatedAt)}</p>
                     </>
                   )}
                   {!!hiddenEdit[index] && (
                     <Zoom in={hiddenEdit[index]}>
-                      <div key={index} style={{ textAlign: "start" }}>
+                      <div key={index} style={{ textAlign: 'start' }}>
                         <TextField
                           id="content"
                           name="content"
@@ -330,24 +298,16 @@ const Comments = ({ comments, issueID, userID }) => {
                           multiline={true}
                           rows={2}
                           onChange={(e) => handleChangeComment(result._id, e)}
-                          value={comment.find(i => i._id === result._id).content}
+                          value={comment.find((i) => i._id === result._id).content}
                           variant="outlined"
                         />
                         <Box mt={1} mb={3}>
-                          <Typography component={"p"} variant={"subtitle1"}>
+                          <Typography component={'p'} variant={'subtitle1'}>
                             <Button
-                              style={{ marginRight: "1em" }}
+                              style={{ marginRight: '1em' }}
                               variant="contained"
                               color="primary"
-                              onClick={(e) =>
-                                submitCommentEdit(
-                                  e,
-                                  result._id,
-                                  comment[index],
-                                  index,
-                                  false
-                                )
-                              }
+                              onClick={(e) => submitCommentEdit(e, result._id, comment[index], index, false)}
                             >
                               Oppdater
                             </Button>
@@ -366,7 +326,7 @@ const Comments = ({ comments, issueID, userID }) => {
                   )}
                   {!!hidden[index] && (
                     <Zoom in={hidden[index]}>
-                      <div key={index} style={{ textAlign: "start" }}>
+                      <div key={index} style={{ textAlign: 'start' }}>
                         <TextField
                           id="outlined-basic"
                           key={index}
@@ -378,14 +338,12 @@ const Comments = ({ comments, issueID, userID }) => {
                           onChange={(e) => handleChange(e)}
                         />
                         <Box mt={1} mb={3}>
-                          <Typography component={"p"} variant={"subtitle1"}>
+                          <Typography component={'p'} variant={'subtitle1'}>
                             <Button
-                              style={{ marginRight: "1em" }}
+                              style={{ marginRight: '1em' }}
                               variant="contained"
                               color="primary"
-                              onClick={(e) =>
-                                submitReply(e, result._id, 0, index)
-                              }
+                              onClick={(e) => submitReply(e, result._id, 0, index)}
                             >
                               Svar
                             </Button>
@@ -409,57 +367,35 @@ const Comments = ({ comments, issueID, userID }) => {
                   button
                   key={index}
                   onClick={() => {
-                    handleClickCommentReplyCollapse(index);
+                    handleClickCommentReplyCollapse(index)
                   }}
-                  style={{ minWidth: "100vh", marginBottom: "0.5em" }}
+                  style={{ minWidth: '100vh', marginBottom: '0.5em' }}
                 >
                   {index === collapseCommentReply ? (
                     <>
                       <ExpandLess aria-label="Skjul" />
-                      <Typography>
-                        {"Skjul svar" + " (" + result.comments.length + ")"}
-                      </Typography>
+                      <Typography>{'Skjul svar' + ' (' + result.comments.length + ')'}</Typography>
                     </>
                   ) : (
                     <>
                       <ExpandMore aria-label="Vis mer" />
-                      <Typography>
-                        {"Vis svar" + " (" + result.comments.length + ")"}
-                      </Typography>
+                      <Typography>{'Vis svar' + ' (' + result.comments.length + ')'}</Typography>
                     </>
                   )}
                 </ListItem>
               )}
-              <Collapse
-                in={index === collapseCommentReply}
-                timeout="auto"
-                unmountOnExit
-              >
+              <Collapse in={index === collapseCommentReply} timeout="auto" unmountOnExit>
                 {result.comments?.map((result, index) => {
-
                   return (
                     <>
-                      <Grid
-                        className={classes.commentIndent}
-                        item
-                        xs
-                        zeroMinWidth
-                        key={result._id}
-                      >
+                      <Grid className={classes.commentIndent} item xs zeroMinWidth key={result._id}>
                         <Grid item>
-                          <List
-                            style={{ textAlign: "left", color: "gray" }}
-                            className={classes.commentIndent}
-                          >
+                          <List style={{ textAlign: 'left', color: 'gray' }} className={classes.commentIndent}>
                             <PersonPinIcon className={classes.iconDate} />
                             {result.author.name}
                             {result.author._id === jwt.user._id ? (
                               <>
-                                <IconButton
-                                  size="small"
-                                  aria-label="delete"
-                                  color="secondary"
-                                >
+                                <IconButton size="small" aria-label="delete" color="secondary">
                                   <DeleteCommentReplyDialog
                                     func_reply={pull_data_reply}
                                     parentId={parentId}
@@ -471,26 +407,14 @@ const Comments = ({ comments, issueID, userID }) => {
                                   size="small"
                                   aria-label="delete"
                                   color="primary"
-                                  style={{ verticalAlign: "top" }}
+                                  style={{ verticalAlign: 'top' }}
                                 >
-                                  <EditIcon
-                                    key={result._id}
-                                    onClick={() =>
-                                      toggleHideCommentEdit(result._id)
-                                    }
-                                  />
+                                  <EditIcon key={result._id} onClick={() => toggleHideCommentEdit(result._id)} />
                                 </IconButton>
                               </>
                             ) : (
-                              <IconButton
-                                size="small"
-                                aria-label="delete"
-                                color="primary"
-                              >
-                                <ReplyIcon
-                                  key={result._id}
-                                  onClick={() => toggleHideReply(result._id)}
-                                />
+                              <IconButton size="small" aria-label="delete" color="primary">
+                                <ReplyIcon key={result._id} onClick={() => toggleHideReply(result._id)} />
                               </IconButton>
                             )}
                             <ListItemText>
@@ -498,17 +422,17 @@ const Comments = ({ comments, issueID, userID }) => {
                                 <>
                                   <p
                                     style={{
-                                      textAlign: "left",
-                                      color: "black",
+                                      textAlign: 'left',
+                                      color: 'black',
                                     }}
                                   >
-                                    {result.content}{" "}
+                                    {result.content}{' '}
                                   </p>
                                   <p
                                     style={{
-                                      textAlign: "left",
-                                      color: "gray",
-                                      fontSize: "0.875rem",
+                                      textAlign: 'left',
+                                      color: 'gray',
+                                      fontSize: '0.875rem',
                                     }}
                                   >
                                     postet {formattedDate(result.updatedAt)}
@@ -518,10 +442,7 @@ const Comments = ({ comments, issueID, userID }) => {
 
                               {!!hiddenEdit[result._id] && (
                                 <Zoom in={hiddenEdit[result._id]}>
-                                  <div
-                                    key={index}
-                                    style={{ textAlign: "start" }}
-                                  >
+                                  <div key={index} style={{ textAlign: 'start' }}>
                                     <TextField
                                       id="content"
                                       name="content"
@@ -534,25 +455,16 @@ const Comments = ({ comments, issueID, userID }) => {
                                       value={
                                         comment.find((i) => {
                                           if (i._id === parentId) {
-                                            return i.comments[0];
+                                            return i.comments[0]
                                           }
                                         }).comments[index].content
                                       }
-                                      onChange={(e) =>
-                                        handleChangeCommentReplies(
-                                          e,
-                                          index,
-                                          parentIndex
-                                        )
-                                      }
+                                      onChange={(e) => handleChangeCommentReplies(e, index, parentIndex)}
                                     />
                                     <Box mt={1} mb={3}>
-                                      <Typography
-                                        component={"p"}
-                                        variant={"subtitle1"}
-                                      >
+                                      <Typography component={'p'} variant={'subtitle1'}>
                                         <Button
-                                          style={{ marginRight: "1em" }}
+                                          style={{ marginRight: '1em' }}
                                           variant="contained"
                                           color="primary"
                                           onClick={(e) =>
@@ -571,9 +483,7 @@ const Comments = ({ comments, issueID, userID }) => {
                                           key={result._id}
                                           variant="contained"
                                           color="secondary"
-                                          onClick={() =>
-                                            toggleHideCommentEdit(result._id)
-                                          }
+                                          onClick={() => toggleHideCommentEdit(result._id)}
                                         >
                                           Avbryt
                                         </Button>
@@ -584,10 +494,7 @@ const Comments = ({ comments, issueID, userID }) => {
                               )}
                               {!!hiddenReply[result._id] && (
                                 <Zoom in={hiddenReply[result._id]}>
-                                  <div
-                                    key={index}
-                                    style={{ paddingTop: "1em" }}
-                                  >
+                                  <div key={index} style={{ paddingTop: '1em' }}>
                                     <TextField
                                       id="outlined-basic"
                                       key={index}
@@ -596,23 +503,16 @@ const Comments = ({ comments, issueID, userID }) => {
                                       variant="outlined"
                                       multiline={true}
                                       rows={2}
-                                      defaultValue={
-                                        "@" + result.author.name + " "
-                                      }
+                                      defaultValue={'@' + result.author.name + ' '}
                                       onChange={(e) => handleChange(e)}
                                     />
                                     <Box mt={1}>
-                                      <Typography
-                                        component={"p"}
-                                        variant={"subtitle"}
-                                      >
+                                      <Typography component={'p'} variant={'subtitle'}>
                                         <Button
-                                          style={{ marginRight: "1em" }}
+                                          style={{ marginRight: '1em' }}
                                           variant="contained"
                                           color="primary"
-                                          onClick={(e) =>
-                                            submitReply(e, parentId, index + 1)
-                                          }
+                                          onClick={(e) => submitReply(e, parentId, index + 1)}
                                         >
                                           Svar
                                         </Button>
@@ -620,9 +520,7 @@ const Comments = ({ comments, issueID, userID }) => {
                                           key={index}
                                           variant="contained"
                                           color="secondary"
-                                          onClick={() =>
-                                            toggleHideReply(result._id)
-                                          }
+                                          onClick={() => toggleHideReply(result._id)}
                                         >
                                           Avbryt
                                         </Button>
@@ -636,16 +534,16 @@ const Comments = ({ comments, issueID, userID }) => {
                         </Grid>
                       </Grid>
                     </>
-                  );
+                  )
                 })}
               </Collapse>
-              <Divider variant="fullWidth" style={{ margin: "10px 0" }} />
+              <Divider variant="fullWidth" style={{ margin: '10px 0' }} />
             </React.Fragment>
-          );
+          )
         })}
       </Collapse>
     </>
-  );
-};
+  )
+}
 
-export default Comments;
+export default Comments

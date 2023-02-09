@@ -158,7 +158,6 @@ function Previews(props) {
     /* eslint-disable no-unused-vars */
     await new Promise((resolve, reject) => {
       const imageFormObj = new FormData()
-      console.log('I M A G E S : ', images)
       for (let x = 0; x < acceptedFiles.length; x++) {
         imageFormObj.append('imageData', images.state.imageupload[1][0].name[x])
       }
@@ -171,7 +170,7 @@ function Previews(props) {
       let fileArray = []
 
       let id = issueID
-      console.log('TOKEN : ', token)
+
       axios
         .post('/api/uploadImage', imageFormObj, {
           headers: { Authorization: token, 'Content-Type': 'multipart/form-data' },
@@ -197,9 +196,11 @@ function Previews(props) {
             })
             console.log('File Array >>>', fileArray)
 
-            addImage([{
-              name: fileArray
-            }]);
+            addImage([
+              {
+                name: fileArray,
+              },
+            ])
 
             /*addImage([
               {
@@ -218,7 +219,7 @@ function Previews(props) {
               setTimeout(function () {
                 clearStoreImage(clearAction)
                 setProgress(0)
-                setFiles([])
+                //setFiles([])
               }, 2000)
             }
           }

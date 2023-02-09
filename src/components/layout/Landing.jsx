@@ -37,7 +37,6 @@ import {
 } from "../../variables/charts.js";
 
 import styles from "../../assets/styles/dashboardStyle.js";
-import { Button } from "@material-ui/core";
 
 const useStyles = makeStyles(styles);
 
@@ -231,9 +230,6 @@ function Landing() {
     }
   };
 
-    const notify = () => toast('Wow so easy!')
-
-
   return (
     <div className={classes.root}>
       <GridContainer>
@@ -316,7 +312,7 @@ function Landing() {
           </Card>
         </GridItem>
       </GridContainer>
-      <GridContainer>
+      <GridContainer sx={{ pt: 2 }}>
         <GridItem xs={12} sm={12} md={4}>
           <Card chart>
             <CardHeader>

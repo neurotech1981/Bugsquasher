@@ -64,7 +64,7 @@ const dailySalesChart = {
 const emailsSubscriptionChart = {
   options: {
     axisX: {
-      showGrid: true,
+      showGrid: false,
     },
     low: 0,
     high: 100,

@@ -9,18 +9,18 @@ import Grid from "@material-ui/core/Grid";
 const useStyles = makeStyles((styles) => ({
   //const styles =  {
   grid: {
-    width: "100%",
-    marginTop: "100px !important",
-    marginRight: "100px !important",
-    margin: "0 auto",
-    [styles.breakpoints.up("sm")]: {
-      width: "80%",
-      marginTop: "100px !important",
-      marginRight: "100px !important",
-      margin: "0 auto",
+    width: '100%',
+    marginRight: '100px !important',
+    marginTop: '16px !important',
+    margin: '0 auto',
+    [styles.breakpoints.up('sm')]: {
+      width: '80%',
+      marginRight: '100px !important',
+      marginTop: '16px !important',
+      margin: '0 auto',
     },
   },
-}));
+}))
 
 export default function GridContainer(props) {
   const classes = useStyles();

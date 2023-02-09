@@ -202,7 +202,6 @@ export default function ViewIssue(props) {
   const history = useHistory()
 
   const pull_data = (data) => {
-    console.log('pull data')
     let array = [...images]
     if (data !== -1) {
       array.splice(data, 1)
@@ -211,12 +210,10 @@ export default function ViewIssue(props) {
   }
 
   const image_changes = (data) => {
-    console.log('changes', data)
     let array = [...images]
     data.forEach((element) => {
       array.push(element)
     })
-    //array.push(data)
     setImages(array)
   }
 
@@ -277,21 +274,18 @@ export default function ViewIssue(props) {
 
   const { id } = props.match.params
 
-  const getIssueByID = (id, token) => {
+  const getIssueByID = async (id, token) => {
     const res = issueService.getIssueByID(id, token)
-    res.then(function (result) {
+    await res.then(function (result) {
+      console.log('result: ', result.imageName)
+      setImages(result.imageName.length > 0 ? result.imageName : 'none')
       setData(result)
 
       let editorStateDesc = EditorState.createWithContent(convertFromRaw(JSON.parse(result.description)))
-
       setEditorStateDesc(editorStateDesc)
 
       let editorStateRep = EditorState.createWithContent(convertFromRaw(JSON.parse(result.step_reproduce)))
-
       setEditorStateRep(editorStateRep)
-
-
-      setImages(result.imageName.length > 0 ? result.imageName : [])
     })
   }
 
@@ -382,8 +376,10 @@ export default function ViewIssue(props) {
   )
 
   const ImageList = images.map((file, index) => {
-    console.log('file: ', file)
-    if (!file || file === 'none') return <div key={index}>Ingen vedlegg</div>
+    console.log('file 123: ', file, index)
+    if (file[0] === null || file === undefined || file === 'none') {
+      return <div key={index}>Ingen vedlegg</div>
+    }
 
     let path = file.path
     if (!file.path) path = file[0].path
@@ -531,7 +527,7 @@ export default function ViewIssue(props) {
               <InputLabel shrink htmlFor="select-multiple-native">
                 Vedlegg
               </InputLabel>
-              {ImageList}
+              {ImageList ? ImageList : <div>Ingen vedlegg</div>}
               <Previews imageBool={true} issueID={dataset._id} func_image={image_changes} />
             </div>
             <div className="item4">

@@ -6,7 +6,6 @@ import 'react-toastify/dist/ReactToastify.css'
 import openSocket from 'socket.io-client'
 
 const socket = openSocket('http://localhost:4000')
-
 import { makeStyles, createTheme, ThemeProvider, withStyles } from '@material-ui/core/styles'
 import issueService from '../../services/issueService'
 import Icon from '@material-ui/core/Icon'
@@ -24,11 +23,12 @@ import { Editor } from 'react-draft-wysiwyg'
 import htmlToDraft from 'html-to-draftjs'
 import MuiAlert from '@material-ui/lab/Alert'
 import { AlertTitle } from '@material-ui/lab'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Box from '@material-ui/core/Box'
 import Previews from './ImageUploader'
 import auth from '../auth/auth-helper'
 import { findUserProfile, getUsers } from '../utils/api-user'
+import { clearAction } from '../../redux/store'
 
 function Alert(props) {
   // eslint-disable-next-line react/jsx-props-no-spreading
@@ -302,6 +302,9 @@ export default function CreateIssue(props) {
   const [editorStateDesc, setEditorStateDesc] = useState(initState)
   const [editorStateRep, setEditorStateRep] = useState(initState)
 
+  const dispatch = useDispatch()
+  const clearStoreImage = (files) => dispatch(clearAction(files))
+
   const classes = useStyles()
   const [values, setValues] = useState(initialState)
   const [errors, setErrors] = useState('')
@@ -416,15 +419,17 @@ export default function CreateIssue(props) {
       .addIssue({ data }, jwt.token)
       .then((response) => {
         if (response.status === 200) {
+          setOpen(true)
+          clearState()
           console.log('Response on create issue: ', response.data)
           let issueData = {
             issue_id: response.data.document._id,
             reporter: userinfo.user.name,
           }
           socket.emit('new_issue', issueData, values.setDelegated)
-          clearStoreImage(clearAction)
           setTimeout(function () {
-            props.history.push('/saker/' + issueData.issue_id)
+            clearStoreImage(clearAction)
+            props.history.push('/vis-sak/' + issueData.issue_id)
           }, 2000)
         }
       })

@@ -32,13 +32,13 @@ const socket = socketIO.connect('http://127.0.0.1:4000/', {
 const theme = createTheme({
   typography: {
     fontFamily: [
-      'Manrope',
+      'Space Mono',
       'IBM Plex Mono',
       'Sora',
+      'Manrope',
       'Lato',
-      'Inter',
       'Roboto',
-      'Space Mono',
+      'Inter',
       'Helvetica Neue',
       'Arial',
       'sans-serif',

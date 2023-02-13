@@ -92,16 +92,17 @@ export const findUserProfile = (req, res) => {
 export async function changePassword(req, res, next) {
   console.log('Inside changePassword')
   console.log(JSON.stringify(req.body))
-  const account = await User.findOne({
+  const account = await User.findById({
     _id: req.body._id,
   })
 
   if (!account) throw 'Invalid ID'
+  console.log('Account', account)
 
   // update password and remove reset token
   account.hashedPassword = hash(req.body.password, account.salt)
   account.passwordReset = Date.now()
-  await account.save((err, result) => {
+  account.save((err, result) => {
     if (err) {
       return res.status(400).json({
         error: getErrorMessage(err),
@@ -111,7 +112,7 @@ export async function changePassword(req, res, next) {
       message: 'Passord ble endret',
     })
   })
-  next()
+  //next()
 }
 
 export async function forgotPassword({ email }, origin) {
@@ -136,7 +137,7 @@ export async function refreshToken({ token, ipAddress }) {
   const { account } = refreshToken
 
   // replace old refresh token with a new one and save
-  const newRefreshToken = generateRefreshToken(account, ipAddress)
+  const newRefreshToken = newRefreshToken(account, ipAddress)
   refreshToken.revoked = Date.now()
   refreshToken.revokedByIp = ipAddress
   refreshToken.replacedByToken = newRefreshToken.token

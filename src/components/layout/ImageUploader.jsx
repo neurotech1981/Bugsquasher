@@ -194,7 +194,6 @@ function Previews(props) {
                 id: '',
               }
             })
-            console.log('File Array >>>', fileArray)
 
             addImage([
               {
@@ -202,16 +201,7 @@ function Previews(props) {
               },
             ])
 
-            /*addImage([
-              {
-                name: images.imageupload[1][0].name.map((file) => file),
-              },
-            ])*/
-
-            console.log('Image BOOL', imageBool)
-            console.log('Image array', images)
             if (imageBool) {
-              //let image = images.imageupload[2][0].name;
               func_image(fileArray)
               issueService.addImageToIssue(id, { fileArray }, jwt.token).catch((e) => {
                 console.log('Error adding image to issue: ', e)
@@ -219,7 +209,8 @@ function Previews(props) {
               setTimeout(function () {
                 clearStoreImage(clearAction)
                 setProgress(0)
-                //setFiles([])
+                setFiles([])
+                setOpen(false);
               }, 2000)
             }
           }
@@ -233,7 +224,6 @@ function Previews(props) {
     accept: 'image/*',
     onDrop: (acceptedFiles) => {
       setFiles([])
-      console.log('Accepted files: ', acceptedFiles)
       clearStoreImage(clearAction)
       setFiles(
         acceptedFiles.map((file) =>
@@ -307,7 +297,7 @@ function Previews(props) {
             </Icon>
           </Button>
         </p>
-        <Snackbar open={open} onClose={handleClose} autohideduration={2000}>
+        <Snackbar open={open} autohideduration={2000} onClose={handleClose}>
           <Alert onClose={handleClose} severity="success" variant="filled">
             <AlertTitle>Suksess</AlertTitle>
             {files.length} {files.length > 0 ? 'bilder' : 'bilde'} ble lastet opp!

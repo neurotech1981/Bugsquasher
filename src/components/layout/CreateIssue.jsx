@@ -12,6 +12,7 @@ import Icon from '@material-ui/core/Icon'
 // eslint-disable-neAlertxt-line no-unused-vars
 import {
   EditorState,
+  AtomicBlockUtils,
   //convertFromRaw,
   convertToRaw,
   ContentState,
@@ -279,6 +280,7 @@ const theme = createTheme({
 
 export default function CreateIssue(props) {
   const { id } = useParams()
+  const jwt = auth.isAuthenticated()
 
   const initialState = {
     setID: 0,
@@ -294,13 +296,45 @@ export default function CreateIssue(props) {
     setImageName: [''],
   }
 
-  const contentBlock = htmlToDraft('')
-  const initState = contentBlock
-    ? EditorState.createWithContent(ContentState.createFromBlockArray(contentBlock.contentBlocks))
+  const contentBlockDescription = htmlToDraft(`
+      <h3>Description:</h3>
+      <p>[Enter a brief description of the problem or bug here]</p>
+      <h3>Screenshots:</h3>
+      <p>[Include relevant screenshots here, if applicable or upload them seperate]</p>
+
+      <h3>System Information:</h3>
+      <ul>
+        <li>OS: [Enter the operating system here]</li>
+        <li>Browser: [Enter the browser name and version here]</li>
+      </ul>
+
+      <h3>Additional context:</h3>
+      <p>[Enter any additional relevant information or context here, if applicable]</p>
+    `)
+
+  const contentBlockReproduce = htmlToDraft(`
+      <h3>Steps to Reproduce:</h3>
+      <ol>
+        <li>[Enter the first step to reproduce the issue]</li>
+        <li>[Enter the second step to reproduce the issue]</li>
+        <li>[Enter the third step to reproduce the issue]</li>
+        <li>[Enter the expected outcome or error]</li>
+      </ol>
+
+      <h3>Expected behavior:</h3>
+      <p>[Enter the expected behavior of the system here]</p>
+    `)
+
+  const initStateDescription = contentBlockDescription
+    ? EditorState.createWithContent(ContentState.createFromBlockArray(contentBlockDescription.contentBlocks))
     : EditorState.createEmpty()
 
-  const [editorStateDesc, setEditorStateDesc] = useState(initState)
-  const [editorStateRep, setEditorStateRep] = useState(initState)
+  const initStateStepReproduce = contentBlockReproduce
+    ? EditorState.createWithContent(ContentState.createFromBlockArray(contentBlockReproduce.contentBlocks))
+    : EditorState.createEmpty()
+
+  const [editorStateDesc, setEditorStateDesc] = useState(initStateDescription)
+  const [editorStateRep, setEditorStateRep] = useState(initStateStepReproduce)
 
   const dispatch = useDispatch()
   const clearStoreImage = (files) => dispatch(clearAction(files))
@@ -325,7 +359,6 @@ export default function CreateIssue(props) {
   const images = useSelector((state) => state)
 
   const init = (userId) => {
-    const jwt = auth.isAuthenticated()
     console.log('User ID: ', userId)
     findUserProfile(
       {
@@ -362,6 +395,38 @@ export default function CreateIssue(props) {
       ...values,
       [name]: event.target.value,
     })
+  }
+
+  const insertImage = (url) => {
+    const contentState = editorStateDesc.getCurrentContent()
+    const contentStateWithEntity = contentState.createEntity('IMAGE', 'MUTABLE', {
+      src: '/uploads/' + url,
+      height: '100%',
+      width: '70%',
+    })
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
+    const newEditorState = EditorState.set(editorStateDesc, { currentContent: contentStateWithEntity })
+    return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ')
+  }
+
+  const handlePastedFiles = (files, editor) => {
+    const formData = new FormData()
+    formData.append('imageData', files[0])
+    fetch('/api/uploadImage', {
+      method: 'POST',
+      body: formData,
+      headers: { Authorization: jwt.token },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data)
+        if (data[0]) {
+          setEditorStateDesc(insertImage(data[0].filename)) //created below
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
   }
 
   const errorAlert = (error) => (
@@ -698,15 +763,17 @@ export default function CreateIssue(props) {
                 wrapperClassName="wrapper"
                 toolbarClassName="toolbar"
                 editorClassName="editor"
+                handlePastedFiles={handlePastedFiles}
                 onEditorStateChange={onEditorStateChangeDesc}
                 toolbar={{
                   link: { inDropdown: true },
                   list: { inDropdown: true },
                   options: [
                     'fontFamily',
-                    'inline',
-                    'blockType',
                     'fontSize',
+                    'inline',
+                    'image',
+                    'blockType',
                     'list',
                     'image',
                     'textAlign',
@@ -750,6 +817,8 @@ export default function CreateIssue(props) {
                   padding: 10,
                   borderRadius: '0 0 0.5rem 0.5rem',
                 }}
+                onEditorStateChange={onEditorStateChangeRep}
+                handlePastedText={() => false}
                 toolbarStyle={{
                   borderRadius: '0.5rem 0.5rem 0 0',
                   marginBottom: '1px',
@@ -757,15 +826,15 @@ export default function CreateIssue(props) {
                 wrapperClassName="wrapper"
                 toolbarClassName="toolbar"
                 editorClassName="editor"
-                onEditorStateChange={onEditorStateChangeRep}
                 toolbar={{
                   link: { inDropdown: true },
                   list: { inDropdown: true },
                   options: [
                     'fontFamily',
+                    'fontSize',
+                    'image',
                     'inline',
                     'blockType',
-                    'fontSize',
                     'list',
                     'image',
                     'textAlign',
@@ -776,6 +845,19 @@ export default function CreateIssue(props) {
                     'remove',
                     'history',
                   ],
+                  image: {
+                    urlEnabled: true,
+                    uploadEnabled: true,
+                    alignmentEnabled: true,
+                    uploadCallback: undefined,
+                    previewImage: true,
+                    inputAccept: 'image/gif,image/jpeg,image/jpg,image/png,image/svg',
+                    alt: { present: false, mandatory: false },
+                    defaultSize: {
+                      height: '50%',
+                      width: '50%',
+                    },
+                  },
                   inline: {
                     options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace'],
                   },

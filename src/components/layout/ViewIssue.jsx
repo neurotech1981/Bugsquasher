@@ -1,9 +1,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react'
-import useReactRouter from 'use-react-router'
 import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core/styles'
-import { useSelector } from 'react-redux'
 import issueService from '../../services/issueService'
 import '../../App.css'
 import CommentForm from '../Comments/CommentForm'
@@ -610,10 +608,8 @@ export default function ViewIssue(props) {
                 editorStyle={{
                   minHeight: '400px',
                   padding: '1em',
-                  backgroundColor: 'white',
                   borderRadius: '0.5rem 0.5rem 0.5rem 0.5rem',
-                  boxShadow:
-                    '0.2px 0.1px 1.7px -5px rgba(0, 0, 0, 0.02), 0.5px 0.3px 4px -5px rgba(0, 0, 0, 0.028),0.9px 0.5px 7.5px -5px rgba(0, 0, 0, 0.035), 1.6px 0.9px 13.4px -5px rgba(0, 0, 0, 0.042),2.9px 1.7px 25.1px -5px rgba(0, 0, 0, 0.05),7px 4px 60px -5px rgba(0, 0, 0, 0.07)',
+                  border: '1px solid rgb(209 213 219 / 30%)',
                 }}
                 wrapperClassName="demo-wrapper"
                 toolbarClassName="flex sticky top-0 z-20 !justify-start"
@@ -661,10 +657,8 @@ export default function ViewIssue(props) {
                 editorStyle={{
                   minHeight: '400px',
                   padding: '2em',
-                  backgroundColor: 'white',
                   borderRadius: '0.5rem 0.5rem 0.5rem 0.5rem',
-                  boxShadow:
-                    '0.2px 0.1px 1.7px -5px rgba(0, 0, 0, 0.02), 0.5px 0.3px 4px -5px rgba(0, 0, 0, 0.028),0.9px 0.5px 7.5px -5px rgba(0, 0, 0, 0.035), 1.6px 0.9px 13.4px -5px rgba(0, 0, 0, 0.042),2.9px 1.7px 25.1px -5px rgba(0, 0, 0, 0.05),7px 4px 60px -5px rgba(0, 0, 0, 0.07)',
+                  border: '1px solid rgb(209 213 219 / 30%)',
                 }}
                 wrapperClassName="demo-wrapper"
                 toolbarClassName="flex sticky top-0 z-20 !justify-start"

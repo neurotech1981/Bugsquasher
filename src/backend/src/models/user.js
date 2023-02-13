@@ -1,39 +1,39 @@
-import mongoose from "mongoose";
-import bcrypt from "bcrypt";
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose'
+import bcrypt from 'bcrypt'
+const Schema = mongoose.Schema
 
-const saltRounds = 10;
+const saltRounds = 10
 
 const userSchema = new Schema({
   name: {
     type: String,
     trim: true,
-    required: "Brukernavn er påkrevd",
+    required: 'Brukernavn er påkrevd',
   },
   email: {
     type: String,
     trim: true,
-    unique: "E-posten eksisterer allerede",
-    match: [/.+\@.+\..+/, "Vennligst fyll ut en gyldig e-post"],
-    required: "E-post er påkrevd",
+    unique: 'E-posten eksisterer allerede',
+    match: [/.+\@.+\..+/, 'Vennligst fyll ut en gyldig e-post'],
+    required: 'E-post er påkrevd',
   },
   hashedPassword: {
     type: String,
     select: false,
-    required: "Passord er påkrevd",
+    required: 'Passord er påkrevd',
   },
   role: {
     type: String,
     // default: 'bruker',
-    enum: ["Bruker", "Admin"],
+    enum: ['Bruker', 'Admin'],
   },
   rights: {
     type: String,
-    enum: ["Les", "Skriv"],
+    enum: ['Les', 'Skriv'],
   },
   salt: {
     type: String,
-    select: false
+    select: true,
   },
   profileImage: {
     type: String,
@@ -41,12 +41,12 @@ const userSchema = new Schema({
   issues: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Data",
+      ref: 'Data',
     },
   ],
   verificationToken: {
     type: String,
-    select: false
+    select: false,
   },
   verified: Date,
   resetToken: {
@@ -57,45 +57,45 @@ const userSchema = new Schema({
   created: { type: Date, default: Date.now },
   updated: Date,
   socketId: String,
-});
+})
 
 userSchema
-  .virtual("password")
+  .virtual('password')
   .set(function (password) {
-    this._password = password;
-    this.salt = bcrypt.genSaltSync(saltRounds);
-    this.hashedPassword = this.encryptedPassword(password);
+    this._password = password
+    this.salt = bcrypt.genSaltSync(saltRounds)
+    this.hashedPassword = this.encryptedPassword(password)
   })
   .get(function () {
-    return this._password;
-  });
+    return this._password
+  })
 
 userSchema.methods = {
   authenticate: function (plainText) {
-    return this.encryptedPassword(plainText) === this.hashedPassword;
+    return this.encryptedPassword(plainText) === this.hashedPassword
   },
   encryptedPassword: function (password) {
-    if (!password) return "";
+    if (!password) return ''
     try {
-      const hashed = bcrypt.hashSync(password, this.salt);
-      return hashed;
+      const hashed = bcrypt.hashSync(password, this.salt)
+      return hashed
     } catch (err) {
-      return "";
+      return ''
     }
   },
   makeSalt: function () {
-    return Math.round(new Date().valueOf() * Math.random()) + "";
+    return Math.round(new Date().valueOf() * Math.random()) + ''
   },
-};
+}
 
 userSchema
-  .virtual("passwordConfirmation")
+  .virtual('passwordConfirmation')
   .get(function () {
-    return this._passwordConfirmation;
+    return this._passwordConfirmation
   })
   .set(function (value) {
-    this._passwordConfirmation = value;
-  });
+    this._passwordConfirmation = value
+  })
 
 // userSchema.path('hashedPassword').validate(function (v) {
 //  if (this.hashedPassword && this._password.length < 6) {
@@ -109,24 +109,24 @@ userSchema
 //  }
 // }, null)
 
-userSchema.virtual("isVerified").get(function () {
-  return !!(this.verified || this.passwordReset);
-});
+userSchema.virtual('isVerified').get(function () {
+  return !!(this.verified || this.passwordReset)
+})
 
-userSchema.set("toJSON", {
+userSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
   transform: function (doc, ret) {
     // remove these props when object is serialized
     // delete ret.hashedPassword;
-    delete ret.salt;
+    delete ret.salt
   },
-});
+})
 
 //module.exports = mongoose.model("User", userSchema);
 
-export default mongoose.model("User", userSchema);
+export default mongoose.model('User', userSchema)
 
 export function findByIdAndRemove(arg0, arg1) {
-  throw new Error("Function not implemented.");
+  throw new Error('Function not implemented.')
 }

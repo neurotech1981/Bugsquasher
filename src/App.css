@@ -11,7 +11,6 @@
 }
 
 body {
-  font-family: 'Space mono', sans-serif;
   background-color: #fbfbfb !important;
   background: url(./img/pattern6.webp) no-repeat center center fixed;
   -webkit-background-size: cover;
@@ -463,6 +462,8 @@ a:focus {
   position: fixed;
   /*right: 130px;*/
   /*right: 100px;*/
+  border-radius: 0 12px 12px 0px;
+  border: 1px solid rgb(209 213 219 / 30%);
   height: 100%;
   background-color: #fff;
   transition: right 0.5s;
@@ -471,7 +472,7 @@ a:focus {
 @media screen and (max-width: 768px) {
   .two-columns__aside {
     transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-    right: 346px;
+    right: 66px;
     top: 150px;
     z-index: 2;
   }
@@ -479,7 +480,7 @@ a:focus {
 
 .two-columns__main {
   grid-area: main;
-  min-width: 100% - 260px;
+  min-width: 100%;
   display: inline-block;
 }
 
@@ -518,15 +519,16 @@ summary {
 .two-columns__center {
   display: grid;
   padding-top: 90px;
-  grid-area: center;
+  grid-area: auto;
   grid-template-areas: "main";
   grid-template-columns: 100%;
-  grid-column-gap: 16px;
-  width: 50%;
+  /* grid-column-gap: 16px; */
+  width: 60%;
+  margin: 0 auto;
   grid-template-areas:
     "main aside"
     "main aside";
-  grid-template-columns: calc(147% - 40px) 350px 200px;
+  /* grid-template-columns: calc(147% - 40px) 350px 200px;*/
 }
 
 .MuiListItem-root {
@@ -536,22 +538,28 @@ summary {
 .side-menu {
   display: block;
   overflow-x: hidden;
-  backdrop-filter: blur(6px) saturate(180%);
-  -webkit-backdrop-filter: blur(6px) saturate(180%);
-  background-color: rgba(255, 255, 255, 1.0);
-  border-radius: 0px 12px 12px 0px;
-  border: 1px solid rgba(209, 213, 219, 0.3);
   overflow: hidden;
   min-height: 90vh;
-  box-shadow: rgb(145 158 171 / 24%) 0px 0px 2px 0px,
-    rgb(145 158 171 / 24%) 0px 16px 32px -4px;
-  transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
 }
 
 @media only screen and (max-width: 600px) {
   .side-menu {
     display: none;
   }
+  .two-columns__center {
+      /* display: grid; */
+      /* padding-top: 90px; */
+      /* grid-area: auto; */
+      /* grid-template-areas: "main"; */
+      grid-template-columns: 100%;
+      /* grid-column-gap: 16px; */
+      width: 100%;
+      /* margin: 0 auto; */
+      /* grid-template-areas:
+          "main aside"
+          "main aside"; */
+      /* transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; */
+    }
 }
 
 @media only screen and (max-width: 1024px) {

@@ -2,26 +2,29 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core/styles'
+import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles';
+import { makeStyles } from '@mui/styles'
+
+
 import issueService from '../../services/issueService'
 import '../../App.css'
 import moment from 'moment'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import InputLabel from '@material-ui/core/InputLabel'
-import IconButton from '@material-ui/core/IconButton'
-import SaveIcon from '@material-ui/icons/Save'
-import CancelIcon from '@material-ui/icons/Cancel'
-import MuiAlert from '@material-ui/lab/Alert'
-import Avatar from '@material-ui/core/Avatar'
-import MenuItem from '@material-ui/core/MenuItem'
+import CssBaseline from '@mui/material/CssBaseline'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+import TextField from '@mui/material/TextField'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import InputLabel from '@mui/material/InputLabel'
+import IconButton from '@mui/material/IconButton'
+import SaveIcon from '@mui/icons-material/Save'
+import CancelIcon from '@mui/icons-material/Cancel'
+import MuiAlert from '@mui/lab/Alert'
+import Avatar from '@mui/material/Avatar'
+import MenuItem from '@mui/material/MenuItem'
 import ModalImage from 'react-modal-image'
-import { deepPurple } from '@material-ui/core/colors'
-import Grid from '@material-ui/core/Grid'
-import Box from '@material-ui/core/Box'
+import { deepPurple } from '@mui/material/colors'
+import Grid from '@mui/material/Grid'
+import Box from '@mui/material/Box'
 import { EditorState, convertFromRaw, convertToRaw, ContentState } from 'draft-js'
 import { Editor } from 'react-draft-wysiwyg'
 import draftToHtml from 'draftjs-to-html'
@@ -31,8 +34,8 @@ import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { useHistory } from 'react-router-dom'
 import auth from '../auth/auth-helper'
 import { getUsers } from '../utils/api-user'
-import Snackbar from '@material-ui/core/Snackbar'
-import { AlertTitle } from '@material-ui/lab'
+import Snackbar from '@mui/material/Snackbar'
+import { AlertTitle } from '@mui/lab'
 
 function Alert(props) {
   // eslint-disable-next-line react/jsx-props-no-spreading
@@ -190,13 +193,13 @@ const reprodusere = [
   },
 ]
 
-const theme = createTheme({
+const theme = createTheme(adaptV4Theme({
   typography: {
     body1: {
       fontWeight: 600, // or 'bold'
     },
   },
-})
+}))
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -479,7 +482,7 @@ export default function EditIssue(props) {
         <section className="two-columns__main">
           <div className="form-grid">
             <div className="item0">
-              <IconButton onClick={goHome}>
+              <IconButton onClick={goHome} size="large">
                 <ArrowBackIcon />
               </IconButton>
             </div>
@@ -498,12 +501,10 @@ export default function EditIssue(props) {
               </Button>
               <Button
                 variant="outlined"
-                color="default"
                 className={classes.button}
                 startIcon={<CancelIcon />}
                 size="small"
-                onClick={() => CancelEdit()}
-              >
+                onClick={() => CancelEdit()}>
                 Avbryt
               </Button>
             </div>
@@ -723,9 +724,11 @@ export default function EditIssue(props) {
               />
             </div>
             <div className="item11">
-              <ThemeProvider theme={theme}>
-                <Typography variant="body1">Beskrivelse</Typography>
-              </ThemeProvider>
+              <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={theme}>
+                  <Typography variant="body1">Beskrivelse</Typography>
+                </ThemeProvider>
+              </StyledEngineProvider>
               <Editor
                 placeholder="Skriv inn tekst her..."
                 editorState={editorStateDesc}
@@ -774,9 +777,11 @@ export default function EditIssue(props) {
               />
             </div>
             <div className="item13">
-              <ThemeProvider theme={theme}>
-                <Typography variant="body1">Steg for å reprodusere</Typography>
-              </ThemeProvider>
+              <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={theme}>
+                  <Typography variant="body1">Steg for å reprodusere</Typography>
+                </ThemeProvider>
+              </StyledEngineProvider>
               <Editor
                 placeholder="Skriv inn tekst her..."
                 editorState={editorStateRep}
@@ -835,5 +840,5 @@ export default function EditIssue(props) {
         </section>
       </div>
     </div>
-  )
+  );
 }

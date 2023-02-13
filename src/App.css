@@ -175,14 +175,14 @@ body {
   min-height: 73px !important;
 }
 
-@media (min-width: 1280px) {
+/*@media (min-width: 1280px) {
   .MuiContainer-maxWidthLg {
     padding-left: 292px;
     padding-right: 32px;
     max-width: 770px;
     right: 120px;
   }
-}
+}*/
 
 @media (min-width: 600px) {
   .makeStyles-container-189 {

@@ -1,17 +1,17 @@
 import React, { useState } from 'react'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Paper from '@material-ui/core/Paper'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import Paper from '@mui/material/Paper'
 import Draggable from 'react-draggable'
 import auth from '../auth/auth-helper'
 import issueService from '../../services/issueService'
-import DeleteIcon from '@material-ui/icons/Delete'
-import Tooltip from '@material-ui/core/Tooltip'
-import { makeStyles } from '@material-ui/core/styles'
+import DeleteIcon from '@mui/icons-material/Delete'
+import Tooltip from '@mui/material/Tooltip'
+import { makeStyles } from '@mui/styles'
 
 function PaperComponent(props) {
   return (
@@ -102,11 +102,11 @@ export default function DraggableDialog(props) {
           <Button onClick={() => removeImage(imageIndex)} variant="contained" color="secondary">
             Slett bilde1234
           </Button>
-          <Button onClick={handleClose} color="default">
+          <Button onClick={handleClose}>
             Avbryt
           </Button>
         </DialogActions>
       </Dialog>
     </div>
-  )
+  );
 }

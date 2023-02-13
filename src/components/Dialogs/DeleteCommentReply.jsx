@@ -1,17 +1,17 @@
 import React, { useState } from 'react'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import Snackbar from '@material-ui/core/Snackbar'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Paper from '@material-ui/core/Paper'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import Snackbar from '@mui/material/Snackbar'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import Paper from '@mui/material/Paper'
 import Draggable from 'react-draggable'
-import DeleteIcon from '@material-ui/icons/Delete'
-import Tooltip from '@material-ui/core/Tooltip'
-import { AlertTitle } from '@material-ui/lab'
-import MuiAlert from '@material-ui/lab/Alert'
+import DeleteIcon from '@mui/icons-material/Delete'
+import Tooltip from '@mui/material/Tooltip'
+import { AlertTitle } from '@mui/lab'
+import MuiAlert from '@mui/lab/Alert'
 import issueService from '../../services/issueService'
 import auth from '../auth/auth-helper'
 
@@ -94,14 +94,12 @@ export default function DeleteCommentReply(props) {
           <Button
             onClick={() => {
               handleClose()
-            }}
-            color="default"
-          >
+            }}>
             Avbryt
           </Button>
         </DialogActions>
       </Dialog>
       {SuccessAlert}
     </div>
-  )
+  );
 }

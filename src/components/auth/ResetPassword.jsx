@@ -1,20 +1,20 @@
 import React, { useState } from 'react'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import { CardActions } from '@material-ui/core'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import { makeStyles } from '@material-ui/core/styles'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import { CardActions } from '@mui/material'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import { makeStyles } from '@mui/styles'
 import { Redirect } from 'react-router-dom'
 import { forgotPassword } from '../../../src/components/utils/api-user'
 import useReactRouter from 'use-react-router'
-import VpnKeyIcon from '@material-ui/icons/VpnKey'
-import Box from '@material-ui/core/Box'
+import VpnKeyIcon from '@mui/icons-material/VpnKey'
+import Box from '@mui/material/Box'
 import { withRouter } from 'react-router-dom'
-import Snackbar from '@material-ui/core/Snackbar'
-import MuiAlert from '@material-ui/lab/Alert'
-import { AlertTitle } from '@material-ui/lab'
+import Snackbar from '@mui/material/Snackbar'
+import MuiAlert from '@mui/lab/Alert'
+import { AlertTitle } from '@mui/lab'
 
 function Alert(props) {
   // eslint-disable-next-line react/jsx-props-no-spreading
@@ -156,7 +156,7 @@ function ResetPassword(props) {
               <VpnKeyIcon className={classes.extendedIcon} />
               Tilbakestill passord
             </Button>
-            <Button color="default" variant="contained" onClick={goHome} className={classes.button}>
+            <Button variant="contained" onClick={goHome} className={classes.button}>
               Gå tilbake
             </Button>
             {successAlert()}
@@ -164,7 +164,7 @@ function ResetPassword(props) {
         </CardActions>
       </Card>
     </form>
-  )
+  );
 }
 
 export default withRouter(ResetPassword)

@@ -1,28 +1,26 @@
 import React, { useEffect } from 'react'
-import TextField from '@material-ui/core/TextField'
+import TextField from '@mui/material/TextField'
 import { useForm, Controller } from 'react-hook-form'
-import { Typography, Snackbar, Button, makeStyles } from '@material-ui/core'
-import MuiAlert from '@material-ui/lab/Alert'
-import { AlertTitle } from '@material-ui/lab'
+import { Typography, Snackbar, Button } from '@mui/material'
+import { createStyles } from '@mui/styles'
+import MuiAlert from '@mui/lab/Alert'
+import { AlertTitle } from '@mui/lab'
 
 function Alert(props) {
   // eslint-disable-next-line react/jsx-props-no-spreading
   return <MuiAlert elevation={1} variant="filled" {...props} />
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = createStyles((theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'left',
     alignItems: 'left',
-    padding: theme.spacing(0),
     '& .MuiTextField-root': {
-      margin: theme.spacing(0),
       width: '100%  ',
     },
     '& .MuiButtonBase-root': {
-      margin: theme.spacing(0),
     },
   },
   commentField: {
@@ -70,8 +68,8 @@ const CommentForm = ({ onSubmit, openNewComment, setOpenNewComment }) => {
 
   return (
     <>
-      <form className={classes.root} onSubmit={handleSubmit(onSubmit)}>
-        <Typography component={'span'} variant={'body1'}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Typography component={'span'} variant={'body1'} paragraph>
           Ny kommentar
         </Typography>
         <Controller
@@ -81,6 +79,7 @@ const CommentForm = ({ onSubmit, openNewComment, setOpenNewComment }) => {
           render={({ field: { onChange, value }, fieldState: { error } }) => (
             <>
               <TextField
+                sx={{ display: 'flex' }}
                 {...register('content', { required: true, maxLength: 150 })}
                 label="Skriv inn din kommentar her"
                 variant="outlined"
@@ -93,6 +92,7 @@ const CommentForm = ({ onSubmit, openNewComment, setOpenNewComment }) => {
                 multiline
                 placeholder="Kommentar"
                 minRows={5}
+                margin="normal"
               />
               {errors.content?.type === 'required' && 'Kommentarfelt er tomt'}
               {errors.content?.type === 'maxLength' && 'Det er ikke tillatt med mer en 150 bokstaver'}

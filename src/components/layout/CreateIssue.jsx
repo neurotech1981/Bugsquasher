@@ -6,9 +6,10 @@ import 'react-toastify/dist/ReactToastify.css'
 import openSocket from 'socket.io-client'
 
 const socket = openSocket('http://localhost:4000')
-import { makeStyles, createTheme, ThemeProvider, withStyles } from '@material-ui/core/styles'
+import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles';
+import { makeStyles, withStyles } from '@mui/styles'
 import issueService from '../../services/issueService'
-import Icon from '@material-ui/core/Icon'
+import Icon from '@mui/material/Icon'
 // eslint-disable-neAlertxt-line no-unused-vars
 import {
   EditorState,
@@ -17,15 +18,15 @@ import {
   convertToRaw,
   ContentState,
 } from 'draft-js'
-import { Typography, Snackbar, TextField, Container, Grid, Button, CssBaseline } from '@material-ui/core'
-import MuiMenuItem from '@material-ui/core/MenuItem'
+import { Typography, Snackbar, TextField, Container, Grid, Button, CssBaseline } from '@mui/material'
+import MuiMenuItem from '@mui/material/MenuItem'
 import { Editor } from 'react-draft-wysiwyg'
 //import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs'
-import MuiAlert from '@material-ui/lab/Alert'
-import { AlertTitle } from '@material-ui/lab'
+import MuiAlert from '@mui/lab/Alert'
+import { AlertTitle } from '@mui/lab'
 import { useDispatch, useSelector } from 'react-redux'
-import Box from '@material-ui/core/Box'
+import Box from '@mui/material/Box'
 import Previews from './ImageUploader'
 import auth from '../auth/auth-helper'
 import { findUserProfile, getUsers } from '../utils/api-user'
@@ -269,14 +270,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-const theme = createTheme({
+const theme = createTheme(adaptV4Theme({
   typography: {
     body1: {
       fontWeight: 600,
       padding: '0.3rem',
     },
   },
-})
+}))
 
 export default function CreateIssue(props) {
   const { id } = useParams()
@@ -741,9 +742,11 @@ export default function CreateIssue(props) {
               )}
             </Grid>
             <Grid item xs={12} style={{ padding: '1rem' }}>
-              <ThemeProvider theme={theme}>
-                <Typography variant="body1">Beskrivelse *</Typography>
-              </ThemeProvider>
+              <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={theme}>
+                  <Typography variant="body1">Beskrivelse *</Typography>
+                </ThemeProvider>
+              </StyledEngineProvider>
               <Editor
                 placeholder="Skriv inn tekst her..."
                 editorState={editorStateDesc}
@@ -802,9 +805,11 @@ export default function CreateIssue(props) {
               )}
             </Grid>
             <Grid item xs={12} style={{ padding: '1rem' }}>
-              <ThemeProvider theme={theme}>
-                <Typography variant="body1">Steg for å reprodusere</Typography>
-              </ThemeProvider>
+              <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={theme}>
+                  <Typography variant="body1">Steg for å reprodusere</Typography>
+                </ThemeProvider>
+              </StyledEngineProvider>
               <Editor
                 placeholder="Skriv inn tekst her..."
                 editorState={editorStateRep}
@@ -908,5 +913,5 @@ export default function CreateIssue(props) {
         </form>
       </Container>
     </div>
-  )
+  );
 }

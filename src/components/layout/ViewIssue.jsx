@@ -1,48 +1,49 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react'
-import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core/styles'
+import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles';
+import { makeStyles } from '@mui/styles'
 import issueService from '../../services/issueService'
 import '../../App.css'
 import CommentForm from '../Comments/CommentForm'
 import Comments from '../Comments/Comments'
 import moment from 'moment'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import Button from '@material-ui/core/Button'
-import DeleteIcon from '@material-ui/icons/Delete'
-import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import InputLabel from '@material-ui/core/InputLabel'
-import IconButton from '@material-ui/core/IconButton'
-import FormControl from '@material-ui/core/FormControl'
-import Snackbar from '@material-ui/core/Snackbar'
-import MuiAlert from '@material-ui/lab/Alert'
-import { AlertTitle } from '@material-ui/lab'
-import UpdateIcon from '@material-ui/icons/Update'
-import AccessTimeIcon from '@material-ui/icons/AccessTime'
-import Avatar from '@material-ui/core/Avatar'
-import MenuItem from '@material-ui/core/MenuItem'
+import CssBaseline from '@mui/material/CssBaseline'
+import Button from '@mui/material/Button'
+import DeleteIcon from '@mui/icons-material/Delete'
+import Typography from '@mui/material/Typography'
+import TextField from '@mui/material/TextField'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import InputLabel from '@mui/material/InputLabel'
+import IconButton from '@mui/material/IconButton'
+import FormControl from '@mui/material/FormControl'
+import Snackbar from '@mui/material/Snackbar'
+import MuiAlert from '@mui/lab/Alert'
+import { AlertTitle } from '@mui/lab'
+import UpdateIcon from '@mui/icons-material/Update'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import Avatar from '@mui/material/Avatar'
+import MenuItem from '@mui/material/MenuItem'
 import ModalImage from 'react-modal-image'
-import { deepPurple } from '@material-ui/core/colors'
-import Grid from '@material-ui/core/Grid'
+import { deepPurple } from '@mui/material/colors'
+import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest'
-import Box from '@material-ui/core/Box'
+import Box from '@mui/material/Box'
 import { Link } from 'react-router-dom'
-import EditIcon from '@material-ui/icons/Edit'
+import EditIcon from '@mui/icons-material/Edit'
 import { useHistory } from 'react-router-dom'
 import auth from '../auth/auth-helper'
 import { EditorState, convertFromRaw, ContentState } from 'draft-js'
 import { Editor } from 'react-draft-wysiwyg'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
 import { findUserProfile, getUsers } from '../utils/api-user'
 import DeleteImageDialog from '../Dialogs/DeleteImage'
 import htmlToDraft from 'html-to-draftjs'
@@ -55,13 +56,13 @@ function Alert(props) {
 }
 const formattedDate = (value) => moment(value).format('DD/MM-YYYY')
 
-const theme = createTheme({
+const theme = createTheme(adaptV4Theme({
   typography: {
     body1: {
       fontWeight: 600, // or 'bold'
     },
   },
-})
+}))
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -456,7 +457,7 @@ export default function ViewIssue(props) {
           <Button onClick={handleConfirmDelete} color="primary" variant="contained">
             Ja
           </Button>
-          <Button onClick={handleClose} variant="outlined" color="default">
+          <Button onClick={handleClose} variant="outlined">
             Nei
           </Button>
         </DialogActions>
@@ -595,11 +596,13 @@ export default function ViewIssue(props) {
               />
             </div>
             <div className="item11">
-              <ThemeProvider theme={theme}>
-                <Typography gutterBottom variant="body1">
-                  Beskrivelse
-                </Typography>
-              </ThemeProvider>
+              <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={theme}>
+                  <Typography gutterBottom variant="body1">
+                    Beskrivelse
+                  </Typography>
+                </ThemeProvider>
+              </StyledEngineProvider>
               <Editor
                 placeholder="Skriv inn tekst her..."
                 editorState={editorStateDesc}
@@ -644,11 +647,13 @@ export default function ViewIssue(props) {
               />
             </div>
             <div className="item13">
-              <ThemeProvider theme={theme}>
-                <Typography gutterBottom variant="body1">
-                  Steg for å reprodusere
-                </Typography>
-              </ThemeProvider>
+              <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={theme}>
+                  <Typography gutterBottom variant="body1">
+                    Steg for å reprodusere
+                  </Typography>
+                </ThemeProvider>
+              </StyledEngineProvider>
               <Editor
                 placeholder=""
                 readOnly={true}
@@ -852,5 +857,5 @@ export default function ViewIssue(props) {
         </Box>
       </div>
     </div>
-  )
+  );
 }

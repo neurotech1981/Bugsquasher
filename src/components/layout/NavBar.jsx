@@ -1,39 +1,39 @@
-import React, { Fragment, useState } from "react";
-import auth from "../auth/auth-helper";
+import React, { Fragment, useState } from 'react'
+import auth from '../auth/auth-helper'
 import { Link, useLocation, withRouter } from 'react-router-dom'
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import useReactRouter from "use-react-router";
-import Divider from "@material-ui/core/Divider";
-import Drawer from "@material-ui/core/Drawer";
-import Hidden from "@material-ui/core/Hidden";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import Typography from "@material-ui/core/Typography";
-import Badge from "@material-ui/core/Badge";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import MenuItem from "@material-ui/core/MenuItem";
-import Menu from "@material-ui/core/Menu";
-import MenuIcon from "@material-ui/icons/MenuTwoTone";
-import AccountCircle from "@material-ui/icons/AccountCircleTwoTone";
-import NotificationsIcon from "@material-ui/icons/NotificationsTwoTone";
-import MoreIcon from "@material-ui/icons/MoreVertTwoTone";
-import MailIcon from "@material-ui/icons/MailTwoTone";
-import Dashboard from "@material-ui/icons/DashboardTwoTone";
-import Settings from "@material-ui/icons/SettingsTwoTone";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import BugIcon from "../../images/bug.svg";
-import ExitToAppRoundedIcon from "@material-ui/icons/ExitToAppTwoTone";
-import NoteAddRoundedIcon from "@material-ui/icons/NoteAddTwoTone";
-import PageviewRoundedIcon from "@material-ui/icons/PageviewTwoTone";
-import GroupRoundedIcon from "@material-ui/icons/GroupTwoTone";
+import { makeStyles, useTheme } from '@mui/styles'
+import useReactRouter from 'use-react-router'
+import Divider from '@mui/material/Divider'
+import Drawer from '@mui/material/Drawer'
+import Hidden from '@mui/material/Hidden'
+import AppBar from '@mui/material/AppBar'
+import Toolbar from '@mui/material/Toolbar'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import Badge from '@mui/material/Badge'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import MenuItem from '@mui/material/MenuItem'
+import Menu from '@mui/material/Menu'
+import MenuIcon from '@mui/icons-material/MenuTwoTone'
+import AccountCircle from '@mui/icons-material/AccountCircleTwoTone'
+import NotificationsIcon from '@mui/icons-material/NotificationsTwoTone'
+import MoreIcon from '@mui/icons-material/MoreVertTwoTone'
+import MailIcon from '@mui/icons-material/MailTwoTone'
+import Dashboard from '@mui/icons-material/DashboardTwoTone'
+import Settings from '@mui/icons-material/SettingsTwoTone'
+import CssBaseline from '@mui/material/CssBaseline'
+import BugIcon from '../../images/bug.svg'
+import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppTwoTone'
+import NoteAddRoundedIcon from '@mui/icons-material/NoteAddTwoTone'
+import PageviewRoundedIcon from '@mui/icons-material/PageviewTwoTone'
+import GroupRoundedIcon from '@mui/icons-material/GroupTwoTone'
 //import LogRocket from 'logrocket';
 //import setupLogRocketReact from 'logrocket-react';
 
-const drawerWidth = 260;
+const drawerWidth = 260
 
 //const isActive = (history, path) => {
 // if (history.location.pathname === path) return { color: '#F44336' }
@@ -42,30 +42,30 @@ const drawerWidth = 260;
 
 const useStyles = makeStyles((theme) => ({
   palette: {
-    type: "dark",
+    mode: 'dark',
   },
   colorPrimary: {
-    backgroundColor: "#05386B",
+    backgroundColor: '#05386B',
   },
   buttons: {
-    position: "relative",
+    position: 'relative',
     borderRadius: theme.shape.borderRadius,
     marginRight: theme.spacing(2),
-    alignItems: "center",
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      marginLeft: "0px",
-      width: "auto",
+    alignItems: 'center',
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: '0px',
+      width: 'auto',
     },
   },
   root: {
-    display: "flex",
+    display: 'flex',
   },
   grow: {
     flexGrow: 1,
   },
   drawer: {
-    [theme.breakpoints.up("sm")]: {
+    [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
       flexShrink: 0,
     },
@@ -75,30 +75,30 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 0,
   },
   drawerHeader: {
-    display: "flex",
-    alignItems: "center",
-    padding: "0 8px",
-    justifyContent: "flex-end",
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0 8px',
+    justifyContent: 'flex-end',
   },
   flexContainer: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   hide: {
-    display: "none",
+    display: 'none',
   },
   appBar: {
-    backgroundColor: "#3B2044",
-    [theme.breakpoints.up("sm")]: {
+    backgroundColor: '#3B2044',
+    [theme.breakpoints.up('sm')]: {
       width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: drawerWidth,
-      backgroundColor: "#3B2044",
+      backgroundColor: '#3B2044',
     },
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
-    transition: theme.transitions.create(["margin", "width"], {
+    transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
@@ -114,7 +114,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(3),
   },
   contentShift: {
-    transition: theme.transitions.create("margin", {
+    transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
@@ -122,101 +122,95 @@ const useStyles = makeStyles((theme) => ({
   },
   menuButton: {
     marginRight: theme.spacing(2),
-    [theme.breakpoints.up("sm")]: {
-      display: "none",
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
     },
   },
   button: {
     margin: theme.spacing(1),
-    "&:hover": {
-      transition: theme.transitions.create("margin", {
+    '&:hover': {
+      transition: theme.transitions.create('margin', {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
       }),
-      backgroundColor: "#FFF00",
-      color: "white",
+      backgroundColor: '#FFF00',
+      color: 'white',
     },
   },
   title: {
-    display: "none",
-    textShadow: "0 1px 1px rgba(0,0,0,0.25)",
-    [theme.breakpoints.up("sm")]: {
-      display: "block",
+    display: 'none',
+    textShadow: '0 1px 1px rgba(0,0,0,0.25)',
+    [theme.breakpoints.up('sm')]: {
+      display: 'block',
     },
   },
   inputRoot: {
-    color: "inherit",
+    color: 'inherit',
   },
   inputInput: {
     padding: theme.spacing(1, 1, 1, 7),
-    transition: theme.transitions.create("width"),
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('md')]: {
       width: 200,
     },
   },
   sectionDesktop: {
-    display: "none",
-    [theme.breakpoints.up("md")]: {
-      display: "flex",
+    display: 'none',
+    [theme.breakpoints.up('md')]: {
+      display: 'flex',
     },
   },
   sectionMobile: {
-    display: "flex",
-    [theme.breakpoints.up("md")]: {
-      display: "none",
+    display: 'flex',
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
     },
   },
   toolbar: theme.mixins.toolbar,
-}));
+}))
 
 function NavBar(props) {
   const items = [
-    { label: "Dashboard", icon: <Dashboard />, path: !auth.isAuthenticated() ? "/landing/"
-      : "/landing/" + auth.isAuthenticated().user._id,
+    {
+      label: 'Dashboard',
+      icon: <Dashboard />,
+      path: !auth.isAuthenticated() ? '/landing/' : '/landing/' + auth.isAuthenticated().user._id,
     },
     {
-      label: "Prosjekt oversikt",
+      label: 'Prosjekt oversikt',
       icon: <PageviewRoundedIcon />,
       /*eslint operator-linebreak: [2, "after", { "overrides": { "?": "ignore", ":": "ignore"} }]*/
-      path: !auth.isAuthenticated()
-        ? "/prosjekt-oversikt/"
-        : "/prosjekt-oversikt/" + auth.isAuthenticated().user._id,
+      path: !auth.isAuthenticated() ? '/prosjekt-oversikt/' : '/prosjekt-oversikt/' + auth.isAuthenticated().user._id,
     },
     {
-      label: "Opprett prosjekt",
+      label: 'Opprett prosjekt',
       icon: <NoteAddRoundedIcon />,
-      path: !auth.isAuthenticated()
-        ? "/opprett-prosjekt/"
-        : "/opprett-prosjekt/" + auth.isAuthenticated().user._id,
+      path: !auth.isAuthenticated() ? '/opprett-prosjekt/' : '/opprett-prosjekt/' + auth.isAuthenticated().user._id,
     },
     {
-      label: "Legg til sak",
+      label: 'Legg til sak',
       icon: <NoteAddRoundedIcon />,
-      path: !auth.isAuthenticated() ? "/legg-til-sak/"
-        : "/legg-til-sak/" + auth.isAuthenticated().user._id,
+      path: !auth.isAuthenticated() ? '/legg-til-sak/' : '/legg-til-sak/' + auth.isAuthenticated().user._id,
     },
     {
-      label: "Vis saker",
+      label: 'Vis saker',
       icon: <PageviewRoundedIcon />,
-      path: !auth.isAuthenticated() ? "/saker/"
-        : "/saker/" + auth.isAuthenticated().user._id,
+      path: !auth.isAuthenticated() ? '/saker/' : '/saker/' + auth.isAuthenticated().user._id,
     },
     {
-      label: "Bruker administrasjon",
+      label: 'Bruker administrasjon',
       icon: <GroupRoundedIcon />,
-      path: !auth.isAuthenticated() ? "/bruker-admin/"
-        : "/bruker-admin/" + auth.isAuthenticated().user._id,
+      path: !auth.isAuthenticated() ? '/bruker-admin/' : '/bruker-admin/' + auth.isAuthenticated().user._id,
     },
-    { label: "Innstillinger", icon: <Settings />, path: "/innstillinger" },
-  ];
+    { label: 'Innstillinger', icon: <Settings />, path: '/innstillinger' },
+  ]
 
   const location = useLocation()
-  const { container } = props;
+  const { container } = props
   //const [mobileOpen, setMobileOpen] = React.useState(false)
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
   //const isActive = (value) => (location.pathname + "/" + auth.isAuthenticated().user._id == value ? true : false)
-
 
   // This is an example script - don't forget to change it!
   //LogRocket.init('w0hnhq/bugsquasher')
@@ -229,10 +223,10 @@ function NavBar(props) {
   subscriptionType: 'admin'
 });*/
 
-  const classes = useStyles();
-  const theme = useTheme();
+  const classes = useStyles()
+  const theme = useTheme()
   function handleDrawerToggle() {
-    setOpen(!open);
+    setOpen(!open)
   }
 
   // function handleDrawerOpen () {
@@ -269,29 +263,29 @@ function NavBar(props) {
         </Drawer>
       )}
     </div>
-  );
+  )
 
-  const [anchorEl, setAnchorEl] = useState(false);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(false)
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(false)
 
-  const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const isMenuOpen = Boolean(anchorEl)
+  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
 
   function handleProfileMenuOpen(event) {
-    setAnchorEl(event.currentTarget);
+    setAnchorEl(event.currentTarget)
   }
 
   function handleMobileMenuClose() {
-    setMobileMoreAnchorEl(null);
+    setMobileMoreAnchorEl(null)
   }
 
   function handleMenuClose() {
-    setAnchorEl(null);
-    handleMobileMenuClose();
+    setAnchorEl(null)
+    handleMobileMenuClose()
   }
 
   function handleMobileMenuOpen(event) {
-    setMobileMoreAnchorEl(event.currentTarget);
+    setMobileMoreAnchorEl(event.currentTarget)
   }
 
   const renderMenu = auth.isAuthenticated() && (
@@ -303,7 +297,7 @@ function NavBar(props) {
       onClose={handleMenuClose}
     >
       <MenuItem>
-        <IconButton color="inherit">
+        <IconButton color="inherit" size="large">
           <Badge overlap="rectangular" badgeContent={4} color="secondary">
             <MailIcon />
           </Badge>
@@ -311,7 +305,7 @@ function NavBar(props) {
         <p>Messages</p>
       </MenuItem>
       <MenuItem component={Link} to={'/user/' + auth.isAuthenticated().user._id}>
-        <IconButton color="inherit">
+        <IconButton color="inherit" size="large">
           <AccountCircle />
         </IconButton>
         <p>Min profil</p>
@@ -322,7 +316,7 @@ function NavBar(props) {
           auth.signout(() => props.history.push('/signin'))
         }}
       >
-        <IconButton color="inherit">
+        <IconButton color="inherit" size="large">
           <ExitToAppRoundedIcon />
         </IconButton>
         <p>Logg ut</p>
@@ -339,7 +333,7 @@ function NavBar(props) {
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
-        <IconButton color="inherit">
+        <IconButton color="inherit" size="large">
           <Badge overlap="rectangular" badgeContent={4} color="secondary">
             <MailIcon />
           </Badge>
@@ -347,7 +341,7 @@ function NavBar(props) {
         <p>Messages</p>
       </MenuItem>
       <MenuItem onClick={handleMenuClose}>
-        <IconButton color="inherit">
+        <IconButton color="inherit" size="large">
           <AccountCircle />
         </IconButton>
         <p>Min profil</p>
@@ -359,7 +353,7 @@ function NavBar(props) {
             auth.signout(() => history.push('/signin'))
           }}
         >
-          <IconButton color="inherit">
+          <IconButton color="inherit" size="large">
             <ExitToAppRoundedIcon />
           </IconButton>
           <p>Logg ut</p>
@@ -368,101 +362,103 @@ function NavBar(props) {
     </Menu>
   )
 
-  return (
-    auth.isAuthenticated() && (
-      <div className={classes.root}>
-        <CssBaseline />
-        <AppBar position="fixed" className={classes.appBar}>
-          <Toolbar>
-            {auth.isAuthenticated() && (
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                edge="start"
-                onClick={handleDrawerToggle}
-                className={classes.menuButton}
-              >
-                <MenuIcon />
-              </IconButton>
-            )}
+  return auth.isAuthenticated() && (
+    <div className={classes.root}>
+      <CssBaseline />
+      <AppBar position="fixed" className={classes.appBar}>
+        <Toolbar>
+          {auth.isAuthenticated() && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              className={classes.menuButton}
+              size="large">
+              <MenuIcon />
+            </IconButton>
+          )}
 
-            <img className="svgLogoIcon" alt="Logo" src={BugIcon} type="image/svg+xml" />
-            <Typography className={classes.title} variant="h6" noWrap style={{ fontFamily: 'Poppins' }}>
-              BugSquasher
-            </Typography>
-            <div className={classes.buttons}>
-              {auth.isAuthenticated() && (
-                <Fragment>
-                  <div className={classes.grow}>
-                    <nav className={classes.drawer} aria-label="Issues">
-                      <Hidden smUp implementation="css">
-                        <Drawer
-                          container={container}
-                          variant="temporary"
-                          anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-                          open={open}
-                          edge="start"
-                          onClose={handleDrawerToggle}
-                          classes={{
-                            paper: classes.drawerPaper,
-                          }}
-                          ModalProps={{
-                            keepMounted: true, // Better open performance on mobile.
-                          }}
-                        >
-                          {drawer}
-                        </Drawer>
-                      </Hidden>
-                      <Hidden xsDown implementation="css">
-                        <Drawer
-                          classes={{
-                            paper: classes.drawerPaper,
-                          }}
-                          variant="permanent"
-                          open
-                        >
-                          {drawer}
-                        </Drawer>
-                      </Hidden>
-                    </nav>
-                  </div>
-                </Fragment>
-              )}
-            </div>
-            <div className={classes.grow} />
-            <div className={classes.sectionDesktop}>
-              <IconButton color="inherit">
-                <Badge overlap="rectangular" badgeContent={0} color="secondary">
-                  <MailIcon />
-                </Badge>
-              </IconButton>
-              <IconButton color="inherit">
-                <Badge overlap="rectangular" badgeContent={0} color="secondary">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
-              <IconButton
-                edge="end"
-                aria-owns={isMenuOpen ? 'material-appbar' : undefined}
-                aria-haspopup="true"
-                onClick={handleProfileMenuOpen}
-                color="inherit"
-              >
-                <AccountCircle />
-              </IconButton>
-            </div>
-            <div className={classes.sectionMobile}>
-              <IconButton aria-haspopup="true" onClick={handleMobileMenuOpen} color="inherit">
-                <MoreIcon />
-              </IconButton>
-            </div>
-          </Toolbar>
-        </AppBar>
-        {renderMenu}
-        {renderMobileMenu}
-      </div>
-    )
-  )
+          <img className="svgLogoIcon" alt="Logo" src={BugIcon} type="image/svg+xml" />
+          <Typography className={classes.title} variant="h6" noWrap style={{ fontFamily: 'Poppins' }}>
+            BugSquasher
+          </Typography>
+          <div className={classes.buttons}>
+            {auth.isAuthenticated() && (
+              <Fragment>
+                <div className={classes.grow}>
+                  <nav className={classes.drawer} aria-label="Issues">
+                    <Hidden smUp implementation="css">
+                      <Drawer
+                        container={container}
+                        variant="temporary"
+                        anchor={theme.direction === 'rtl' ? 'right' : 'left'}
+                        open={open}
+                        edge="start"
+                        onClose={handleDrawerToggle}
+                        classes={{
+                          paper: classes.drawerPaper,
+                        }}
+                        ModalProps={{
+                          keepMounted: true, // Better open performance on mobile.
+                        }}
+                      >
+                        {drawer}
+                      </Drawer>
+                    </Hidden>
+                    <Hidden xlDown implementation="css">
+                      <Drawer
+                        classes={{
+                          paper: classes.drawerPaper,
+                        }}
+                        variant="permanent"
+                        open
+                      >
+                        {drawer}
+                      </Drawer>
+                    </Hidden>
+                  </nav>
+                </div>
+              </Fragment>
+            )}
+          </div>
+          <div className={classes.grow} />
+          <div className={classes.sectionDesktop}>
+            <IconButton color="inherit" size="large">
+              <Badge overlap="rectangular" badgeContent={0} color="secondary">
+                <MailIcon />
+              </Badge>
+            </IconButton>
+            <IconButton color="inherit" size="large">
+              <Badge overlap="rectangular" badgeContent={0} color="secondary">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+            <IconButton
+              edge="end"
+              aria-owns={isMenuOpen ? 'material-appbar' : undefined}
+              aria-haspopup="true"
+              onClick={handleProfileMenuOpen}
+              color="inherit"
+              size="large">
+              <AccountCircle />
+            </IconButton>
+          </div>
+          <div className={classes.sectionMobile}>
+            <IconButton
+              aria-haspopup="true"
+              onClick={handleMobileMenuOpen}
+              color="inherit"
+              size="large">
+              <MoreIcon />
+            </IconButton>
+          </div>
+        </Toolbar>
+      </AppBar>
+      {renderMenu}
+      {renderMobileMenu}
+    </div>
+  );
 }
 
-export default withRouter(NavBar);
+export default withRouter(NavBar)

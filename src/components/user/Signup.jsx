@@ -1,17 +1,17 @@
 import React, { useState } from 'react'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import CardActions from '@material-ui/core/CardActions'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import Icon from '@material-ui/core/Icon'
-import { makeStyles } from '@material-ui/core/styles'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogContent from '@material-ui/core/DialogContent'
-import Dialog from '@material-ui/core/Dialog'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import CardActions from '@mui/material/CardActions'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import Icon from '@mui/material/Icon'
+import { makeStyles } from '@mui/styles'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogContent from '@mui/material/DialogContent'
+import Dialog from '@mui/material/Dialog'
 import { Link } from 'react-router-dom'
 import { registerUser } from '../utils/api-user'
 import { useHistory } from 'react-router-dom'
@@ -152,12 +152,12 @@ export default function Signup () {
           <Button color="primary" variant="contained" onClick={() => clickSubmit()} className={classes.submit}>
             Registrer bruker
           </Button>
-          <Button color="default" variant="contained" onClick={goHome} className={classes.submit}>
+          <Button variant="contained" onClick={goHome} className={classes.submit}>
             Gå tilbake
           </Button>
         </CardActions>
       </Card>
-      <Dialog open={values.open} disableBackdropClick>
+      <Dialog open={values.open}>
         <DialogTitle>Ny bruker</DialogTitle>
         <DialogContent>
           <DialogContentText>Ny bruker lagt til.</DialogContentText>
@@ -171,5 +171,5 @@ export default function Signup () {
         </DialogActions>
       </Dialog>
     </div>
-  )
+  );
 }

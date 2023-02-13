@@ -14,16 +14,17 @@ import {
   TextField,
   Typography,
   Zoom,
-} from '@material-ui/core'
-import { alpha, makeStyles } from '@material-ui/core/styles'
-import EditIcon from '@material-ui/icons/Edit'
-import ExpandLess from '@material-ui/icons/ExpandLess'
-import ExpandMore from '@material-ui/icons/ExpandMore'
-import PersonPinIcon from '@material-ui/icons/PersonPin'
-//import QueryBuilderIcon from "@material-ui/icons/QueryBuilder";
-import ReplyIcon from '@material-ui/icons/Reply'
-import { AlertTitle } from '@material-ui/lab'
-import MuiAlert from '@material-ui/lab/Alert'
+} from '@mui/material'
+import { alpha } from '@mui/material/styles'
+import { makeStyles } from '@mui/styles'
+import EditIcon from '@mui/icons-material/Edit'
+import ExpandLess from '@mui/icons-material/ExpandLess'
+import ExpandMore from '@mui/icons-material/ExpandMore'
+import PersonPinIcon from '@mui/icons-material/PersonPin'
+//import QueryBuilderIcon from "@mui/icons-material/QueryBuilder";
+import ReplyIcon from '@mui/icons-material/Reply'
+import { AlertTitle } from '@mui/lab'
+import MuiAlert from '@mui/lab/Alert'
 import { randAvatar } from '@ngneat/falso'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'

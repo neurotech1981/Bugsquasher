@@ -1,33 +1,33 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@mui/styles'
 //import useReactRouter from 'use-react-router'
 import { useParams } from 'react-router-dom'
-import Paper from '@material-ui/core/Paper'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import ListItemText from '@material-ui/core/ListItemText'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
-import OutlinedInput from '@material-ui/core/OutlinedInput'
-import InputLabel from '@material-ui/core/InputLabel'
-import Avatar from '@material-ui/core/Avatar'
-import Typography from '@material-ui/core/Typography'
-import Person from '@material-ui/icons/Person'
-import Divider from '@material-ui/core/Divider'
+import Paper from '@mui/material/Paper'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
+import ListItemText from '@mui/material/ListItemText'
+import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import InputLabel from '@mui/material/InputLabel'
+import Avatar from '@mui/material/Avatar'
+import Typography from '@mui/material/Typography'
+import Person from '@mui/icons-material/Person'
+import Divider from '@mui/material/Divider'
 import { Redirect } from 'react-router-dom'
 import auth from '../auth/auth-helper'
 import { findUserProfile, changePasswordProfile } from '../utils/api-user'
-import Grid from '@material-ui/core/Grid'
-import Button from '@material-ui/core/Button'
-import SaveIcon from '@material-ui/icons/Save'
-import Visibility from '@material-ui/icons/Visibility'
-import VisibilityOff from '@material-ui/icons/VisibilityOff'
+import Grid from '@mui/material/Grid'
+import Button from '@mui/material/Button'
+import SaveIcon from '@mui/icons-material/Save'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import DeleteUser from './DeleteUser'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import IconButton from '@material-ui/core/IconButton'
-import Snackbar from '@material-ui/core/Snackbar'
-import MuiAlert from '@material-ui/lab/Alert'
+import InputAdornment from '@mui/material/InputAdornment'
+import IconButton from '@mui/material/IconButton'
+import Snackbar from '@mui/material/Snackbar'
+import MuiAlert from '@mui/lab/Alert'
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: '10px',
   }),
   title: {
-    margin: `${theme.spacing(3)}px 0 ${theme.spacing(1)}px`,
+    margin: `${theme.spacing(3)} 0 ${theme.spacing(1)}`,
     fontWeight: 500,
   },
   userInfo: {
@@ -182,7 +182,7 @@ export default function Profile(props) {
                   onClick={handleClickShowPassword}
                   onMouseDown={handleMouseDownPassword}
                   edge="end"
-                >
+                  size="large">
                   {show.showPassword ? <Visibility /> : <VisibilityOff />}
                 </IconButton>
               </InputAdornment>
@@ -208,7 +208,7 @@ export default function Profile(props) {
                   onClick={handleClickShowPassword}
                   onMouseDown={handleMouseDownPassword}
                   edge="end"
-                >
+                  size="large">
                   {show.showPassword ? <Visibility /> : <VisibilityOff />}
                 </IconButton>
               </InputAdornment>
@@ -235,5 +235,5 @@ export default function Profile(props) {
         </Alert>
       </Snackbar>
     </Paper>
-  )
+  );
 }

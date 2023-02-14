@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react'
-import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles';
+import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
 import issueService from '../../services/issueService'
 import '../../App.css'
@@ -18,7 +18,7 @@ import InputLabel from '@mui/material/InputLabel'
 import IconButton from '@mui/material/IconButton'
 import FormControl from '@mui/material/FormControl'
 import Snackbar from '@mui/material/Snackbar'
-import MuiAlert from '@mui/lab/Alert'
+import Alert from '@mui/material/Alert'
 import { AlertTitle } from '@mui/lab'
 import UpdateIcon from '@mui/icons-material/Update'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
@@ -51,18 +51,15 @@ import Previews from './ImageUploader'
 
 const drawerWidth = 240
 
-function Alert(props) {
-  return <MuiAlert elevation={1} variant="filled" {...props} />
-}
 const formattedDate = (value) => moment(value).format('DD/MM-YYYY')
 
-const theme = createTheme(adaptV4Theme({
+const theme = createTheme({
   typography: {
     body1: {
       fontWeight: 600, // or 'bold'
     },
   },
-}))
+})
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -375,7 +372,6 @@ export default function ViewIssue(props) {
   )
 
   const ImageList = images.map((file, index) => {
-    console.log('file 123: ', file, index)
     if (file[0] === null || file === undefined || file === 'none') {
       return <div key={index}>Ingen vedlegg</div>
     }
@@ -857,5 +853,5 @@ export default function ViewIssue(props) {
         </Box>
       </div>
     </div>
-  );
+  )
 }

@@ -18,11 +18,7 @@ import Box from '@mui/material/Box'
 import PropTypes from 'prop-types'
 import { v4 as uuid } from 'uuid'
 import issueService from '../../services/issueService'
-
-function Alert(props) {
-  return <MuiAlert elevation={1} variant="filled" {...props} />
-}
-
+import Alert from '@mui/material/Alert'
 function LinearProgressWithLabel(props) {
   return (
     <Box display="flex" alignItems="center" style={{ padding: '1em' }}>
@@ -210,7 +206,7 @@ function Previews(props) {
                 clearStoreImage(clearAction)
                 setProgress(0)
                 setFiles([])
-                setOpen(false);
+                setOpen(false)
               }, 2000)
             }
           }

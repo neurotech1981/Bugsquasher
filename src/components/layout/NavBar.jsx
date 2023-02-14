@@ -362,103 +362,103 @@ function NavBar(props) {
     </Menu>
   )
 
-  return auth.isAuthenticated() && (
-    <div className={classes.root}>
-      <CssBaseline />
-      <AppBar position="fixed" className={classes.appBar}>
-        <Toolbar>
-          {auth.isAuthenticated() && (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              className={classes.menuButton}
-              size="large">
-              <MenuIcon />
-            </IconButton>
-          )}
-
-          <img className="svgLogoIcon" alt="Logo" src={BugIcon} type="image/svg+xml" />
-          <Typography className={classes.title} variant="h6" noWrap style={{ fontFamily: 'Poppins' }}>
-            BugSquasher
-          </Typography>
-          <div className={classes.buttons}>
+  return (
+    auth.isAuthenticated() && (
+      <div className={classes.root}>
+        <CssBaseline />
+        <AppBar position="fixed" className={classes.appBar}>
+          <Toolbar>
             {auth.isAuthenticated() && (
-              <Fragment>
-                <div className={classes.grow}>
-                  <nav className={classes.drawer} aria-label="Issues">
-                    <Hidden smUp implementation="css">
-                      <Drawer
-                        container={container}
-                        variant="temporary"
-                        anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-                        open={open}
-                        edge="start"
-                        onClose={handleDrawerToggle}
-                        classes={{
-                          paper: classes.drawerPaper,
-                        }}
-                        ModalProps={{
-                          keepMounted: true, // Better open performance on mobile.
-                        }}
-                      >
-                        {drawer}
-                      </Drawer>
-                    </Hidden>
-                    <Hidden xlDown implementation="css">
-                      <Drawer
-                        classes={{
-                          paper: classes.drawerPaper,
-                        }}
-                        variant="permanent"
-                        open
-                      >
-                        {drawer}
-                      </Drawer>
-                    </Hidden>
-                  </nav>
-                </div>
-              </Fragment>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={handleDrawerToggle}
+                className={classes.menuButton}
+                size="large"
+              >
+                <MenuIcon />
+              </IconButton>
             )}
-          </div>
-          <div className={classes.grow} />
-          <div className={classes.sectionDesktop}>
-            <IconButton color="inherit" size="large">
-              <Badge overlap="rectangular" badgeContent={0} color="secondary">
-                <MailIcon />
-              </Badge>
-            </IconButton>
-            <IconButton color="inherit" size="large">
-              <Badge overlap="rectangular" badgeContent={0} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              edge="end"
-              aria-owns={isMenuOpen ? 'material-appbar' : undefined}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-              size="large">
-              <AccountCircle />
-            </IconButton>
-          </div>
-          <div className={classes.sectionMobile}>
-            <IconButton
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit"
-              size="large">
-              <MoreIcon />
-            </IconButton>
-          </div>
-        </Toolbar>
-      </AppBar>
-      {renderMenu}
-      {renderMobileMenu}
-    </div>
-  );
+
+            <img className="svgLogoIcon" alt="Logo" src={BugIcon} type="image/svg+xml" />
+            <Typography className={classes.title} variant="h6" noWrap style={{ fontFamily: 'Poppins' }}>
+              BugSquasher
+            </Typography>
+            <div className={classes.buttons}>
+              {auth.isAuthenticated() && (
+                <Fragment>
+                  <div className={classes.grow}>
+                    <nav className={classes.drawer} aria-label="Issues">
+                      <Hidden smUp implementation="css">
+                        <Drawer
+                          container={container}
+                          variant="temporary"
+                          anchor={theme.direction === 'rtl' ? 'right' : 'left'}
+                          open={open}
+                          edge="start"
+                          onClose={handleDrawerToggle}
+                          classes={{
+                            paper: classes.drawerPaper,
+                          }}
+                          ModalProps={{
+                            keepMounted: true, // Better open performance on mobile.
+                          }}
+                        >
+                          {drawer}
+                        </Drawer>
+                      </Hidden>
+                      <Hidden xlDown implementation="css">
+                        <Drawer
+                          classes={{
+                            paper: classes.drawerPaper,
+                          }}
+                          variant="permanent"
+                          open
+                        >
+                          {drawer}
+                        </Drawer>
+                      </Hidden>
+                    </nav>
+                  </div>
+                </Fragment>
+              )}
+            </div>
+            <div className={classes.grow} />
+            <div className={classes.sectionDesktop}>
+              <IconButton color="inherit" size="large">
+                <Badge overlap="rectangular" badgeContent={0} color="secondary">
+                  <MailIcon />
+                </Badge>
+              </IconButton>
+              <IconButton color="inherit" size="large">
+                <Badge overlap="rectangular" badgeContent={0} color="secondary">
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
+              <IconButton
+                edge="end"
+                aria-owns={isMenuOpen ? 'material-appbar' : undefined}
+                aria-haspopup="true"
+                onClick={handleProfileMenuOpen}
+                color="inherit"
+                size="large"
+              >
+                <AccountCircle />
+              </IconButton>
+            </div>
+            <div className={classes.sectionMobile}>
+              <IconButton aria-haspopup="true" onClick={handleMobileMenuOpen} color="inherit" size="large">
+                <MoreIcon />
+              </IconButton>
+            </div>
+          </Toolbar>
+        </AppBar>
+        {renderMenu}
+        {renderMobileMenu}
+      </div>
+    )
+  )
 }
 
 export default withRouter(NavBar)

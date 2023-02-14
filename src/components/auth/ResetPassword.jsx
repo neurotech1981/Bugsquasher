@@ -13,13 +13,8 @@ import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import Box from '@mui/material/Box'
 import { withRouter } from 'react-router-dom'
 import Snackbar from '@mui/material/Snackbar'
-import MuiAlert from '@mui/lab/Alert'
 import { AlertTitle } from '@mui/lab'
-
-function Alert(props) {
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  return <MuiAlert elevation={1} variant="filled" {...props} />
-}
+import Alert from '@mui/material/Alert'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -164,7 +159,7 @@ function ResetPassword(props) {
         </CardActions>
       </Card>
     </form>
-  );
+  )
 }
 
 export default withRouter(ResetPassword)

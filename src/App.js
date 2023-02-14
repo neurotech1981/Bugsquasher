@@ -18,8 +18,8 @@ import { Provider } from 'react-redux'
 import { store } from './redux/store'
 import './App.css'
 import { Typography, Button } from '@mui/material'
-import { createTheme, adaptV4Theme } from '@mui/material/styles';
-import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import { createTheme, adaptV4Theme } from '@mui/material/styles'
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import socketIO from 'socket.io-client'
@@ -29,22 +29,24 @@ const socket = socketIO.connect('http://127.0.0.1:4000/', {
   transports: ['websocket'],
 })
 
-const theme = createTheme(adaptV4Theme({
-  typography: {
-    fontFamily: [
-      'Space Mono',
-      'IBM Plex Mono',
-      'Sora',
-      'Manrope',
-      'Lato',
-      'Roboto',
-      'Inter',
-      'Helvetica Neue',
-      'Arial',
-      'sans-serif',
-    ].join(','),
-  },
-}))
+const theme = createTheme(
+  adaptV4Theme({
+    typography: {
+      fontFamily: [
+        'Space Mono',
+        'IBM Plex Mono',
+        'Sora',
+        'Manrope',
+        'Lato',
+        'Roboto',
+        'Inter',
+        'Helvetica Neue',
+        'Arial',
+        'sans-serif',
+      ].join(','),
+    },
+  })
+)
 
 const App = () => {
   const jwt = auth.isAuthenticated()
@@ -105,7 +107,7 @@ const App = () => {
         </Provider>
       </ThemeProvider>
     </StyledEngineProvider>
-  );
+  )
 }
 
 export default App

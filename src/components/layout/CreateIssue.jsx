@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import openSocket from 'socket.io-client'
 
 const socket = openSocket('http://localhost:4000')
-import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles';
+import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles'
 import { makeStyles, withStyles } from '@mui/styles'
 import issueService from '../../services/issueService'
 import Icon from '@mui/material/Icon'
@@ -31,11 +31,7 @@ import Previews from './ImageUploader'
 import auth from '../auth/auth-helper'
 import { findUserProfile, getUsers } from '../utils/api-user'
 import { clearAction } from '../../redux/store'
-
-function Alert(props) {
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  return <MuiAlert elevation={1} variant="filled" {...props} />
-}
+import Alert from '@mui/material/Alert'
 
 const alvorlighetsGrad = [
   {
@@ -270,14 +266,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-const theme = createTheme(adaptV4Theme({
-  typography: {
-    body1: {
-      fontWeight: 600,
-      padding: '0.3rem',
+const theme = createTheme(
+  adaptV4Theme({
+    typography: {
+      body1: {
+        fontWeight: 600,
+        padding: '0.3rem',
+      },
     },
-  },
-}))
+  })
+)
 
 export default function CreateIssue(props) {
   const { id } = useParams()
@@ -913,5 +911,5 @@ export default function CreateIssue(props) {
         </form>
       </Container>
     </div>
-  );
+  )
 }

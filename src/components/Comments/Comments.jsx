@@ -14,6 +14,7 @@ import {
   TextField,
   Typography,
   Zoom,
+  Alert,
 } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
@@ -24,7 +25,6 @@ import PersonPinIcon from '@mui/icons-material/PersonPin'
 //import QueryBuilderIcon from "@mui/icons-material/QueryBuilder";
 import ReplyIcon from '@mui/icons-material/Reply'
 import { AlertTitle } from '@mui/lab'
-import MuiAlert from '@mui/lab/Alert'
 import { randAvatar } from '@ngneat/falso'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
@@ -32,11 +32,6 @@ import issueService from '../../services/issueService'
 import auth from '../auth/auth-helper'
 import DeleteCommentDialog from '../Dialogs/DeleteComment'
 import DeleteCommentReplyDialog from '../Dialogs/DeleteCommentReply'
-
-function Alert(props) {
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  return <MuiAlert elevation={0} variant="filled" {...props} />
-}
 
 const formattedDate = (value) => moment(value).format('DD/MM-YYYY HH:mm')
 
@@ -173,8 +168,8 @@ const Comments = ({ comments, issueID, userID }) => {
   }
 
   const SuccessAlert = () => (
-    <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
-      <Alert onClose={handleClose} severity="success" variant="filled">
+    <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+      <Alert onClose={handleClose} severity="success" variant="outlined">
         <AlertTitle>Suksess</AlertTitle>
         {message}
       </Alert>
@@ -390,7 +385,7 @@ const Comments = ({ comments, issueID, userID }) => {
                   return (
                     <>
                       <Grid className={classes.commentIndent} item xs zeroMinWidth key={result._id}>
-                        <Grid item>
+                        <Grid key={index} item>
                           <List style={{ textAlign: 'left', color: 'gray' }} className={classes.commentIndent}>
                             <PersonPinIcon className={classes.iconDate} />
                             {result.author.name}

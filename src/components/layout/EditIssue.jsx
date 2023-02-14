@@ -2,9 +2,8 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles';
+import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
-
 
 import issueService from '../../services/issueService'
 import '../../App.css'
@@ -18,7 +17,7 @@ import InputLabel from '@mui/material/InputLabel'
 import IconButton from '@mui/material/IconButton'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Cancel'
-import MuiAlert from '@mui/lab/Alert'
+import Alert from '@mui/material/Alert'
 import Avatar from '@mui/material/Avatar'
 import MenuItem from '@mui/material/MenuItem'
 import ModalImage from 'react-modal-image'
@@ -29,18 +28,12 @@ import { EditorState, convertFromRaw, convertToRaw, ContentState } from 'draft-j
 import { Editor } from 'react-draft-wysiwyg'
 import draftToHtml from 'draftjs-to-html'
 import htmlToDraft from 'html-to-draftjs'
-
 import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { useHistory } from 'react-router-dom'
 import auth from '../auth/auth-helper'
 import { getUsers } from '../utils/api-user'
 import Snackbar from '@mui/material/Snackbar'
 import { AlertTitle } from '@mui/lab'
-
-function Alert(props) {
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  return <MuiAlert elevation={1} variant="filled" {...props} />
-}
 
 const errorAlert = (error) => (
   <Snackbar autohideduration={6000} onClose={handleClose}>
@@ -193,13 +186,15 @@ const reprodusere = [
   },
 ]
 
-const theme = createTheme(adaptV4Theme({
-  typography: {
-    body1: {
-      fontWeight: 600, // or 'bold'
+const theme = createTheme(
+  adaptV4Theme({
+    typography: {
+      body1: {
+        fontWeight: 600, // or 'bold'
+      },
     },
-  },
-}))
+  })
+)
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -504,7 +499,8 @@ export default function EditIssue(props) {
                 className={classes.button}
                 startIcon={<CancelIcon />}
                 size="small"
-                onClick={() => CancelEdit()}>
+                onClick={() => CancelEdit()}
+              >
                 Avbryt
               </Button>
             </div>
@@ -840,5 +836,5 @@ export default function EditIssue(props) {
         </section>
       </div>
     </div>
-  );
+  )
 }

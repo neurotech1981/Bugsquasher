@@ -4,7 +4,7 @@ import moment from 'moment'
 import PropTypes from 'prop-types'
 import '../../App.css'
 import ChartistGraph from 'react-chartist'
-import { createTheme, adaptV4Theme } from '@mui/material/styles';
+import { createTheme, adaptV4Theme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
 import Icon from '@mui/material/Icon'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'

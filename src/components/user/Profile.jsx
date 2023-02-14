@@ -28,10 +28,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import IconButton from '@mui/material/IconButton'
 import Snackbar from '@mui/material/Snackbar'
 import MuiAlert from '@mui/lab/Alert'
-
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
-}
+import Alert from '@mui/material/Alert'
 
 const useStyles = makeStyles((theme) => ({
   root: theme.mixins.gutters({
@@ -52,7 +49,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Profile(props) {
   const { id } = useParams()
-  console.log('User ID: ', id)
   //const { match } = useReactRouter()
   const state = {
     redirectToSignin: false,
@@ -107,7 +103,6 @@ export default function Profile(props) {
   }
 
   const onSubmit = () => {
-    console.log(auth.isAuthenticated().user._id)
     const user = {
       credentials: auth.isAuthenticated().token || undefined,
       _id: auth.isAuthenticated().user._id || undefined,
@@ -119,7 +114,6 @@ export default function Profile(props) {
       if (data.error) {
         setValues({ error: data.error })
       } else {
-        console.log(JSON.stringify(data.message))
         setValues({ message: data.message })
         setOpen(true)
       }
@@ -182,7 +176,8 @@ export default function Profile(props) {
                   onClick={handleClickShowPassword}
                   onMouseDown={handleMouseDownPassword}
                   edge="end"
-                  size="large">
+                  size="large"
+                >
                   {show.showPassword ? <Visibility /> : <VisibilityOff />}
                 </IconButton>
               </InputAdornment>
@@ -208,7 +203,8 @@ export default function Profile(props) {
                   onClick={handleClickShowPassword}
                   onMouseDown={handleMouseDownPassword}
                   edge="end"
-                  size="large">
+                  size="large"
+                >
                   {show.showPassword ? <Visibility /> : <VisibilityOff />}
                 </IconButton>
               </InputAdornment>
@@ -235,5 +231,5 @@ export default function Profile(props) {
         </Alert>
       </Snackbar>
     </Paper>
-  );
+  )
 }

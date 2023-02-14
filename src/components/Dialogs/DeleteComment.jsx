@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import Snackbar from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
@@ -15,19 +16,6 @@ import MuiAlert from '@mui/lab/Alert'
 import issueService from '../../services/issueService'
 import auth from '../auth/auth-helper'
 
-function PaperComponent(props) {
-  return (
-    <Draggable handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"]'}>
-      <Paper {...props} />
-    </Draggable>
-  )
-}
-
-function Alert(props) {
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  return <MuiAlert elevation={0} variant="filled" {...props} />
-}
-
 export default function DeleteComment(props) {
   const { func, id, commentId } = props
 
@@ -40,15 +28,6 @@ export default function DeleteComment(props) {
   const handleClose = () => {
     setOpen(false)
   }
-
-  const SuccessAlert = () => (
-    <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
-      <Alert onClose={handleClose} severity="success" variant="standard">
-        <AlertTitle>Suksess</AlertTitle>
-        Kommentaren ble slettet.
-      </Alert>
-    </Snackbar>
-  )
 
   const deleteComment = (e) => {
     const jwt = auth.isAuthenticated()
@@ -78,7 +57,6 @@ export default function DeleteComment(props) {
       <Dialog
         open={open}
         onClose={handleClose}
-        PaperComponent={PaperComponent}
         aria-labelledby="draggable-dialog-title"
       >
         <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
@@ -91,12 +69,15 @@ export default function DeleteComment(props) {
           <Button onClick={(e) => deleteComment(e)} variant="contained" color="secondary">
             Slett kommentar
           </Button>
-          <Button onClick={handleClose}>
-            Avbryt
-          </Button>
+          <Button onClick={handleClose}>Avbryt</Button>
         </DialogActions>
       </Dialog>
-      {SuccessAlert}
+      <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
+        <Alert severity="success" variant="standard">
+          <AlertTitle>Suksess</AlertTitle>
+          Kommentaren ble slettet.
+        </Alert>
+      </Snackbar>
     </div>
-  );
+  )
 }

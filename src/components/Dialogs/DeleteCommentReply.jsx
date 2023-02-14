@@ -6,27 +6,12 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
-import Paper from '@mui/material/Paper'
-import Draggable from 'react-draggable'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Tooltip from '@mui/material/Tooltip'
 import { AlertTitle } from '@mui/lab'
-import MuiAlert from '@mui/lab/Alert'
+import Alert from '@mui/material/Alert'
 import issueService from '../../services/issueService'
 import auth from '../auth/auth-helper'
-
-function PaperComponent(props) {
-  return (
-    <Draggable handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"]'}>
-      <Paper {...props} />
-    </Draggable>
-  )
-}
-
-function Alert(props) {
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  return <MuiAlert elevation={0} variant="filled" {...props} />
-}
 
 export default function DeleteCommentReply(props) {
   const { func_reply, id, parentId, childId } = props
@@ -78,7 +63,6 @@ export default function DeleteCommentReply(props) {
       <Dialog
         open={open}
         onClose={handleClose}
-        PaperComponent={PaperComponent}
         aria-labelledby="draggable-dialog-title"
       >
         <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
@@ -94,12 +78,13 @@ export default function DeleteCommentReply(props) {
           <Button
             onClick={() => {
               handleClose()
-            }}>
+            }}
+          >
             Avbryt
           </Button>
         </DialogActions>
       </Dialog>
       {SuccessAlert}
     </div>
-  );
+  )
 }

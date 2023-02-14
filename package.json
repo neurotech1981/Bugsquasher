@@ -65,7 +65,7 @@
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "start": "GENERATE_SOURCEMAP=false react-scripts start",
+    "start": "react-scripts start",
     "dev": "GENERATE_SOURCEMAP=false nodemon --exec react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

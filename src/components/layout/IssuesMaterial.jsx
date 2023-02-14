@@ -8,7 +8,7 @@ import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import issueService from '../../services/issueService'
-import auth from "../auth/auth-helper";
+import auth from '../auth/auth-helper'
 import '../../App.css'
 import moment from 'moment'
 
@@ -23,46 +23,46 @@ const columns = [
     minWidth: 20,
     width: 20,
     align: 'left',
-    format: value => value.toLocaleString()
+    format: (value) => value.toLocaleString(),
   },
   {
     id: 'category',
     label: 'Kategori',
     minWidth: 20,
     align: 'left',
-    format: value => value.toLocaleString()
+    format: (value) => value.toLocaleString(),
   },
   {
     id: 'severity',
     label: 'Alvorlighetsgrad',
     minWidth: 60,
     align: 'center',
-    format: value => value.toLocaleString()
+    format: (value) => value.toLocaleString(),
   },
   {
     id: 'status',
     label: 'Status',
     minWidth: 50,
     align: 'left',
-    format: value => value.toLocaleString()
+    format: (value) => value.toLocaleString(),
   },
   {
     id: 'updatedAt',
     label: 'Oppdatert',
     minWidth: 120,
     align: 'left',
-    format: value => formattedDate(value)
+    format: (value) => formattedDate(value),
   },
   {
     id: 'summary',
     label: 'Oppsummering',
     minWidth: 50,
     align: 'left',
-    format: value => value.toLocaleString()
-  }
+    format: (value) => value.toLocaleString(),
+  },
 ]
 
-const StyledTableCell = withStyles(theme => ({
+const StyledTableCell = withStyles((theme) => ({
   head: {
     backgroundColor: '#712e5e',
     // width: 1700,
@@ -70,43 +70,42 @@ const StyledTableCell = withStyles(theme => ({
     fontWeight: 700,
     color: theme.palette.common.white,
     fontSize: 16,
-    lineHeight: '1.0rem'
-
+    lineHeight: '1.0rem',
   },
   body: {
     fontSize: 14,
-    fontFamily: 'Nunito'
-  }
+    fontFamily: 'Nunito',
+  },
 }))(TableCell)
 
-const StyledTableRow = withStyles(theme => ({
+const StyledTableRow = withStyles((theme) => ({
   root: {
     fontSize: 12,
     fontFamily: 'Nunito',
     '&:nth-of-type(odd)': {
-      backgroundColor: '#6d004c21'
-    }
+      backgroundColor: '#6d004c21',
+    },
   },
   body: {
     fontSize: 12,
-    fontFamily: 'Nunito'
-  }
+    fontFamily: 'Nunito',
+  },
 }))(TableRow)
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     width: '70%',
     marginTop: theme.spacing(12),
     marginLeft: 290,
     overflowX: 'auto',
-    borderRadius: 14
+    borderRadius: 14,
   },
   table: {
-    minWidth: 500
+    minWidth: 500,
   },
   tableWrapper: {
     maxHeight: 900,
-    overflow: 'auto'
+    overflow: 'auto',
   },
   label: {
     display: 'inline',
@@ -119,11 +118,11 @@ const useStyles = makeStyles(theme => ({
     textAlign: 'center',
     whiteSpace: 'nowrap',
     verticalAlign: 'baseline',
-    borderRadius: '.25em'
-  }
+    borderRadius: '.25em',
+  },
 }))
 
-export default function Issues (props) {
+export default function Issues(props) {
   const classes = useStyles()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -133,7 +132,7 @@ export default function Issues (props) {
     setPage(newPage)
   }
 
-  const handleChangeRowsPerPage = event => {
+  const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
@@ -149,12 +148,12 @@ export default function Issues (props) {
     setData(res)
   }
 
-  const renderIssues = issues => {
+  const renderIssues = (issues) => {
     const value = issues[columns.id]
     return (
-      <TableCell style={{ minWidth: columns.minWidth }} key={issues._id} align={columns.align} >
-        {(dataset && dataset.length > 0) ? (
-          dataset.map(dataset => renderIssues(dataset))
+      <TableCell style={{ minWidth: columns.minWidth }} key={issues._id} align={columns.align}>
+        {dataset && dataset.length > 0 ? (
+          dataset.map((dataset) => renderIssues(dataset))
         ) : (
           <p>Ingen saker registrert.</p>
         )}

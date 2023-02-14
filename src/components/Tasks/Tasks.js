@@ -71,7 +71,7 @@ export default function Tasks(props) {
         ))}
       </TableBody>
     </Table>
-  );
+  )
 }
 
 Tasks.propTypes = {

@@ -22,48 +22,47 @@ const useStyles = makeStyles((theme) => ({
     margin: 'auto',
     textAlign: 'center',
     marginTop: theme.spacing(15),
-    paddingBottom: theme.spacing(2)
+    paddingBottom: theme.spacing(2),
   },
   error: {
-    verticalAlign: 'middle'
+    verticalAlign: 'middle',
   },
   title: {
     marginTop: theme.spacing(2),
-    color: theme.palette.openTitle
+    color: theme.palette.openTitle,
   },
   textField: {
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
-    width: 300
+    width: 300,
   },
   submit: {
     margin: 'auto',
-    marginBottom: theme.spacing(2)
-  }
+    marginBottom: theme.spacing(2),
+  },
 }))
 
-export default function Signup () {
+export default function Signup() {
   const initialState = {
     name: '',
     password: '',
     passwordConfirmation: '',
     email: '',
     open: false,
-    error: ''
+    error: '',
   }
 
   const [values, setValues] = useState(initialState)
 
-  const history = useHistory();
+  const history = useHistory()
   const goHome = () => {
-    history.push("/signin");
+    history.push('/signin')
   }
-
 
   const handleChange = (name) => (event) => {
     setValues({
       ...values,
-      [name]: event.target.value
+      [name]: event.target.value,
     })
   }
 
@@ -72,7 +71,7 @@ export default function Signup () {
       name: values.name || undefined,
       email: values.email || undefined,
       password: values.password || undefined,
-      passwordConfirmation: values.passwordConfirmation || undefined
+      passwordConfirmation: values.passwordConfirmation || undefined,
     }
     registerUser(user).then((data) => {
       if (data.error) {
@@ -117,7 +116,7 @@ export default function Signup () {
           />
           <br />
           <TextField
-             id="password"
+            id="password"
             type="password"
             label="Passord"
             className={classes.textField}
@@ -171,5 +170,5 @@ export default function Signup () {
         </DialogActions>
       </Dialog>
     </div>
-  );
+  )
 }

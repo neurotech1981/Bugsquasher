@@ -3,13 +3,8 @@ import TextField from '@mui/material/TextField'
 import { useForm, Controller } from 'react-hook-form'
 import { Typography, Snackbar, Button } from '@mui/material'
 import { createStyles } from '@mui/styles'
-import MuiAlert from '@mui/lab/Alert'
 import { AlertTitle } from '@mui/lab'
-
-function Alert(props) {
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  return <MuiAlert elevation={1} variant="filled" {...props} />
-}
+import Alert from '@mui/material/Alert'
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -20,8 +15,7 @@ const useStyles = createStyles((theme) => ({
     '& .MuiTextField-root': {
       width: '100%  ',
     },
-    '& .MuiButtonBase-root': {
-    },
+    '& .MuiButtonBase-root': {},
   },
   commentField: {
     minWidth: '50%',

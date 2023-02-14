@@ -11,10 +11,10 @@ import { Redirect } from 'react-router-dom'
 import auth from '../auth/auth-helper'
 import { deleteUser } from '../utils/api-user'
 
-export default function DeleteUser (props) {
+export default function DeleteUser(props) {
   const initialState = {
     redirect: false,
-    open: false
+    open: false,
   }
 
   const [values, setValues] = useState(initialState)
@@ -27,14 +27,13 @@ export default function DeleteUser (props) {
     const jwt = auth.isAuthenticated()
     deleteUser(
       {
-        userId: props.userId
+        userId: props.userId,
       },
       { t: jwt.token }
     )
 
     auth.signout(() => console.log('deleted'))
     setValues({ redirect: true })
-
   }
 
   const handleRequestClose = () => {
@@ -47,11 +46,7 @@ export default function DeleteUser (props) {
   }
   return (
     <span>
-      <IconButton
-        aria-label="Delete"
-        onClick={() => clickButton()}
-        color="secondary"
-        size="large">
+      <IconButton aria-label="Delete" onClick={() => clickButton()} color="secondary" size="large">
         <Delete />
       </IconButton>
 
@@ -61,23 +56,14 @@ export default function DeleteUser (props) {
           <DialogContentText>Confirm to delete your account.</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={() => handleRequestClose()}
-            color="primary"
-            variant="contained"
-          >
+          <Button onClick={() => handleRequestClose()} color="primary" variant="contained">
             Cancel
           </Button>
-          <Button
-            onClick={() => deleteAccount()}
-            color="secondary"
-            autoFocus="autoFocus"
-            variant="contained"
-          >
+          <Button onClick={() => deleteAccount()} color="secondary" autoFocus="autoFocus" variant="contained">
             Confirm
           </Button>
         </DialogActions>
       </Dialog>
     </span>
-  );
+  )
 }

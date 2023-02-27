@@ -29,7 +29,7 @@ export const newIssue = (req, res) => {
   data.severity = req.body.data.severity
   data.priority = req.body.data.priority
   data.userid = req.body.data.userid
-  data.imageName = req.body.data.imageName
+  data.project = req.body.data.project
 
   data.save((err) => {
     if (err) {
@@ -115,6 +115,11 @@ export const getIssueByID = (req, res) => {
           path: 'delegated',
           select: 'name',
           model: 'User',
+        },
+        {
+          path: 'project',
+          select: 'name',
+          model: 'Project',
         },
       ])
       .exec()

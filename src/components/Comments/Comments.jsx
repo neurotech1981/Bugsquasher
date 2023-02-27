@@ -168,8 +168,13 @@ const Comments = ({ comments, issueID, userID }) => {
   }
 
   const SuccessAlert = () => (
-    <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
-      <Alert onClose={handleClose} severity="success" variant="outlined">
+    <Snackbar
+      anchorOrigin={{ vertical: 'bottom',horizontal: 'center' }}
+      open={open}
+      autoHideDuration={3000}
+      onClose={handleClose}
+    >
+      <Alert onClose={handleClose} severity="success" variant="filled">
         <AlertTitle>Suksess</AlertTitle>
         {message}
       </Alert>
@@ -234,7 +239,7 @@ const Comments = ({ comments, issueID, userID }) => {
       <Typography component={'span'} variant={'subtitle1'}>
         Kommentarer ({comment.length})
       </Typography>
-      {SuccessAlert()}
+      <SuccessAlert />
       <ListItem button onClick={handleClickCommentCollapse} style={{ minWidth: '100vh', marginBottom: '2em' }}>
         {collapseComments ? (
           <>

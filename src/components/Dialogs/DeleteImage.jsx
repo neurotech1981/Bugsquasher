@@ -99,8 +99,8 @@ export default function DraggableDialog(props) {
           <DialogContentText>Er du sikker på at du vil slette bildet?</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => removeImage(imageIndex)} variant="contained" color="secondary">
-            Slett bilde1234
+          <Button onClick={() => removeImage(imageIndex)} variant="contained" color="error">
+            Slett bildet
           </Button>
           <Button onClick={handleClose}>Avbryt</Button>
         </DialogActions>

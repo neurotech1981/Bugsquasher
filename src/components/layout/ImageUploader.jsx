@@ -43,6 +43,7 @@ LinearProgressWithLabel.propTypes = {
 const useStyles = makeStyles(() => ({
   root: {
     border: 0,
+    paddingLeft: '20px',
     borderRadius: 3,
     color: 'theme.palette.text.primary',
     padding: '0 0px',
@@ -293,7 +294,12 @@ function Previews(props) {
             </Icon>
           </Button>
         </p>
-        <Snackbar open={open} autohideduration={2000} onClose={handleClose}>
+        <Snackbar
+          open={open}
+          autohideduration={2000}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
           <Alert onClose={handleClose} severity="success" variant="filled">
             <AlertTitle>Suksess</AlertTitle>
             {files.length} {files.length > 0 ? 'bilder' : 'bilde'} ble lastet opp!

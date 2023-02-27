@@ -3,10 +3,10 @@ import { createProject, getProjects, getProject, updateProject, deleteProject } 
 
 const router = express.Router()
 
-router.route('/api/projects').post(createProject)
-router.route('/api/projects/list').get(getProjects)
-router.route('/api/projects/view/:id').get(getProject)
-router.route('/api/projects/update/:id').put(updateProject)
-router.route('/api/projects/delete/:id').delete(deleteProject)
+router.route('/api/project/new-project').post(createProject)
+router.route('/api/project/list').get(getProjects)
+router.route('/api/project/view/:id').get(getProject)
+router.route('/api/project/update/:id').post(updateProject)
+router.route('/api/project/delete/:id').get(deleteProject)
 
 export default router

@@ -274,7 +274,7 @@ export default function ViewIssue(props) {
     const res = issueService.getIssueByID(id, token)
     await res.then(function (result) {
       console.log('result: ', result.imageName)
-      setImages(result.imageName.length > 0 ? result.imageName : 'none')
+      setImages(result.imageName.length > 0 ? result.imageName : ['none'])
       setData(result)
 
       let editorStateDesc = EditorState.createWithContent(convertFromRaw(JSON.parse(result.description)))
@@ -844,6 +844,22 @@ export default function ViewIssue(props) {
                   secondary={
                     <Typography type="body2" style={{ color: '#555' }}>
                       {formattedDate(dataset.updatedAt)}
+                    </Typography>
+                  }
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  disableTypography
+                  className={classes.dateText}
+                  primary={
+                    <Typography type="body2" style={{ color: '#000' }}>
+                      Prosjekt <UpdateIcon style={{ fontSize: '18', verticalAlign: 'text-top' }} />
+                    </Typography>
+                  }
+                  secondary={
+                    <Typography type="body2" style={{ color: '#555' }}>
+                      {dataset.project ? dataset.project.name : 'Ingen prosjekt'}
                     </Typography>
                   }
                 />

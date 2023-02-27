@@ -350,7 +350,6 @@ export default function EditIssue(props) {
   }, [id, users.length])
 
   const getIssueByID = async (id, token) => {
-    console.log(token)
     const res = await issueService.getIssueByID(id, token)
 
     let editorStateDesc = EditorState.createWithContent(convertFromRaw(JSON.parse(res.description)))
@@ -362,8 +361,6 @@ export default function EditIssue(props) {
     setEditorStateRep(editorStateRep)
 
     setData(res)
-    console.log('Result Dataset: >>>>', res)
-    console.log('Imagename: ', res.imageName)
     if (res.imageName === '' || res.imageName === '[none]' || res.imageName === 'none' || res.imageName === undefined) {
       setImages(['none'])
     } else {
@@ -444,7 +441,6 @@ export default function EditIssue(props) {
   )
 
   const imgList = images.map((file, index) => {
-    console.log('File', file)
 
     if (file === 'none' || file === undefined) {
       return <div key={index}>Ingen vedlegg</div>

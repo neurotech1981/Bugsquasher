@@ -14,7 +14,7 @@ export const createProject = async (req, res) => {
 // Get all projects
 export const getProjects = async (req, res) => {
   try {
-    const projects = await Project.find()
+    const projects = await Project.find().populate('teamMembers')
     res.json(projects)
   } catch (err) {
     res.status(400).json(`Error: ${err}`)
@@ -24,7 +24,8 @@ export const getProjects = async (req, res) => {
 // Get a specific project by id
 export const getProject = async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id)
+    const project = await Project.findById(req.params.id).populate('teamMembers')
+    console.log('Project: ', project)
     res.json(project)
   } catch (err) {
     res.status(400).json(`Error: ${err}`)

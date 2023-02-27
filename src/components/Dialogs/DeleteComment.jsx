@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
-import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
@@ -12,9 +12,9 @@ import Draggable from 'react-draggable'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Tooltip from '@mui/material/Tooltip'
 import { AlertTitle } from '@mui/lab'
-import MuiAlert from '@mui/lab/Alert'
 import issueService from '../../services/issueService'
 import auth from '../auth/auth-helper'
+
 
 export default function DeleteComment(props) {
   const { func, id, commentId } = props
@@ -28,6 +28,20 @@ export default function DeleteComment(props) {
   const handleClose = () => {
     setOpen(false)
   }
+
+  const SuccessAlert = () => (
+    <Snackbar
+      open={open}
+      autohideduration={3000}
+      onClose={handleClose}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+    >
+      <Alert onClose={handleClose} severity="success" variant="standard">
+        <AlertTitle>Suksess</AlertTitle>
+        Kommentaren ble slettet.
+      </Alert>
+    </Snackbar>
+  )
 
   const deleteComment = (e) => {
     const jwt = auth.isAuthenticated()
@@ -54,11 +68,7 @@ export default function DeleteComment(props) {
       <Tooltip title="Slett">
         <DeleteIcon onClick={handleClickOpen} />
       </Tooltip>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="draggable-dialog-title"
-      >
+      <Dialog open={open} onClose={handleClose} aria-labelledby="draggable-dialog-title">
         <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
           Slett kommentar
         </DialogTitle>
@@ -66,18 +76,13 @@ export default function DeleteComment(props) {
           <DialogContentText>Er du sikker på at du vil slette kommentaren?</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={(e) => deleteComment(e)} variant="contained" color="secondary">
+          <Button onClick={(e) => deleteComment(e)} variant="contained" color="error">
             Slett kommentar
           </Button>
           <Button onClick={handleClose}>Avbryt</Button>
         </DialogActions>
       </Dialog>
-      <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
-        <Alert severity="success" variant="standard">
-          <AlertTitle>Suksess</AlertTitle>
-          Kommentaren ble slettet.
-        </Alert>
-      </Snackbar>
+      {SuccessAlert}
     </div>
   )
 }

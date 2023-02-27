@@ -19,7 +19,7 @@ const projectSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Active', 'Inactive', 'Completed'],
+    enum: ['Todo', 'In progress', 'Done'],
     required: true,
   },
   teamMembers: [

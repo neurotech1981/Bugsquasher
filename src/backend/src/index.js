@@ -6,6 +6,7 @@ import Data from './models/issue.js'
 import userRoutes from './routes/user.js'
 import authRoutes from './routes/auth.js'
 import issueRoutes from './routes/issue.js'
+import projectRoutes from './routes/project.js'
 import validateCommentInput from '../../validation/comment-validation.js'
 import config from '../config/index.js'
 import express from 'express'
@@ -279,6 +280,7 @@ if (cluster.isPrimary) {
   app.use('/accounts', AccountController)
   app.use('/', userRoutes)
   app.use('/', issueRoutes)
+  app.use('/', projectRoutes)
 
   app.use((err, req, res, next) => {
     if (err.name === 'UnauthorizedError') {

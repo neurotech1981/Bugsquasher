@@ -18,12 +18,11 @@ import {
   convertToRaw,
   ContentState,
 } from 'draft-js'
-import { Typography, Snackbar, TextField, Container, Grid, Button, CssBaseline } from '@mui/material'
+import { Typography, Snackbar, TextField, Container, Grid, Button, CssBaseline, Autocomplete } from '@mui/material'
 import MuiMenuItem from '@mui/material/MenuItem'
 import { Editor } from 'react-draft-wysiwyg'
 //import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs'
-import MuiAlert from '@mui/lab/Alert'
 import { AlertTitle } from '@mui/lab'
 import { useDispatch, useSelector } from 'react-redux'
 import Box from '@mui/material/Box'
@@ -32,6 +31,7 @@ import auth from '../auth/auth-helper'
 import { findUserProfile, getUsers } from '../utils/api-user'
 import { clearAction } from '../../redux/store'
 import Alert from '@mui/material/Alert'
+import { getProjects } from '../../services/projectService'
 
 const alvorlighetsGrad = [
   {
@@ -230,7 +230,7 @@ const useStyles = makeStyles((theme) => ({
   textField: {
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
-    width: '90%',
+    width: '100%',
   },
   BoxErrorField: {
     backgroundColor: '#ffe4e7',
@@ -337,6 +337,8 @@ export default function CreateIssue(props) {
 
   const dispatch = useDispatch()
   const clearStoreImage = (files) => dispatch(clearAction(files))
+  const [projects, setProjects] = useState([])
+  const [selectedProject, setSelectedProject] = useState('')
 
   const classes = useStyles()
   const [values, setValues] = useState(initialState)
@@ -386,6 +388,15 @@ export default function CreateIssue(props) {
     if (!users.length) {
       init(id)
     }
+
+    getProjects({ t: jwt.token }).then((data) => {
+      console.log('Data', data.data)
+      if (data.error) {
+        setValues({ redirectToSignin: true })
+      } else {
+        setProjects(data.data)
+      }
+    })
   }, [id, users.length])
 
   const handleChange = (name) => (event) => {
@@ -476,6 +487,7 @@ export default function CreateIssue(props) {
       imageName: imageNameValue, //images.imgUploadState ? images.state.imageupload[1][0].name : 'none',
       // eslint-disable-next-line no-underscore-dangle
       userid: userinfo.user._id,
+      project: selectedProject,
     }
     const jwt = auth.isAuthenticated()
 
@@ -536,7 +548,7 @@ export default function CreateIssue(props) {
           <Box textAlign="center">
             <Typography variant="body2">Alle felt merket med en stjerne (*) er obligatoriske</Typography>
           </Box>
-          <Grid container alignItems="flex-start" spacing={2} style={{ padding: '1rem' }}>
+          <Grid container alignItems="flex-start" spacing={2} style={{ paddingRight: '2rem' }}>
             <CssBaseline />
             <Grid item xs={6}>
               <TextField
@@ -717,7 +729,22 @@ export default function CreateIssue(props) {
                 ''
               )}
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={6} sx={{ mt: 2 }}>
+              <Autocomplete
+                name="prosjekt"
+                className={classes.textField}
+                options={projects}
+                getOptionLabel={(option) => option.name || ''}
+                value={selectedProject}
+                onChange={(event, newValue) => {
+                  setSelectedProject(newValue)
+                }}
+                renderInput={(params) => (
+                  <TextField className={classes.input} {...params} label="Select Project" variant="outlined" required />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12}>
               <TextField
                 id="outlined-oppsummering"
                 label="Oppsummering *"
@@ -739,7 +766,7 @@ export default function CreateIssue(props) {
                 ''
               )}
             </Grid>
-            <Grid item xs={12} style={{ padding: '1rem' }}>
+            <Grid item xs={12} style={{ paddingLeft: '2rem' }}>
               <StyledEngineProvider injectFirst>
                 <ThemeProvider theme={theme}>
                   <Typography variant="body1">Beskrivelse *</Typography>
@@ -754,7 +781,7 @@ export default function CreateIssue(props) {
                   borderTop: '0px solid lightgray',
                   minHeight: '100%',
                   height: '350px',
-                  padding: 10,
+                  padding: '1em',
                   borderRadius: '0 0 0.5rem 0.5rem',
                 }}
                 toolbarStyle={{
@@ -802,7 +829,7 @@ export default function CreateIssue(props) {
                 ''
               )}
             </Grid>
-            <Grid item xs={12} style={{ padding: '1rem' }}>
+            <Grid item xs={12} style={{ paddingLeft: '2rem' }}>
               <StyledEngineProvider injectFirst>
                 <ThemeProvider theme={theme}>
                   <Typography variant="body1">Steg for å reprodusere</Typography>
@@ -817,7 +844,7 @@ export default function CreateIssue(props) {
                   borderTop: '0px solid lightgray',
                   minHeight: '100%',
                   height: '350px',
-                  padding: 10,
+                  padding: '1em',
                   borderRadius: '0 0 0.5rem 0.5rem',
                 }}
                 onEditorStateChange={onEditorStateChangeRep}
@@ -901,7 +928,12 @@ export default function CreateIssue(props) {
                 <Icon className={classes.rightIcon}>send</Icon>
               </Button>
             </Grid>
-            <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
+            <Snackbar
+              open={open}
+              autohideduration={3000}
+              onClose={handleClose}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
               <Alert onClose={handleClose} severity="success" variant="standard">
                 <AlertTitle>Suksess</AlertTitle>
                 Sak ble opprettet!

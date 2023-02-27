@@ -28,6 +28,7 @@ const DataSchema = new Schema(
     severity: { type: String, required: true },
     priority: { type: String, required: true },
     reporter: { type: Schema.Types.ObjectId, ref: 'User' },
+    project: { type: Schema.Types.ObjectId, ref: 'Project' },
     step_reproduce: { type: String },
     summary: { type: String, required: true },
     assigned: { type: Schema.Types.ObjectId, ref: 'User' },

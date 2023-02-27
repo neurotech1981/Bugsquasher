@@ -48,7 +48,12 @@ const CommentForm = ({ onSubmit, openNewComment, setOpenNewComment }) => {
   }
 
   const SuccessAlert = () => (
-    <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
+    <Snackbar
+      open={open}
+      autoHideDuration={3000}
+      onClose={handleClose}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+    >
       <Alert elevation={0} onClose={handleClose} severity="success" variant="filled">
         <AlertTitle>Ny kommentar</AlertTitle>
         Kommentaren din ble lagt til.

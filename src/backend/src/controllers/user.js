@@ -97,7 +97,6 @@ export async function changePassword(req, res, next) {
   })
 
   if (!account) throw 'Invalid ID'
-  console.log('Account', account)
 
   // update password and remove reset token
   account.hashedPassword = hash(req.body.password, account.salt)
@@ -163,8 +162,6 @@ export async function getRefreshToken(token) {
 }
 
 export async function resetPassword({ token, password }) {
-  console.log('TOKEN : ', token, password)
-
   const account = await User.findOne({
     'resetToken.token': token,
     'resetToken.expires': { $gt: Date.now() },

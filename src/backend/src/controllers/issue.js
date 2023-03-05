@@ -186,7 +186,6 @@ export const deleteImage = (req, res) => {
   const { image, name } = req.body
   const { id } = req.params
 
-  console.log(image, name, id)
   if (!image || !name || !id) {
     return res.status(400).json({
       success: false,

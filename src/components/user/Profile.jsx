@@ -27,7 +27,6 @@ import DeleteUser from './DeleteUser'
 import InputAdornment from '@mui/material/InputAdornment'
 import IconButton from '@mui/material/IconButton'
 import Snackbar from '@mui/material/Snackbar'
-import MuiAlert from '@mui/lab/Alert'
 import Alert from '@mui/material/Alert'
 
 const useStyles = makeStyles((theme) => ({

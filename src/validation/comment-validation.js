@@ -1,11 +1,12 @@
+/* eslint-disable no-undef */
 const validator = require('validator')
 // eslint-disable-next-line no-underscore-dangle
 const _isEmpty = require('./is-empty')
 
 // eslint-disable-next-line no-undef
-module.exports = function validateCommentInput (data) {
+module.exports = function validateCommentInput(data) {
   const errors = {}
-  console.log("Inside validation for comment", data)
+  console.log('Inside validation for comment', data)
   data.body = !_isEmpty(data.body) ? data.body : ''
 
   if (validator.isEmpty(data.body)) {
@@ -14,6 +15,6 @@ module.exports = function validateCommentInput (data) {
 
   return {
     errors,
-    isValid: _isEmpty(errors)
+    isValid: _isEmpty(errors),
   }
 }

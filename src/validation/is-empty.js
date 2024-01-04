@@ -1,4 +1,5 @@
-const isEmpty = value =>
+/* eslint-disable no-undef */
+const isEmpty = (value) =>
   value === undefined ||
   value === null ||
   (typeof value === 'object' && Object.keys(value).length === 0) ||

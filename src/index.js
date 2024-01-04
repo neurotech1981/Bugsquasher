@@ -4,18 +4,18 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.js'
 import * as serviceWorker from './serviceWorker'
 import WebFont from 'webfontloader'
-import * as Sentry from "@sentry/react";
-import { BrowserTracing } from "@sentry/tracing";
+import * as Sentry from '@sentry/react'
+import { BrowserTracing } from '@sentry/tracing'
 
 Sentry.init({
-  dsn: "https://d048e5af08fb42eea06fc5d72c033bcd@o1037119.ingest.sentry.io/6004826",
+  dsn: 'https://d048e5af08fb42eea06fc5d72c033bcd@o1037119.ingest.sentry.io/6004826',
   integrations: [new BrowserTracing()],
 
   // Set tracesSampleRate to 1.0 to capture 100%
   // of transactions for performance monitoring.
   // We recommend adjusting this value in production
   tracesSampleRate: 1.0,
-});
+})
 
 ReactDOM.render(
   <BrowserRouter>
@@ -27,22 +27,22 @@ ReactDOM.render(
 WebFont.load({
   google: {
     families: [
-      "IBM Plex Mono:400",
-      "Space Mono",
-      "Manrope:400",
-      "Lato:400",
-      "Sora:300,400,500,600,700",
-      "Inter",
-      "Nunito Sans:300,400,700",
-      "IBM Plex Sans",
-      "Poppins",
-      "Montserrat",
-      "Open Sans",
-      "Roboto",
-      "sans-serif",
+      'IBM Plex Mono:400',
+      'Space Mono',
+      'Manrope:400',
+      'Lato:400',
+      'Sora:300,400,500,600,700',
+      'Inter',
+      'Nunito Sans:300,400,700',
+      'IBM Plex Sans',
+      'Poppins',
+      'Montserrat',
+      'Open Sans',
+      'Roboto',
+      'sans-serif',
     ],
   },
-});
+})
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

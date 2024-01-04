@@ -314,15 +314,15 @@ export default function ViewIssue(props) {
   const upDateDelegated = async (id, data) => {
     const jwt = auth.isAuthenticated()
 
-    await issueService
-      .upDateDelegated(id, { delegated: data }, jwt.token)
-      .then((response) => {
-        setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true })
-        setData({ ...dataset, delegated: data })
-      })
-      .catch((e) => {
-        console.error('Update delegated user error: ', e)
-      })
+    try {
+      console.log(users)
+      const selectedUser = users.find((value) => value._id === data)
+      await issueService.upDateDelegated(id, { delegated: selectedUser._id }, jwt.token)
+      setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true })
+      setData({ ...dataset, delegated: selectedUser })
+    } catch (e) {
+      console.error('Update delegated user error: ', e)
+    }
   }
 
   const onDelete = async () => {
@@ -569,7 +569,7 @@ export default function ViewIssue(props) {
             <div className="item15">
               <TextField
                 label="Delegert til"
-                value={[dataset.delegated != null ? dataset.delegated.name : 'Laster...']}
+                value={[dataset.delegated ? dataset.delegated.name : '']}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -765,8 +765,8 @@ export default function ViewIssue(props) {
                   <TextField
                     id="outlined-select-delegert"
                     select
-                    value={[dataset.delegated != null ? dataset.delegated._id : 0]}
-                    label="Deleger til"
+                    value={dataset.delegated != null ? dataset.delegated._id : ''}
+                    label="Delegert til"
                     name="delegert"
                     onChange={(e) => upDateDelegated(dataset._id, e.target.value)}
                     InputProps={{

@@ -75,7 +75,7 @@
     "eject": "react-scripts eject",
     "lint": "eslint src/**/*.js src/**/*.jsx"
   },
-  "proxy": "http://localhost:3001",
+  "proxy": "http://0.0.0.0:3001",
   "secure": false,
   "eslintConfig": {
     "extends": "react-app"
@@ -109,7 +109,7 @@
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-standard": "^5.0.0",
-    "prettier": "^2.8.3",
+    "prettier": "2.8.8",
     "redux-devtools": "^3.7.0"
   }
 }

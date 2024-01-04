@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   TextField,
   Button,
@@ -15,12 +15,17 @@ import {
   Autocomplete,
 } from '@mui/material'
 import { createProject } from '../../services/projectService'
+import { Redirect } from 'react-router-dom'
 import { getUsers } from '../utils/api-user'
 import auth from '../auth/auth-helper'
 
 const CreateProjectPage = () => {
   const jwt = auth.isAuthenticated()
 
+  const state = {
+    redirectToSignin: false,
+  }
+  const [values, setValues] = useState(state)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [teamMembers, setTeamMembers] = useState([])
@@ -94,6 +99,10 @@ const CreateProjectPage = () => {
     //}
     //fetchUsers()
   }, [])
+
+  if (!auth.isAuthenticated().user || values.redirectToSignin) {
+    return <Redirect to="/signin" />
+  }
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -175,17 +184,6 @@ const CreateProjectPage = () => {
             {isSubmitting ? 'Creating...' : 'Create'}
           </Button>
         </form>
-        <Divider sx={{ mt: 3 }} />
-        <Typography variant="subtitle1" sx={{ mt: 2 }}>
-          Users
-        </Typography>
-        <List sx={{ maxHeight: 200, overflow: 'auto', mt: 1 }}>
-          {users.map((user) => (
-            <ListItem key={user.id}>
-              <ListItemText primary={user.name} secondary={user.email} />
-            </ListItem>
-          ))}
-        </List>
       </Paper>
     </Box>
   )

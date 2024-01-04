@@ -18,7 +18,7 @@ body {
   -o-background-size: cover;
   background-size: cover;
   background-blend-mode: soft-light;
-   background-repeat: no-repeat;
+  background-repeat: no-repeat;
   background-clip: padding-box;
   background-size: cover;
   -webkit-font-smoothing: auto;
@@ -59,7 +59,7 @@ body {
   border: 3px solid red;
 }
 
-@import "https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css";
+@import 'https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css';
 
 .ct-series-a .ct-bar,
 .ct-series-a .ct-line,
@@ -116,7 +116,7 @@ body {
 .status {
   border-radius: 0.3em;
   padding: 0.4em !important;
-  vertical-align: "sub";
+  vertical-align: 'sub';
   font-weight: 500;
   font-size: 1em;
   background: -webkit-linear-gradient(90deg, #2f0a2621, #41476757);
@@ -202,7 +202,7 @@ body {
   border-color: #eeeeee;
   border-style: dashed;
   background-color: #fafafa;
-  color: #2F1937;
+  color: #2f1937;
   outline: none;
   transition: border 0.16s ease-in-out;
   margin-top: 20px;
@@ -277,12 +277,7 @@ a:focus {
 }
 
 .makeStyles-drawerPaper-7 {
-  background: linear-gradient(
-    294.17deg,
-    rgb(47, 25, 55) 35.57%,
-    rgb(69, 38, 80) 92.42%,
-    rgb(69, 38, 80) 92.42%
-  );
+  background: linear-gradient(294.17deg, rgb(47, 25, 55) 35.57%, rgb(69, 38, 80) 92.42%, rgb(69, 38, 80) 92.42%);
 }
 
 .MuiListItemText-root {
@@ -424,30 +419,29 @@ a:focus {
 }
 
 .form-grid {
-  overflow:hidden;
+  overflow: hidden;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-template-areas:
-    "topLeft topLeft topLeft topRight topRight topRight"
-    "header header header header header header"
-    "beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse"
-    "prioritet prioritet prioritet oppdatert oppdatert oppdatert"
-    "kategori kategori kategori delegated delegated delegated"
-    "alvorlighet alvorlighet alvorlighet reprodusere reprodusere reprodusere"
-    "status status status status status status"
-    "oppsummering oppsummering oppsummering oppsummering oppsummering oppsummering"
-    "stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere"
-    "tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo"
-    "vedlegg vedlegg vedlegg vedlegg vedlegg vedlegg"
-    "commentform commentform commentform commentform commentform commentform"
-    "comments comments comments comments comments comments";
+    'topLeft topLeft topLeft topRight topRight topRight'
+    'header header header header header header'
+    'beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse beskrivelse'
+    'prioritet prioritet prioritet oppdatert oppdatert oppdatert'
+    'kategori kategori kategori delegated delegated delegated'
+    'alvorlighet alvorlighet alvorlighet reprodusere reprodusere reprodusere'
+    'status status status status status status'
+    'oppsummering oppsummering oppsummering oppsummering oppsummering oppsummering'
+    'stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere stegreprodusere'
+    'tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo tilleggsinfo'
+    'vedlegg vedlegg vedlegg vedlegg vedlegg vedlegg'
+    'commentform commentform commentform commentform commentform commentform'
+    'comments comments comments comments comments comments';
   grid-gap: 0 2rem;
   border-radius: 12px 0px 0px 12px;
   padding: 2rem;
-  background-color: rgba(255, 255, 255, 1.0);
+  background-color: rgba(255, 255, 255, 1);
   border: 1px solid rgba(209, 213, 219, 0.3);
-  box-shadow: rgb(145 158 171 / 24%) 0px 0px 2px 0px,
-    rgb(145 158 171 / 24%) 0px 16px 32px -4px;
+  box-shadow: rgb(145 158 171 / 24%) 0px 0px 2px 0px, rgb(145 158 171 / 24%) 0px 16px 32px -4px;
   transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
 }
 
@@ -520,14 +514,14 @@ summary {
   display: grid;
   padding-top: 90px;
   grid-area: auto;
-  grid-template-areas: "main";
+  grid-template-areas: 'main';
   grid-template-columns: 100%;
   /* grid-column-gap: 16px; */
   width: 60%;
   margin: 0 auto;
   grid-template-areas:
-    "main aside"
-    "main aside";
+    'main aside'
+    'main aside';
   /* grid-template-columns: calc(147% - 40px) 350px 200px;*/
 }
 
@@ -547,19 +541,19 @@ summary {
     display: none;
   }
   .two-columns__center {
-      /* display: grid; */
-      /* padding-top: 90px; */
-      /* grid-area: auto; */
-      /* grid-template-areas: "main"; */
-      grid-template-columns: 100%;
-      /* grid-column-gap: 16px; */
-      width: 100%;
-      /* margin: 0 auto; */
-      /* grid-template-areas:
+    /* display: grid; */
+    /* padding-top: 90px; */
+    /* grid-area: auto; */
+    /* grid-template-areas: "main"; */
+    grid-template-columns: 100%;
+    /* grid-column-gap: 16px; */
+    width: 100%;
+    /* margin: 0 auto; */
+    /* grid-template-areas:
           "main aside"
           "main aside"; */
-      /* transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; */
-    }
+    /* transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; */
+  }
 }
 
 @media only screen and (max-width: 1024px) {
@@ -582,5 +576,5 @@ summary {
 }
 
 .css-d5sp9s-MuiTableCell-root {
-  width:  inherit !important; /*calc((100% - 0px) / 1)*/
+  width: inherit !important; /*calc((100% - 0px) / 1)*/
 }

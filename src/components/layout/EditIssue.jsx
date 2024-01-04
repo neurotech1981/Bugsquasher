@@ -441,7 +441,6 @@ export default function EditIssue(props) {
   )
 
   const imgList = images.map((file, index) => {
-
     if (file === 'none' || file === undefined) {
       return <div key={index}>Ingen vedlegg</div>
     }

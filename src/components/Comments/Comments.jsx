@@ -169,7 +169,7 @@ const Comments = ({ comments, issueID, userID }) => {
 
   const SuccessAlert = () => (
     <Snackbar
-      anchorOrigin={{ vertical: 'bottom',horizontal: 'center' }}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       open={open}
       autoHideDuration={3000}
       onClose={handleClose}

@@ -1,4 +1,4 @@
- const getErrorMessage = (err) => {
+const getErrorMessage = (err) => {
   let message = ''
   if (err.code) {
     switch (err.code) {
@@ -18,20 +18,17 @@
   return message
 }
 
- const getUniqueErrorMessage = (err) => {
+const getUniqueErrorMessage = (err) => {
   let output
-  console.log(err);
+  console.log(err)
   try {
-    const fieldName = err.message.substring(
-      err.message.lastIndexOf('.$') + 2,
-      err.message.lastIndexOf('_1')
-    )
+    const fieldName = err.message.substring(err.message.lastIndexOf('.$') + 2, err.message.lastIndexOf('_1'))
     output = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} already exists`
   } catch (ex) {
     output = 'Field Already Exists!'
   }
-  return output;
+  return output
 }
 
 //module.exports = { getErrorMessage, getUniqueErrorMessage }
-export default {getErrorMessage, getUniqueErrorMessage};
+export default { getErrorMessage, getUniqueErrorMessage }

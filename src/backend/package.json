@@ -46,6 +46,7 @@
     "@babel/polyfill": "^7.12.1",
     "@babel/preset-env": "^7.15.6",
     "@babel/runtime": "^7.15.4",
+    "@types/express-rate-limit": "^6.0.0",
     "@types/morgan": "^1.9.4",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",

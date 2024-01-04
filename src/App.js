@@ -36,9 +36,9 @@ const theme = createTheme(
   adaptV4Theme({
     typography: {
       fontFamily: [
-        'Space Mono',
-        'IBM Plex Mono',
         'Sora',
+        'IBM Plex Mono',
+        'Space Mono',
         'Manrope',
         'Lato',
         'Roboto',

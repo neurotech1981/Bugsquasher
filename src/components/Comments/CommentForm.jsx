@@ -82,7 +82,7 @@ const CommentForm = ({ onSubmit, openNewComment, setOpenNewComment }) => {
                 {...register('content', { required: true, maxLength: 150 })}
                 label="Skriv inn din kommentar her"
                 variant="outlined"
-                className={classes.commentField}
+                className={classes.commentField.toString()}
                 value={value}
                 onChange={onChange}
                 error={!!error}

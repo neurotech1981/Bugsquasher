@@ -15,7 +15,6 @@ import { AlertTitle } from '@mui/lab'
 import issueService from '../../services/issueService'
 import auth from '../auth/auth-helper'
 
-
 export default function DeleteComment(props) {
   const { func, id, commentId } = props
 

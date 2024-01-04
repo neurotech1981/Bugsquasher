@@ -33,7 +33,7 @@ const ProjectsPage = () => {
 
   useEffect(() => {
     getProjects({ t: jwt.token }).then((data) => {
-      console.log("Data", data.data);
+      console.log('Data', data.data)
       if (data.error) {
         setValues({ redirectToSignin: true })
       } else {

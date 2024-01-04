@@ -9,7 +9,7 @@ const schema = new Schema({
   createdByIp: String,
   revoked: Date,
   revokedByIp: String,
-  replacedByToken: String
+  replacedByToken: String,
 })
 
 schema.virtual('isExpired').get(function () {

@@ -60,11 +60,7 @@ export default function DeleteCommentReply(props) {
       <Tooltip title="Slett">
         <DeleteIcon onClick={handleClickOpen} />
       </Tooltip>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="draggable-dialog-title"
-      >
+      <Dialog open={open} onClose={handleClose} aria-labelledby="draggable-dialog-title">
         <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
           Slett svar
         </DialogTitle>

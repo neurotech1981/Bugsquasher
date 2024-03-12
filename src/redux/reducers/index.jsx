@@ -2,15 +2,15 @@ import { combineReducers } from 'redux'
 import { DESTROY_SESSION } from '../actions/index'
 
 const appReducer = combineReducers({
-  state: (state = {}) => state,
+    state: (state = {}) => state,
 })
 
 const rootReducer = (state, action) => {
-  if (action.type === DESTROY_SESSION) {
-    state = undefined
-  }
+    if (action.type === DESTROY_SESSION) {
+        state = undefined
+    }
 
-  return appReducer(state, action)
+    return appReducer(state, action)
 }
 
 export default rootReducer

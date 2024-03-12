@@ -142,7 +142,6 @@ const Comments = ({ comments, issueID, userID }) => {
             content: e.target.value,
           }
         })
-
         return x
       })
     )
@@ -187,14 +186,13 @@ const Comments = ({ comments, issueID, userID }) => {
 
   const submitReply = (e, commentID, index, indexInput) => {
     const jwt = auth.isAuthenticated()
-    console.log(userID)
+
     setMessage('Svaret ble lagt til')
     issueService
       .addCommentReply(userID, reply, jwt.token, issueID, commentID, index)
       .then((data) => {
         setComments(data.data.response[0].comments)
         if (data.data.success) {
-          console.log(data.data.response[0].comments)
           setOpen(true)
           setReply('')
           toggleHideReply(index - 1)

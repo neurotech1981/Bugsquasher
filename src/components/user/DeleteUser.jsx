@@ -12,58 +12,58 @@ import auth from '../auth/auth-helper'
 import { deleteUser } from '../utils/api-user'
 
 export default function DeleteUser(props) {
-  const initialState = {
-    redirect: false,
-    open: false,
-  }
+    const initialState = {
+        redirect: false,
+        open: false,
+    }
 
-  const [values, setValues] = useState(initialState)
+    const [values, setValues] = useState(initialState)
 
-  const clickButton = () => {
-    setValues({ open: true })
-  }
+    const clickButton = () => {
+        setValues({ open: true })
+    }
 
-  const deleteAccount = () => {
-    const jwt = auth.isAuthenticated()
-    deleteUser(
-      {
-        userId: props.userId,
-      },
-      { t: jwt.token }
+    const deleteAccount = () => {
+        const jwt = auth.isAuthenticated()
+        deleteUser(
+            {
+                userId: props.userId,
+            },
+            { t: jwt.token }
+        )
+
+        auth.signout(() => console.log('deleted'))
+        setValues({ redirect: true })
+    }
+
+    const handleRequestClose = () => {
+        setValues({ open: false })
+    }
+
+    const { redirect } = values
+    if (redirect) {
+        return <Redirect to="/" />
+    }
+    return (
+        <span>
+            <IconButton aria-label="Delete" onClick={() => clickButton()} color="secondary" size="large">
+                <Delete />
+            </IconButton>
+
+            <Dialog open={values.open} onClose={() => handleRequestClose()}>
+                <DialogTitle>Delete Account</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>Confirm to delete your account.</DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => handleRequestClose()} color="primary" variant="contained">
+                        Cancel
+                    </Button>
+                    <Button onClick={() => deleteAccount()} color="secondary" autoFocus="autoFocus" variant="contained">
+                        Confirm
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </span>
     )
-
-    auth.signout(() => console.log('deleted'))
-    setValues({ redirect: true })
-  }
-
-  const handleRequestClose = () => {
-    setValues({ open: false })
-  }
-
-  const { redirect } = values
-  if (redirect) {
-    return <Redirect to="/" />
-  }
-  return (
-    <span>
-      <IconButton aria-label="Delete" onClick={() => clickButton()} color="secondary" size="large">
-        <Delete />
-      </IconButton>
-
-      <Dialog open={values.open} onClose={() => handleRequestClose()}>
-        <DialogTitle>Delete Account</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Confirm to delete your account.</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => handleRequestClose()} color="primary" variant="contained">
-            Cancel
-          </Button>
-          <Button onClick={() => deleteAccount()} color="secondary" autoFocus="autoFocus" variant="contained">
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </span>
-  )
 }

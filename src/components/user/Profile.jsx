@@ -30,205 +30,205 @@ import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
 
 const useStyles = makeStyles((theme) => ({
-  root: theme.mixins.gutters({
-    maxWidth: '80vh',
-    margin: '0 auto',
-    padding: theme.spacing(3),
-    marginTop: theme.spacing(15),
-    borderRadius: '10px',
-  }),
-  title: {
-    margin: `${theme.spacing(3)} 0 ${theme.spacing(1)}`,
-    fontWeight: 500,
-  },
-  userInfo: {
-    color: 'black !important',
-  },
+    root: theme.mixins.gutters({
+        maxWidth: '80vh',
+        margin: '0 auto',
+        padding: theme.spacing(3),
+        marginTop: theme.spacing(15),
+        borderRadius: '10px',
+    }),
+    title: {
+        margin: `${theme.spacing(3)} 0 ${theme.spacing(1)}`,
+        fontWeight: 500,
+    },
+    userInfo: {
+        color: 'black !important',
+    },
 }))
 
 export default function Profile(props) {
-  const { id } = useParams()
-  //const { match } = useReactRouter()
-  const state = {
-    redirectToSignin: false,
-  }
-  const [open, setOpen] = useState(false)
-  const [values, setValues] = useState(state)
-  const [users, setUsers] = useState([])
+    const { id } = useParams()
+    //const { match } = useReactRouter()
+    const state = {
+        redirectToSignin: false,
+    }
+    const [open, setOpen] = useState(false)
+    const [values, setValues] = useState(state)
+    const [users, setUsers] = useState([])
 
-  const [show, setShow] = React.useState({
-    password: '',
-    repeatPassword: '',
-    showPassword: false,
-  })
+    const [show, setShow] = React.useState({
+        password: '',
+        repeatPassword: '',
+        showPassword: false,
+    })
 
-  const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return
+        }
+
+        setOpen(false)
+        setValues(state)
     }
 
-    setOpen(false)
-    setValues(state)
-  }
-
-  const handleClickShowPassword = () => {
-    setShow({ ...show, showPassword: !show.showPassword })
-  }
-
-  const handleChange = (prop) => (event) => {
-    setShow({ ...show, [prop]: event.target.value })
-  }
-
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault()
-  }
-
-  const init = () => {
-    const jwt = auth.isAuthenticated()
-    let userId = auth.isAuthenticated().user._id
-
-    findUserProfile(
-      {
-        userId,
-      },
-      { t: jwt.token }
-    ).then((data) => {
-      if (data.error) {
-        setValues({ redirectToSignin: true })
-      } else {
-        setUsers(data)
-      }
-    })
-  }
-
-  const onSubmit = () => {
-    const user = {
-      credentials: auth.isAuthenticated().token || undefined,
-      _id: auth.isAuthenticated().user._id || undefined,
-      password: show.password || undefined,
-      passwordConfirm: show.repeatPassword || undefined,
+    const handleClickShowPassword = () => {
+        setShow({ ...show, showPassword: !show.showPassword })
     }
 
-    changePasswordProfile(user).then((data) => {
-      if (data.error) {
-        setValues({ error: data.error })
-      } else {
-        setValues({ message: data.message })
-        setOpen(true)
-      }
-    })
-  }
+    const handleChange = (prop) => (event) => {
+        setShow({ ...show, [prop]: event.target.value })
+    }
 
-  useEffect(() => {
-    init()
-  }, [id])
+    const handleMouseDownPassword = (event) => {
+        event.preventDefault()
+    }
 
-  const classes = useStyles()
+    const init = () => {
+        const jwt = auth.isAuthenticated()
+        let userId = auth.isAuthenticated().user._id
 
-  if (!auth.isAuthenticated().user || values.redirectToSignin) {
-    return <Redirect to="/signin" />
-  }
-  return (
-    <Paper className={classes.root} elevation={1}>
-      <Typography type="title" className={classes.title}>
-        Profile info
-      </Typography>
-      <Divider />
-      <List>
-        <ListItem>
-          <ListItemAvatar>
-            <Avatar>
-              <Person />
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText className={classes.userInfo} primary={users.name} secondary={users.email} />
-          <ListItemText className={classes.userInfo} primary="Rolle" secondary={users.role} />
-          {auth.isAuthenticated().user && auth.isAuthenticated().user._id === users._id && (
-            <ListItemSecondaryAction>
-              <DeleteUser userId={users._id} />
-            </ListItemSecondaryAction>
-          )}
-        </ListItem>
-      </List>
-      <Typography type="title" className={classes.title}>
-        Bytt passord
-      </Typography>
-      <Divider />
-      <br />
-      <Grid container align="center" xs={12} sm={12} spacing={2}>
-        <Grid item align="left" xs={12} sm={6}>
-          <InputLabel style={{ margin: '5px' }} htmlFor="new-password">
-            Nytt passord
-          </InputLabel>
-          <OutlinedInput
-            style={{ width: '100%' }}
-            id="new-password"
-            type={show.showPassword ? 'text' : 'password'}
-            variant="outlined"
-            pattern="[0-9a-fA-F]{4,8}"
-            onChange={handleChange('password')}
-            autoComplete="new-password"
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="password-label"
-                  onClick={handleClickShowPassword}
-                  onMouseDown={handleMouseDownPassword}
-                  edge="end"
-                  size="large"
-                >
-                  {show.showPassword ? <Visibility /> : <VisibilityOff />}
-                </IconButton>
-              </InputAdornment>
+        findUserProfile(
+            {
+                userId,
+            },
+            { t: jwt.token }
+        ).then((data) => {
+            if (data.error) {
+                setValues({ redirectToSignin: true })
+            } else {
+                setUsers(data)
             }
-          />
-        </Grid>
-        <Grid item align="left" xs={12} sm={6}>
-          <InputLabel style={{ margin: '5px' }} htmlFor="repeat-password">
-            Gjenta passord
-          </InputLabel>
-          <OutlinedInput
-            style={{ width: '100%' }}
-            id="repeat-password"
-            type={show.showPassword ? 'text' : 'password'}
-            variant="outlined"
-            pattern="[0-9a-fA-F]{4,8}"
-            onChange={handleChange('repeatPassword')}
-            autoComplete="new-password"
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="password-label"
-                  onClick={handleClickShowPassword}
-                  onMouseDown={handleMouseDownPassword}
-                  edge="end"
-                  size="large"
-                >
-                  {show.showPassword ? <Visibility /> : <VisibilityOff />}
-                </IconButton>
-              </InputAdornment>
+        })
+    }
+
+    const onSubmit = () => {
+        const user = {
+            credentials: auth.isAuthenticated().token || undefined,
+            _id: auth.isAuthenticated().user._id || undefined,
+            password: show.password || undefined,
+            passwordConfirm: show.repeatPassword || undefined,
+        }
+
+        changePasswordProfile(user).then((data) => {
+            if (data.error) {
+                setValues({ error: data.error })
+            } else {
+                setValues({ message: data.message })
+                setOpen(true)
             }
-          />
-        </Grid>
-        <Grid align="right" item xs={12} sm={12}>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            disabled={show.password.length > 0 && show.repeatPassword.length > 0 ? false : true}
-            onClick={onSubmit}
-            className={classes.button}
-            startIcon={<SaveIcon />}
-          >
-            Oppdater passord
-          </Button>
-        </Grid>
-      </Grid>
-      <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="success">
-          {values.message}
-        </Alert>
-      </Snackbar>
-    </Paper>
-  )
+        })
+    }
+
+    useEffect(() => {
+        init()
+    }, [id])
+
+    const classes = useStyles()
+
+    if (!auth.isAuthenticated().user || values.redirectToSignin) {
+        return <Redirect to="/signin" />
+    }
+    return (
+        <Paper className={classes.root} elevation={1}>
+            <Typography type="title" className={classes.title}>
+                Profile info
+            </Typography>
+            <Divider />
+            <List>
+                <ListItem>
+                    <ListItemAvatar>
+                        <Avatar>
+                            <Person />
+                        </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText className={classes.userInfo} primary={users.name} secondary={users.email} />
+                    <ListItemText className={classes.userInfo} primary="Rolle" secondary={users.role} />
+                    {auth.isAuthenticated().user && auth.isAuthenticated().user._id === users._id && (
+                        <ListItemSecondaryAction>
+                            <DeleteUser userId={users._id} />
+                        </ListItemSecondaryAction>
+                    )}
+                </ListItem>
+            </List>
+            <Typography type="title" className={classes.title}>
+                Bytt passord
+            </Typography>
+            <Divider />
+            <br />
+            <Grid container align="center" xs={12} sm={12} spacing={2}>
+                <Grid item align="left" xs={12} sm={6}>
+                    <InputLabel style={{ margin: '5px' }} htmlFor="new-password">
+                        Nytt passord
+                    </InputLabel>
+                    <OutlinedInput
+                        style={{ width: '100%' }}
+                        id="new-password"
+                        type={show.showPassword ? 'text' : 'password'}
+                        variant="outlined"
+                        pattern="[0-9a-fA-F]{4,8}"
+                        onChange={handleChange('password')}
+                        autoComplete="new-password"
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="password-label"
+                                    onClick={handleClickShowPassword}
+                                    onMouseDown={handleMouseDownPassword}
+                                    edge="end"
+                                    size="large"
+                                >
+                                    {show.showPassword ? <Visibility /> : <VisibilityOff />}
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                    />
+                </Grid>
+                <Grid item align="left" xs={12} sm={6}>
+                    <InputLabel style={{ margin: '5px' }} htmlFor="repeat-password">
+                        Gjenta passord
+                    </InputLabel>
+                    <OutlinedInput
+                        style={{ width: '100%' }}
+                        id="repeat-password"
+                        type={show.showPassword ? 'text' : 'password'}
+                        variant="outlined"
+                        pattern="[0-9a-fA-F]{4,8}"
+                        onChange={handleChange('repeatPassword')}
+                        autoComplete="new-password"
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="password-label"
+                                    onClick={handleClickShowPassword}
+                                    onMouseDown={handleMouseDownPassword}
+                                    edge="end"
+                                    size="large"
+                                >
+                                    {show.showPassword ? <Visibility /> : <VisibilityOff />}
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                    />
+                </Grid>
+                <Grid align="right" item xs={12} sm={12}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                        disabled={show.password.length > 0 && show.repeatPassword.length > 0 ? false : true}
+                        onClick={onSubmit}
+                        className={classes.button}
+                        startIcon={<SaveIcon />}
+                    >
+                        Oppdater passord
+                    </Button>
+                </Grid>
+            </Grid>
+            <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="success">
+                    {values.message}
+                </Alert>
+            </Snackbar>
+        </Paper>
+    )
 }

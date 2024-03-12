@@ -73,7 +73,11 @@
     "test": "react-scripts test",
     "test:nowatch": "react-scripts start --watchAll=false",
     "eject": "react-scripts eject",
-    "lint": "eslint src/**/*.js src/**/*.jsx"
+    "lint": "eslint src/**/*.js src/**/*.jsx",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "prettier": "npx prettier src --check",
+    "prettier:fix": "npm run prettier -- --write"
   },
   "proxy": "http://0.0.0.0:3001",
   "secure": false,

@@ -5,16 +5,16 @@ const _isEmpty = require('./is-empty')
 
 // eslint-disable-next-line no-undef
 module.exports = function validateCommentInput(data) {
-  const errors = {}
-  console.log('Inside validation for comment', data)
-  data.body = !_isEmpty(data.body) ? data.body : ''
+    const errors = {}
+    console.log('Inside validation for comment', data)
+    data.body = !_isEmpty(data.body) ? data.body : ''
 
-  if (validator.isEmpty(data.body)) {
-    errors.body = 'Kommentar er påkrevd'
-  }
+    if (validator.isEmpty(data.body)) {
+        errors.body = 'Kommentar er påkrevd'
+    }
 
-  return {
-    errors,
-    isValid: _isEmpty(errors),
-  }
+    return {
+        errors,
+        isValid: _isEmpty(errors),
+    }
 }

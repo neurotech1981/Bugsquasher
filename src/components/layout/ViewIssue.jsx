@@ -315,7 +315,6 @@ export default function ViewIssue(props) {
         const jwt = auth.isAuthenticated()
 
         try {
-            console.log(users)
             const selectedUser = users.find((value) => value._id === data)
             await issueService.upDateDelegated(id, { delegated: selectedUser._id }, jwt.token)
             setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true })
@@ -372,13 +371,24 @@ export default function ViewIssue(props) {
     )
 
     const ImageList = images.map((file, index) => {
-        if (file[0] === null || file === undefined || file === 'none') {
+        // Check if file is undefined or 'none'
+        if (!file || file === 'none') {
             console.log('Ingen vedlegg', file)
             return <div key={index}>Ingen vedlegg</div>
         }
 
+        // Check if file is an array and handle accordingly
         let path = file.path
-        if (!file.path) path = file[0].path
+        if (Array.isArray(file)) {
+            if (file[0] && file[0].path) {
+                path = file[0].path
+            } else {
+                return <div key={index}>Ingen vedlegg</div>
+            }
+        } else if (!file.path) {
+            return <div key={index}>Ingen vedlegg</div>
+        }
+
         const smallImg = process.env.PUBLIC_URL + '/uploads/' + path
         const largeImg = smallImg
 
@@ -500,9 +510,7 @@ export default function ViewIssue(props) {
                             </Stack>
                         </div>
                         <div className="item1" style={{ paddingLeft: '5rem' }}>
-                            <Typography variant="h6">
-                                {dataset.reporter != null ? dataset.reporter.name : 'Laster...'}
-                            </Typography>
+                            <Typography variant="h6">{dataset.reporter?.name || 'Laster...'}</Typography>
                             <Typography variant="subtitle2">Opprettet: {formattedDate(dataset.createdAt)}</Typography>
                         </div>
                         <div className="item2">

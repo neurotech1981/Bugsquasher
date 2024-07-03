@@ -1,15 +1,22 @@
 {
   "env": {
     "browser": true,
-    "es2021": true
+    "es2021": true,
+    "node": true  // Add the Node.js environment
   },
-  "extends": ["eslint:recommended", "plugin:react/recommended", "plugin:prettier/recommended"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:prettier/recommended"
+  ],
   "overrides": [],
+  "parser": "@babel/eslint-parser",  // Update parser
   "parserOptions": {
-    "parser": "babel-eslint",
+    "requireConfigFile": false,  // For @babel/eslint-parser
     "ecmaVersion": 2023,
     "sourceType": "module",
     "ecmaFeatures": {
+      "jsx": true,
       "experimentalObjectRestSpread": true
     }
   },
@@ -17,5 +24,10 @@
   "rules": {
     "react/prop-types": ["off"],
     "no-unused-vars": "off"
+  },
+  "settings": {
+    "react": {
+      "version": "detect"  // Automatically detect the React version
+    }
   }
 }

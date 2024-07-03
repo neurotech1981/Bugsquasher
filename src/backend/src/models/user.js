@@ -127,6 +127,6 @@ userSchema.set('toJSON', {
 
 export default mongoose.model('User', userSchema)
 
-export function findByIdAndRemove(arg0, arg1) {
+export function findByIdAndRemove() {
     throw new Error('Function not implemented.')
 }

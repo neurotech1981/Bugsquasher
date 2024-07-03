@@ -2,7 +2,7 @@
   "name": "bugsquasher",
   "version": "0.1.0",
   "engines": {
-    "node": "18.x"
+    "node": "20.x"
   },
   "private": true,
   "dependencies": {
@@ -28,7 +28,6 @@
     "draft-js": "^0.11.7",
     "draftjs-to-html": "^0.9.1",
     "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-prettier": "^4.2.1",
     "express-jwt": "^8.4.0",
     "express-session": "^1.17.2",
     "formidable": "^3.2.4",
@@ -44,14 +43,15 @@
     "passport": "^0.5.0",
     "passport-auth0": "^1.4.0",
     "path": "^0.12.7",
-    "react": "^17.0.2",
+    "react": "^18.2.0",
     "react-chartist": "^0.14.4",
-    "react-dom": "^17.0.2",
+    "react-dom": "^18.2.0",
     "react-draft-wysiwyg": "^1.14.7",
     "react-draggable": "^4.4.5",
     "react-dropzone": "^11.3.2",
     "react-hook-form": "^7.9.0",
     "react-modal-image": "^2.5.0",
+    "react-query": "^3.39.3",
     "react-redux": "^7.2.4",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
@@ -79,7 +79,7 @@
     "prettier": "npx prettier src --check",
     "prettier:fix": "npm run prettier -- --write"
   },
-  "proxy": "http://0.0.0.0:3001",
+  "proxy": "http://localhost:3001",
   "secure": false,
   "eslintConfig": {
     "extends": "react-app"
@@ -101,17 +101,21 @@
   "devDependencies": {
     "@babel/cli": "^7.12.7",
     "@babel/core": "^7.12.7",
+    "@babel/eslint-parser": "^7.24.7",
     "@babel/node": "^7.12.7",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@babel/preset-env": "^7.12.7",
     "@types/node": "^18.11.9",
+    "babel-eslint": "^10.1.0",
     "babel-plugin-transform-runtime": "^6.23.0",
-    "eslint": "^8.13.0",
+    "eslint": "^8.57.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^5.1.0",
-    "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-standard": "^5.0.0",
     "prettier": "2.8.8",
     "redux-devtools": "^3.7.0"

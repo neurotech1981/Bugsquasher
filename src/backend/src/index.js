@@ -20,7 +20,7 @@ import User from './models/user.js'
 import Comments from './models/comment.js'
 import path from 'path'
 import logger from 'morgan'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import multer from 'multer'
 import multipart from 'connect-multiparty'
 import cookieParser from 'cookie-parser'
@@ -632,50 +632,29 @@ if (cluster.isPrimary) {
     ProtectedRoutes.route('/weekdayIssueCount').get(async function (req, res) {
         const daysArray = ['Man', 'Tirs', 'Ons', 'Tors', 'Fre', 'Lør', 'Søn']
 
-        var start = moment().startOf('isoWeek').toDate() // Start of the week
-        var end = moment().endOf('isoWeek').toDate() // End of the week
-        console.log('Weekly count : ', start + '<< >>', end)
+        const startOfWeek = moment().startOf('isoWeek').toDate() // Start of the week (Monday)
+        const endOfWeek = moment().endOf('isoWeek').toDate() // End of the week (Sunday)
+        console.log('Weekly count range: ', startOfWeek, ' << >> ', endOfWeek)
 
         const initialDays = daysArray.reduce((acc, day) => {
             acc[day] = 0
             return acc
         }, {})
 
-        Data.aggregate(
-            [
+        try {
+            const result = await Data.aggregate([
                 {
                     $match: {
                         createdAt: {
-                            $gte: new Date(start),
-                            $lte: new Date(end),
+                            $gte: startOfWeek,
+                            $lte: endOfWeek,
                         },
-                    },
-                },
-                {
-                    $sort: {
-                        createdAt: 1,
                     },
                 },
                 {
                     $project: {
-                        day: {
-                            $dayOfMonth: '$createdAt',
-                        },
-                        month: {
-                            $month: '$createdAt',
-                        },
-                        year: {
-                            $year: '$createdAt',
-                        },
                         weekDay: {
                             $isoDayOfWeek: '$createdAt',
-                        },
-                    },
-                },
-                {
-                    $addFields: {
-                        weekDay: {
-                            $arrayElemAt: [daysArray, { $subtract: ['$weekDay', 1] }],
                         },
                     },
                 },
@@ -688,10 +667,20 @@ if (cluster.isPrimary) {
                     },
                 },
                 {
+                    $sort: { _id: 1 },
+                },
+                {
                     $project: {
                         _id: 0,
-                        weekDay: '$_id',
+                        weekDayIndex: '$_id',
                         count: '$count',
+                    },
+                },
+                {
+                    $addFields: {
+                        weekDay: {
+                            $arrayElemAt: [daysArray, { $subtract: ['$weekDayIndex', 1] }],
+                        },
                     },
                 },
                 {
@@ -720,214 +709,101 @@ if (cluster.isPrimary) {
                         },
                     },
                 },
-            ],
-            function (err, result) {
-                // results in here
-                console.log('Weekly sum : ', result)
-                if (err) {
-                    console.log('Weekly issues Error >>>>', err.message, result)
-                    res.send(err.message)
-                } else {
-                    console.log('Weekly issues >>>>', result)
-                    res.json(result)
-                }
-            }
-        )
+            ])
+
+            // Flatten the result to get the desired output format
+            const responseData = result.length > 0 ? result[0].data : initialDays
+
+            console.log('Weekly issues >>>>', responseData)
+            res.json(responseData)
+        } catch (err) {
+            console.log('Weekly issues Error >>>>', err.message)
+            res.status(500).send(err.message)
+        }
     })
 
     ProtectedRoutes.route('/dailyIssueCount').get(async function (req, res) {
-        // Work out days for start of tomorrow and one week before
-        const oneDay = 1000 * 60 * 60 * 24,
-            oneWeek = oneDay * 7
+        const oneDay = 1000 * 60 * 60 * 24
+        const oneWeek = oneDay * 7
 
-        let d = Date.now()
-        let lastDay = d - (d % oneDay) + oneDay
-        let firstDay = lastDay - oneWeek
+        const timeZone = 'Europe/Oslo' // Set your desired time zone
 
-        const FIRST_HOUR = 0
-        const LAST_HOUR = 24
-        const hoursArray = [
-            '00:00',
-            '01:00',
-            '02:00',
-            '03:00',
-            '04:00',
-            '05:00',
-            '06:00',
-            '07:00',
-            '08:00',
-            '09:00',
-            '10:00',
-            '11:00',
-            '12:00',
-            '13:00',
-            '14:00',
-            '15:00',
-            '16:00',
-            '17:00',
-            '18:00',
-            '19:00',
-            '20:00',
-            '21:00',
-            '22:00',
-            '23:59',
-        ]
+        const now = moment.tz(timeZone)
+        const endOfToday = now.clone().endOf('day').toDate()
+        const startOfWeek = now.clone().subtract(6, 'days').startOf('day').toDate()
 
-        var start = moment().startOf('day').format() // set to  00:00 am today
-        var end = moment().endOf('day').format() // set to 23:59 pm today
+        console.log('Weekly range: ', startOfWeek, ' to ', endOfToday)
 
-        console.log('24 hour solved count: ', start + ' <:> ' + end)
+        const hoursArray = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`)
 
-        Data.aggregate(
-            [
+        try {
+            const result = await Data.aggregate([
                 {
                     $match: {
                         updatedAt: {
-                            $gte: new Date(start),
-                            $lte: new Date(end),
+                            $gte: startOfWeek,
+                            $lte: endOfToday,
                         },
                         status: { $eq: 'Løst' },
                     },
-                    // Your matching logic
                 },
-                /* Now grouping users based on _id or id parameter for each day
-       from the above match results.
-
-       $createdAt can be replaced by date property present in your database.
-       */
                 {
                     $group: {
-                        _id: { year_day: { $substrCP: ['$updatedAt', 0, 25] } },
-                    },
-                },
-                {
-                    $sort: { '_id.year_day': 1 },
-                },
-                {
-                    $project: {
-                        _id: 0,
+                        _id: {
+                            date: { $dateToString: { format: '%Y-%m-%d', date: '$updatedAt', timezone: timeZone } },
+                            hour: { $hour: { date: '$updatedAt', timezone: timeZone } },
+                        },
                         count: { $sum: 1 },
-                        day_year: {
-                            $concat: [
-                                {
-                                    $arrayElemAt: [
-                                        hoursArray,
-                                        {
-                                            $subtract: [{ $toInt: { $substrCP: ['$_id.year_day', 11, 2] } }, 1],
-                                        },
-                                    ],
-                                },
-                                '-',
-                                { $substrCP: ['$_id.year_day', 0, 4] },
-                            ],
-                        },
                     },
+                },
+                {
+                    $sort: { '_id.date': 1, '_id.hour': 1 },
                 },
                 {
                     $group: {
-                        _id: 0,
-                        data: { $push: { k: '$day_year', v: '$count' } },
-                    },
-                },
-                {
-                    $addFields: {
-                        start_week: { $substrCP: [start, 0, 4] },
-                        end_week: { $substrCP: [end, 0, 4] },
-                        months1: {
-                            $range: [{ $toInt: { $substrCP: [start, 5, 2] } }, { $add: [LAST_HOUR, 1] }],
-                        },
-                        months2: {
-                            $range: [FIRST_HOUR, { $add: [{ $toInt: { $substrCP: [end, 5, 2] } }, 1] }],
-                        },
-                    },
-                },
-                {
-                    $addFields: {
-                        template_data: {
-                            $concatArrays: [
-                                {
-                                    $map: {
-                                        input: '$months1',
-                                        as: 'm1',
-                                        in: {
-                                            count: 0,
-                                            day_year: {
-                                                $concat: [
-                                                    {
-                                                        $arrayElemAt: [hoursArray, { $subtract: ['$$m1', 4] }],
-                                                    },
-                                                    '-',
-                                                    '$start_week',
-                                                ],
-                                            },
-                                        },
-                                    },
-                                },
-                                {
-                                    $map: {
-                                        input: '$months2',
-                                        as: 'm2',
-                                        in: {
-                                            count: 0,
-                                            day_year: {
-                                                $concat: [
-                                                    {
-                                                        $arrayElemAt: [hoursArray, { $subtract: ['$$m2', 4] }],
-                                                    },
-                                                    '-',
-                                                    '$end_week',
-                                                ],
-                                            },
-                                        },
-                                    },
-                                },
-                            ],
-                        },
-                    },
-                },
-                {
-                    $addFields: {
-                        data: {
-                            $map: {
-                                input: '$template_data',
-                                as: 't',
-                                in: {
-                                    k: '$$t.day_year',
-                                    v: {
-                                        $reduce: {
-                                            input: '$data',
-                                            initialValue: 0,
-                                            in: {
-                                                $cond: [
-                                                    { $eq: ['$$t.day_year', '$$this.k'] },
-                                                    { $add: ['$$this.v', '$$value'] },
-                                                    { $add: [0, '$$value'] },
-                                                ],
-                                            },
-                                        },
-                                    },
-                                },
+                        _id: '$_id.date',
+                        hourlyData: {
+                            $push: {
+                                k: { $concat: [{ $toString: '$_id.hour' }, ':00'] },
+                                v: '$count',
                             },
                         },
                     },
                 },
                 {
-                    $project: {
-                        data: { $arrayToObject: '$data' },
-                        _id: 0,
+                    $addFields: {
+                        hourlyData: {
+                            $arrayToObject: '$hourlyData',
+                        },
                     },
                 },
-            ],
-            function (err, result) {
-                // results in here
-                if (err) {
-                    res.send(err.message)
-                } else {
-                    console.log('24 hour count: ' + JSON.stringify(result))
-                    res.json(result)
-                }
+                {
+                    $project: {
+                        _id: 0,
+                        date: '$_id',
+                        data: '$hourlyData',
+                    },
+                },
+            ])
+
+            // Select only the last index
+            const lastDayData = result.length > 0 ? result[result.length - 1] : null
+
+            if (lastDayData) {
+                const completeHourlyData = hoursArray.reduce((acc, hour) => {
+                    acc[hour] = lastDayData.data[hour] || 0
+                    return acc
+                }, {})
+
+                console.log('Last day data: ', JSON.stringify(completeHourlyData))
+                res.json(completeHourlyData)
+            } else {
+                res.json({})
             }
-        )
+        } catch (err) {
+            console.error(err.message)
+            res.status(500).send(err.message)
+        }
     })
 
     ProtectedRoutes.route('/countOpenIssues').get(async function (req, res) {

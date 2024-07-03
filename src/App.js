@@ -24,6 +24,8 @@ import { Typography, Button } from '@mui/material'
 import { createTheme, adaptV4Theme } from '@mui/material/styles'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { ToastContainer, toast } from 'react-toastify'
+import { ReactQueryDevtools } from 'react-query/devtools'
+import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from 'react-query'
 import 'react-toastify/dist/ReactToastify.css'
 import socketIO from 'socket.io-client'
 const socket = socketIO.connect('http://127.0.0.1:4000/', {
@@ -31,6 +33,9 @@ const socket = socketIO.connect('http://127.0.0.1:4000/', {
     secure: true,
     transports: ['websocket'],
 })
+
+// Create a client
+const queryClient = new QueryClient()
 
 const theme = createTheme(
     adaptV4Theme({
@@ -85,34 +90,37 @@ const App = () => {
     }, [])
 
     return (
-        <StyledEngineProvider injectFirst>
-            <ThemeProvider theme={theme}>
-                <Provider store={store}>
-                    <div>
-                        <ToastContainer autoClose={false} />
-                        <Router>
-                            <NavBar />
-                            <PrivateRoute path="/user/edit/:userId" />
-                            <PrivateRoute path="/user/:userId" component={Profile} />
-                            <PrivateRoute path="/landing" component={Landing} />
-                            <PrivateRoute exact path="/" component={Landing} />
-                            <PrivateRoute path="/legg-til-sak/:id" component={CreateIssue} />
-                            <PrivateRoute path="/saker/:userId" component={Issues} />
-                            <PrivateRoute path="/vis-sak/:id" component={ViewIssue} />
-                            <PrivateRoute path="/bruker-admin/:userId" component={Users} />
-                            <PrivateRoute path="/edit-issue/:id" component={EditIssue} />
-                            <PrivateRoute path="/prosjekt-oversikt/" component={ProjectsPage} />
-                            <PrivateRoute path="/opprett-prosjekt/" component={CreateProjectPage} />
-                            <PrivateRoute path="/rediger-project/:id" component={EditProject} />
-                            <Route path="/resett-passord" component={ResetPassword} />
-                            <Route path="/tilbakestill-passord/:token" component={ChangePassword} />
-                            <Route path="/signup" component={Signup} />
-                            <Route path="/signin" component={Signin} />
-                        </Router>
-                    </div>
-                </Provider>
-            </ThemeProvider>
-        </StyledEngineProvider>
+        <QueryClientProvider client={queryClient}>
+            <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={theme}>
+                    <Provider store={store}>
+                        <div>
+                            <ReactQueryDevtools initialIsOpen={false} />
+                            <ToastContainer autoClose={false} />
+                            <Router>
+                                <NavBar />
+                                <PrivateRoute path="/user/edit/:userId" />
+                                <PrivateRoute path="/user/:userId" component={Profile} />
+                                <PrivateRoute path="/landing" component={Landing} />
+                                <PrivateRoute exact path="/" component={Landing} />
+                                <PrivateRoute path="/legg-til-sak/:id" component={CreateIssue} />
+                                <PrivateRoute path="/saker/:userId" component={Issues} />
+                                <PrivateRoute path="/vis-sak/:id" component={ViewIssue} />
+                                <PrivateRoute path="/bruker-admin/:userId" component={Users} />
+                                <PrivateRoute path="/edit-issue/:id" component={EditIssue} />
+                                <PrivateRoute path="/prosjekt-oversikt/" component={ProjectsPage} />
+                                <PrivateRoute path="/opprett-prosjekt/" component={CreateProjectPage} />
+                                <PrivateRoute path="/rediger-project/:id" component={EditProject} />
+                                <Route path="/resett-passord" component={ResetPassword} />
+                                <Route path="/tilbakestill-passord/:token" component={ChangePassword} />
+                                <Route path="/signup" component={Signup} />
+                                <Route path="/signin" component={Signin} />
+                            </Router>
+                        </div>
+                    </Provider>
+                </ThemeProvider>
+            </StyledEngineProvider>
+        </QueryClientProvider>
     )
 }
 

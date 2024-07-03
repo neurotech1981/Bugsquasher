@@ -178,6 +178,11 @@ function NavBar(props) {
             path: !auth.isAuthenticated() ? '/landing/' : '/landing/' + auth.isAuthenticated().user._id,
         },
         {
+            label: 'Vis saker',
+            icon: <PageviewRoundedIcon />,
+            path: !auth.isAuthenticated() ? '/saker/' : '/saker/' + auth.isAuthenticated().user._id,
+        },
+        {
             label: 'Prosjekt oversikt',
             icon: <PageviewRoundedIcon />,
             /*eslint operator-linebreak: [2, "after", { "overrides": { "?": "ignore", ":": "ignore"} }]*/
@@ -196,11 +201,6 @@ function NavBar(props) {
             label: 'Legg til sak',
             icon: <NoteAddRoundedIcon />,
             path: !auth.isAuthenticated() ? '/legg-til-sak/' : '/legg-til-sak/' + auth.isAuthenticated().user._id,
-        },
-        {
-            label: 'Vis saker',
-            icon: <PageviewRoundedIcon />,
-            path: !auth.isAuthenticated() ? '/saker/' : '/saker/' + auth.isAuthenticated().user._id,
         },
         {
             label: 'Bruker administrasjon',

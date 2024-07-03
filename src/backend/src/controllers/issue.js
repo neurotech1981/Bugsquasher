@@ -46,22 +46,38 @@ export const newIssue = (req, res) => {
 }
 
 export const getAllIssues = (req, res) => {
-    // this is our get method
-    // this method fetches all available data in our database
-    //ProtectedRoutes.route('/getData').get(async function (req, res, next) {
-    Data.find((err, data) => {
-        if (err) {
-            return res.json({
-                success: false,
-                error: err,
+    const page = parseInt(req.query.page) || 1 // Default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 10 // Default to 10 items per page if not provided
+
+    const startIndex = (page - 1) * limit
+
+    Data.find()
+        .skip(startIndex)
+        .limit(limit)
+        .exec((err, data) => {
+            if (err) {
+                return res.json({
+                    success: false,
+                    error: err,
+                })
+            }
+
+            Data.countDocuments().exec((countError, count) => {
+                if (countError) {
+                    return res.json({
+                        success: false,
+                        error: countError,
+                    })
+                }
+                return res.json({
+                    success: true,
+                    data: data,
+                    page: page,
+                    totalPages: Math.ceil(count / limit),
+                    totalItems: count,
+                })
             })
-        }
-        return res.json({
-            success: true,
-            data: data,
         })
-    })
-    //})
 }
 
 export const updateIssueStatus = (req, res, next) => {

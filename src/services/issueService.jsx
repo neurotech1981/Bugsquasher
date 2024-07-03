@@ -4,11 +4,12 @@ import axios from 'axios'
 const instance = axios.create()
 
 export default {
-    getAll: async (auth) => {
+    getAll: async (auth, page = 1, limit = 10) => {
         const res = await instance.get('/api/getData', {
             headers: { Authorization: auth },
+            params: { page, limit },
         })
-        return res.data.data || []
+        return res.data
     },
     getComments: async (id, auth) => {
         const res = await instance.get(`/api/get-comments/${id}`, {

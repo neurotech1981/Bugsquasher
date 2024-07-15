@@ -1,26 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import {
-    TextField,
-    Button,
-    Box,
-    Select,
-    MenuItem,
-    InputLabel,
-    Paper,
-    Typography,
-    Divider,
-    List,
-    ListItem,
-    ListItemText,
-    Autocomplete,
-} from '@mui/material'
+import { TextField, Button, Box, Select, MenuItem, InputLabel, Paper, Typography, Autocomplete } from '@mui/material'
 import { createProject } from '../../services/projectService'
-import { Redirect } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { getUsers } from '../utils/api-user'
 import auth from '../auth/auth-helper'
 
 const CreateProjectPage = () => {
     const jwt = auth.isAuthenticated()
+    const navigate = useNavigate()
 
     const state = {
         redirectToSignin: false,
@@ -87,21 +74,10 @@ const CreateProjectPage = () => {
                 setUsers(data.data)
             }
         })
-        // fetch users from API or database and set them to state
-        //const fetchUsers = async () => {
-        //  try {
-        //    const response = await fetch('/api/users')
-        //    const users = await response.json()
-        //    setUsers(users)
-        //  } catch (err) {
-        //    console.error(err)
-        //  }
-        //}
-        //fetchUsers()
     }, [])
 
     if (!auth.isAuthenticated().user || values.redirectToSignin) {
-        return <Redirect to="/signin" />
+        return navigate('signin')
     }
 
     return (
@@ -151,7 +127,7 @@ const CreateProjectPage = () => {
                         variant="outlined"
                         margin="normal"
                     >
-                        <MenuItem value>
+                        <MenuItem value="">
                             <em>None</em>
                         </MenuItem>
                         <MenuItem value="Todo">To do</MenuItem>

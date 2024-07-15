@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import IconButton from '@mui/material/IconButton'
-import Button from '@mui/material//Button'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
-import DialogContent from '@mui/material/DialogContent'
-import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/Dialog'
 import Delete from '@mui/icons-material/Delete'
-import { Redirect } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import auth from '../auth/auth-helper'
 import { deleteUser } from '../utils/api-user'
 
@@ -18,6 +18,7 @@ export default function DeleteUser(props) {
     }
 
     const [values, setValues] = useState(initialState)
+    const navigate = useNavigate()
 
     const clickButton = () => {
         setValues({ open: true })
@@ -40,10 +41,10 @@ export default function DeleteUser(props) {
         setValues({ open: false })
     }
 
-    const { redirect } = values
-    if (redirect) {
-        return <Redirect to="/" />
+    if (values.redirect) {
+        navigate('/')
     }
+
     return (
         <span>
             <IconButton aria-label="Delete" onClick={() => clickButton()} color="secondary" size="large">

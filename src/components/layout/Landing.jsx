@@ -1,34 +1,39 @@
-/* eslint-disable no-unused-vars */
-import React, { useState, useEffect, useCallback } from 'react'
-import moment from 'moment'
-import PropTypes from 'prop-types'
-import '../../App.css'
-import ChartistGraph from 'react-chartist'
+import React, { useState, useEffect } from 'react'
+import {
+    LineChart,
+    Line,
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+} from 'recharts'
 import { makeStyles } from '@mui/styles'
-import { Icon, Grid, CircularProgress, Typography } from '@mui/material'
+import { Icon, Grid, Typography } from '@mui/material'
+import moment from 'moment'
 import {
     CheckCircle as CheckCircleIcon,
-    DateRange,
-    LocalOffer,
-    Accessibility,
-    Update,
     PlaylistAdd as PlaylistAddIcon,
     ArrowUpward,
+    Accessibility,
+    Update,
     AccessTime,
 } from '@mui/icons-material'
-import Table from '../Table/Table.js'
-import GridContainer from '../grid/GridContainer.js'
-import GridItem from '../grid/GridItem.js'
-import Card from '../Card/Card.js'
-import CardHeader from '../Card/CardHeader.js'
-import CardIcon from '../Card/CardIcon.js'
-import CardBody from '../Card/CardBody.js'
-import CardFooter from '../Card/CardFooter.js'
+import Table from '../Table/Table.jsx'
+import GridContainer from '../grid/GridContainer.jsx'
+import GridItem from '../grid/GridItem.jsx'
+import Card from '../Card/Card.jsx'
+import CardHeader from '../Card/CardHeader.jsx'
+import CardIcon from '../Card/CardIcon.jsx'
+import CardBody from '../Card/CardBody.jsx'
+import CardFooter from '../Card/CardFooter.jsx'
 import issueService from '../../services/issueService'
 import auth from '../auth/auth-helper'
 
-import { dailySalesChart, emailsSubscriptionChart, completedTasksChart } from '../../variables/charts'
-import styles from '../../assets/styles/dashboardStyle.js'
+import styles from '../../assets/styles/dashboardStyle.jsx'
 
 const useStyles = makeStyles(styles)
 
@@ -39,57 +44,12 @@ const Landing = () => {
     const [solvedIssues, setSolvedIssues] = useState(0)
     const [openIssues, setOpenIssues] = useState(0)
     const [latestCases, setLatestCases] = useState([])
-    const [thisYearCases, setThisYearCases] = useState([])
-
-    const [yearlyCountIssues, setYearlyCountIssues] = useState({
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'],
-        series: [[]],
-    })
-
-    const [weeklyCountIssues, setWeeklyCountIssues] = useState({
-        labels: ['Man', 'Tirs', 'Ons', 'Tors', 'Fre', 'Lør', 'Søn'],
-        series: [[0, 0, 0, 0, 0, 0, 0]],
-    })
-
-    const [dailyCountIssues, setDailyCountIssues] = useState({
-        labels: [
-            '00:00',
-            '',
-            '',
-            '03:00',
-            '',
-            '',
-            '06:00',
-            '',
-            '',
-            '09:00',
-            '',
-            '',
-            '12:00',
-            '',
-            '',
-            '15:00',
-            '',
-            '',
-            '18:00',
-            '',
-            '',
-            '21:00',
-            '',
-            '',
-            '23:59',
-        ],
-        series: [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
-    })
+    const [yearlyCountIssues, setYearlyCountIssues] = useState([])
+    const [weeklyCountIssues, setWeeklyCountIssues] = useState([])
+    const [dailyCountIssues, setDailyCountIssues] = useState([])
 
     useEffect(() => {
-        let isSubscribed = true
-        if (isSubscribed) {
-            fetchData()
-        }
-        return () => {
-            isSubscribed = false
-        }
+        fetchData()
     }, [])
 
     const fetchData = async () => {
@@ -122,25 +82,16 @@ const Landing = () => {
             setSolvedIssues(solvedIssuesRes.data)
             setOpenIssues(openIssuesRes.data)
             setLatestCases(formatLatestCases(latestCasesRes.data))
-            setYearlyCountIssues({
-                ...yearlyCountIssues,
-                series: [formatYearlyData(thisYearCasesRes.data)],
-            })
-            setWeeklyCountIssues({
-                ...weeklyCountIssues,
-                series: [formatWeeklyData(weeklyCountIssuesRes.data)],
-            })
-            setDailyCountIssues({
-                ...dailyCountIssues,
-                series: [formatDailyData(dailyCountIssuesRes.data)],
-            })
+            setYearlyCountIssues(formatYearlyData(thisYearCasesRes.data))
+            setWeeklyCountIssues(formatWeeklyData(weeklyCountIssuesRes.data))
+            setDailyCountIssues(formatDailyData(dailyCountIssuesRes.data))
         } catch (error) {
             console.error('Failed to fetch data', error)
         }
     }
 
-    const formatLatestCases = (data) => {
-        return data.map((element, key) => [
+    const formatLatestCases = (data) =>
+        data.map((element, key) => [
             moment(element.createdAt).format('DD/MM-YYYY HH:mm'),
             <a href={`/vis-sak/${element._id}`} className="link underline" key={key}>
                 {element.summary}
@@ -148,29 +99,24 @@ const Landing = () => {
             element.priority,
             element.severity,
         ])
-    }
 
     const formatYearlyData = (data) => {
         if (data.length === 0) return []
-        return Object.values(data[0].data)
+        return Object.keys(data[0].data).map((key) => ({ name: key, value: data[0].data[key] }))
     }
 
     const formatWeeklyData = (data) => {
         if (!data) return []
-        const combinedData = Object.entries(data).reduce((acc, [day, count]) => {
-            acc[day] = (acc[day] || 0) + count
-            return acc
-        }, {})
         const daysArray = { Man: 0, Tirs: 0, Ons: 0, Tors: 0, Fre: 0, Lør: 0, Søn: 0 }
         Object.keys(daysArray).forEach((day) => {
-            daysArray[day] = combinedData[day] || 0
+            daysArray[day] = data[day] || 0
         })
-        return Object.values(daysArray)
+        return Object.keys(daysArray).map((key) => ({ name: key, value: daysArray[key] }))
     }
 
     const formatDailyData = (data) => {
         if (data.length === 0) return []
-        return Object.values(data)
+        return data.map((value, index) => ({ name: index, value }))
     }
 
     const renderCard = (title, count, color, icon) => (
@@ -193,31 +139,31 @@ const Landing = () => {
         </GridItem>
     )
 
-    const renderChartCard = (title, data, chartConfig, type, icon, text, footer) => (
+    const renderChartCard = (title, data, ChartComponent, color) => (
         <GridItem xs={12} sm={12} md={4}>
             <Card chart>
-                <CardHeader>
-                    <ChartistGraph
-                        className="ct-chart"
-                        data={data}
-                        type={type}
-                        options={chartConfig.options}
-                        responsiveOptions={chartConfig.responsiveOptions}
-                        listener={chartConfig.animation}
-                    />
+                <CardHeader color={color}>
+                    <h4 className={classes.cardTitleWhite}>{title}</h4>
                 </CardHeader>
                 <CardBody>
-                    <h4 className={classes.cardTitle}>{title}</h4>
-                    {icon && (
-                        <p className={classes.cardCategory}>
-                            <span className={classes.successText}>{icon}</span> {text}
-                        </p>
-                    )}
-                    {!icon && <p className={classes.cardCategory}>{text}</p>}
+                    <ResponsiveContainer width="100%" height={300}>
+                        <ChartComponent data={data}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            {ChartComponent === LineChart ? (
+                                <Line type="monotone" dataKey="value" stroke="#8884d8" />
+                            ) : (
+                                <Bar dataKey="value" fill="#8884d8" />
+                            )}
+                        </ChartComponent>
+                    </ResponsiveContainer>
                 </CardBody>
                 <CardFooter chart>
                     <div className={classes.stats}>
-                        <AccessTime /> {footer}
+                        <AccessTime /> Nettopp oppdatert
                     </div>
                 </CardFooter>
             </Card>
@@ -227,39 +173,15 @@ const Landing = () => {
     return (
         <div className={classes.root}>
             <GridContainer>
-                {renderCard('Antall saker totalt', issueCount, 'warning', <Icon>content_copy</Icon>)}
+                {renderCard('Antall saker totalt', issueCount, 'warning', <PlaylistAddIcon />)}
                 {renderCard('Nye saker', todaysIssues, 'danger', <PlaylistAddIcon />)}
                 {renderCard('Løste saker', solvedIssues, 'success', <CheckCircleIcon />)}
                 {renderCard('Åpne saker', openIssues, 'info', <Accessibility />)}
             </GridContainer>
             <GridContainer sx={{ pt: 2 }}>
-                {renderChartCard(
-                    'Ukentlige saker',
-                    weeklyCountIssues,
-                    dailySalesChart,
-                    'Line',
-                    <ArrowUpward className={classes.upArrowCardCategory} />,
-                    '55% økning i saker',
-                    'Nåværende uke'
-                )}
-                {renderChartCard(
-                    'Saker over ett år',
-                    yearlyCountIssues,
-                    emailsSubscriptionChart,
-                    'Bar',
-                    null,
-                    'Saker over en 12 måneders periode',
-                    'løste saker siste år'
-                )}
-                {renderChartCard(
-                    'Løste saker',
-                    dailyCountIssues,
-                    completedTasksChart,
-                    'Line',
-                    null,
-                    'Løste saker i løpet av en dag',
-                    'løste saker siste 24 timer'
-                )}
+                {renderChartCard('Ukentlige saker', weeklyCountIssues, LineChart, 'success')}
+                {renderChartCard('Saker over ett år', yearlyCountIssues, BarChart, 'warning')}
+                {renderChartCard('Løste saker', dailyCountIssues, LineChart, 'danger')}
             </GridContainer>
             <GridContainer>
                 <GridItem xs={12} sm={12} md={12}>
@@ -280,10 +202,6 @@ const Landing = () => {
             </GridContainer>
         </div>
     )
-}
-
-Landing.propTypes = {
-    container: PropTypes.object,
 }
 
 export default Landing

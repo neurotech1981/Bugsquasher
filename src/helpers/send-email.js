@@ -1,10 +1,10 @@
 /* eslint-disable no-undef */
-const nodemailer = require('nodemailer')
-const config = require('../backend/config/email_config')
+import nodemailer from 'nodemailer'
+import config from '../backend/config/email_config.json' assert { type: 'json' };
 
-module.exports = sendEmail
-
-async function sendEmail({ to, subject, html, from = config.emailFrom }) {
+const sendEmail = async ({ to, subject, html, from = config.emailFrom }) => {
     const transporter = nodemailer.createTransport(config.smtpOptions)
     await transporter.sendMail({ from, to, subject, html })
 }
+
+export default sendEmail

@@ -1,8 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from 'react'
 import { makeStyles } from '@mui/styles'
-//import useReactRouter from 'use-react-router'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import Paper from '@mui/material/Paper'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
@@ -15,7 +14,6 @@ import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
 import Person from '@mui/icons-material/Person'
 import Divider from '@mui/material/Divider'
-import { Redirect } from 'react-router-dom'
 import auth from '../auth/auth-helper'
 import { findUserProfile, changePasswordProfile } from '../utils/api-user'
 import Grid from '@mui/material/Grid'
@@ -48,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Profile(props) {
     const { id } = useParams()
-    //const { match } = useReactRouter()
+    const navigate = useNavigate()
     const state = {
         redirectToSignin: false,
     }
@@ -126,7 +124,7 @@ export default function Profile(props) {
     const classes = useStyles()
 
     if (!auth.isAuthenticated().user || values.redirectToSignin) {
-        return <Redirect to="/signin" />
+        navigate('/signin')
     }
     return (
         <Paper className={classes.root} elevation={1}>

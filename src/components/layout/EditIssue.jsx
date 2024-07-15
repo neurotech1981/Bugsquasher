@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
 
@@ -28,8 +28,7 @@ import { EditorState, convertFromRaw, convertToRaw, ContentState } from 'draft-j
 import { Editor } from 'react-draft-wysiwyg'
 import draftToHtml from 'draftjs-to-html'
 import htmlToDraft from 'html-to-draftjs'
-import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { useHistory } from 'react-router-dom'
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import auth from '../auth/auth-helper'
 import { getUsers } from '../utils/api-user'
 import Snackbar from '@mui/material/Snackbar'
@@ -48,142 +47,45 @@ const drawerWidth = 240
 const formattedDate = (value) => moment(value).format('DD/MM-YYYY')
 
 const alvorlighetsGrad = [
-    {
-        value: 0,
-        label: 'Ingen valgt',
-    },
-    {
-        value: 1,
-        label: 'Tekst',
-    },
-    {
-        value: 2,
-        label: 'Justering',
-    },
-    {
-        value: 3,
-        label: 'Triviell',
-    },
-    {
-        value: 4,
-        label: 'Mindre alvorlig',
-    },
-    {
-        value: 5,
-        label: 'Alvorlig',
-    },
-    {
-        value: 6,
-        label: 'Kræsj',
-    },
-    {
-        value: 7,
-        label: 'Blokkering',
-    },
+    { value: 0, label: 'Ingen valgt' },
+    { value: 1, label: 'Tekst' },
+    { value: 2, label: 'Justering' },
+    { value: 3, label: 'Triviell' },
+    { value: 4, label: 'Mindre alvorlig' },
+    { value: 5, label: 'Alvorlig' },
+    { value: 6, label: 'Kræsj' },
+    { value: 7, label: 'Blokkering' },
 ]
 
 const Kategori = [
-    {
-        value: 0,
-        label: 'Ingen valgt',
-    },
-    {
-        value: 1,
-        label: 'Triviell',
-    },
-    {
-        value: 2,
-        label: 'Tekst',
-    },
-    {
-        value: 3,
-        label: 'Justering',
-    },
-    {
-        value: 4,
-        label: 'Mindre alvorlig',
-    },
-    {
-        value: 5,
-        label: 'Alvorlig',
-    },
-    {
-        value: 6,
-        label: 'Kræsj',
-    },
-    {
-        value: 7,
-        label: 'Blokkering',
-    },
+    { value: 0, label: 'Ingen valgt' },
+    { value: 1, label: 'Triviell' },
+    { value: 2, label: 'Tekst' },
+    { value: 3, label: 'Justering' },
+    { value: 4, label: 'Mindre alvorlig' },
+    { value: 5, label: 'Alvorlig' },
+    { value: 6, label: 'Kræsj' },
+    { value: 7, label: 'Blokkering' },
 ]
 
 const prioritet = [
-    {
-        value: 0,
-        label: 'Ingen valgt',
-    },
-    {
-        value: 1,
-        label: 'Ingen',
-    },
-    {
-        value: 2,
-        label: 'Lav',
-    },
-    {
-        value: 3,
-        label: 'Normal',
-    },
-    {
-        value: 4,
-        label: 'Høy',
-    },
-    {
-        value: 5,
-        label: 'Haster',
-    },
-    {
-        value: 6,
-        label: 'Øyeblikkelig',
-    },
+    { value: 0, label: 'Ingen valgt' },
+    { value: 1, label: 'Ingen' },
+    { value: 2, label: 'Lav' },
+    { value: 3, label: 'Normal' },
+    { value: 4, label: 'Høy' },
+    { value: 5, label: 'Haster' },
+    { value: 6, label: 'Øyeblikkelig' },
 ]
 
 const reprodusere = [
-    {
-        value: 0,
-        label: 'Ingen valgt',
-        color: '#F2CBD1',
-    },
-    {
-        value: 2,
-        label: 'Alltid',
-        color: '#F2CBD1',
-    },
-    {
-        value: 3,
-        label: 'Noen ganger',
-        color: '#F49CA9',
-    },
-    {
-        value: 4,
-        label: 'Tilfeldig',
-        color: '#F26A7E',
-    },
-    {
-        value: 5,
-        label: 'Har ikke forsøkt',
-        color: '#F20024',
-    },
-    {
-        value: 6,
-        label: 'Kan ikke reprodusere',
-        color: '#870D1F',
-    },
-    {
-        value: 7,
-        label: 'Ingen',
-        color: '#7B0C1D',
-    },
+    { value: 0, label: 'Ingen valgt', color: '#F2CBD1' },
+    { value: 2, label: 'Alltid', color: '#F2CBD1' },
+    { value: 3, label: 'Noen ganger', color: '#F49CA9' },
+    { value: 4, label: 'Tilfeldig', color: '#F26A7E' },
+    { value: 5, label: 'Har ikke forsøkt', color: '#F20024' },
+    { value: 6, label: 'Kan ikke reprodusere', color: '#870D1F' },
+    { value: 7, label: 'Ingen', color: '#7B0C1D' },
 ]
 
 const theme = createTheme(
@@ -284,6 +186,7 @@ const img = {
 
 export default function EditIssue(props) {
     const { id } = useParams()
+    const navigate = useNavigate()
 
     const [open, setOpen] = useState(false)
     const classes = useStyles()
@@ -302,10 +205,9 @@ export default function EditIssue(props) {
     const [editorStateRep, setEditorStateRep] = useState(initState)
 
     const [selectedDate, setSelectedDate] = useState(dataset.updatedAt)
-    const history = useHistory()
 
     const goHome = () => {
-        history.push('/saker/' + auth.isAuthenticated().user._id)
+        navigate('/saker/' + auth.isAuthenticated().user._id)
     }
 
     const handleClose = (event, reason) => {
@@ -389,7 +291,7 @@ export default function EditIssue(props) {
                 setOpen(true)
 
                 setTimeout(() => {
-                    history.push('/vis-sak/' + id)
+                    navigate('/vis-sak/' + id)
                 }, 1000)
 
                 const { data } = response.data
@@ -415,26 +317,14 @@ export default function EditIssue(props) {
     }
 
     const Status = [
-        {
-            value: 0,
-            label: 'Åpen',
-        },
-        {
-            value: 1,
-            label: 'Løst',
-        },
-        {
-            value: 2,
-            label: 'Lukket',
-        },
-        {
-            value: 3,
-            label: 'Under arbeid',
-        },
+        { value: 0, label: 'Åpen' },
+        { value: 1, label: 'Løst' },
+        { value: 2, label: 'Lukket' },
+        { value: 3, label: 'Under arbeid' },
     ]
 
     const CancelEdit = () => {
-        history.goBack()
+        navigate(-1)
     }
 
     useEffect(

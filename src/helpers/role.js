@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-module.exports = {
-    Admin: 'Admin',
-    Bruker: 'Bruker',
-}
+// role.js
+export const Admin = 'Admin'
+export const Bruker = 'Bruker'

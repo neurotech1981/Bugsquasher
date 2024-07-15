@@ -1,3 +1,5 @@
+@import 'https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css';
+
 .App {
     text-align: center;
 }
@@ -58,8 +60,6 @@ body {
 .error {
     border: 3px solid red;
 }
-
-@import 'https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css';
 
 .ct-series-a .ct-bar,
 .ct-series-a .ct-line,

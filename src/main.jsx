@@ -1,29 +1,29 @@
 import React from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import App from './App.js'
+import { createRoot, ReactDOM } from 'react-dom/client'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import App from './App'
 import * as serviceWorker from './serviceWorker'
 import WebFont from 'webfontloader'
 import * as Sentry from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
 
+const router = createBrowserRouter([
+    {
+        path: '/*',
+        element: <App />,
+    },
+])
+
 Sentry.init({
     dsn: 'https://d048e5af08fb42eea06fc5d72c033bcd@o1037119.ingest.sentry.io/6004826',
     integrations: [new BrowserTracing()],
-
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    // We recommend adjusting this value in production
     tracesSampleRate: 1.0,
 })
 
-const container = document.getElementById('root')
-const root = createRoot(container)
-
-root.render(
-    <BrowserRouter>
-        <App />
-    </BrowserRouter>
+createRoot(document.getElementById('root')).render(
+    <React.StrictMode>
+        <RouterProvider router={router} />
+    </React.StrictMode>
 )
 
 WebFont.load({
@@ -46,7 +46,4 @@ WebFont.load({
     },
 })
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: http://bit.ly/CRA-PWA
 serviceWorker.unregister()

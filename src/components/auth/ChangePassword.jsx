@@ -6,9 +6,8 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { makeStyles } from '@mui/styles'
-import { Redirect, withRouter } from 'react-router-dom'
+import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { changePassword } from '../utils/api-user'
-import useReactRouter from 'use-react-router'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import Box from '@mui/material/Box'
 import Snackbar from '@mui/material/Snackbar'
@@ -54,17 +53,17 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-function ChangePassword(props) {
-    const { location } = useReactRouter()
+function ChangePassword() {
+    const { token } = useParams()
+    const navigate = useNavigate()
+    const location = useLocation()
     const initialState = {
-        token: '',
+        token: token || '',
         password: '',
         confirmPassword: '',
         error: '',
         message: '',
     }
-
-    const { match } = useReactRouter()
 
     const [values, setValues] = useState(initialState)
     const [open, setOpen] = useState(false)
@@ -77,11 +76,11 @@ function ChangePassword(props) {
     }
 
     const goHome = () => {
-        props.history.push('/signin')
+        navigate('/signin')
     }
 
     const successAlert = () => (
-        <Snackbar open={open} autohideduration={6000} onClose={handleClose}>
+        <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
             <Alert onClose={handleClose} severity="success" variant="standard">
                 <AlertTitle>Suksess</AlertTitle>
                 {values.message}
@@ -91,20 +90,19 @@ function ChangePassword(props) {
 
     const clickSubmit = () => {
         const user = {
-            token: match.params.token || undefined,
+            token: values.token || undefined,
             password: values.password || undefined,
             confirmPassword: values.confirmPassword || undefined,
         }
 
         changePassword(user).then((data) => {
             if (data.error) {
-                setValues({ error: data.error })
+                setValues({ ...values, error: data.error })
             } else {
-                setValues({ message: data.message })
+                setValues({ ...values, message: data.message })
                 setOpen(true)
             }
         })
-        setValues({ email: '' })
     }
 
     const handleChange = (name) => (event) => {
@@ -122,7 +120,7 @@ function ChangePassword(props) {
         },
     }
     if (values.redirectToReferrer) {
-        return <Redirect to={from} />
+        return navigate(from)
     }
 
     return (
@@ -151,7 +149,7 @@ function ChangePassword(props) {
                         value={values.confirmPassword}
                         onChange={handleChange('confirmPassword')}
                         margin="normal"
-                        autocomplete="new-password"
+                        autoComplete="new-password"
                         variant="outlined"
                     />
                 </CardContent>
@@ -177,4 +175,4 @@ function ChangePassword(props) {
     )
 }
 
-export default withRouter(ChangePassword)
+export default ChangePassword

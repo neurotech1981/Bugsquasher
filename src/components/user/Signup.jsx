@@ -12,9 +12,8 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogContent from '@mui/material/DialogContent'
 import Dialog from '@mui/material/Dialog'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { registerUser } from '../utils/api-user'
-import { useHistory } from 'react-router-dom'
 
 const useStyles = makeStyles((theme) => ({
     card: {
@@ -54,9 +53,9 @@ export default function Signup() {
 
     const [values, setValues] = useState(initialState)
 
-    const history = useHistory()
+    const navigate = useNavigate()
     const goHome = () => {
-        history.push('/signin')
+        navigate('/signin')
     }
 
     const handleChange = (name) => (event) => {
@@ -123,7 +122,7 @@ export default function Signup() {
                         value={values.password}
                         onChange={handleChange('password')}
                         margin="normal"
-                        autocomplete="new-password"
+                        autoComplete="new-password"
                         variant="outlined"
                     />
                     <TextField

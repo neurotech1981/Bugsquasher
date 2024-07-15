@@ -1,27 +1,19 @@
-// ##############################
-// // // javascript library for creating charts
-// #############################
-var Chartist = require('chartist')
+import Chartist from 'chartist'
 
-// ##############################
-// // // variables used to create animation on charts
-// #############################
-var delays = 80,
+// Variables used to create animation on charts
+const delays = 80,
     durations = 500
-var delays2 = 80,
+const delays2 = 80,
     durations2 = 500
 
-// ##############################
-// // // Daily Sales
-// #############################
-
-const dailySalesChart = {
+// Daily Sales
+export const dailySalesChart = {
     options: {
         lineSmooth: Chartist.Interpolation.cardinal({
             tension: 0,
         }),
         low: 0,
-        high: 10200, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
+        high: 10200, // Creative Tim: we recommend you set the high to the biggest value + some padding for a better look
         chartPadding: {
             top: 0,
             right: 20,
@@ -37,7 +29,7 @@ const dailySalesChart = {
             },
         },
     },
-    // for animation
+    // For animation
     animation: {
         draw: function (data) {
             if (data.type === 'line' || data.type === 'area') {
@@ -65,11 +57,8 @@ const dailySalesChart = {
     },
 }
 
-// ##############################
-// // // Email Subscriptions
-// #############################
-
-const emailsSubscriptionChart = {
+// Email Subscriptions
+export const emailsSubscriptionChart = {
     options: {
         axisX: {
             showGrid: false,
@@ -113,17 +102,14 @@ const emailsSubscriptionChart = {
     },
 }
 
-// ##############################
-// // // Completed Tasks
-// #############################
-
-const completedTasksChart = {
+// Completed Tasks
+export const completedTasksChart = {
     options: {
         lineSmooth: Chartist.Interpolation.simple({
             divisor: 4,
         }),
         low: 0,
-        high: 6, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
+        high: 6, // Creative Tim: we recommend you set the high to the biggest value + some padding for a better look
         chartPadding: {
             top: 0,
             right: 10,
@@ -156,10 +142,4 @@ const completedTasksChart = {
             }
         },
     },
-}
-
-module.exports = {
-    dailySalesChart,
-    emailsSubscriptionChart,
-    completedTasksChart,
 }

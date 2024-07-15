@@ -3,10 +3,11 @@
 import express from 'express'
 const router = express.Router()
 import Joi from '@hapi/joi'
-import Role from '../../../helpers/role.js'
+import { Admin, Bruker } from '../../../helpers/role.js'
 import accountService from '../controllers/user.js'
 import validateRequest from '../../_middleware/validate-request.js'
 
+const Role = { Admin, Bruker }
 // routes
 router.post('/refresh-token', refreshToken)
 router.post('/registrer', registerSchema, register)

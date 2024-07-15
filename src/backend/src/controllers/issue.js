@@ -45,13 +45,13 @@ export const newIssue = (req, res) => {
     })
 }
 
-export const getAllIssues = (req, res) => {
+export const getAllIssues = async (req, res) => {
     const page = parseInt(req.query.page) || 1 // Default to page 1 if not provided
     const limit = parseInt(req.query.limit) || 10 // Default to 10 items per page if not provided
 
     const startIndex = (page - 1) * limit
 
-    Data.find()
+    await Data.find()
         .skip(startIndex)
         .limit(limit)
         .exec((err, data) => {
@@ -117,10 +117,10 @@ export const updateIssue = (req, res, next) => {
     //})
 }
 
-export const getIssueByID = (req, res) => {
+export const getIssueByID = async (req, res) => {
     //  ProtectedRoutes.route('/getIssueByID/:id').get(async function (req, res) {
     try {
-        Data.findOne({ _id: req.params.id })
+        await Data.findOne({ _id: req.params.id })
             .populate([
                 {
                     path: 'reporter',
@@ -147,7 +147,7 @@ export const getIssueByID = (req, res) => {
             })
     } catch (e) {
         // database error
-        res.status(500).send('database error')
+        res.status(500).send('database error', e.message)
     }
     //  })
 }

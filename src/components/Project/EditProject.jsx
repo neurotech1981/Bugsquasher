@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import moment from 'moment'
 import axios from 'axios'
-import { useHistory, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Box, TextField, Button, Container, Paper, Grid, Typography, Autocomplete } from '@mui/material'
 import { getProject } from '../../services/projectService'
 import { getUsers } from '../utils/api-user'
 import auth from '../auth/auth-helper'
-const statusOptions = ['Todo', 'In progress', 'Done']
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
+const statusOptions = ['Todo', 'In progress', 'Done']
+
 const EditProject = () => {
     const { id } = useParams()
-    const history = useHistory()
+    const navigate = useNavigate()
     const jwt = auth.isAuthenticated()
 
     const [project, setProject] = useState({
@@ -62,10 +63,22 @@ const EditProject = () => {
         setTeamMembers(value)
     }
 
+    const handleStartDateChange = (date) => {
+        setProject({ ...project, startDate: date })
+    }
+
+    const handleEndDateChange = (date) => {
+        setProject({ ...project, endDate: date })
+    }
+
+    const handleStatusChange = (event, value) => {
+        setProject({ ...project, status: value })
+    }
+
     const handleSubmit = async (event) => {
         event.preventDefault()
         axios.put(`/api/projects/${id}`, project).then(() => {
-            history.push(`/projects/${id}`)
+            navigate(`/projects/${id}`)
         })
     }
 
@@ -74,7 +87,7 @@ const EditProject = () => {
             <Paper sx={{ p: 3, minWidth: 400, mt: 14 }}>
                 <Typography variant="h5" sx={{ mb: 2, p: 3 }}>
                     Edit Project
-                </Typography>{' '}
+                </Typography>
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
@@ -118,7 +131,7 @@ const EditProject = () => {
                                     label="Start Date"
                                     inputFormat="DD/MM/YYYY"
                                     value={project.startDate}
-                                    onChange={handleInputChange}
+                                    onChange={handleStartDateChange}
                                     renderInput={(params) => <TextField {...params} />}
                                 />
                             </LocalizationProvider>
@@ -129,7 +142,7 @@ const EditProject = () => {
                                     label="End Date"
                                     inputFormat="DD/MM/YYYY"
                                     value={project.endDate}
-                                    onChange={handleInputChange}
+                                    onChange={handleEndDateChange}
                                     renderInput={(params) => <TextField {...params} />}
                                 />
                             </LocalizationProvider>
@@ -139,7 +152,7 @@ const EditProject = () => {
                                 id="status"
                                 options={statusOptions}
                                 value={project.status}
-                                onChange={handleInputChange}
+                                onChange={handleStatusChange}
                                 renderInput={(params) => <TextField {...params} label="Status" />}
                             />
                         </Grid>

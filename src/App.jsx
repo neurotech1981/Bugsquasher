@@ -10,7 +10,7 @@ import ViewIssue from './components/layout/ViewIssue'
 import CreateProjectPage from './components/Project/CreateProjectPage'
 import ProjectsPage from './components/Project/ProjectsPage'
 import EditProject from './components/Project/EditProject'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import PrivateRoute from './components/auth/PrivateRoute'
 import Signin from './components/auth/Signin'
 import Profile from './components/user/Profile'
@@ -25,8 +25,9 @@ import { createTheme, adaptV4Theme } from '@mui/material/styles'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { ToastContainer, toast } from 'react-toastify'
 import { ReactQueryDevtools } from 'react-query/devtools'
-import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from 'react-query'
+import { QueryClient, QueryClientProvider } from 'react-query'
 import 'react-toastify/dist/ReactToastify.css'
+import 'rollup-plugin-polyfill-node'
 import socketIO from 'socket.io-client'
 const socket = socketIO.connect('http://127.0.0.1:4000/', {
     forceNew: false,
@@ -34,7 +35,6 @@ const socket = socketIO.connect('http://127.0.0.1:4000/', {
     transports: ['websocket'],
 })
 
-// Create a client
 const queryClient = new QueryClient()
 
 const theme = createTheme(
@@ -60,7 +60,6 @@ const App = () => {
     const jwt = auth.isAuthenticated()
     if (jwt) {
         let userId = auth.isAuthenticated().user._id
-        // Socket IO user connection
         socket.emit('user_connect', userId)
     }
 
@@ -97,25 +96,27 @@ const App = () => {
                         <div>
                             <ReactQueryDevtools initialIsOpen={false} />
                             <ToastContainer autoClose={false} />
-                            <Router>
-                                <NavBar />
-                                <PrivateRoute path="/user/edit/:userId" />
-                                <PrivateRoute path="/user/:userId" component={Profile} />
-                                <PrivateRoute path="/landing" component={Landing} />
-                                <PrivateRoute exact path="/" component={Landing} />
-                                <PrivateRoute path="/legg-til-sak/:id" component={CreateIssue} />
-                                <PrivateRoute path="/saker/:userId" component={Issues} />
-                                <PrivateRoute path="/vis-sak/:id" component={ViewIssue} />
-                                <PrivateRoute path="/bruker-admin/:userId" component={Users} />
-                                <PrivateRoute path="/edit-issue/:id" component={EditIssue} />
-                                <PrivateRoute path="/prosjekt-oversikt/" component={ProjectsPage} />
-                                <PrivateRoute path="/opprett-prosjekt/" component={CreateProjectPage} />
-                                <PrivateRoute path="/rediger-project/:id" component={EditProject} />
-                                <Route path="/resett-passord" component={ResetPassword} />
-                                <Route path="/tilbakestill-passord/:token" component={ChangePassword} />
-                                <Route path="/signup" component={Signup} />
-                                <Route path="/signin" component={Signin} />
-                            </Router>
+                            <NavBar />
+                            <Routes>
+                                <Route path="/signin" element={<Signin />} />
+                                <Route path="/signup" element={<Signup />} />
+                                <Route path="/resett-passord" element={<ResetPassword />} />
+                                <Route path="/tilbakestill-passord/:token" element={<ChangePassword />} />
+                                <Route element={<PrivateRoute />}>
+                                    <Route path="/user/edit/:userId" element={<Profile />} />
+                                    <Route path="/user/:userId" element={<Profile />} />
+                                    <Route path="/landing" element={<Landing />} />
+                                    <Route path="/" element={<Landing />} />
+                                    <Route path="/legg-til-sak/:id" element={<CreateIssue />} />
+                                    <Route path="/saker/:userId" element={<Issues />} />
+                                    <Route path="/vis-sak/:id" element={<ViewIssue />} />
+                                    <Route path="/bruker-admin/:userId" element={<Users />} />
+                                    <Route path="/edit-issue/:id" element={<EditIssue />} />
+                                    <Route path="/prosjekt-oversikt/" element={<ProjectsPage />} />
+                                    <Route path="/opprett-prosjekt/" element={<CreateProjectPage />} />
+                                    <Route path="/rediger-project/:id" element={<EditProject />} />
+                                </Route>
+                            </Routes>
                         </div>
                     </Provider>
                 </ThemeProvider>

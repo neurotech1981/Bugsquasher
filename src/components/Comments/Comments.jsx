@@ -94,13 +94,13 @@ const Comments = ({ comments, issueID, userID }) => {
     const [hiddenReply, setHiddenReply] = useState({})
     //const [commentUpdate, setCommentUpdate] = useState("");
 
-    const pull_data = (data) => {
+    const deleteComment = (data) => {
         setMessage('Kommentaren din ble slettet')
         setOpen(true)
         setComments(data)
     }
 
-    const pull_data_reply = (data) => {
+    const deleteCommentReply = (data) => {
         setMessage('Svaret ditt ble slettet')
         setOpen(true)
         setComments(data)
@@ -192,51 +192,53 @@ const Comments = ({ comments, issueID, userID }) => {
         setComments(comments)
     }, [comments])
 
-    const submitReply = (e, commentID, index, indexInput) => {
+    const submitReply = async (e, commentID, index, indexInput) => {
+        e.preventDefault()
+        e.stopPropagation()
+
         const jwt = auth.isAuthenticated()
-
         setMessage('Svaret ble lagt til')
-        issueService
-            .addCommentReply(userID, reply, jwt.token, issueID, commentID, index)
-            .then((data) => {
-                setComments(data.data.response[0].comments)
-                if (data.data.success) {
-                    setOpen(true)
-                    setReply('')
-                    toggleHideReply(index - 1)
-                    toggleHide(indexInput)
 
-                    e.preventDefault()
-                    e.stopPropagation()
-                }
-            })
-            .catch((error) => {
-                console.log('Error', error)
-            })
+        try {
+            const data = await issueService.addCommentReply(userID, reply, jwt.token, issueID, commentID, index)
+
+            setComments(data?.data?.response?.[0]?.comments || [])
+
+            if (data?.data?.success) {
+                setOpen(true)
+                setReply('')
+                toggleHideReply(index - 1)
+                toggleHide(indexInput)
+            }
+        } catch (error) {
+            console.error('Error', error)
+        }
     }
 
-    const submitCommentEdit = (e, commentID, newContent, index, reply) => {
+    const submitCommentEdit = async (e, commentID, newContent, index, reply) => {
+        e.preventDefault()
+        e.stopPropagation()
+
         const jwt = auth.isAuthenticated()
         setMessage('Kommentar ble redigert')
-        issueService
-            .updateComment(newContent, issueID, jwt.token, commentID, index)
-            .then((data) => {
-                setComments(data.data.response[0].comments)
-                if (data.data.success) {
-                    setOpen(true)
-                    setReply('')
-                    if (reply) {
-                        toggleHideCommentEdit(commentID)
-                    } else {
-                        toggleHideCommentEdit(index)
-                    }
-                    e.preventDefault()
-                    e.stopPropagation()
+
+        try {
+            const data = await issueService.updateComment(newContent, issueID, jwt.token, commentID, index)
+
+            setComments(data?.data?.response?.[0]?.comments || [])
+
+            if (data?.data?.success) {
+                setOpen(true)
+                setReply('')
+                if (reply) {
+                    toggleHideCommentEdit(commentID)
+                } else {
+                    toggleHideCommentEdit(index)
                 }
-            })
-            .catch((error) => {
-                console.log('Error', error)
-            })
+            }
+        } catch (error) {
+            console.error('Error', error)
+        }
     }
 
     const classes = useStyles()
@@ -275,7 +277,7 @@ const Comments = ({ comments, issueID, userID }) => {
                                         <>
                                             <IconButton size="small" aria-label="delete" color="secondary">
                                                 <DeleteCommentDialog
-                                                    func={pull_data}
+                                                    func={deleteComment}
                                                     commentId={result._id}
                                                     id={issueID}
                                                 />
@@ -441,7 +443,7 @@ const Comments = ({ comments, issueID, userID }) => {
                                                                     color="secondary"
                                                                 >
                                                                     <DeleteCommentReplyDialog
-                                                                        func_reply={pull_data_reply}
+                                                                        func_reply={deleteCommentReply}
                                                                         parentId={parentId}
                                                                         childId={result._id}
                                                                         id={issueID}

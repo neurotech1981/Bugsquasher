@@ -1,13 +1,14 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 // import dependencies
+import os from 'os'
 import jwt from 'jsonwebtoken'
 import Data from './models/issue.js'
 import userRoutes from './routes/user.js'
 import authRoutes from './routes/auth.js'
 import issueRoutes from './routes/issue.js'
 import projectRoutes from './routes/project.js'
-import validateCommentInput from '../../validation/comment-validation.js'
+//import validateCommentInput from '../../validation/comment-validation.js'
 import config from '../config/index.js'
 import express from 'express'
 import mongoSanitize from 'express-mongo-sanitize'
@@ -26,18 +27,21 @@ import multipart from 'connect-multiparty'
 import cookieParser from 'cookie-parser'
 import AccessControl from 'accesscontrol'
 import rateLimit from 'express-rate-limit'
-import csrf from 'csurf'
-import AccountController from './accounts/account.controller.js'
-import OS from 'os'
-import fs from 'fs'
 import cluster from 'cluster'
 import process from 'process'
 import crypto from 'crypto'
 import { Server } from 'socket.io'
 import { createServer } from 'http'
+import AccountController from './accounts/account.controller.js'
 
-const totalCPUs = OS.cpus().length
+const totalCPUs = os.cpus().length
 const uniqueID = crypto.randomBytes(16).toString('hex')
+
+// MongoDB database
+const API_PORT = 3001
+const SOCKET_PORT = 4000
+const URI = config.mongoURI
+
 // define the Express app
 const app = express()
 const httpServer = createServer(app)
@@ -53,172 +57,6 @@ const io = new Server(httpServer, {
     allowEIO3: true,
 })
 
-let eventList = []
-
-io.on('connection', (socket) => {
-    console.log(`⚡: ${socket.id} user just connected!`)
-
-    socket.on('msg', function (msg) {
-        console.log('entered!') // <--- It will print now !
-        console.log('message: ' + msg)
-    })
-
-    socket.on('user_connect', async (userId) => {
-        const user = await User.findById(userId)
-        if (user) {
-            user.socketId = socket.id
-            await user.save()
-        }
-    })
-
-    /*
-      The event listener adds the new event
-          to the top of the array, and
-          sends the array to the React app
-      */
-    socket.on('new_issue', (issue, userId) => {
-        User.findById(userId).then((user) => {
-            if (user && user.socketId) {
-                io.to(user.socketId).emit('new_issue', issue, userId)
-            }
-        })
-    })
-
-    socket.on('disconnect', () => {
-        console.log(`⚡: ${socket.id} user just disconnected!`)
-        socket.disconnect()
-    })
-})
-
-httpServer.listen(4000, '0.0.0.0')
-
-process.on('unhandledRejection', (rejectionErr) => {
-    // Won't execute
-    console.log('unhandledRejection Err::', rejectionErr)
-    console.log('unhandledRejection Stack::', JSON.stringify(rejectionErr.stack))
-})
-
-process.on('uncaughtException', (uncaughtExc) => {
-    console.log('uncaughtException Err::', uncaughtExc)
-    console.log('uncaughtException Stack::', JSON.stringify(uncaughtExc.stack))
-})
-
-// Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
-// see https://expressjs.com/en/guide/behind-proxies.html
-// app.set('trust proxy', 1);
-
-process.env.UV_THREADPOOL_SIZE = OS.cpus().length
-
-console.log('Threadpool size set to: ', OS.cpus().length)
-
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-})
-
-// This is actually how the grants are maintained internally.
-const grants = {
-    Admin: {
-        issues: {
-            'create:any': ['*'],
-            'read:any': ['*'],
-            'update:any': ['*'],
-            'delete:any': ['*'],
-        },
-        editusers: {
-            'create:any': ['*'],
-            'read:any': ['*'],
-            'update:any': ['*'],
-            'delete:any': ['*'],
-        },
-    },
-    Bruker: {
-        issues: {
-            'create:own': ['*', '!views'],
-            'read:own': ['*'],
-            'update:own': ['*', '!views'],
-            'delete:own': ['*'],
-        },
-        editusers: {
-            'create:own': ['*', '!email', '!rights'],
-            'read:own': ['*'],
-            'update:own': ['*', '!role', '!email', '!rights'],
-            'delete:own': ['*', '!email', '!rights'],
-        },
-    },
-}
-
-const ac = new AccessControl(grants)
-
-var multipartMiddleware = multipart()
-
-// Multer image storage settings
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, '../assets/uploads')
-    },
-    filename: function (req, file, cb) {
-        cb(null, uniqueID + '-' + file.originalname)
-    },
-})
-
-const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-        cb(null, true)
-    } else {
-        // rejects storing a file
-        cb(null, false)
-    }
-}
-
-var upload = multer({
-    storage: storage,
-    limits: {
-        fileSize: 1024 * 1024 * 20, // Set max size for upload ; Current is 20 Mb
-    },
-    fileFilter: fileFilter,
-})
-
-// MongoDB database
-// const dbRoute =
-const API_PORT = 3001
-
-// Use the Data object (data) to find all Data records
-//Data.find(Data)
-// connects our back end code with the database
-const URI = config.mongoURI
-try {
-    mongoose.connect(URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    })
-} catch (error) {
-    console.log(error)
-}
-
-const db = mongoose.connection
-
-db.once('open', function () {
-    console.log('connected to the database')
-})
-
-// checks if connection with the database is successful
-db.on('error', console.error.bind(console, 'MongoDB connection error:'))
-
-mongoose.Promise = global.Promise
-
-//module.exports = {
-//  UserAccount: require("../src/models/user.js"),
-//  RefreshToken: require("../src/accounts/refresh-tokens.js"),
-//  isValidId,
-//};
-
-function isValidId(id) {
-    return mongoose.Types.ObjectId.isValid(id)
-}
-
 if (cluster.isPrimary) {
     console.log(`Number of CPUs is ${totalCPUs}`)
     console.log(`Master ${process.pid} is running`)
@@ -233,19 +71,149 @@ if (cluster.isPrimary) {
         console.log("Let's fork another worker!")
         cluster.fork()
     })
+
+    // Start the httpServer for socket connections only in the primary process
+    httpServer.listen(SOCKET_PORT, '0.0.0.0', () => {
+        console.log(`Socket server started on port ${SOCKET_PORT}`)
+    })
+
+    io.on('connection', (socket) => {
+        console.log(`⚡: ${socket.id} user just connected!`)
+
+        socket.on('msg', function (msg) {
+            console.log('entered!') // <--- It will print now !
+            console.log('message: ' + msg)
+        })
+
+        socket.on('user_connect', async (userId) => {
+            const user = await User.findById(userId)
+            if (user) {
+                user.socketId = socket.id
+                await user.save()
+            }
+        })
+
+        socket.on('new_issue', (issue, userId) => {
+            User.findById(userId).then((user) => {
+                if (user && user.socketId) {
+                    io.to(user.socketId).emit('new_issue', issue, userId)
+                }
+            })
+        })
+
+        socket.on('disconnect', () => {
+            console.log(`⚡: ${socket.id} user just disconnected!`)
+            socket.disconnect()
+        })
+    })
 } else {
     console.log(`Worker ${process.pid} started`)
+
+    process.on('unhandledRejection', (rejectionErr) => {
+        console.log('unhandledRejection Err::', rejectionErr)
+        console.log('unhandledRejection Stack::', JSON.stringify(rejectionErr.stack))
+    })
+
+    process.on('uncaughtException', (uncaughtExc) => {
+        console.log('uncaughtException Err::', uncaughtExc)
+        console.log('uncaughtException Stack::', JSON.stringify(uncaughtExc.stack))
+    })
+
+    process.env.UV_THREADPOOL_SIZE = os.cpus().length
+    console.log('Threadpool size set to: ', os.cpus().length)
+
+    const limiter = rateLimit({
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        max: 100, // limit each IP to 100 requests per windowMs
+        standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+        legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    })
+
+    const grants = {
+        Admin: {
+            issues: {
+                'create:any': ['*'],
+                'read:any': ['*'],
+                'update:any': ['*'],
+                'delete:any': ['*'],
+            },
+            editusers: {
+                'create:any': ['*'],
+                'read:any': ['*'],
+                'update:any': ['*'],
+                'delete:any': ['*'],
+            },
+        },
+        Bruker: {
+            issues: {
+                'create:own': ['*', '!views'],
+                'read:own': ['*'],
+                'update:own': ['*', '!views'],
+                'delete:own': ['*'],
+            },
+            editusers: {
+                'create:own': ['*', '!email', '!rights'],
+                'read:own': ['*'],
+                'update:own': ['*', '!role', '!email', '!rights'],
+                'delete:own': ['*', '!email', '!rights'],
+            },
+        },
+    }
+
+    const ac = new AccessControl(grants)
+    var multipartMiddleware = multipart()
+
+    const storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            cb(null, '../assets/uploads')
+        },
+        filename: function (req, file, cb) {
+            cb(null, uniqueID + '-' + file.originalname)
+        },
+    })
+
+    const fileFilter = (req, file, cb) => {
+        if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+            cb(null, true)
+        } else {
+            cb(null, false)
+        }
+    }
+
+    var upload = multer({
+        storage: storage,
+        limits: {
+            fileSize: 1024 * 1024 * 20, // Set max size for upload ; Current is 20 Mb
+        },
+        fileFilter: fileFilter,
+    })
+
+    mongoose.set('strictQuery', true) // or false, depending on your needs
+
+    try {
+        await mongoose.connect(URI, {
+            serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
+            socketTimeoutMS: 45000, // Set socket timeout to 45 seconds
+        })
+    } catch (error) {
+        console.log('MongoDB connection error:', error)
+    }
+
+    const db = mongoose.connection
+
+    db.once('open', function () {
+        console.log('connected to the database')
+    })
+
+    db.on('error', console.error.bind(console, 'MongoDB connection error:'))
+    mongoose.Promise = global.Promise
+
     const ProtectedRoutes = express.Router()
 
     app.set('view engine', 'ejs')
 
     app.use(cookieParser())
-    //app.use(csrf({ cookie: true }));
-    //set secret
     app.set('jwtSecret', config.jwtSecret)
-    // (optional) only made for logging and
-    // bodyParser, parses the request body to be a readable json format
-    //  apply limiter to all requests
     app.use(
         limiter,
         bodyParser.urlencoded({
@@ -256,29 +224,21 @@ if (cluster.isPrimary) {
     app.use(logger('dev'))
     app.use(bodyParser.json({ limit: '50mb' }))
     app.use('/uploads', express.static('../assets/uploads'))
-    // Redirect to react build
     let __dirname = path.resolve()
     app.use(express.static(path.join(__dirname, '../build')))
 
     app.get('/', function (req, res, next) {
         res.sendFile(path.resolve('../build/index.html'))
     })
-    // enhance your app security with Helmet
     app.use(helmet())
-    // Middleware
     app.use(express.json())
     app.use(mongoSanitize())
     app.use(express.urlencoded({ extended: true }))
-    // enable all CORS requests
     app.use(cors())
-    app.use(express.static(__dirname + '/public/')) //Don't forget me :(
-
-    // log HTTP requests
+    app.use(express.static(__dirname + '/public/'))
     app.use(morgan('combined'))
 
     app.use('/', authRoutes)
-
-    //app.use(ProtectedRoutes)
     app.use('/accounts', AccountController)
     app.use('/', userRoutes)
     app.use('/', issueRoutes)
@@ -291,44 +251,28 @@ if (cluster.isPrimary) {
     })
 
     ProtectedRoutes.use((req, res, next) => {
-        // check header for the token
-        //console.log("ProtectedRoutes headers: ", req.headers)
         var token = req.headers.authorization
-        console.log('Checking token #1...', token)
-        console.log('Route path: ', req.path)
         if (token === undefined) {
             token = req.body.token
-            console.log('Retrying...Checking token...', token)
         }
-
         if (token === undefined) {
             token = req.body.headers.Authorization
-            console.log('Retrying...Checking token...', token)
         }
-
-        // decode token
         if (token) {
-            // verifies secret and checks if the token is expired
             try {
                 jwt.verify(token, app.get('jwtSecret'), (err, decoded) => {
                     if (err) {
-                        console.log('Invalid token')
                         return res.json({ message: 'invalid token' })
                     } else {
-                        // if everything is good, save to request for use in other routes
-                        console.log('Token was accepted...')
                         req.decoded = decoded
                         next()
                     }
                 })
             } catch (err) {
-                console.log('An error occured: ', err)
+                console.log('An error occurred: ', err)
             }
         } else {
-            // if there is no token
-            res.send({
-                message: 'No token provided.',
-            })
+            res.send({ message: 'No token provided.' })
         }
     })
 
@@ -345,8 +289,6 @@ if (cluster.isPrimary) {
         }
     )
 
-    // this is our count issues method
-    // this method count all issues in the data model
     ProtectedRoutes.route('/countIssues').get(async function (req, res, next) {
         Data.countDocuments({}, function (err, result) {
             if (err) {
@@ -357,7 +299,6 @@ if (cluster.isPrimary) {
         })
     })
 
-    // Find 5 latest issues.
     ProtectedRoutes.route('/getLatestCases').get(async function (req, res, next) {
         Data.find({})
             .select(['createdAt', 'summary', 'priority', 'severity'])
@@ -396,7 +337,6 @@ if (cluster.isPrimary) {
     })
 
     ProtectedRoutes.route('/thisWeekIssuesCount').get(async function (req, res, next) {
-        // Work out days for start of tomorrow and one week before
         const oneDay = 1000 * 60 * 60 * 24,
             oneWeek = oneDay * 7
 
@@ -404,8 +344,8 @@ if (cluster.isPrimary) {
         let lastDay = d - (d % oneDay) + oneDay
         let firstDay = lastDay - oneWeek
 
-        var start = moment().startOf('week').format() // set to 12:00 am today
-        var end = moment().endOf('week').format() // set to 23:59 pm today
+        var start = moment().startOf('week').format()
+        var end = moment().endOf('week').format()
 
         Data.aggregate(
             [
@@ -416,13 +356,7 @@ if (cluster.isPrimary) {
                             $lte: new Date(end),
                         },
                     },
-                    // Your matching logic
                 },
-                /* Now grouping users based on _id or id parameter for each day
-     from the above match results.
-
-     $createdAt can be replaced by date property present in your database.
-     */
                 {
                     $group: {
                         _id: {
@@ -435,7 +369,6 @@ if (cluster.isPrimary) {
                 },
             ],
             function (err, result) {
-                // results in here
                 if (err) {
                     res.send(err)
                 } else {
@@ -446,7 +379,6 @@ if (cluster.isPrimary) {
     })
 
     ProtectedRoutes.route('/thisYearIssuesCount').get(async function (req, res) {
-        // Work out days for start of tomorrow and one week before
         const oneDay = 1000 * 60 * 60 * 24,
             oneWeek = oneDay * 7
 
@@ -471,8 +403,8 @@ if (cluster.isPrimary) {
             'December',
         ]
 
-        var start = moment().startOf('year').format() // set to 12:00 am today
-        var end = moment().endOf('year').format() // set to 23:59 pm today
+        var start = moment().startOf('year').format()
+        var end = moment().endOf('year').format()
 
         Data.aggregate(
             [
@@ -483,20 +415,9 @@ if (cluster.isPrimary) {
                             $lte: new Date(end),
                         },
                     },
-                    // Your matching logic
                 },
-                /* Now grouping users based on _id or id parameter for each day
-     from the above match results.
-
-     $createdAt can be replaced by date property present in your database.
-     */
                 {
                     $group: {
-                        /*_id : {
-                   month: { $month: "$createdAt" },
-                   year: { $year: "$createdAt" } },
-                   count : {$sum : 1}
-           }*/
                         _id: { year_month: { $substrCP: ['$createdAt', 0, 24] } },
                     },
                 },
@@ -619,7 +540,6 @@ if (cluster.isPrimary) {
                 },
             ],
             function (err, result) {
-                // results in here
                 if (err) {
                     res.send(err)
                 } else {
@@ -632,9 +552,8 @@ if (cluster.isPrimary) {
     ProtectedRoutes.route('/weekdayIssueCount').get(async function (req, res) {
         const daysArray = ['Man', 'Tirs', 'Ons', 'Tors', 'Fre', 'Lør', 'Søn']
 
-        const startOfWeek = moment().startOf('isoWeek').toDate() // Start of the week (Monday)
-        const endOfWeek = moment().endOf('isoWeek').toDate() // End of the week (Sunday)
-        console.log('Weekly count range: ', startOfWeek, ' << >> ', endOfWeek)
+        const startOfWeek = moment().startOf('isoWeek').toDate()
+        const endOfWeek = moment().endOf('isoWeek').toDate()
 
         const initialDays = daysArray.reduce((acc, day) => {
             acc[day] = 0
@@ -711,13 +630,10 @@ if (cluster.isPrimary) {
                 },
             ])
 
-            // Flatten the result to get the desired output format
             const responseData = result.length > 0 ? result[0].data : initialDays
 
-            console.log('Weekly issues >>>>', responseData)
             res.json(responseData)
         } catch (err) {
-            console.log('Weekly issues Error >>>>', err.message)
             res.status(500).send(err.message)
         }
     })
@@ -726,13 +642,11 @@ if (cluster.isPrimary) {
         const oneDay = 1000 * 60 * 60 * 24
         const oneWeek = oneDay * 7
 
-        const timeZone = 'Europe/Oslo' // Set your desired time zone
+        const timeZone = 'Europe/Oslo'
 
         const now = moment.tz(timeZone)
         const endOfToday = now.clone().endOf('day').toDate()
         const startOfWeek = now.clone().subtract(6, 'days').startOf('day').toDate()
-
-        console.log('Weekly range: ', startOfWeek, ' to ', endOfToday)
 
         const hoursArray = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`)
 
@@ -786,7 +700,6 @@ if (cluster.isPrimary) {
                 },
             ])
 
-            // Select only the last index
             const lastDayData = result.length > 0 ? result[result.length - 1] : null
 
             if (lastDayData) {
@@ -795,13 +708,11 @@ if (cluster.isPrimary) {
                     return acc
                 }, {})
 
-                console.log('Last day data: ', JSON.stringify(completeHourlyData))
                 res.json(completeHourlyData)
             } else {
                 res.json({})
             }
         } catch (err) {
-            console.error(err.message)
             res.status(500).send(err.message)
         }
     })
@@ -816,18 +727,13 @@ if (cluster.isPrimary) {
         })
     })
 
-    // CREATE REPLY
     ProtectedRoutes.route('/issue/:issueId/comments/:commentId/replies').post(async function (req, res, next) {
-        // TURN REPLY INTO A COMMENT OBJECT
         const reply = new Comments(req.body)
 
         reply.author = req.body.user
-        // LOOKUP THE PARENT POST
         Data.findById(req.params.issueId).then((post) => {
-            // FIND THE CHILD COMMENT
             Promise.all([reply.save(), Comments.findById(req.params.commentId)])
                 .then(([reply, comment]) => {
-                    // ADD THE REPLY
                     comment.comments.unshift(reply._id)
                     return Promise.all([comment.save()])
                 })
@@ -838,12 +744,10 @@ if (cluster.isPrimary) {
                     })
                 )
                 .catch(console.error)
-            // SAVE THE CHANGE TO THE PARENT DOCUMENT
             return post.save()
         })
     })
 
-    // Create new reply to comment
     ProtectedRoutes.route('/issue/:issueId/comments/:commentId/replies/new').post(async function (req, res) {
         const reply = new Comments(req)
         let index = req.body.reply.index
@@ -855,10 +759,8 @@ if (cluster.isPrimary) {
         Data.findById(req.params.commentId)
             .lean()
             .then((issue) => {
-                // FIND THE CHILD COMMENT
                 Promise.all([reply.save(), Comments.findById(req.params.commentId)])
                     .then(([reply, comment]) => {
-                        // ADD THE REPLY
                         comment.comments.splice(index, 0, reply)
                         comments = comment
                         return Promise.all([comment.save()])
@@ -894,13 +796,10 @@ if (cluster.isPrimary) {
                     })
                 })
         } catch (e) {
-            // database error
             res.status(500).send('database error ' + e)
         }
     })
 
-    // this is our old update method
-    // this method overwrites existing data in our database
     ProtectedRoutes.route('/edituser/:id').post(async function (req, res, next) {
         const { id } = req.params
         const { role, update } = req.body
@@ -908,11 +807,9 @@ if (cluster.isPrimary) {
         if (permission.granted) {
             User.findByIdAndUpdate({ _id: id }, update, (err) => {
                 if (err || !update) return res.status(400).json(err)
-                // filter data by permission attributes and send.
                 res.json(permission.filter(update))
             })
         } else {
-            // resource is forbidden for this user/role
             res.status(403).end()
         }
     })
@@ -921,83 +818,46 @@ if (cluster.isPrimary) {
         const { id } = req.params
         User.findByIdAndRemove({ _id: id }, (err) => {
             if (err) return res.status(400).json(err)
-            return res.json({
-                success: true,
-            })
+            return res.json({ success: true })
         })
     })
 
-    // this is our delete method
-    // this method removes existing data in our database
     ProtectedRoutes.route('/delete-comment/:id').post(async function (req, res) {
         const { id } = req.params
         const { commentId } = req.body
-        console.log('Delete comment', id, commentId)
         Data.findByIdAndUpdate({ _id: id }, { $pullAll: { comments: [commentId] } }, { new: true }, (err, result) => {
             if (err) return res.send(err)
-            return res.json({
-                success: true,
-                response: result,
-            })
-        }).populate({
-            path: 'comments',
-        })
+            return res.json({ success: true, response: result })
+        }).populate({ path: 'comments' })
     })
 
-    // this is our delete method
-    // this method removes existing data in our database
     ProtectedRoutes.route('/delete-reply/:id').post(async function (req, res) {
         const { id } = req.params
         const { parentId, childId } = req.body
-        console.log('Delete reply', id, parentId)
         await Comments.findByIdAndUpdate({ _id: parentId }, { $pullAll: { comments: [childId] } }, { new: true })
             .clone()
             .then((result) => {
-                Promise.all([
-                    Data.findById(id).populate({
-                        path: 'comments',
-                    }),
-                ]).then((result) => {
-                    return res.json({
-                        success: true,
-                        response: result,
-                    })
+                Promise.all([Data.findById(id).populate({ path: 'comments' })]).then((result) => {
+                    return res.json({ success: true, response: result })
                 })
             })
             .catch(console.error)
     })
 
-    // this is our delete method
-    // this method removes existing data in our database
     ProtectedRoutes.route('/update-comment/:id').post(async function (req, res) {
         const { id } = req.params
         const { commentId, newContent } = req.body.comment
-        console.log('New content', newContent, commentId, id)
         await Comments.findByIdAndUpdate({ _id: commentId }, newContent[0])
             .clone()
             .then((result) => {
-                Promise.all([
-                    Data.findById(id).populate({
-                        path: 'comments',
-                    }),
-                ]).then((result) => {
-                    return res.json({
-                        success: true,
-                        response: result,
-                    })
+                Promise.all([Data.findById(id).populate({ path: 'comments' })]).then((result) => {
+                    return res.json({ success: true, response: result })
                 })
             })
             .catch(console.error)
     })
 
-    // this is our create method
     ProtectedRoutes.post('/issue/comments/:id', async function (req, res) {
-        /*  const { errors, isValid } = validateCommentInput(req.body);
-  // Check Validation
-  if (!isValid) {
-    // If any errors, send 400 with errors object
-    return res.status(400).json(errors);
-  } */
         const comment = new Comments(req.body)
         comment
             .save()
@@ -1007,34 +867,15 @@ if (cluster.isPrimary) {
                 return Promise.all([issue.save()])
             })
             .then((response) => {
-                res.json({
-                    success: true,
-                    data: response,
-                })
+                res.json({ success: true, data: response })
             })
             .catch((err) => {
                 console.log(err)
             })
-
-        /*   comment.save((err) => {
-    if (err) {
-      return res.status(400).json({
-        success: false,
-        error: err,
-      });
-    }
-    return res.status(200).json({
-      success: true,
-      document: comment,
-    });
-  }); */
     })
 
-    // api routes
-    // append /api for our http requests
     app.use('/api', ProtectedRoutes)
 
-    // start the server
     app.listen(API_PORT, () => {
         console.log(
             `Started server on =>`,

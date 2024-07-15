@@ -1,8 +1,7 @@
 import React, { Fragment, useState } from 'react'
 import auth from '../auth/auth-helper'
-import { Link, useLocation, withRouter } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { makeStyles, useTheme } from '@mui/styles'
-import useReactRouter from 'use-react-router'
 import Divider from '@mui/material/Divider'
 import Drawer from '@mui/material/Drawer'
 import Hidden from '@mui/material/Hidden'
@@ -30,15 +29,8 @@ import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppTwoTone'
 import NoteAddRoundedIcon from '@mui/icons-material/NoteAddTwoTone'
 import PageviewRoundedIcon from '@mui/icons-material/PageviewTwoTone'
 import GroupRoundedIcon from '@mui/icons-material/GroupTwoTone'
-//import LogRocket from 'logrocket';
-//import setupLogRocketReact from 'logrocket-react';
 
 const drawerWidth = 260
-
-//const isActive = (history, path) => {
-// if (history.location.pathname === path) return { color: '#F44336' }
-//  else return { color: '#ffffff' }
-//}
 
 const useStyles = makeStyles((theme) => ({
     palette: {
@@ -175,7 +167,7 @@ function NavBar(props) {
         {
             label: 'Dashboard',
             icon: <Dashboard />,
-            path: !auth.isAuthenticated() ? '/landing/' : '/landing/' + auth.isAuthenticated().user._id,
+            path: !auth.isAuthenticated() ? '/landing/' : '/landing/',
         },
         {
             label: 'Vis saker',
@@ -185,7 +177,6 @@ function NavBar(props) {
         {
             label: 'Prosjekt oversikt',
             icon: <PageviewRoundedIcon />,
-            /*eslint operator-linebreak: [2, "after", { "overrides": { "?": "ignore", ":": "ignore"} }]*/
             path: !auth.isAuthenticated()
                 ? '/prosjekt-oversikt/'
                 : '/prosjekt-oversikt/' + auth.isAuthenticated().user._id,
@@ -211,35 +202,16 @@ function NavBar(props) {
     ]
 
     const location = useLocation()
+    const navigate = useNavigate()
     const { container } = props
-    //const [mobileOpen, setMobileOpen] = React.useState(false)
     const [open, setOpen] = useState(false)
-    //const isActive = (value) => (location.pathname + "/" + auth.isAuthenticated().user._id == value ? true : false)
-
-    // This is an example script - don't forget to change it!
-    //LogRocket.init('w0hnhq/bugsquasher')
-    //setupLogRocketReact(LogRocket)
-    /*LogRocket.identify('5f856c24f8a3b2531facddf9', {
-  name: 'Bjørn-Are Jakobsen',
-  email: 'ba.jakobsen@gmail.com',
-
-  // Add your own custom user variables here, ie:
-  subscriptionType: 'admin'
-});*/
 
     const classes = useStyles()
     const theme = useTheme()
+
     function handleDrawerToggle() {
         setOpen(!open)
     }
-
-    // function handleDrawerOpen () {
-    //   setOpen(true)
-    // }
-
-    // function handleDrawerClose () {
-    //   setOpen(false)
-    // }
 
     const drawer = (
         <div>
@@ -254,16 +226,11 @@ function NavBar(props) {
                     <div className={classes.toolbar} />
                     <Divider />
                     <List>
-                        {items.map((items, index) => (
-                            <Link to={items.path} key={index}>
-                                <ListItem
-                                    selected={items.path === location.pathname}
-                                    button
-                                    key={items.key}
-                                    to={items.path}
-                                >
-                                    <ListItemIcon>{items.icon}</ListItemIcon>
-                                    <ListItemText primary={items.label} />
+                        {items.map((item, index) => (
+                            <Link to={item.path} key={index}>
+                                <ListItem selected={item.path === location.pathname} button key={index} to={item.path}>
+                                    <ListItemIcon>{item.icon}</ListItemIcon>
+                                    <ListItemText primary={item.label} />
                                 </ListItem>
                             </Link>
                         ))}
@@ -274,8 +241,8 @@ function NavBar(props) {
         </div>
     )
 
-    const [anchorEl, setAnchorEl] = useState(false)
-    const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(false)
+    const [anchorEl, setAnchorEl] = useState(null)
+    const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null)
 
     const isMenuOpen = Boolean(anchorEl)
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
@@ -322,7 +289,7 @@ function NavBar(props) {
 
             <MenuItem
                 onClick={() => {
-                    auth.signout(() => props.history.push('/signin'))
+                    auth.signout(() => navigate('/signin'))
                 }}
             >
                 <IconButton color="inherit" size="large">
@@ -359,7 +326,7 @@ function NavBar(props) {
                 <MenuItem
                     onClose={handleMobileMenuClose}
                     onClick={() => {
-                        auth.signout(() => history.push('/signin'))
+                        auth.signout(() => navigate('/signin'))
                     }}
                 >
                     <IconButton color="inherit" size="large">
@@ -475,4 +442,4 @@ function NavBar(props) {
     )
 }
 
-export default withRouter(NavBar)
+export default NavBar

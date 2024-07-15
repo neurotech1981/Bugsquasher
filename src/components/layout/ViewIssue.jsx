@@ -1,7 +1,6 @@
-/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react'
-import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles'
+import { createTheme, ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
 import issueService from '../../services/issueService'
 import '../../App.css'
@@ -18,6 +17,7 @@ import InputLabel from '@mui/material/InputLabel'
 import IconButton from '@mui/material/IconButton'
 import FormControl from '@mui/material/FormControl'
 import Snackbar from '@mui/material/Snackbar'
+import Autocomplete from '@mui/material/Autocomplete'
 import Alert from '@mui/material/Alert'
 import { AlertTitle } from '@mui/lab'
 import UpdateIcon from '@mui/icons-material/Update'
@@ -30,9 +30,8 @@ import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest'
 import Box from '@mui/material/Box'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import EditIcon from '@mui/icons-material/Edit'
-import { useHistory } from 'react-router-dom'
 import auth from '../auth/auth-helper'
 import { EditorState, convertFromRaw, ContentState } from 'draft-js'
 import { Editor } from 'react-draft-wysiwyg'
@@ -132,11 +131,9 @@ const useStyles = makeStyles((theme) => ({
         top: '0',
         right: '0',
         cursor: 'pointer',
-        //borderStyle: 'double',
         borderColor: 'black',
         color: 'gray',
         backgroundColor: 'transparent',
-        //boxShadow: '0 3px 2px 1px rgba(0, 0, 0, .2)',
         transition: 'box-shadow 0.3s ease-in-out',
         '&:hover': {
             color: 'darkred',
@@ -164,92 +161,75 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ViewIssue(props) {
     const classes = useStyles()
-    const [dataset, setData] = useState([''])
+    const [dataset, setData] = useState({})
     const [showAside, setShowAside] = useState(true)
+    const [editorStateDesc, setEditorStateDesc] = useState(EditorState.createEmpty())
+    const [editorStateRep, setEditorStateRep] = useState(EditorState.createEmpty())
+    const [images, setImages] = useState([])
+    const [openStatusUpdate, setOpenStatusUpdate] = useState({
+        openStatusSnackbar: false,
+        verticalStatusUpdate: 'middle',
+        horizontalStatusUpdate: 'middle',
+    })
+    const [userinfo, setUserinfo] = useState({
+        user: {},
+        redirectToSignin: false,
+    })
+    const [errors, setErrors] = useState('')
+    const [open, setOpen] = useState(false)
+    const [openNewComment, setOpenNewComment] = useState(false)
+    const [comments, setComments] = useState([])
+    const [users, setUsers] = useState([])
+
+    const navigate = useNavigate()
+    const { id } = useParams()
 
     const toggleAside = () => {
         setShowAside(!showAside)
     }
 
-    const contentBlock = htmlToDraft('')
-    const initState = contentBlock
-        ? EditorState.createWithContent(ContentState.createFromBlockArray(contentBlock.contentBlocks))
-        : EditorState.createEmpty()
-
-    const [editorStateDesc, setEditorStateDesc] = useState(initState)
-    const [editorStateRep, setEditorStateRep] = useState(initState)
-
-    const [images, setImages] = useState([])
-    const [openStatusUpdate, setOpenStatusUpdate] = useState({
-        openStatusSnackbar: false,
-        verticalStatusUpdate: 'bottom',
-        horizontalStatusUpdate: 'left',
-    })
-    const [userinfo, setUserinfo] = useState({
-        user: [''],
-        redirectToSignin: false,
-    })
-    const [errors, setErrors] = useState('')
-    const [open, setOpen] = useState(false)
-    const [opennewcomment, setOpenNewComment] = useState(false)
-    const [comments, setComments] = useState([])
-    const [users, setUsers] = useState([])
-
-    const history = useHistory()
-
     const pull_data = (data) => {
-        let array = [...images]
-        if (data !== -1) {
-            array.splice(data, 1)
-            setImages(array.length > 0 ? array : ['none'])
-        }
+        const updatedImages = images.filter((_, index) => index !== data)
+        setImages(updatedImages.length > 0 ? updatedImages : ['none'])
     }
 
     const image_changes = (data) => {
-        let array = [...images]
-        data.forEach((element) => {
-            array.push(element)
-        })
-        setImages(array)
+        setImages((prevImages) => [...prevImages, ...data])
     }
 
-    const init = () => {
+    const init = async () => {
         const jwt = auth.isAuthenticated()
-        let userId = auth.isAuthenticated().user._id
+        const userId = jwt.user._id
 
-        findUserProfile(
-            {
-                userId,
-            },
-            { t: jwt.token }
-        ).then((data) => {
-            if (data.error) {
+        try {
+            const userData = await findUserProfile({ userId }, { t: jwt.token })
+            if (userData.error) {
                 setUserinfo({ redirectToSignin: true })
-                console.log('data error: ', data.error)
             } else {
-                setUserinfo({ user: data })
+                setUserinfo({ user: userData })
             }
-        })
 
-        getUsers({ t: jwt.token }).then((data) => {
-            if (data.error) {
-                setValues({ redirectToSignin: true })
+            const usersData = await getUsers({ t: jwt.token })
+            if (usersData.error) {
+                setErrors({ redirectToSignin: true })
             } else {
-                setUsers(data.data)
+                setUsers(usersData.data)
             }
-        })
+        } catch (error) {
+            console.error('Initialization error: ', error)
+        }
     }
 
     useEffect(() => {
         if (!users.length) {
-            let toggled = window.screen.width >= 1024 ? true : false
+            const toggled = window.screen.width >= 1024
             setShowAside(toggled)
             init()
         }
     }, [users.length])
 
     const goHome = () => {
-        history.push('/saker/' + auth.isAuthenticated().user._id)
+        navigate('/saker/' + auth.isAuthenticated().user._id)
     }
 
     const handleClickOpen = () => {
@@ -268,128 +248,90 @@ export default function ViewIssue(props) {
         onDelete()
     }
 
-    const { id } = props.match.params
-
-    const getIssueByID = async (id, token) => {
-        const res = issueService.getIssueByID(id, token)
-        await res.then(function (result) {
-            console.log('result: ', result.imageName)
+    const getIssueByID = async (issueId, token) => {
+        try {
+            const result = await issueService.getIssueByID(issueId, token)
             setImages(result.imageName.length > 0 ? result.imageName : ['none'])
             setData(result)
 
-            let editorStateDesc = EditorState.createWithContent(convertFromRaw(JSON.parse(result.description)))
+            const editorStateDesc = EditorState.createWithContent(convertFromRaw(JSON.parse(result.description)))
             setEditorStateDesc(editorStateDesc)
 
-            let editorStateRep = EditorState.createWithContent(convertFromRaw(JSON.parse(result.step_reproduce)))
+            const editorStateRep = EditorState.createWithContent(convertFromRaw(JSON.parse(result.step_reproduce)))
             setEditorStateRep(editorStateRep)
-        })
+        } catch (error) {
+            console.error('Error fetching issue by ID: ', error)
+        }
     }
 
     const getComments = async () => {
         const jwt = auth.isAuthenticated()
-        await issueService
-            .getComments(id, jwt.token)
-            .then((response) => {
-                setComments(response.response.comments)
-            })
-            .catch((e) => {
-                console.error('Comment error: ', e)
-            })
-    }
-
-    const upDateIssueStatus = async (id, data) => {
-        const jwt = auth.isAuthenticated()
-
-        await issueService
-            .upDateIssueStatus(id, { status: data }, jwt.token)
-            .then((response) => {
-                setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true })
-                setData({ ...dataset, status: data })
-            })
-            .catch((e) => {
-                console.error('Update issue error: ', e)
-            })
-    }
-
-    const upDateDelegated = async (id, data) => {
-        const jwt = auth.isAuthenticated()
-
         try {
-            const selectedUser = users.find((value) => value._id === data)
-            await issueService.upDateDelegated(id, { delegated: selectedUser._id }, jwt.token)
+            const response = await issueService.getComments(id, jwt.token)
+            setComments(response.response.comments)
+        } catch (error) {
+            console.error('Comment error: ', error)
+        }
+    }
+
+    const upDateIssueStatus = async (issueId, status) => {
+        const jwt = auth.isAuthenticated()
+        try {
+            await issueService.upDateIssueStatus(issueId, { status }, jwt.token)
             setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true })
-            setData({ ...dataset, delegated: selectedUser })
-        } catch (e) {
-            console.error('Update delegated user error: ', e)
+            setData((prevData) => ({ ...prevData, status }))
+        } catch (error) {
+            console.error('Update issue error: ', error)
+        }
+    }
+
+    const upDateDelegated = async (issueId, userId) => {
+        const jwt = auth.isAuthenticated()
+        try {
+            const selectedUser = users.find((user) => user._id === userId)
+            await issueService.upDateDelegated(issueId, { delegated: selectedUser._id }, jwt.token)
+            setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true })
+            setData((prevData) => ({ ...prevData, delegated: selectedUser }))
+        } catch (error) {
+            console.error('Update delegated user error: ', error)
         }
     }
 
     const onDelete = async () => {
         const jwt = auth.isAuthenticated()
-
-        const id = dataset._id
-        await issueService
-            .deleteIssueByID(id, jwt.token)
-            .then(() => {
-                setOpen(false)
-                goHome()
-            })
-            .catch((e) => {
-                console.error('Deleting issue error: ', e)
-            })
+        try {
+            await issueService.deleteIssueByID(dataset._id, jwt.token)
+            setOpen(false)
+            goHome()
+        } catch (error) {
+            console.error('Deleting issue error: ', error)
+        }
     }
 
     const Status = [
-        {
-            value: 0,
-            label: '🔓 Åpen',
-            id: 'Åpen',
-        },
-        {
-            value: 1,
-            label: '✅ Løst',
-            id: 'Løst',
-        },
-        {
-            value: 2,
-            label: '🔐 Lukket',
-            id: 'Lukket',
-        },
-        {
-            value: 3,
-            label: '👷 Under arbeid',
-            id: 'Under arbeid',
-        },
+        { value: 0, label: '🔓 Åpen', id: 'Åpen' },
+        { value: 1, label: '✅ Løst', id: 'Løst' },
+        { value: 2, label: '🔐 Lukket', id: 'Lukket' },
+        { value: 3, label: '👷 Under arbeid', id: 'Under arbeid' },
     ]
 
-    useEffect(
-        () => {
-            // Make sure to revoke the data uris to avoid memory leaks
-            images.forEach((file) => URL.revokeObjectURL(file.preview))
-        },
-        [images] // files
-    )
+    useEffect(() => {
+        images.forEach((file) => URL.revokeObjectURL(file.preview))
+    }, [images])
 
     const ImageList = images.map((file, index) => {
-        // Check if file is undefined or 'none'
         if (!file || file === 'none') {
-            console.log('Ingen vedlegg', file)
             return <div key={index}>Ingen vedlegg</div>
         }
 
-        // Check if file is an array and handle accordingly
         let path = file.path
-        if (Array.isArray(file)) {
-            if (file[0] && file[0].path) {
-                path = file[0].path
-            } else {
-                return <div key={index}>Ingen vedlegg</div>
-            }
+        if (Array.isArray(file) && file[0] && file[0].path) {
+            path = file[0].path
         } else if (!file.path) {
             return <div key={index}>Ingen vedlegg</div>
         }
 
-        const smallImg = process.env.PUBLIC_URL + '/uploads/' + path
+        const smallImg = `/uploads/${path}`
         const largeImg = smallImg
 
         return (
@@ -415,33 +357,34 @@ export default function ViewIssue(props) {
 
     const onSubmit = async (data) => {
         const jwt = auth.isAuthenticated()
-        let { _id } = auth.isAuthenticated().user
+        const { _id } = jwt.user
 
         const commentData = {
             author: _id || undefined,
             content: data.content || undefined,
         }
 
-        await issueService
-            .addComment(commentData, jwt.token, id)
-            .then(() => {
-                getComments()
-                setOpenNewComment(true)
-            })
-            .catch((e) => {
-                console.log(e)
-            })
+        try {
+            await issueService.addComment(commentData, jwt.token, id)
+            getComments()
+            setOpenNewComment(true)
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     useEffect(() => {
-        let isSubscribed = true
-        if (isSubscribed) {
-            const jwt = auth.isAuthenticated()
-            getComments()
-            getIssueByID(id, jwt.token)
+        const jwt = auth.isAuthenticated()
+        const fetchData = async () => {
+            try {
+                await getComments()
+                await getIssueByID(id, jwt.token)
+            } catch (error) {
+                console.error('Error fetching data:', error)
+            }
         }
-        return () => (isSubscribed = false)
-    }, [setData, setComments])
+        fetchData()
+    }, [id])
 
     const onEditorStateChangeDesc = (editorState) => {
         setEditorStateDesc(editorState)
@@ -516,7 +459,7 @@ export default function ViewIssue(props) {
                         <div className="item2">
                             <TextField
                                 label="Priority"
-                                value={[dataset.priority ? dataset.priority : '']}
+                                value={dataset.priority || ''}
                                 className={classes.textField}
                                 margin="normal"
                                 variant="standard"
@@ -541,13 +484,13 @@ export default function ViewIssue(props) {
                             <InputLabel shrink htmlFor="select-multiple-native">
                                 Vedlegg
                             </InputLabel>
-                            {ImageList ? ImageList : <div>Ingen vedlegg</div>}
+                            {ImageList.length > 0 ? ImageList : <div>Ingen vedlegg</div>}
                             <Previews imageBool={true} issueID={dataset._id} func_image={image_changes} />
                         </div>
                         <div className="item4">
                             <TextField
                                 label="Kategori"
-                                value={[dataset.category ? dataset.category : '']}
+                                value={dataset.category || ''}
                                 className={classes.textField}
                                 margin="normal"
                                 variant="standard"
@@ -564,7 +507,7 @@ export default function ViewIssue(props) {
                         <div className="item7">
                             <TextField
                                 label="Alvorlighetsgrad"
-                                value={[dataset.severity ? dataset.severity : '']}
+                                value={dataset.severity || ''}
                                 className={classes.textField}
                                 margin="normal"
                                 variant="standard"
@@ -576,7 +519,7 @@ export default function ViewIssue(props) {
                         <div className="item8">
                             <TextField
                                 label="Mulighet å reprodusere"
-                                value={[dataset.reproduce ? dataset.reproduce : '']}
+                                value={dataset.reproduce || ''}
                                 className={classes.textField}
                                 margin="normal"
                                 variant="standard"
@@ -588,7 +531,7 @@ export default function ViewIssue(props) {
                         <div className="item15">
                             <TextField
                                 label="Delegert til"
-                                value={[dataset.delegated ? dataset.delegated.name : '']}
+                                value={dataset.delegated?.name || ''}
                                 className={classes.textField}
                                 margin="normal"
                                 variant="standard"
@@ -601,7 +544,7 @@ export default function ViewIssue(props) {
                             <TextField
                                 multiline
                                 label="Oppsummering"
-                                value={[dataset.summary ? dataset.summary : '']}
+                                value={dataset.summary || ''}
                                 className={classes.textField}
                                 margin="normal"
                                 variant="standard"
@@ -714,9 +657,7 @@ export default function ViewIssue(props) {
                         </div>
                         <div className="item16">
                             {comments.length > 0 ? (
-                                <>
-                                    <Comments comments={comments} issueID={dataset._id} userID={userinfo.user.id} />
-                                </>
+                                <Comments comments={comments} issueID={dataset._id} userID={userinfo.user.id} />
                             ) : (
                                 <Typography component={'p'} variant={'subtitle1'}>
                                     Ingen kommentarer
@@ -726,13 +667,12 @@ export default function ViewIssue(props) {
                         <div className="item17">
                             <CommentForm
                                 onSubmit={onSubmit}
-                                openNewComment={opennewcomment}
+                                openNewComment={openNewComment}
                                 setOpenNewComment={setOpenNewComment}
                             />
                         </div>
                     </div>
                 </section>
-
                 <Box sx={{ visibility: showAside ? 'visible' : 'hidden' }}>
                     <aside className="two-columns__aside">
                         <List className="side-menu">
@@ -767,7 +707,7 @@ export default function ViewIssue(props) {
                                         label="Status"
                                         variant="outlined"
                                         name="Status"
-                                        value={[dataset.status ? dataset.status : 'Åpen']}
+                                        value={dataset.status || 'Åpen'}
                                         InputProps={{
                                             className: classes.input,
                                         }}
@@ -785,31 +725,25 @@ export default function ViewIssue(props) {
                                             </MenuItem>
                                         ))}
                                     </TextField>
-                                    <TextField
-                                        id="outlined-select-delegert"
-                                        select
-                                        value={dataset.delegated != null ? dataset.delegated._id : ''}
-                                        label="Delegert til"
-                                        name="delegert"
-                                        onChange={(e) => upDateDelegated(dataset._id, e.target.value)}
-                                        InputProps={{
-                                            className: classes.input,
-                                        }}
-                                        SelectProps={{
-                                            MenuProps: {
-                                                className: classes.menu,
-                                            },
-                                        }}
-                                        margin="normal"
-                                        variant="outlined"
-                                    >
-                                        {users.map((option, index) => (
-                                            <MenuItem key={index} value={option._id}>
-                                                {option.name}
-                                            </MenuItem>
-                                        ))}
-                                    </TextField>
-                                    {errors.delegated ? (
+                                    <Autocomplete
+                                        id="delegated-select"
+                                        options={users}
+                                        getOptionLabel={(option) => option.name}
+                                        value={dataset.delegated || null}
+                                        onChange={(event, newValue) =>
+                                            upDateDelegated(dataset._id, newValue?._id || '')
+                                        }
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Delegert til"
+                                                variant="outlined"
+                                                margin="normal"
+                                            />
+                                        )}
+                                        filterSelectedOptions
+                                    />
+                                    {errors.delegated && (
                                         <Box
                                             className={classes.BoxErrorField}
                                             fontFamily="Monospace"
@@ -819,12 +753,10 @@ export default function ViewIssue(props) {
                                         >
                                             {errors.delegated} ⚠️
                                         </Box>
-                                    ) : (
-                                        ''
                                     )}
                                     <Snackbar
                                         open={openStatusSnackbar}
-                                        autohideduration={3000}
+                                        autoHideDuration={3000}
                                         onClose={handleStatusUpdateClose}
                                         anchorOrigin={{
                                             vertical: verticalStatusUpdate,
@@ -837,7 +769,7 @@ export default function ViewIssue(props) {
                                         </Alert>
                                     </Snackbar>
                                 </FormControl>
-                                {errors.status ? (
+                                {errors.status && (
                                     <Box
                                         className={classes.BoxErrorField}
                                         fontFamily="Monospace"
@@ -847,8 +779,6 @@ export default function ViewIssue(props) {
                                     >
                                         {errors.status} ⚠️
                                     </Box>
-                                ) : (
-                                    ''
                                 )}
                             </ListItem>
                             <ListItem>

@@ -1,4 +1,4 @@
-import { successColor, whiteColor, grayColor, hexToRgb } from '../../assets/js/material-dashboard-react.js'
+import { successColor, whiteColor, grayColor, hexToRgb } from '../js/material-dashboard-react.js'
 
 const drawerWidth = 240
 

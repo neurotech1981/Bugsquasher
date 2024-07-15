@@ -5,8 +5,13 @@
     },
     "extends": ["eslint:recommended", "plugin:react/recommended"],
     "parserOptions": {
+        "requireConfigFile": false,
         "ecmaFeatures": {
             "jsx": true
+        },
+        "babelOptions": {
+            "presets": ["@babel/preset-env"],
+            "plugins": ["@babel/plugin-syntax-import-assertions"]
         },
         "ecmaVersion": 12,
         "sourceType": "module"

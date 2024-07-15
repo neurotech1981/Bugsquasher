@@ -6,12 +6,10 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { makeStyles } from '@mui/styles'
-import { Redirect } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { forgotPassword } from '../../../src/components/utils/api-user'
-import useReactRouter from 'use-react-router'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import Box from '@mui/material/Box'
-import { withRouter } from 'react-router-dom'
 import Snackbar from '@mui/material/Snackbar'
 import { AlertTitle } from '@mui/lab'
 import Alert from '@mui/material/Alert'
@@ -55,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-function ResetPassword(props) {
+function ResetPassword() {
     const initialState = {
         email: '',
         error: '',
@@ -64,6 +62,8 @@ function ResetPassword(props) {
 
     const [values, setValues] = useState(initialState)
     const [open, setOpen] = useState(false)
+    const navigate = useNavigate()
+    const location = useLocation()
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -73,10 +73,8 @@ function ResetPassword(props) {
         goHome()
     }
 
-    //const history = useHistory();
-
     const goHome = () => {
-        props.history.push('/signin')
+        navigate('/signin')
     }
 
     const successAlert = () => (
@@ -113,13 +111,13 @@ function ResetPassword(props) {
 
     const classes = useStyles()
 
-    const { from } = props.location.state || {
+    const { from } = location.state || {
         from: {
             pathname: '/',
         },
     }
     if (values.redirectToReferrer) {
-        return <Redirect to={from} />
+        return navigate(from)
     }
 
     return (
@@ -167,4 +165,4 @@ function ResetPassword(props) {
     )
 }
 
-export default withRouter(ResetPassword)
+export default ResetPassword

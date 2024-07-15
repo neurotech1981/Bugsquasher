@@ -9,11 +9,11 @@ import { makeStyles } from '@mui/styles'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 // core components
-import Card from '../Card/Card.js'
-import CardBody from '../Card/CardBody.js'
-import CardHeader from '../Card/CardHeader.js'
+import Card from '../Card/Card.jsx'
+import CardBody from '../Card/CardBody.jsx'
+import CardHeader from '../Card/CardHeader.jsx'
 
-import styles from '../../assets/js/customTabsStyle.js'
+import styles from '../../assets/js/customTabsStyle.jsx'
 
 const useStyles = makeStyles(styles)
 

@@ -8,9 +8,8 @@ import Typography from '@mui/material/Typography'
 import Icon from '@mui/material/Icon'
 import { makeStyles } from '@mui/styles'
 import auth from './auth-helper'
-import { Redirect, Link, useLocation } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import ApiAuth from '../utils/ApiAuth'
-import useReactRouter from 'use-react-router'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import Box from '@mui/material/Box'
 import PersonAddRoundedIcon from '@mui/icons-material/PersonAddTwoTone'
@@ -73,7 +72,8 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export default function Signin() {
-    const { location } = useLocation()
+    const location = useLocation()
+    const navigate = useNavigate()
     const initialState = {
         email: '',
         password: '',
@@ -122,13 +122,13 @@ export default function Signin() {
 
     const classes = useStyles()
 
-    const { from } = location || {
+    const { from } = location.state || {
         from: {
             pathname: '/',
         },
     }
     if (values.redirectToReferrer) {
-        return <Redirect to={from} />
+        navigate(from)
     }
 
     return (
@@ -218,5 +218,3 @@ export default function Signin() {
         </form>
     )
 }
-
-// export default withStyles(styles)(Signin);

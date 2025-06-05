@@ -4,6 +4,10 @@ import polyfillNode from 'rollup-plugin-polyfill-node'
 
 export default defineConfig({
     plugins: [react()],
+    optimizeDeps: {
+        exclude: ['@sentry/react', '@sentry/tracing'],
+        include: ['hoist-non-react-statics']
+    },
     esbuild: {
         loader: 'jsx',
         include: /src\/.*\.[tj]sx?$/, // Apply to both .js and .jsx files
@@ -26,7 +30,11 @@ export default defineConfig({
     define: {
         // By default, Vite doesn't include shims for NodeJS/
         // necessary for segment analytics lib to work
-        global: {},
-        process: {},
+        global: 'globalThis',
+    },
+    build: {
+        commonjsOptions: {
+            include: [/hoist-non-react-statics/, /node_modules/],
+        },
     },
 })

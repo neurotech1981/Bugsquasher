@@ -2,354 +2,308 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles'
-import { makeStyles } from '@mui/styles'
+import {
+    Alert,
+    Autocomplete,
+    Avatar,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Chip,
+    CircularProgress,
+    Container,
+    Divider,
+    Grid,
+    IconButton,
+    Paper,
+    Stack,
+    TextField,
+    Typography
+} from '@mui/material'
+import {
+    ArrowBack as ArrowBackIcon,
+    Assignment as AssignmentIcon,
+    BugReport as BugReportIcon,
+    Category as CategoryIcon,
+    Delete as DeleteIcon,
+    Description as DescriptionIcon,
+    Edit as EditIcon,
+    InsertDriveFile,
+    Person as PersonIcon,
+    PriorityHigh as PriorityHighIcon,
+    Refresh as RefreshIcon,
+    Save as SaveIcon,
+    Speed as SpeedIcon,
+} from '@mui/icons-material'
+import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
+import { Editor } from 'react-draft-wysiwyg'
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
+import ModalImage from 'react-modal-image'
+import moment from 'moment'
 
 import issueService from '../../services/issueService'
-import '../../App.css'
-import moment from 'moment'
-import CssBaseline from '@mui/material/CssBaseline'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import InputLabel from '@mui/material/InputLabel'
-import IconButton from '@mui/material/IconButton'
-import SaveIcon from '@mui/icons-material/Save'
-import CancelIcon from '@mui/icons-material/Cancel'
-import Alert from '@mui/material/Alert'
-import Avatar from '@mui/material/Avatar'
-import MenuItem from '@mui/material/MenuItem'
-import ModalImage from 'react-modal-image'
-import { deepPurple } from '@mui/material/colors'
-import Grid from '@mui/material/Grid'
-import Box from '@mui/material/Box'
-import { EditorState, convertFromRaw, convertToRaw, ContentState } from 'draft-js'
-import { Editor } from 'react-draft-wysiwyg'
-import draftToHtml from 'draftjs-to-html'
-import htmlToDraft from 'html-to-draftjs'
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import auth from '../auth/auth-helper'
 import { getUsers } from '../utils/api-user'
-import Snackbar from '@mui/material/Snackbar'
-import { AlertTitle } from '@mui/lab'
+import { getProjects } from '../../services/projectService'
 
-const errorAlert = (error) => (
-    <Snackbar autohideduration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="error" variant="standard">
-            <AlertTitle>Feil</AlertTitle>
-            Noe gikk galt - {error}!
-        </Alert>
-    </Snackbar>
-)
+const formattedDate = (value) => (value ? moment(value).format('DD/MM-YYYY HH:mm') : 'N/A')
 
-const drawerWidth = 240
-const formattedDate = (value) => moment(value).format('DD/MM-YYYY')
-
-const alvorlighetsGrad = [
-    { value: 0, label: 'Ingen valgt' },
-    { value: 1, label: 'Tekst' },
-    { value: 2, label: 'Justering' },
-    { value: 3, label: 'Triviell' },
-    { value: 4, label: 'Mindre alvorlig' },
-    { value: 5, label: 'Alvorlig' },
-    { value: 6, label: 'Kræsj' },
-    { value: 7, label: 'Blokkering' },
+const priorityOptions = [
+    { value: 1, label: '❌ Ingen', color: '#9E9E9E' },
+    { value: 2, label: '🟢 Lav', color: '#4CAF50' },
+    { value: 3, label: '🟡 Normal', color: '#FF9800' },
+    { value: 4, label: '🔴 Høy', color: '#F44336' },
+    { value: 5, label: '🚨 Haster', color: '#E91E63' },
+    { value: 6, label: '⚡ Øyeblikkelig', color: '#9C27B0' },
 ]
 
-const Kategori = [
-    { value: 0, label: 'Ingen valgt' },
-    { value: 1, label: 'Triviell' },
-    { value: 2, label: 'Tekst' },
-    { value: 3, label: 'Justering' },
-    { value: 4, label: 'Mindre alvorlig' },
-    { value: 5, label: 'Alvorlig' },
-    { value: 6, label: 'Kræsj' },
-    { value: 7, label: 'Blokkering' },
+const severityOptions = [
+    { value: 1, label: '📝 Tekst', color: '#2196F3' },
+    { value: 2, label: '🔧 Justering', color: '#00BCD4' },
+    { value: 3, label: '🔹 Triviell', color: '#4CAF50' },
+    { value: 4, label: '🟡 Mindre alvorlig', color: '#FF9800' },
+    { value: 5, label: '🔴 Alvorlig', color: '#F44336' },
+    { value: 6, label: '💥 Kræsj', color: '#E91E63' },
+    { value: 7, label: '🚫 Blokkering', color: '#9C27B0' },
 ]
 
-const prioritet = [
-    { value: 0, label: 'Ingen valgt' },
-    { value: 1, label: 'Ingen' },
-    { value: 2, label: 'Lav' },
-    { value: 3, label: 'Normal' },
-    { value: 4, label: 'Høy' },
-    { value: 5, label: 'Haster' },
-    { value: 6, label: 'Øyeblikkelig' },
+const categoryOptions = [
+    { value: 1, label: '🔹 Triviell', color: '#4CAF50' },
+    { value: 2, label: '📝 Tekst', color: '#2196F3' },
+    { value: 3, label: '🔧 Justering', color: '#00BCD4' },
+    { value: 4, label: '🟡 Mindre alvorlig', color: '#FF9800' },
+    { value: 5, label: '🔴 Alvorlig', color: '#F44336' },
+    { value: 6, label: '💥 Kræsj', color: '#E91E63' },
+    { value: 7, label: '🚫 Blokkering', color: '#9C27B0' },
 ]
 
-const reprodusere = [
-    { value: 0, label: 'Ingen valgt', color: '#F2CBD1' },
-    { value: 2, label: 'Alltid', color: '#F2CBD1' },
-    { value: 3, label: 'Noen ganger', color: '#F49CA9' },
-    { value: 4, label: 'Tilfeldig', color: '#F26A7E' },
-    { value: 5, label: 'Har ikke forsøkt', color: '#F20024' },
-    { value: 6, label: 'Kan ikke reprodusere', color: '#870D1F' },
-    { value: 7, label: 'Ingen', color: '#7B0C1D' },
+const reproduceOptions = [
+    { value: 2, label: '✅ Alltid', color: '#4CAF50' },
+    { value: 3, label: '🔄 Noen ganger', color: '#FF9800' },
+    { value: 4, label: '🎲 Tilfeldig', color: '#F44336' },
+    { value: 5, label: '❓ Har ikke forsøkt', color: '#9E9E9E' },
+    { value: 6, label: '🚫 Kan ikke reprodusere', color: '#E91E63' },
+    { value: 7, label: '⛔ Ingen', color: '#9C27B0' },
 ]
 
-const theme = createTheme(
-    adaptV4Theme({
-        typography: {
-            body1: {
-                fontWeight: 600, // or 'bold'
-            },
-        },
-    })
-)
+const statusOptions = [
+    { value: 0, label: '📋 Åpen', color: '#F79B72' },
+    { value: 1, label: '✅ Løst', color: '#4CAF50' },
+    { value: 2, label: '🔒 Lukket', color: '#9E9E9E' },
+    { value: 3, label: '⚡ Under arbeid', color: '#2A4759' },
+]
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        display: 'grid',
-    },
-    button: {
-        margin: theme.spacing(1),
-    },
-    typography: {
-        body1: {
-            fontWeight: 600, // or 'bold'
-        },
-    },
-    drawer: {
-        [theme.breakpoints.up('sm')]: {
-            width: drawerWidth,
-            flexShrink: 0,
-        },
-    },
-    content: {
-        flexGrow: 1,
-        padding: theme.spacing(3),
-        paddingTop: '50px',
-    },
-    container: {
-        display: 'flex',
-        flexWrap: 'wrap',
-    },
-    textField: {
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
-        width: '100%',
-        backgroundColor: 'white',
-    },
-    textFieldStatus: {
-        margin: theme.spacing(1),
-        width: '10%',
-        backgroundColor: 'white',
-        marginTop: '0',
-    },
-    avatar: {
-        margin: 10,
-    },
-    purpleAvatar: {
-        margin: 0,
-        left: 0,
-        width: '70px',
-        height: '70px',
-        color: '#fff',
-        backgroundColor: deepPurple[500],
-    },
-}))
-
-const thumbsContainer = {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 16,
-    textAlign: 'left',
-}
-
-const thumb = {
-    display: 'inline-flex',
-    position: 'relative',
-    borderRadius: 2,
-    border: '3px solid #eaeaea',
-    marginBottom: 8,
-    marginRight: 4,
-    width: 150,
-    height: 150,
-    padding: 4,
-    boxSizing: 'border-box',
-    margin: '0 auto',
-}
-
-const thumbInner = {
-    display: 'flex',
-    minWidth: 0,
-    overflow: 'hidden',
-}
-
-const img = {
-    display: 'block',
-    width: 'auto',
-    height: '100%',
-}
-
-export default function EditIssue(props) {
+export default function EditIssue() {
     const { id } = useParams()
     const navigate = useNavigate()
 
-    const [open, setOpen] = useState(false)
-    const classes = useStyles()
-    const [dataset, setData] = useState([''])
-    const [images, setImages] = useState([])
-    const [errors, setErrors] = useState('')
-    const [myself, setMyself] = useState([])
+    const [dataset, setData] = useState({})
     const [users, setUsers] = useState([])
+    const [projects, setProjects] = useState([])
+    const [images, setImages] = useState([])
+    const [errors, setErrors] = useState({})
+    const [loading, setLoading] = useState(true)
+    const [saving, setSaving] = useState(false)
+    const [dataFetched, setDataFetched] = useState(false)
 
-    const contentBlock = htmlToDraft('<h1>Hello world</h1>')
-    const initState = contentBlock
-        ? EditorState.createWithContent(ContentState.createFromBlockArray(contentBlock.contentBlocks))
-        : EditorState.createEmpty()
+    // Editor states
+    const [editorStateDesc, setEditorStateDesc] = useState(EditorState.createEmpty())
+    const [editorStateRep, setEditorStateRep] = useState(EditorState.createEmpty())
 
-    const [editorStateDesc, setEditorStateDesc] = useState(initState)
-    const [editorStateRep, setEditorStateRep] = useState(initState)
-
-    const [selectedDate, setSelectedDate] = useState(dataset.updatedAt)
-
-    const goHome = () => {
-        navigate('/saker/' + auth.isAuthenticated().user._id)
-    }
-
-    const handleClose = (event, reason) => {
-        if (reason === 'clickaway') {
-            return
-        }
-        setOpen(false)
-    }
-
-    const handleChange = (event) => {
-        setData(event.target.value)
-    }
-
-    const init = () => {
-        const jwt = auth.isAuthenticated()
-
-        getUsers({ t: jwt.token }).then((data) => {
-            if (data.error) {
-                setValues({ redirectToSignin: true })
-            } else {
-                console.log('Inside init >> ', data)
-                setUsers(data.data)
-            }
-        })
+    const goBack = () => {
+        navigate(-1)
     }
 
     const handleDataChange = (name) => (event) => {
-        console.log('Updated ', name, event)
         setData({
             ...dataset,
             [name]: event.target.value,
         })
     }
 
-    useEffect(() => {
+    // Fetch users data
+    const fetchUsers = async () => {
         const jwt = auth.isAuthenticated()
+        if (!jwt) return
 
-        getIssueByID(id, jwt.token)
-        if (!users.length) {
-            init(id)
-        }
-    }, [id, users.length])
-
-    const getIssueByID = async (id, token) => {
-        const res = await issueService.getIssueByID(id, token)
-
-        let editorStateDesc = EditorState.createWithContent(convertFromRaw(JSON.parse(res.description)))
-
-        setEditorStateDesc(editorStateDesc)
-
-        let editorStateRep = EditorState.createWithContent(convertFromRaw(JSON.parse(res.step_reproduce)))
-
-        setEditorStateRep(editorStateRep)
-
-        setData(res)
-        if (
-            res.imageName === '' ||
-            res.imageName === '[none]' ||
-            res.imageName === 'none' ||
-            res.imageName === undefined
-        ) {
-            setImages(['none'])
-        } else {
-            setImages(res.imageName) //[0]
+        try {
+            const data = await getUsers({ t: jwt.token })
+            if (data.error) {
+                setErrors((prev) => ({ ...prev, users: 'Failed to load users' }))
+                return
+            }
+            setUsers(data.data || [])
+        } catch (err) {
+            console.error('Error fetching users:', err)
+            setErrors((prev) => ({ ...prev, users: 'Failed to load users' }))
         }
     }
 
-    const updateIssueByID = async () => {
+    // Fetch projects data
+    const fetchProjects = async () => {
         const jwt = auth.isAuthenticated()
-        const id = dataset._id
+        if (!jwt) return
 
-        const htmlContentStateDesc = JSON.stringify(convertToRaw(editorStateDesc.getCurrentContent()))
-        dataset.description = htmlContentStateDesc
+        try {
+            const data = await getProjects(jwt.token)
+            if (data.error) {
+                setErrors((prev) => ({ ...prev, projects: 'Failed to load projects' }))
+                return
+            }
+            setProjects(data.data || [])
+        } catch (err) {
+            console.error('Error fetching projects:', err)
+            setErrors((prev) => ({ ...prev, projects: 'Failed to load projects' }))
+        }
+    }
 
-        const htmlContentStateRep = JSON.stringify(convertToRaw(editorStateRep.getCurrentContent()))
-        dataset.step_reproduce = htmlContentStateRep
+    // Fetch issue data by ID
+    const getIssueByID = async (id, token) => {
+        try {
+            setLoading(true)
+            const res = await issueService.getIssueByID(id, token)
 
-        await issueService
-            .upDateIssue(id, { dataset }, jwt.token)
-            .then((response) => {
-                setOpen(true)
+            // Parse description
+            try {
+                if (res.description) {
+                    const descContent = JSON.parse(res.description)
+                    const editorStateDesc = EditorState.createWithContent(convertFromRaw(descContent))
+                    setEditorStateDesc(editorStateDesc)
+                }
+            } catch (err) {
+                console.error('Error parsing description:', err)
+                setEditorStateDesc(EditorState.createEmpty())
+            }
 
-                setTimeout(() => {
-                    navigate('/vis-sak/' + id)
-                }, 1000)
+            // Parse reproduction steps
+            try {
+                if (res.step_reproduce) {
+                    const repContent = JSON.parse(res.step_reproduce)
+                    const editorStateRep = EditorState.createWithContent(convertFromRaw(repContent))
+                    setEditorStateRep(editorStateRep)
+                }
+            } catch (err) {
+                console.error('Error parsing reproduction steps:', err)
+                setEditorStateRep(EditorState.createEmpty())
+            }
 
-                const { data } = response.data
-                data.description = htmlContentStateDesc
-                data.step_reproduce = htmlContentStateRep
-                setData({ ...dataset, data })
-            })
-            .catch((e) => {
-                console.log('Error in update issue: ', e)
-            })
+            setData(res)
+
+            // Handle images
+            if (
+                !res.imageName ||
+                res.imageName === '' ||
+                res.imageName === '[none]' ||
+                res.imageName === 'none' ||
+                res.imageName === undefined
+            ) {
+                setImages(['none'])
+            } else {
+                setImages(res.imageName)
+            }
+
+            return true
+        } catch (err) {
+            console.error('Error fetching issue:', err)
+            setErrors((prev) => ({ ...prev, fetch: 'Failed to load issue' }))
+            return false
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    // Load data on component mount
+    useEffect(() => {
+        const jwt = auth.isAuthenticated()
+        if (!jwt) {
+            navigate('/signin')
+            return
+        }
+
+        if (!dataFetched) {
+            const loadData = async () => {
+                await Promise.all([getIssueByID(id, jwt.token), fetchUsers(), fetchProjects()])
+                setDataFetched(true)
+            }
+
+            loadData()
+        }
+    }, [id, dataFetched, navigate])
+
+    const updateIssueByID = async () => {
+        try {
+            setSaving(true)
+            const jwt = auth.isAuthenticated()
+            if (!jwt) {
+                navigate('/signin')
+                return
+            }
+
+            const issueId = dataset._id
+            if (!issueId) {
+                setErrors((prev) => ({ ...prev, general: 'Missing issue ID' }))
+                return
+            }
+
+            // Prepare updated data
+            const updatedData = { ...dataset }
+
+            // Ensure project is sent as ID only (not the full object)
+            if (updatedData.project && typeof updatedData.project === 'object') {
+                updatedData.project = updatedData.project._id
+            }
+
+            // Convert editor content to raw JSON
+            const htmlContentStateDesc = JSON.stringify(convertToRaw(editorStateDesc.getCurrentContent()))
+            updatedData.description = htmlContentStateDesc
+
+            const htmlContentStateRep = JSON.stringify(convertToRaw(editorStateRep.getCurrentContent()))
+            updatedData.step_reproduce = htmlContentStateRep
+
+            // Send update request
+            await issueService.upDateIssue(issueId, updatedData, jwt.token)
+
+            // Navigate back to issue view
+            navigate('/vis-sak/' + issueId)
+        } catch (err) {
+            console.error('Error updating issue:', err)
+            setErrors((prev) => ({ ...prev, general: 'Failed to update issue' }))
+        } finally {
+            setSaving(false)
+        }
     }
 
     const onDelete = async () => {
-        const id = dataset._id
-        await issueService
-            .deleteIssueByID(id)
-            .then((response) => {
-                goHome()
-            })
-            .catch((e) => {
-                console.log('Error deleting: ', e)
-            })
-    }
+        try {
+            setSaving(true)
+            const jwt = auth.isAuthenticated()
+            if (!jwt) {
+                navigate('/signin')
+                return
+            }
 
-    const Status = [
-        { value: 0, label: 'Åpen' },
-        { value: 1, label: 'Løst' },
-        { value: 2, label: 'Lukket' },
-        { value: 3, label: 'Under arbeid' },
-    ]
+            const issueId = dataset._id
+            if (!issueId) {
+                setErrors((prev) => ({ ...prev, general: 'Missing issue ID' }))
+                return
+            }
 
-    const CancelEdit = () => {
-        navigate(-1)
-    }
+            await issueService.deleteIssueByID(issueId, jwt.token)
 
-    useEffect(
-        () => {
-            // Make sure to revoke the data uris to avoid memory leaks
-            images.forEach((file) => URL.revokeObjectURL(file.path))
-        },
-        [images] // files
-    )
-
-    const imgList = images.map((file, index) => {
-        if (file === 'none' || file === undefined) {
-            return <div key={index}>Ingen vedlegg</div>
+            const userId = jwt && jwt.user ? jwt.user._id : null
+            if (userId) {
+                navigate('/saker/' + userId)
+            } else {
+                navigate('/signin')
+            }
+        } catch (err) {
+            console.error('Error deleting issue:', err)
+            setErrors((prev) => ({ ...prev, general: 'Failed to delete issue' }))
+        } finally {
+            setSaving(false)
         }
-        return (
-            <div style={{ display: 'grid', margin: '1em' }} key={index}>
-                <ModalImage
-                    small={process.env.PUBLIC_URL + '/uploads/' + file.path}
-                    large={process.env.PUBLIC_URL + '/uploads/' + file.path}
-                    alt={file.path}
-                    imageBackgroundColor="transparent"
-                />
-            </div>
-        )
-    })
+    }
 
     const onEditorStateChangeDesc = (editorState) => {
         setEditorStateDesc(editorState)
@@ -359,404 +313,779 @@ export default function EditIssue(props) {
         setEditorStateRep(editorState)
     }
 
+    // Render attachments
+    const attachmentList = images.map((file, index) => {
+        if (file === 'none') return null
+
+        const path = file.path || file
+        const fileUrl = process.env.NODE_ENV === 'production'
+            ? `https://bug-tracker-backend-5m7k.onrender.com/assets/uploads/${path}`
+            : `http://localhost:3001/assets/uploads/${path}`
+
+        const fileExtension = path.split('.').pop()?.toLowerCase()
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']
+        const isImage = imageExtensions.includes(fileExtension)
+
+        // Extract clean filename using UUID regex
+        const cleanFilename = (() => {
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-(.+)$/i;
+            const match = path.match(uuidRegex);
+            return match ? match[1] : path;
+        })()
+
+        return (
+            <Paper
+                key={index}
+                elevation={1}
+                sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    border: '1px solid #e0e0e0',
+                    '&:hover': {
+                        borderColor: '#F79B72',
+                        elevation: 2
+                    },
+                    transition: 'all 0.2s ease'
+                }}
+            >
+                <Stack direction="row" spacing={2} alignItems="center">
+                    {/* File Icon/Preview */}
+                    <Box sx={{
+                        width: 60,
+                        height: 60,
+                        borderRadius: 1,
+                        overflow: 'hidden',
+                        border: '1px solid #e0e0e0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: isImage ? 'transparent' : '#f8f9fa'
+                    }}>
+                        {isImage ? (
+                            <Box
+                                component="img"
+                                src={fileUrl}
+                                alt={cleanFilename}
+                                sx={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                    cursor: 'pointer'
+                                }}
+                                onClick={() => {
+                                    // Simple modal for image preview
+                                    const modal = document.createElement('div');
+                                    modal.style.cssText = `
+                                        position: fixed;
+                                        top: 0;
+                                        left: 0;
+                                        width: 100%;
+                                        height: 100%;
+                                        background: rgba(0,0,0,0.9);
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        z-index: 9999;
+                                        cursor: pointer;
+                                    `;
+                                    const img = document.createElement('img');
+                                    img.src = fileUrl;
+                                    img.style.cssText = 'max-width: 90%; max-height: 90%; object-fit: contain;';
+                                    modal.appendChild(img);
+                                    modal.onclick = () => document.body.removeChild(modal);
+                                    document.body.appendChild(modal);
+                                }}
+                            />
+                        ) : (
+                            <InsertDriveFile sx={{ fontSize: 32, color: '#F79B72' }} />
+                        )}
+                    </Box>
+
+                    {/* File Info */}
+                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                        <Typography
+                            variant="body1"
+                            fontWeight="600"
+                            sx={{
+                                color: 'text.primary',
+                                mb: 0.5,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            {cleanFilename}
+                        </Typography>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                            <Chip
+                                label={fileExtension?.toUpperCase()}
+                                size="small"
+                                sx={{
+                                    bgcolor: isImage ? '#e8f5e8' : '#fff3e0',
+                                    color: isImage ? '#2e7d2e' : '#e65100',
+                                    fontWeight: 600,
+                                    fontSize: '0.7rem',
+                                    height: 20
+                                }}
+                            />
+                            <Typography variant="caption" color="text.secondary">
+                                {isImage ? 'Bilde' : 'Dokument'}
+                            </Typography>
+                        </Stack>
+                    </Box>
+
+                    {/* Actions */}
+                    <Stack direction="row" spacing={1}>
+                        <IconButton
+                            size="small"
+                            onClick={() => window.open(fileUrl, '_blank')}
+                            sx={{
+                                color: '#F79B72',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(247, 155, 114, 0.1)'
+                                }
+                            }}
+                        >
+                            <InsertDriveFile fontSize="small" />
+                        </IconButton>
+                    </Stack>
+                </Stack>
+            </Paper>
+        )
+    })
+
+    // Form field styling
+    const fieldStyling = {
+        '& .MuiOutlinedInput-root': {
+            borderRadius: 2,
+            '&:hover fieldset': {
+                borderColor: '#F79B72',
+            },
+            '&.Mui-focused fieldset': {
+                borderColor: '#F79B72',
+                borderWidth: 1,
+            },
+        },
+        '& .MuiInputLabel-root.Mui-focused': {
+            color: '#F79B72',
+        },
+        '& .MuiOutlinedInput-input': {
+            padding: '14px 16px',
+        },
+    }
+
+    if (loading) {
+        return (
+            <Box sx={{
+                marginLeft: { xs: 0, sm: '288px' },
+                marginTop: { xs: '72px', sm: '80px' },
+                width: { xs: '100%', sm: 'calc(100% - 288px)' },
+                minHeight: { xs: 'calc(100vh - 72px)', sm: 'calc(100vh - 80px)' },
+                bgcolor: '#EEEEEE',
+                p: { xs: 2, md: 3 },
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                <Paper sx={{ p: 4, borderRadius: 3, textAlign: 'center', maxWidth: 400 }}>
+                    <CircularProgress sx={{ color: '#F79B72', mb: 3 }} size={56} />
+                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                        Laster saksdata...
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Vennligst vent mens vi henter saksinformasjon
+                    </Typography>
+                </Paper>
+            </Box>
+        )
+    }
+
     return (
-        <div className={classes.root}>
-            <CssBaseline />
-            <nav className={classes.drawer} aria-label="Drawe" />
-            <div className="grid-container two-columns__center">
-                <section className="two-columns__main">
-                    <div className="form-grid">
-                        <div className="item0">
-                            <IconButton onClick={goHome} size="large">
-                                <ArrowBackIcon />
-                            </IconButton>
-                        </div>
-                        <div className="item1" style={{ paddingLeft: '5rem' }}>
-                            {dataset.name}
-                            <p style={{ fontSize: '0.6em', marginTop: '0.3em' }}>
-                                Opprettet: {formattedDate(dataset.createdAt)}
-                            </p>
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                className={classes.button}
-                                startIcon={<SaveIcon />}
-                                size="small"
-                                onClick={() => updateIssueByID()}
+        <Box sx={{
+            marginLeft: { xs: 0, sm: '288px' },
+            marginTop: { xs: '72px', sm: '80px' },
+            width: { xs: '100%', sm: 'calc(100% - 288px)' },
+            minHeight: { xs: 'calc(100vh - 72px)', sm: 'calc(100vh - 80px)' },
+            bgcolor: '#EEEEEE',
+            p: { xs: 2, md: 3 }
+        }}>
+            <Container maxWidth="lg" sx={{ px: 0 }}>
+                {/* Header Section */}
+                <Paper elevation={0} sx={{
+                    p: { xs: 3, md: 4 },
+                    mb: 3,
+                    borderRadius: 3,
+                    border: '1px solid rgba(221, 221, 221, 0.3)',
+                    bgcolor: 'white'
+                }}>
+                    <Stack direction="row" spacing={2} alignItems="center">
+                        <IconButton
+                            size="medium"
+                            onClick={goBack}
+                            sx={{
+                                color: '#F79B72',
+                                '&:hover': {
+                                    bgcolor: 'rgba(247, 155, 114, 0.04)',
+                                    transform: 'translateY(-1px)',
+                                },
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            <ArrowBackIcon />
+                        </IconButton>
+                        <EditIcon sx={{ color: '#F79B72', fontSize: 24, mr: 1 }} />
+                        <Box sx={{ flexGrow: 1 }}>
+                            <Typography
+                                variant="h4"
+                                component="h1"
+                                fontWeight="700"
+                                sx={{
+                                    color: '#2A4759',
+                                    fontSize: { xs: '1.75rem', md: '2rem' },
+                                    lineHeight: 1.2,
+                                    mb: 0.5
+                                }}
                             >
-                                Lagre endringer
-                            </Button>
+                                {dataset.summary || 'Rediger sak'}
+                            </Typography>
+                            <Typography variant="body1" color="text.secondary">
+                                Opprettet: {formattedDate(dataset.createdAt)} • Sist oppdatert: {formattedDate(dataset.updatedAt)}
+                            </Typography>
+                        </Box>
+                        {dataset.reporter && (
+                            <Avatar
+                                sx={{
+                                    bgcolor: '#2A4759',
+                                    color: 'white',
+                                    width: 48,
+                                    height: 48,
+                                    fontSize: '1.2rem',
+                                    fontWeight: 600
+                                }}
+                            >
+                                {dataset.reporter?.name?.charAt(0) || '?'}
+                            </Avatar>
+                        )}
+                    </Stack>
+                </Paper>
+                {errors.general && (
+                    <Alert severity="error" sx={{ borderRadius: 3, mb: 3 }}>
+                        {errors.general}
+                    </Alert>
+                )}
+
+                <Stack spacing={3}>
+                    {/* Basic Information Card */}
+                    <Card elevation={0} sx={{
+                        border: '1px solid rgba(221, 221, 221, 0.3)',
+                        borderRadius: 3,
+                        overflow: 'hidden'
+                    }}>
+                        <Box sx={{
+                            bgcolor: 'rgba(247, 155, 114, 0.02)',
+                            borderBottom: '1px solid rgba(221, 221, 221, 0.3)',
+                            p: 3
+                        }}>
+                            <Stack direction="row" spacing={2} alignItems="center">
+                                <BugReportIcon sx={{ color: '#F79B72', fontSize: 24 }} />
+                                <Typography variant="h5" fontWeight="700" color="#2A4759">
+                                    Grunnleggende informasjon
+                                </Typography>
+                            </Stack>
+                        </Box>
+                        <CardContent sx={{ p: 3 }}>
+                            <Grid container spacing={3}>
+                                {/* Issue Name */}
+                                <Grid item xs={12} md={8}>
+                                    <TextField
+                                        name="summary"
+                                        label="Saksnavn"
+                                        variant="outlined"
+                                        value={dataset.summary || ''}
+                                        onChange={handleDataChange('summary')}
+                                        fullWidth
+                                        required
+                                        sx={fieldStyling}
+                                    />
+                                </Grid>
+
+                                {/* Status */}
+                                <Grid item xs={12} md={4}>
+                                    <Autocomplete
+                                        options={statusOptions}
+                                        getOptionLabel={(option) => option.label}
+                                        value={statusOptions.find(option =>
+                                            option.label.includes(dataset.status)
+                                        ) || null}
+                                        onChange={(event, newValue) => {
+                                            const statusText = newValue?.label?.replace(/^[^\s]+\s/, '') || 'Åpen'
+                                            setData(prev => ({ ...prev, status: statusText }))
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Status"
+                                                fullWidth
+                                                sx={fieldStyling}
+                                            />
+                                        )}
+                                        renderOption={(props, option) => (
+                                            <Box component="li" {...props} sx={{ gap: 1 }}>
+                                                <Chip
+                                                    label={option.label}
+                                                    size="small"
+                                                    sx={{
+                                                        bgcolor: option.color,
+                                                        color: 'white',
+                                                        fontWeight: 600
+                                                    }}
+                                                />
+                                            </Box>
+                                        )}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+                    </Card>
+
+                    {/* Classification Card */}
+                    <Card elevation={0} sx={{
+                        border: '1px solid rgba(221, 221, 221, 0.3)',
+                        borderRadius: 3,
+                        overflow: 'hidden'
+                    }}>
+                        <Box sx={{
+                            bgcolor: 'rgba(247, 155, 114, 0.02)',
+                            borderBottom: '1px solid rgba(221, 221, 221, 0.3)',
+                            p: 3
+                        }}>
+                            <Stack direction="row" spacing={2} alignItems="center">
+                                <CategoryIcon sx={{ color: '#F79B72', fontSize: 24 }} />
+                                <Typography variant="h5" fontWeight="700" color="#2A4759">
+                                    Klassifisering
+                                </Typography>
+                            </Stack>
+                        </Box>
+                        <CardContent sx={{ p: 3 }}>
+                            <Grid container spacing={3}>
+                                {/* Priority */}
+                                <Grid item xs={12} md={6}>
+                                    <Autocomplete
+                                        options={priorityOptions}
+                                        getOptionLabel={(option) => option.label}
+                                        value={priorityOptions.find(option =>
+                                            option.label.includes(dataset.priority)
+                                        ) || null}
+                                        onChange={(event, newValue) => {
+                                            const priorityText = newValue?.label?.replace(/^[^\s]+\s/, '') || ''
+                                            setData(prev => ({ ...prev, priority: priorityText }))
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Prioritet"
+                                                fullWidth
+                                                sx={fieldStyling}
+                                            />
+                                        )}
+                                        renderOption={(props, option) => (
+                                            <Box component="li" {...props} sx={{ gap: 1 }}>
+                                                <Chip
+                                                    label={option.label}
+                                                    size="small"
+                                                    sx={{
+                                                        bgcolor: option.color,
+                                                        color: 'white',
+                                                        fontWeight: 600
+                                                    }}
+                                                />
+                                            </Box>
+                                        )}
+                                    />
+                                </Grid>
+
+                                {/* Severity */}
+                                <Grid item xs={12} md={6}>
+                                    <Autocomplete
+                                        options={severityOptions}
+                                        getOptionLabel={(option) => option.label}
+                                        value={severityOptions.find(option =>
+                                            option.label.includes(dataset.severity)
+                                        ) || null}
+                                        onChange={(event, newValue) => {
+                                            const severityText = newValue?.label?.replace(/^[^\s]+\s/, '') || ''
+                                            setData(prev => ({ ...prev, severity: severityText }))
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Alvorlighetsgrad"
+                                                fullWidth
+                                                sx={fieldStyling}
+                                            />
+                                        )}
+                                        renderOption={(props, option) => (
+                                            <Box component="li" {...props} sx={{ gap: 1 }}>
+                                                <Chip
+                                                    label={option.label}
+                                                    size="small"
+                                                    sx={{
+                                                        bgcolor: option.color,
+                                                        color: 'white',
+                                                        fontWeight: 600
+                                                    }}
+                                                />
+                                            </Box>
+                                        )}
+                                    />
+                                </Grid>
+
+                                {/* Category */}
+                                <Grid item xs={12} md={6}>
+                                    <Autocomplete
+                                        options={categoryOptions}
+                                        getOptionLabel={(option) => option.label}
+                                        value={categoryOptions.find(option =>
+                                            option.label.includes(dataset.category)
+                                        ) || null}
+                                        onChange={(event, newValue) => {
+                                            const categoryText = newValue?.label?.replace(/^[^\s]+\s/, '') || ''
+                                            setData(prev => ({ ...prev, category: categoryText }))
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Kategori"
+                                                fullWidth
+                                                sx={fieldStyling}
+                                            />
+                                        )}
+                                        renderOption={(props, option) => (
+                                            <Box component="li" {...props} sx={{ gap: 1 }}>
+                                                <Chip
+                                                    label={option.label}
+                                                    size="small"
+                                                    sx={{
+                                                        bgcolor: option.color,
+                                                        color: 'white',
+                                                        fontWeight: 600
+                                                    }}
+                                                />
+                                            </Box>
+                                        )}
+                                    />
+                                </Grid>
+
+                                {/* Reproducibility */}
+                                <Grid item xs={12} md={6}>
+                                    <Autocomplete
+                                        options={reproduceOptions}
+                                        getOptionLabel={(option) => option.label}
+                                        value={reproduceOptions.find(option =>
+                                            option.label.includes(dataset.reproduce)
+                                        ) || null}
+                                        onChange={(event, newValue) => {
+                                            const reproduceText = newValue?.label?.replace(/^[^\s]+\s/, '') || ''
+                                            setData(prev => ({ ...prev, reproduce: reproduceText }))
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Reproduserbarhet"
+                                                fullWidth
+                                                sx={fieldStyling}
+                                            />
+                                        )}
+                                        renderOption={(props, option) => (
+                                            <Box component="li" {...props} sx={{ gap: 1 }}>
+                                                <Chip
+                                                    label={option.label}
+                                                    size="small"
+                                                    sx={{
+                                                        bgcolor: option.color,
+                                                        color: 'white',
+                                                        fontWeight: 600
+                                                    }}
+                                                />
+                                            </Box>
+                                        )}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+                    </Card>
+
+                    {/* Assignment Card */}
+                    <Card elevation={0} sx={{
+                        border: '1px solid rgba(221, 221, 221, 0.3)',
+                        borderRadius: 3,
+                        overflow: 'hidden'
+                    }}>
+                        <Box sx={{
+                            bgcolor: 'rgba(247, 155, 114, 0.02)',
+                            borderBottom: '1px solid rgba(221, 221, 221, 0.3)',
+                            p: 3
+                        }}>
+                            <Stack direction="row" spacing={2} alignItems="center">
+                                <PersonIcon sx={{ color: '#F79B72', fontSize: 24 }} />
+                                <Typography variant="h5" fontWeight="700" color="#2A4759">
+                                    Tildeling
+                                </Typography>
+                            </Stack>
+                        </Box>
+                        <CardContent sx={{ p: 3 }}>
+                            <Grid container spacing={3}>
+                                {/* Project */}
+                                <Grid item xs={12} md={6}>
+                                    <Autocomplete
+                                        options={projects}
+                                        getOptionLabel={(option) => option.title || ''}
+                                        value={projects.find(project => project._id === dataset.project) || null}
+                                        onChange={(event, newValue) => {
+                                            setData(prev => ({ ...prev, project: newValue?._id || '' }))
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Prosjekt"
+                                                fullWidth
+                                                sx={fieldStyling}
+                                            />
+                                        )}
+                                    />
+                                </Grid>
+
+                                {/* Assigned To */}
+                                <Grid item xs={12} md={6}>
+                                    <Autocomplete
+                                        options={users}
+                                        getOptionLabel={(option) => `${option.name} (${option.email})`}
+                                        value={users.find(user => user._id === dataset.assigned_to) || null}
+                                        onChange={(event, newValue) => {
+                                            setData(prev => ({ ...prev, assigned_to: newValue?._id || '' }))
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Tildelt bruker"
+                                                fullWidth
+                                                sx={fieldStyling}
+                                            />
+                                        )}
+                                        renderOption={(props, option) => (
+                                            <Box component="li" {...props}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                    <Avatar sx={{ width: 32, height: 32, bgcolor: '#F79B72' }}>
+                                                        {option.name?.charAt(0)}
+                                                    </Avatar>
+                                                    <Box>
+                                                        <Typography variant="body1">
+                                                            {option.name}
+                                                        </Typography>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {option.email}
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+                                            </Box>
+                                        )}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+                    </Card>
+
+                    {/* Content Card */}
+                    <Card elevation={0} sx={{
+                        border: '1px solid rgba(221, 221, 221, 0.3)',
+                        borderRadius: 3,
+                        overflow: 'hidden'
+                    }}>
+                        <Box sx={{
+                            bgcolor: 'rgba(247, 155, 114, 0.02)',
+                            borderBottom: '1px solid rgba(221, 221, 221, 0.3)',
+                            p: 3
+                        }}>
+                            <Stack direction="row" spacing={2} alignItems="center">
+                                <DescriptionIcon sx={{ color: '#F79B72', fontSize: 24 }} />
+                                <Typography variant="h5" fontWeight="700" color="#2A4759">
+                                    Beskrivelse og reproduksjon
+                                </Typography>
+                            </Stack>
+                        </Box>
+                        <CardContent sx={{ p: 3 }}>
+                            <Grid container spacing={3}>
+                                {/* Description */}
+                                <Grid item xs={12}>
+                                    <Typography variant="h6" fontWeight={600} color="#2A4759" sx={{ mb: 2 }}>
+                                        Beskrivelse
+                                    </Typography>
+                                    <Paper sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid rgba(221, 221, 221, 0.3)' }}>
+                                        <Editor
+                                            placeholder="Skriv inn detaljert beskrivelse av saken..."
+                                            editorState={editorStateDesc}
+                                            editorStyle={{
+                                                backgroundColor: 'white',
+                                                minHeight: '200px',
+                                                padding: '16px',
+                                                border: 'none',
+                                                fontSize: '14px',
+                                                lineHeight: '1.5'
+                                            }}
+                                            toolbarStyle={{
+                                                borderBottom: '1px solid rgba(221, 221, 221, 0.3)',
+                                                marginBottom: '0px',
+                                                padding: '8px',
+                                                backgroundColor: 'rgba(247, 155, 114, 0.02)'
+                                            }}
+                                            onEditorStateChange={onEditorStateChangeDesc}
+                                        />
+                                    </Paper>
+                                </Grid>
+
+                                {/* Reproduction Steps */}
+                                <Grid item xs={12}>
+                                    <Typography variant="h6" fontWeight={600} color="#2A4759" sx={{ mb: 2 }}>
+                                        Steg for å reprodusere
+                                    </Typography>
+                                    <Paper sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid rgba(221, 221, 221, 0.3)' }}>
+                                        <Editor
+                                            placeholder="Beskriv stegene for å reprodusere problemet..."
+                                            editorState={editorStateRep}
+                                            editorStyle={{
+                                                backgroundColor: 'white',
+                                                minHeight: '200px',
+                                                padding: '16px',
+                                                border: 'none',
+                                                fontSize: '14px',
+                                                lineHeight: '1.5'
+                                            }}
+                                            toolbarStyle={{
+                                                borderBottom: '1px solid rgba(221, 221, 221, 0.3)',
+                                                marginBottom: '0px',
+                                                padding: '8px',
+                                                backgroundColor: 'rgba(247, 155, 114, 0.02)'
+                                            }}
+                                            onEditorStateChange={onEditorStateChangeRep}
+                                        />
+                                    </Paper>
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+                    </Card>
+
+                    {/* Attachments Card */}
+                    {images && images.length > 0 && images[0] !== 'none' && (
+                        <Card elevation={0} sx={{
+                            border: '1px solid rgba(221, 221, 221, 0.3)',
+                            borderRadius: 3,
+                            overflow: 'hidden'
+                        }}>
+                            <Box sx={{
+                                bgcolor: 'rgba(247, 155, 114, 0.02)',
+                                borderBottom: '1px solid rgba(221, 221, 221, 0.3)',
+                                p: 3
+                            }}>
+                                <Stack direction="row" spacing={2} alignItems="center">
+                                    <AssignmentIcon sx={{ color: '#F79B72', fontSize: 24 }} />
+                                    <Typography variant="h5" fontWeight="700" color="#2A4759">
+                                        Vedlegg
+                                    </Typography>
+                                </Stack>
+                            </Box>
+                            <CardContent sx={{ p: 3 }}>
+                                <Stack spacing={2}>
+                                    {attachmentList}
+                                </Stack>
+                            </CardContent>
+                        </Card>
+                    )}
+                </Stack>
+
+                {/* Action Buttons */}
+                <Box sx={{
+                    p: { xs: 3, md: 4 },
+                    bgcolor: 'rgba(247, 155, 114, 0.02)',
+                    borderTop: '1px solid rgba(221, 221, 221, 0.3)',
+                    borderRadius: '0 0 12px 12px',
+                    mt: 3
+                }}>
+                    <Stack
+                        direction={{ xs: 'column', sm: 'row' }}
+                        spacing={2}
+                        justifyContent="space-between"
+                    >
+                        <Button
+                            variant="outlined"
+                            startIcon={<DeleteIcon />}
+                            onClick={onDelete}
+                            disabled={saving}
+                            sx={{
+                                borderColor: '#f44336',
+                                color: '#f44336',
+                                px: 3,
+                                py: 1.5,
+                                fontWeight: 600,
+                                borderRadius: 3,
+                                textTransform: 'none',
+                                '&:hover': {
+                                    borderColor: '#d32f2f',
+                                    bgcolor: 'rgba(244, 67, 54, 0.04)',
+                                }
+                            }}
+                        >
+                            {saving ? 'Sletter...' : 'Slett sak'}
+                        </Button>
+
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                             <Button
                                 variant="outlined"
-                                className={classes.button}
-                                startIcon={<CancelIcon />}
-                                size="small"
-                                onClick={() => CancelEdit()}
+                                onClick={goBack}
+                                disabled={saving}
+                                sx={{
+                                    borderColor: '#2A4759',
+                                    color: '#2A4759',
+                                    px: 3,
+                                    py: 1.5,
+                                    fontWeight: 600,
+                                    borderRadius: 3,
+                                    textTransform: 'none',
+                                    '&:hover': {
+                                        borderColor: '#1e3440',
+                                        bgcolor: 'rgba(42, 71, 89, 0.04)',
+                                    }
+                                }}
                             >
                                 Avbryt
                             </Button>
-                        </div>
-                        <div className="item2">
-                            <TextField
-                                id="outlined-select-prioritet"
-                                select
-                                name="prioritet"
-                                label="Prioritet"
-                                className={classes.textField}
-                                value={dataset.priority || 'Ingen valgt'}
-                                onChange={handleDataChange('priority')}
-                                InputProps={{
-                                    className: classes.input,
-                                }}
-                                SelectProps={{
-                                    MenuProps: {
-                                        className: classes.menu,
+                            <Button
+                                variant="contained"
+                                startIcon={<SaveIcon />}
+                                onClick={updateIssueByID}
+                                disabled={saving}
+                                sx={{
+                                    bgcolor: '#F79B72',
+                                    color: 'white',
+                                    px: 3,
+                                    py: 1.5,
+                                    fontWeight: 600,
+                                    borderRadius: 3,
+                                    textTransform: 'none',
+                                    boxShadow: '0 4px 20px rgba(247, 155, 114, 0.4)',
+                                    '&:hover': {
+                                        bgcolor: '#e8895f',
+                                        boxShadow: '0 6px 25px rgba(247, 155, 114, 0.6)',
+                                        transform: 'translateY(-2px)',
                                     },
+                                    transition: 'all 0.3s ease'
                                 }}
-                                margin="normal"
-                                variant="outlined"
                             >
-                                {prioritet.map((option) => (
-                                    <MenuItem key={option.value} value={option.label}>
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                            {errors.priority ? (
-                                <Box
-                                    className={classes.BoxErrorField}
-                                    fontFamily="Monospace"
-                                    color="error.main"
-                                    p={1}
-                                    m={1}
-                                >
-                                    {errors.priority} ⚠️
-                                </Box>
-                            ) : (
-                                ''
-                            )}
-                        </div>
-                        <div className="item3">
-                            <TextField
-                                label="Sist oppdatert"
-                                value={formattedDate(dataset.updatedAt)}
-                                className={classes.textField}
-                                margin="normal"
-                                variant="outlined"
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div className="item14">
-                            <InputLabel shrink htmlFor="select-multiple-native">
-                                Vedlegg
-                            </InputLabel>
-                            <aside style={thumbsContainer}>{imgList}</aside>
-                        </div>
-                        <div className="item4">
-                            <TextField
-                                id="outlined-select-alvorlighetsgrad"
-                                select
-                                label="Kategori"
-                                name="category"
-                                className={classes.textField}
-                                value={dataset.category || 'Ingen valgt'}
-                                onChange={(e) =>
-                                    setData({
-                                        ...dataset,
-                                        [e.target.name]: e.target.value,
-                                    })
-                                }
-                                InputProps={{
-                                    className: classes.input,
-                                }}
-                                SelectProps={{
-                                    MenuProps: {
-                                        className: classes.menu,
-                                    },
-                                }}
-                                margin="normal"
-                                variant="outlined"
-                            >
-                                {Kategori.map((option) => (
-                                    <MenuItem key={option.value} value={option.label}>
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                            {errors.category ? (
-                                <Box
-                                    className={classes.BoxErrorField}
-                                    fontFamily="Monospace"
-                                    color="error.main"
-                                    p={1}
-                                    m={1}
-                                >
-                                    {errors.category} ⚠️
-                                </Box>
-                            ) : (
-                                ''
-                            )}
-                        </div>
-                        <div className="item1">
-                            <Grid container alignItems="flex-start">
-                                <Avatar alt="Profile picture" className={classes.purpleAvatar}></Avatar>
-                            </Grid>
-                        </div>
-                        <div className="item7">
-                            <TextField
-                                id="outlined-select-alvorlighetsgrad"
-                                select
-                                name="alvorlighetsgrad"
-                                label="Alvorlighetsgrad"
-                                value={dataset.severity || 'Ingen valgt'}
-                                className={classes.textField}
-                                onChange={handleDataChange('severity')}
-                                InputProps={{
-                                    className: classes.input,
-                                }}
-                                SelectProps={{
-                                    MenuProps: {
-                                        className: classes.menu,
-                                    },
-                                }}
-                                margin="normal"
-                                variant="outlined"
-                            >
-                                {alvorlighetsGrad.map((option) => (
-                                    <MenuItem key={option.value} value={option.label}>
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                            {errors.severity ? (
-                                <Box
-                                    className={classes.BoxErrorField}
-                                    fontFamily="Monospace"
-                                    color="error.main"
-                                    p={1}
-                                    m={1}
-                                >
-                                    {errors.severity} ⚠️
-                                </Box>
-                            ) : (
-                                ''
-                            )}
-                        </div>
-                        <div className="item8">
-                            <TextField
-                                id="outlined-select-prioritet"
-                                select
-                                name="reprodusere"
-                                label="Reprodusere"
-                                className={classes.textField}
-                                value={dataset.reproduce || 'Ingen valgt'}
-                                onChange={handleDataChange('reproduce')}
-                                InputProps={{
-                                    className: classes.input,
-                                }}
-                                SelectProps={{
-                                    MenuProps: {
-                                        className: classes.menu,
-                                    },
-                                }}
-                                margin="normal"
-                                variant="outlined"
-                            >
-                                {reprodusere.map((option) => (
-                                    <MenuItem
-                                        key={option.value}
-                                        value={option.label}
-                                        selected
-                                        style={{
-                                            backgroundColor: option.color,
-                                            color: 'white',
-                                        }}
-                                    >
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                            {errors.reproduce ? (
-                                <Box
-                                    className={classes.BoxErrorField}
-                                    fontFamily="Monospace"
-                                    color="error.main"
-                                    p={1}
-                                    m={1}
-                                >
-                                    {errors.reproduce} ⚠️
-                                </Box>
-                            ) : (
-                                ''
-                            )}
-                        </div>
-                        <div className="item15">
-                            <TextField
-                                id="outlined-select-delegert"
-                                select
-                                label="Delegert til"
-                                name="delegated"
-                                className={classes.textField}
-                                value={[dataset.delegated != null ? dataset.delegated.id : 'Laster...']}
-                                onChange={handleDataChange('delegated')}
-                                InputProps={{
-                                    className: classes.input,
-                                }}
-                                SelectProps={{
-                                    MenuProps: {
-                                        className: classes.menu,
-                                    },
-                                }}
-                                margin="normal"
-                                variant="outlined"
-                            >
-                                {users.map((option) => (
-                                    <MenuItem key={option._id} value={option._id}>
-                                        {option.name}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                            {errors.delegated ? (
-                                <Box
-                                    className={classes.BoxErrorField}
-                                    fontFamily="Monospace"
-                                    color="error.main"
-                                    p={1}
-                                    m={1}
-                                >
-                                    {errors.delegated} ⚠️
-                                </Box>
-                            ) : (
-                                ''
-                            )}
-                        </div>
-                        <div className="item12">
-                            <TextField
-                                multiline
-                                label="Oppsummering"
-                                onChange={handleDataChange('summary')}
-                                value={[dataset.summary ? dataset.summary : '']}
-                                className={classes.textField}
-                                margin="normal"
-                                variant="outlined"
-                            />
-                        </div>
-                        <div className="item11">
-                            <StyledEngineProvider injectFirst>
-                                <ThemeProvider theme={theme}>
-                                    <Typography variant="body1">Beskrivelse</Typography>
-                                </ThemeProvider>
-                            </StyledEngineProvider>
-                            <Editor
-                                placeholder="Skriv inn tekst her..."
-                                editorState={editorStateDesc}
-                                editorStyle={{
-                                    backgroundColor: 'white',
-                                    border: '1px solid lightgray',
-                                    borderTop: '0px solid lightgray',
-                                    minHeight: '400px',
-                                    padding: 10,
-                                    borderRadius: '0 0 0.5rem 0.5rem',
-                                }}
-                                toolbarStyle={{
-                                    borderRadius: '0.5rem 0.5rem 0 0',
-                                    marginBottom: '1px',
-                                }}
-                                wrapperClassName="demo-wrapper"
-                                toolbarClassName="flex sticky top-0 z-20 !justify-start"
-                                editorClassName="mt-5 shadow-sm border min-h-editor p-2"
-                                onEditorStateChange={onEditorStateChangeDesc}
-                                toolbar={{
-                                    link: { inDropdown: true },
-                                    list: { inDropdown: true },
-                                    options: [
-                                        'fontFamily',
-                                        'inline',
-                                        'blockType',
-                                        'fontSize',
-                                        'list',
-                                        'image',
-                                        'textAlign',
-                                        'colorPicker',
-                                        'link',
-                                        'embedded',
-                                        'emoji',
-                                        'remove',
-                                        'history',
-                                    ],
-                                    inline: {
-                                        options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace'],
-                                    },
-                                }}
-                                hashtag={{
-                                    separator: ' ',
-                                    trigger: '#',
-                                }}
-                            />
-                        </div>
-                        <div className="item13">
-                            <StyledEngineProvider injectFirst>
-                                <ThemeProvider theme={theme}>
-                                    <Typography variant="body1">Steg for å reprodusere</Typography>
-                                </ThemeProvider>
-                            </StyledEngineProvider>
-                            <Editor
-                                placeholder="Skriv inn tekst her..."
-                                editorState={editorStateRep}
-                                editorStyle={{
-                                    backgroundColor: 'white',
-                                    border: '1px solid lightgray',
-                                    borderTop: '0px solid lightgray',
-                                    minHeight: '400px',
-                                    padding: 10,
-
-                                    borderRadius: '0 0 0.5rem 0.5rem',
-                                }}
-                                toolbarStyle={{
-                                    borderRadius: '0.5rem 0.5rem 0 0',
-                                    marginBottom: '1px',
-                                }}
-                                wrapperClassName="demo-wrapper"
-                                toolbarClassName="flex sticky top-0 z-20 !justify-start"
-                                editorClassName="mt-5 shadow-sm border min-h-editor p-2"
-                                onEditorStateChange={onEditorStateChangeRep}
-                                toolbar={{
-                                    link: { inDropdown: true },
-                                    list: { inDropdown: true },
-                                    options: [
-                                        'fontFamily',
-                                        'inline',
-                                        'blockType',
-                                        'fontSize',
-                                        'list',
-                                        'image',
-                                        'textAlign',
-                                        'colorPicker',
-                                        'link',
-                                        'embedded',
-                                        'emoji',
-                                        'remove',
-                                        'history',
-                                    ],
-                                    inline: {
-                                        options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace'],
-                                    },
-                                }}
-                                hashtag={{
-                                    separator: ' ',
-                                    trigger: '#',
-                                }}
-                            />
-                        </div>
-                        <Snackbar open={open} autohideduration={3000} onClose={handleClose}>
-                            <Alert onClose={handleClose} severity="success" variant="standard">
-                                <AlertTitle>Suksess</AlertTitle>
-                                Sak ble oppdatert!
-                            </Alert>
-                        </Snackbar>
-                    </div>
-                </section>
-            </div>
-        </div>
+                                {saving ? 'Lagrer...' : 'Lagre endringer'}
+                            </Button>
+                        </Stack>
+                    </Stack>
+                </Box>
+            </Container>
+        </Box>
     )
 }

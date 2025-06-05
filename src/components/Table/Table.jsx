@@ -12,13 +12,16 @@ import styles from '../../assets/js/tableStyle.js'
 
 const useStyles = makeStyles(styles)
 
-export default function CustomTable(props) {
+export default function CustomTable({
+    tableHead = [],
+    tableData = [],
+    tableHeaderColor = 'gray'
+}) {
     const classes = useStyles()
-    const { tableHead, tableData, tableHeaderColor } = props
     return (
         <div className={classes.tableResponsive}>
             <Table className={classes.table}>
-                {tableHead !== undefined ? (
+                {tableHead.length > 0 ? (
                     <TableHead className={classes[tableHeaderColor + 'TableHeader']}>
                         <TableRow className={classes.tableHeadRow}>
                             {tableHead.map((prop, key) => {
@@ -51,12 +54,16 @@ export default function CustomTable(props) {
     )
 }
 
-CustomTable.defaultProps = {
-    tableHeaderColor: 'gray',
-}
-
 CustomTable.propTypes = {
-    tableHeaderColor: PropTypes.oneOf(['warning', 'primary', 'danger', 'success', 'info', 'rose', 'gray']),
+    tableHeaderColor: PropTypes.oneOf([
+        'warning',
+        'primary',
+        'danger',
+        'success',
+        'info',
+        'rose',
+        'gray',
+    ]),
     tableHead: PropTypes.arrayOf(PropTypes.string),
     tableData: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
 }

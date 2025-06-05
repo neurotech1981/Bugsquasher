@@ -1,12 +1,16 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+
+// Polyfill for setImmediate (required for Draft.js)
+if (typeof setImmediate === 'undefined') {
+    global.setImmediate = (callback) => setTimeout(callback, 0)
+}
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import openSocket from 'socket.io-client'
-
-const socket = openSocket('http://localhost:4000')
-import { createTheme, ThemeProvider, StyledEngineProvider, adaptV4Theme } from '@mui/material/styles'
+import { useSocket } from '../../components/SocketProvider'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import auth from '../auth/auth-helper'
+import { createTheme, ThemeProvider, adaptV4Theme } from '@mui/material/styles'
 import { makeStyles, withStyles } from '@mui/styles'
 import issueService from '../../services/issueService'
 import Icon from '@mui/material/Icon'
@@ -18,158 +22,113 @@ import {
     convertToRaw,
     ContentState,
 } from 'draft-js'
-import { Typography, Snackbar, TextField, Container, Grid, Button, CssBaseline, Autocomplete } from '@mui/material'
+import {
+    Typography,
+    Snackbar,
+    TextField,
+    Container,
+    Grid,
+    Button,
+    CssBaseline,
+    Autocomplete,
+    Card,
+    CardContent,
+    CardHeader,
+    Box,
+    Paper,
+    Divider,
+    Chip,
+    useTheme,
+    alpha,
+    Stack,
+    FormControl,
+    InputLabel,
+    Avatar,
+    LinearProgress,
+    Stepper,
+    Step,
+    StepLabel,
+    StepContent,
+    Collapse,
+    Alert,
+    AlertTitle,
+    CircularProgress
+} from '@mui/material'
 import MuiMenuItem from '@mui/material/MenuItem'
 import { Editor } from 'react-draft-wysiwyg'
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 //import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs'
-import { AlertTitle } from '@mui/lab'
 import { useDispatch, useSelector } from 'react-redux'
-import Box from '@mui/material/Box'
 import Previews from './ImageUploader'
-import auth from '../auth/auth-helper'
 import { findUserProfile, getUsers } from '../utils/api-user'
 import { clearAction } from '../../redux/store'
-import Alert from '@mui/material/Alert'
 import { getProjects } from '../../services/projectService'
+import { v4 as uuid } from 'uuid'
+import {
+    BugReport,
+    Assignment,
+    Person,
+    Category,
+    Speed,
+    PriorityHigh,
+    Replay,
+    BusinessCenter,
+    Description,
+    ListAlt,
+    AttachFile,
+    Send,
+    Info,
+    CheckCircle,
+    ExpandMore,
+    ExpandLess,
+    PlayArrow,
+    ArrowForward
+} from '@mui/icons-material'
 
+const jwt = auth.isAuthenticated()
+
+// Modern dropdown options with better styling
 const alvorlighetsGrad = [
-    {
-        value: 0,
-        label: 'Ingen valgt',
-    },
-    {
-        value: 1,
-        label: 'Tekst',
-    },
-    {
-        value: 2,
-        label: 'Justering',
-    },
-    {
-        value: 3,
-        label: 'Triviell',
-    },
-    {
-        value: 4,
-        label: 'Mindre alvorlig',
-    },
-    {
-        value: 5,
-        label: 'Alvorlig',
-    },
-    {
-        value: 6,
-        label: 'Kræsj',
-    },
-    {
-        value: 7,
-        label: 'Blokkering',
-    },
+    { value: 'Ingen valgt', label: 'Ingen valgt', color: '#9E9E9E', icon: '❓' },
+    { value: 'Tekst', label: 'Tekst', color: '#4CAF50', icon: '📝' },
+    { value: 'Justering', label: 'Justering', color: '#2196F3', icon: '🔧' },
+    { value: 'Triviell', label: 'Triviell', color: '#8BC34A', icon: '🟢' },
+    { value: 'Mindre alvorlig', label: 'Mindre alvorlig', color: '#FFC107', icon: '🟡' },
+    { value: 'Alvorlig', label: 'Alvorlig', color: '#FF9800', icon: '🟠' },
+    { value: 'Kræsj', label: 'Kræsj', color: '#F44336', icon: '🔴' },
+    { value: 'Blokkering', label: 'Blokkering', color: '#E91E63', icon: '🚫' },
 ]
 
 const Kategori = [
-    {
-        value: 0,
-        label: 'Ingen valgt',
-    },
-    {
-        value: 1,
-        label: 'Triviell',
-    },
-    {
-        value: 2,
-        label: 'Tekst',
-    },
-    {
-        value: 3,
-        label: 'Justering',
-    },
-    {
-        value: 4,
-        label: 'Mindre alvorlig',
-    },
-    {
-        value: 5,
-        label: 'Alvorlig',
-    },
-    {
-        value: 6,
-        label: 'Kræsj',
-    },
-    {
-        value: 7,
-        label: 'Blokkering',
-    },
+    { value: 'Ingen valgt', label: 'Ingen valgt', color: '#9E9E9E', icon: '❓' },
+    { value: 'Triviell', label: 'Triviell', color: '#4CAF50', icon: '💡' },
+    { value: 'Tekst', label: 'Tekst', color: '#2196F3', icon: '📝' },
+    { value: 'Justering', label: 'Justering', color: '#FF9800', icon: '⚙️' },
+    { value: 'Mindre alvorlig', label: 'Mindre alvorlig', color: '#FFC107', icon: '🐛' },
+    { value: 'Alvorlig', label: 'Alvorlig', color: '#F44336', icon: '🚨' },
+    { value: 'Kræsj', label: 'Kræsj', color: '#E91E63', icon: '💥' },
+    { value: 'Blokkering', label: 'Blokkering', color: '#9C27B0', icon: '🚫' },
 ]
 
 const prioritet = [
-    {
-        value: 0,
-        label: 'Ingen valgt',
-    },
-    {
-        value: 1,
-        label: 'Ingen',
-    },
-    {
-        value: 2,
-        label: 'Lav',
-    },
-    {
-        value: 3,
-        label: 'Normal',
-    },
-    {
-        value: 4,
-        label: 'Høy',
-    },
-    {
-        value: 5,
-        label: 'Haster',
-    },
-    {
-        value: 6,
-        label: 'Øyeblikkelig',
-    },
+    { value: 'Ingen valgt', label: 'Ingen valgt', color: '#9E9E9E', icon: '❓' },
+    { value: 'Ingen', label: 'Ingen', color: '#9E9E9E', icon: '⚪' },
+    { value: 'Lav', label: 'Lav', color: '#4CAF50', icon: '🟢' },
+    { value: 'Normal', label: 'Normal', color: '#2196F3', icon: '🔵' },
+    { value: 'Høy', label: 'Høy', color: '#FF9800', icon: '🟠' },
+    { value: 'Haster', label: 'Haster', color: '#F44336', icon: '🔴' },
+    { value: 'Øyeblikkelig', label: 'Øyeblikkelig', color: '#E91E63', icon: '🚨' },
 ]
 
 const reprodusere = [
-    {
-        value: 0,
-        label: 'Ingen valgt',
-        color: '#F2CBD1',
-    },
-    {
-        value: 2,
-        label: 'Alltid',
-        color: '#F2CBD1',
-    },
-    {
-        value: 3,
-        label: 'Noen ganger',
-        color: '#F49CA9',
-    },
-    {
-        value: 4,
-        label: 'Tilfeldig',
-        color: '#F26A7E',
-    },
-    {
-        value: 5,
-        label: 'Har ikke forsøkt',
-        color: '#F20024',
-    },
-    {
-        value: 6,
-        label: 'Kan ikke reprodusere',
-        color: '#870D1F',
-    },
-    {
-        value: 7,
-        label: 'Ingen',
-        color: '#7B0C1D',
-    },
+    { value: 'Ingen valgt', label: 'Ingen valgt', color: '#9E9E9E', icon: '❓' },
+    { value: 'Alltid', label: 'Alltid', color: '#4CAF50', icon: '✅' },
+    { value: 'Noen ganger', label: 'Noen ganger', color: '#FF9800', icon: '🔄' },
+    { value: 'Tilfeldig', label: 'Tilfeldig', color: '#F44336', icon: '🎲' },
+    { value: 'Har ikke forsøkt', label: 'Har ikke forsøkt', color: '#9E9E9E', icon: '❌' },
+    { value: 'Kan ikke reprodusere', label: 'Kan ikke reprodusere', color: '#E91E63', icon: '🚫' },
+    { value: 'Ingen', label: 'Ingen', color: '#9C27B0', icon: '⛔' },
 ]
 
 const MenuItem = withStyles({
@@ -182,117 +141,176 @@ const MenuItem = withStyles({
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        width: '100%',
-        margin: '0 auto',
-        '& > * + *': {
-            marginTop: theme.spacing(2),
-        },
-    },
-    headerOne: {
-        margin: '0 auto',
-        padding: '0.5em',
-        fontSize: '3em',
-        color: 'darkslategray',
-    },
-    active: {
-        backgroundColor: 'rgba(155, 205, 155, 0.12)',
-    },
-    container: {
-        paddingTop: '20px',
-        marginTop: '100px',
-        marginBottom: '100px',
-        paddingBottom: '50px',
-        display: 'grid',
-        flexWrap: 'wrap',
-        borderRadius: '1em',
-        boxShadow: '0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 5px 15px -3px rgba(0, 0, 0, 0.05)',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
-        height: '80%',
-        margin: '0 auto',
-        backdropFilter: 'blur(6px) saturate(180%)',
-        webkitBackdropFilter: 'blur(6px) saturate(180%)',
-        backgroundColor: 'rgb(225 245 239)',
-        [theme.breakpoints.up('xs')]: {
-            maxWidth: '100%',
+        minHeight: '100vh',
+        backgroundColor: '#EEEEEE',
+        paddingTop: theme.spacing(12), // Account for top navigation bar
+        paddingBottom: theme.spacing(6),
+        marginLeft: '288px', // Account for sidebar width
+        marginTop: '80px', // Account for top nav height
+        width: 'calc(100% - 288px)',
+        '@media (max-width: 900px)': {
+            marginLeft: 0,
             width: '100%',
+            marginTop: '72px',
         },
     },
-
-    input: {
-        backgroundColor: theme.palette.background.paper,
-        maxWidth: '100%',
-        webkitTransition: '0.18s ease-out',
-        mozTransition: '0.18s ease-out',
-        oTransition: '0.18s ease-out',
-        transition: '0.18s ease-out',
+    mainCard: {
+        borderRadius: 16,
+        boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+        background: 'linear-gradient(135deg, #F79B72 0%, #2A4759 100%)',
+        color: 'white',
+        marginBottom: theme.spacing(3),
+    },
+    formCard: {
+        borderRadius: 16,
+        boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+        marginBottom: theme.spacing(3),
+        overflow: 'visible',
+    },
+    sectionHeader: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: theme.spacing(1),
+        marginBottom: theme.spacing(2),
+        color: '#F79B72',
+        fontWeight: 600,
     },
     textField: {
-        marginLeft: theme.spacing(2),
-        marginRight: theme.spacing(2),
-        width: '100%',
-    },
-    BoxErrorField: {
-        backgroundColor: '#ffe4e7',
-        color: 'red',
-    },
-    dense: {
-        marginTop: theme.spacing(2),
-    },
-    menu: {
-        width: 200,
-    },
-    button: {
-        marginTop: '20px',
-        height: '50px',
-        margin: '0 auto',
-        fontSize: 20,
-        borderRadius: 15,
-    },
-    leftIcon: {
-        marginRight: theme.spacing(1),
-    },
-    rightIcon: {
-        marginLeft: theme.spacing(1),
-    },
-    iconSmall: {
-        fontSize: '1.2em',
-    },
-    selected: {
-        '&:hover': {
-            backgroundColor: 'green',
-            color: 'green',
+        '& .MuiOutlinedInput-root': {
+            borderRadius: 12,
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: theme.palette.primary.light,
+            },
         },
+    },
+    submitButton: {
+        borderRadius: 12,
+        padding: theme.spacing(1.5, 4),
+        fontSize: '1.1rem',
+        fontWeight: 600,
+        background: 'linear-gradient(135deg, #F79B72 0%, #2A4759 100%)',
+        boxShadow: '0 4px 20px rgba(247, 155, 114, 0.4)',
+        '&:hover': {
+            background: 'linear-gradient(135deg, #e8895f 0%, #1e3440 100%)',
+            boxShadow: '0 6px 25px rgba(247, 155, 114, 0.6)',
+            transform: 'translateY(-2px)',
+        },
+        transition: 'all 0.3s ease',
+    },
+    editorWrapper: {
+        border: '1px solid #e0e0e0',
+        borderRadius: 8,
+        overflow: 'hidden',
+        backgroundColor: 'white',
+        '&:hover': {
+            borderColor: theme.palette.primary.light,
+        },
+        '&:focus-within': {
+            borderColor: theme.palette.primary.main,
+        },
+        '& .rdw-editor-wrapper': {
+            border: 'none',
+        },
+        '& .rdw-editor-toolbar': {
+            borderBottom: '1px solid #e0e0e0',
+            marginBottom: 0,
+            padding: theme.spacing(1),
+        },
+        '& .rdw-editor-main': {
+            minHeight: 200,
+            padding: theme.spacing(2),
+            '& .public-DraftEditor-content': {
+                minHeight: 150,
+            },
+        },
+    },
+    priorityChip: {
+        fontWeight: 600,
+        borderRadius: 8,
+    },
+    progressContainer: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 9999,
     },
 }))
 
-const theme = createTheme(
-    adaptV4Theme({
-        typography: {
-            body1: {
-                fontWeight: 600,
-                padding: '0.3rem',
-            },
+const theme = createTheme({
+    typography: {
+        h4: {
+            fontWeight: 700,
+            fontSize: '2.5rem',
         },
-    })
-)
+        h6: {
+            fontWeight: 600,
+        },
+    },
+    palette: {
+        primary: {
+            main: '#F79B72',
+            light: '#fad5b8',
+            dark: '#ca6539',
+        },
+        secondary: {
+            main: '#2A4759',
+            light: '#d3dce5',
+            dark: '#152127',
+        },
+    },
+})
 
 export default function CreateIssue(props) {
-    const { id } = useParams()
-    const jwt = auth.isAuthenticated()
+    const classes = useStyles()
+    const muiTheme = useTheme()
+    const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+
+    const [currentStep, setCurrentStep] = useState(0)
+    const [completedSteps, setCompletedSteps] = useState(new Set())
+    const [expandedSections, setExpandedSections] = useState(new Set([0]))
+
+    const steps = [
+        {
+            label: 'Grunnleggende informasjon',
+            description: 'Hvem, hva og hvor',
+            icon: <Assignment />,
+            required: true
+        },
+        {
+            label: 'Kategorisering',
+            description: 'Prioritet og alvorlighetsgrad',
+            icon: <Category />,
+            required: true
+        },
+        {
+            label: 'Detaljert beskrivelse',
+            description: 'Beskriv problemet',
+            icon: <Description />,
+            required: true
+        },
+        {
+            label: 'Reproduksjonssteg',
+            description: 'Hvordan reprodusere problemet',
+            icon: <ListAlt />,
+            required: false
+        },
+        {
+            label: 'Vedlegg',
+            description: 'Bilder og filer',
+            icon: <AttachFile />,
+            required: false
+        }
+    ]
 
     const initialState = {
-        setID: 0,
-        setNavn: '',
         setDelegated: '',
         setKategori: 'Ingen valgt',
         setAlvorlighetsgrad: 'Ingen valgt',
         setPrioritet: 'Ingen valgt',
         setReprodusere: 'Ingen valgt',
         setOppsummering: '',
-        setBeskrivelse: '',
-        setStegReprodusere: '',
-        setImageName: [''],
     }
 
     const contentBlockDescription = htmlToDraft(`
@@ -324,13 +342,27 @@ export default function CreateIssue(props) {
       <p>[Enter the expected behavior of the system here]</p>
     `)
 
-    const initStateDescription = contentBlockDescription
-        ? EditorState.createWithContent(ContentState.createFromBlockArray(contentBlockDescription.contentBlocks))
-        : EditorState.createEmpty()
+    const initStateDescription = (() => {
+        try {
+            return contentBlockDescription
+                ? EditorState.createWithContent(ContentState.createFromBlockArray(contentBlockDescription.contentBlocks))
+                : EditorState.createEmpty()
+        } catch (error) {
+            console.warn('Error creating description editor state:', error)
+            return EditorState.createEmpty()
+        }
+    })()
 
-    const initStateStepReproduce = contentBlockReproduce
-        ? EditorState.createWithContent(ContentState.createFromBlockArray(contentBlockReproduce.contentBlocks))
-        : EditorState.createEmpty()
+    const initStateStepReproduce = (() => {
+        try {
+            return contentBlockReproduce
+                ? EditorState.createWithContent(ContentState.createFromBlockArray(contentBlockReproduce.contentBlocks))
+                : EditorState.createEmpty()
+        } catch (error) {
+            console.warn('Error creating reproduction steps editor state:', error)
+            return EditorState.createEmpty()
+        }
+    })()
 
     const [editorStateDesc, setEditorStateDesc] = useState(initStateDescription)
     const [editorStateRep, setEditorStateRep] = useState(initStateStepReproduce)
@@ -340,15 +372,27 @@ export default function CreateIssue(props) {
     const [projects, setProjects] = useState([])
     const [selectedProject, setSelectedProject] = useState('')
 
-    const classes = useStyles()
-    const [values, setValues] = useState(initialState)
-    const [errors, setErrors] = useState('')
-    const [users, setUsers] = useState([])
+    const initialFormState = {
+        setDelegated: '',
+        setKategori: '',
+        setAlvorlighetsgrad: '',
+        setPrioritet: '',
+        setReprodusere: '',
+        setOppsummering: '',
+    }
+
+    const [values, setValues] = useState(initialFormState)
+    const [open, setOpen] = useState(false)
     const [userinfo, setUserinfo] = useState({
-        user: [],
+        user: {},
         redirectToSignin: false,
     })
-    const [open, setOpen] = useState(false)
+    const [errors, setErrors] = useState({})
+    const [users, setUsers] = useState([])
+    const [submitting, setSubmitting] = useState(false)
+    const [uploadedFiles, setUploadedFiles] = useState([])
+
+    const { socket, isConnected, emit } = useSocket()
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -357,643 +401,951 @@ export default function CreateIssue(props) {
         setOpen(false)
     }
 
-    const images = useSelector((state) => state)
-
     const init = (userId) => {
-        findUserProfile(
-            {
-                userId,
-            },
-            { t: jwt.token }
-        ).then((data) => {
+        if (!userId) return
+        findUserProfile({ userId }, { t: jwt.token }).then((data) => {
             if (data.error) {
-                setUserinfo({ redirectToSignin: true })
+                setUserinfo({ ...userinfo, redirectToSignin: true })
             } else {
                 setUserinfo({ user: data })
-                setValues({ setNavn: data.name })
             }
         })
-        console.log('Token: ', jwt.token)
+
         getUsers({ t: jwt.token }).then((data) => {
             if (data.error) {
-                setValues({ redirectToSignin: true })
+                // Handle user loading error silently or show user-friendly error
+                setErrors(prev => ({ ...prev, users: 'Failed to load users' }))
             } else {
-                setUsers(data.data)
+                // Ensure unique users by ID and filter out any invalid entries
+                const uniqueUsers = data.data?.filter((user, index, self) =>
+                    user && user._id && self.findIndex(u => u._id === user._id) === index
+                ) || []
+                setUsers(uniqueUsers)
+            }
+        })
+
+        getProjects(jwt.token).then((data) => {
+            if (data.error) {
+                // Handle project loading error silently or show user-friendly error
+                setErrors(prev => ({ ...prev, projects: 'Failed to load projects' }))
+            } else {
+                setProjects(data.data)
+
+                // Check for project URL parameter and pre-select project
+                const projectId = searchParams.get('project')
+                if (projectId && data.data) {
+                    const project = data.data.find(p => p._id === projectId)
+                    if (project) {
+                        setSelectedProject(project)
+                    }
+                }
             }
         })
     }
 
     useEffect(() => {
-        if (!users.length) {
-            init(id)
+        const jwt = auth.isAuthenticated()
+        if (jwt) {
+            init(jwt.user.id)
         }
-
-        getProjects({ t: jwt.token }).then((data) => {
-            console.log('Data', data.data)
-            if (data.error) {
-                setValues({ redirectToSignin: true })
-            } else {
-                setProjects(data.data)
-            }
-        })
-    }, [id, users.length])
+    }, [])
 
     const handleChange = (name) => (event) => {
-        console.log(JSON.stringify(images))
-        setValues({
-            ...values,
-            [name]: event.target.value,
-        })
+        setValues({ ...values, [name]: event.target.value })
+        // Clear error when user starts typing
+        if (errors[name]) {
+            setErrors({ ...errors, [name]: undefined })
+        }
     }
 
-    const insertImage = (url) => {
-        const contentState = editorStateDesc.getCurrentContent()
-        const contentStateWithEntity = contentState.createEntity('IMAGE', 'MUTABLE', {
-            src: '/uploads/' + url,
-            height: '100%',
-            width: '70%',
-        })
-        const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
-        const newEditorState = EditorState.set(editorStateDesc, { currentContent: contentStateWithEntity })
-        return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ')
-    }
-
-    const handlePastedFiles = (files, editor) => {
-        const formData = new FormData()
-        formData.append('imageData', files[0])
-        fetch('/api/uploadImage', {
-            method: 'POST',
-            body: formData,
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                console.log(data)
-                if (data[0]) {
-                    setEditorStateDesc(insertImage(data[0].filename)) //created below
-                }
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-    }
-
-    const errorAlert = (error) => (
-        <Snackbar open={open} autohideduration={6000} onClose={handleClose}>
-            <Alert onClose={handleClose} severity="error" variant="standard">
-                <AlertTitle>Feil</AlertTitle>
-                Noe gikk galt - {error}!
-            </Alert>
-        </Snackbar>
-    )
-
-    /*const onChangeImageDrop = (event) => {
-    event.preventDefault();
-    setValues((prevState) => ({
-      ...prevState,
-      setImageName: [...images.imageupload],
-    }));
-    console.log('IMAGE UPLOAD FILE >>>', images.imageupload);
-  };*/
-
-    // Legg inn ny sak
     const createIssue = async (e) => {
         e.preventDefault()
-        console.log('Image 123', images)
+        setSubmitting(true)
 
-        let imageNameValue = 'none'
-        if (images.state.imgUploadState) {
-            console.log('Upload state true')
-            imageNameValue = images.state.imageupload[1][0].name
-        }
+        try {
+            const issue = {
+                name: userinfo.user.name || undefined,
+                delegated: values.setDelegated || undefined,
+                category: values.setKategori || undefined,
+                severity: values.setAlvorlighetsgrad || undefined,
+                priority: values.setPrioritet || undefined,
+                reproduce: values.setReprodusere || undefined,
+                summary: values.setOppsummering || undefined,
+                description: JSON.stringify(convertToRaw(editorStateDesc.getCurrentContent())) || undefined,
+                step_reproduce: JSON.stringify(convertToRaw(editorStateRep.getCurrentContent())) || undefined,
+                userid: jwt.user._id || undefined,
+                reporter: jwt.user._id || undefined, // Set the reporter field for population
+                project: selectedProject?._id || undefined,
+                uuid: uuid(),
+                imageName: uploadedFiles.length > 0 ? uploadedFiles : undefined,
+            }
 
-        const htmlContentStateDesc = JSON.stringify(convertToRaw(editorStateDesc.getCurrentContent()))
-        values.setBeskrivelse = htmlContentStateDesc
+            console.log('Values state:', values)
+            console.log('Selected project:', selectedProject)
+            console.log('Final issue data being sent:', JSON.stringify(issue, null, 2))
+            const result = await issueService.addIssue(issue, jwt.token)
 
-        const htmlContentStateRep = JSON.stringify(convertToRaw(editorStateRep.getCurrentContent()))
-        values.setStegReprodusere = htmlContentStateRep
-        let data = {
-            name: userinfo.user.name,
-            reporter_id: userinfo.user._id,
-            category: values.setKategori,
-            description: values.setBeskrivelse,
-            reproduce: values.setReprodusere,
-            severity: values.setAlvorlighetsgrad,
-            priority: values.setPrioritet,
-            summary: values.setOppsummering,
-            delegated: values.setDelegated,
-            step_reproduce: values.setStegReprodusere,
-            imageName: imageNameValue, //images.imgUploadState ? images.state.imageupload[1][0].name : 'none',
-            // eslint-disable-next-line no-underscore-dangle
-            userid: userinfo.user._id,
-            project: selectedProject,
-        }
-        const jwt = auth.isAuthenticated()
+            if (result.data && result.data.success && result.data.document) {
+                setOpen(true)
+                clearState()
 
-        issueService
-            .addIssue({ data }, jwt.token)
-            .then((response) => {
-                if (response.status === 200) {
-                    setOpen(true)
-                    clearState()
-                    console.log('Response on create issue: ', response.data)
-                    let issueData = {
-                        issue_id: response.data.document._id,
-                        reporter: userinfo.user.name,
-                    }
-                    socket.emit('new_issue', issueData, values.setDelegated)
-                    setTimeout(function () {
-                        clearStoreImage(clearAction)
-                        props.history.push('/vis-sak/' + issueData.issue_id)
-                    }, 2000)
+                const createdIssue = result.data.document
+
+                if (socket) {
+                    socket.emit('newIssue', {
+                        userId: jwt.user._id,
+                        issueId: createdIssue._id,
+                        message: `Ny sak: ${issue.summary}`,
+                    })
                 }
+
+                toast.success('Sak opprettet!', {
+                    position: 'bottom-right',
+                    autoClose: 3000,
+                })
+
+                // Redirect to the newly created issue after a short delay
+                setTimeout(() => {
+                    navigate(`/vis-sak/${createdIssue._id}`)
+                }, 1500)
+            } else {
+                // Fallback success handling for different response structures
+                if (result.status === 201 || result.status === 200) {
+                    let createdIssue = result.data?.document || result.data?.data || result.data
+                    if (createdIssue && createdIssue._id) {
+                        toast.success('Sak opprettet!', {
+                            position: 'bottom-right',
+                            autoClose: 3000,
+                        })
+
+                        setTimeout(() => {
+                            navigate(`/vis-sak/${createdIssue._id}`)
+                        }, 1500)
+                    }
+                }
+            }
+        } catch (error) {
+            // Handle error silently - user feedback is provided via toast
+            if (error.response?.data?.error) {
+                setErrors(error.response.data.error)
+            }
+            toast.error('Feil ved opprettelse av sak', {
+                position: 'bottom-right',
+                autoClose: 3000,
             })
-            .catch((err) => {
-                setErrors(err.response.data)
-                errorAlert(err.response.data)
-                window.scrollTo(0, 0)
-            })
-        // clear errors on submit if any present, before correcting old error
+        } finally {
+            setSubmitting(false)
+        }
     }
 
     const clearState = () => {
-        setValues({ ...initialState })
+        setValues(initialFormState)
+        setEditorStateDesc(EditorState.createEmpty())
+        setEditorStateRep(EditorState.createEmpty())
+        setSelectedProject(null)
+        setErrors({})
+        setUploadedFiles([])
+    }
+
+    // Callback function to receive uploaded files from ImageUploader
+    const handleUploadedFiles = (files) => {
+        setUploadedFiles(prevFiles => [...prevFiles, ...files])
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        // setImages(prevState => ({...prevState, setImageName: [...images.imageupload[1].name]}));
-        createIssue()
+        await createIssue(e)
     }
 
     const onEditorStateChangeDesc = (editorState) => {
-        setEditorStateDesc(editorState)
+        try {
+            setEditorStateDesc(editorState)
+            if (errors.description) {
+                setErrors({ ...errors, description: undefined })
+            }
+        } catch (error) {
+            console.warn('Error updating description editor state:', error)
+        }
     }
 
     const onEditorStateChangeRep = (editorState) => {
-        setEditorStateRep(editorState)
+        try {
+            setEditorStateRep(editorState)
+            if (errors.step_reproduce) {
+                setErrors({ ...errors, step_reproduce: undefined })
+            }
+        } catch (error) {
+            console.warn('Error updating reproduction steps editor state:', error)
+        }
+    }
+
+    const handleStepClick = (stepIndex) => {
+        if (expandedSections.has(stepIndex)) {
+            setExpandedSections(prev => {
+                const newSet = new Set(prev)
+                newSet.delete(stepIndex)
+                return newSet
+            })
+        } else {
+            setExpandedSections(prev => new Set([...prev, stepIndex]))
+        }
+    }
+
+    const validateStep = (stepIndex) => {
+        switch (stepIndex) {
+            case 0: // Basic information
+                return values.setOppsummering.trim() && values.setDelegated
+            case 1: // Categorization
+                return values.setKategori !== 'Ingen valgt' && values.setPrioritet !== 'Ingen valgt'
+            case 2: // Description
+                return editorStateDesc.getCurrentContent().hasText()
+            default:
+                return true
+        }
+    }
+
+    const getStepIcon = (stepIndex, isCompleted, isExpanded) => {
+        if (isCompleted) {
+            return <CheckCircle sx={{ color: '#4CAF50' }} />
+        }
+        if (isExpanded) {
+            return <ExpandLess sx={{ color: '#F79B72' }} />
+        }
+        return <ExpandMore sx={{ color: '#9E9E9E' }} />
     }
 
     return (
-        <div className={classes.root}>
-            <Container>
-                <form
-                    encType="multipart/form-data"
-                    className={classes.container}
-                    autoComplete="disabled"
-                    //onSubmit={(e) => handleSubmit(e)}
-                >
-                    <h3 className={classes.headerOne}>Skriv inn saksdetaljer</h3>
-                    <Box textAlign="center">
-                        <Typography variant="body2">Alle felt merket med en stjerne (*) er obligatoriske</Typography>
-                    </Box>
-                    <Grid container alignItems="flex-start" spacing={2} style={{ paddingRight: '2rem' }}>
-                        <CssBaseline />
-                        <Grid item xs={6}>
-                            <TextField
-                                id="outlined-select-delegert"
-                                select
-                                label="Deleger til"
-                                name="delegert"
-                                defaultValue="Ingen valgt"
-                                className={classes.textField}
-                                value={values.setDelegated || initialState.setDelegated}
-                                onChange={handleChange('setDelegated')}
-                                InputProps={{
-                                    className: classes.input,
+        <Box sx={{
+            marginLeft: { xs: 0, sm: '288px' },
+            marginTop: { xs: '72px', sm: '80px' },
+            width: { xs: '100%', sm: 'calc(100% - 288px)' },
+            minHeight: { xs: 'calc(100vh - 72px)', sm: 'calc(100vh - 80px)' },
+            bgcolor: '#EEEEEE',
+            p: { xs: 2, md: 3 }
+        }}>
+            {submitting && (
+                <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999 }}>
+                    <LinearProgress sx={{ bgcolor: '#F79B72' }} />
+                </Box>
+            )}
+
+            <Container maxWidth="lg" sx={{ px: 0 }}>
+                {/* Header */}
+                <Paper elevation={0} sx={{
+                    p: 4,
+                    mb: 3,
+                    borderRadius: 3,
+                    border: '1px solid rgba(221, 221, 221, 0.3)',
+                    bgcolor: 'white',
+                    background: 'linear-gradient(135deg, rgba(247, 155, 114, 0.1), rgba(42, 71, 89, 0.05))'
+                }}>
+                    <Stack direction="row" alignItems="center" spacing={3}>
+                        <Avatar sx={{
+                            width: 80,
+                            height: 80,
+                            bgcolor: '#F79B72',
+                            background: 'linear-gradient(135deg, #F79B72, #2A4759)'
+                        }}>
+                            <BugReport sx={{ fontSize: 40, color: 'white' }} />
+                        </Avatar>
+                        <Box>
+                            <Typography variant="h4" fontWeight="bold" color="#2A4759" gutterBottom>
+                                Opprett Ny Sak
+                            </Typography>
+                            <Typography variant="h6" color="#F79B72" sx={{ mb: 1 }}>
+                                Rapporter en feil eller foreslå en forbedring
+                            </Typography>
+                            <Stack direction="row" alignItems="center" spacing={1} sx={{ opacity: 0.7 }}>
+                                <Info fontSize="small" />
+                                <Typography variant="body2" color="text.secondary">
+                                    Følg stegene nedenfor for å opprette en detaljert saksrapport
+                                </Typography>
+                            </Stack>
+                        </Box>
+                    </Stack>
+                </Paper>
+
+                    <form onSubmit={handleSubmit} autoComplete="off">
+                        {/* Step 1: Basic Information */}
+                        <Card elevation={0} sx={{
+                            mb: 2,
+                            borderRadius: 3,
+                            border: '1px solid rgba(221, 221, 221, 0.3)',
+                            bgcolor: 'white'
+                        }}>
+                            <CardContent
+                                sx={{
+                                    p: 3,
+                                    cursor: 'pointer',
+                                    '&:hover': { bgcolor: 'rgba(247, 155, 114, 0.02)' }
                                 }}
-                                SelectProps={{
-                                    MenuProps: {
-                                        className: classes.menu,
-                                    },
-                                }}
-                                margin="normal"
-                                variant="outlined"
+                                onClick={() => handleStepClick(0)}
                             >
-                                {users.map((option) => (
-                                    <MenuItem key={option._id} value={option._id}>
-                                        {option.name}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                            {errors.delegated ? (
-                                <Box
-                                    className={classes.BoxErrorField}
-                                    fontFamily="Monospace"
-                                    color="error.main"
-                                    p={1}
-                                    m={1}
-                                >
-                                    {errors.delegated} ⚠️
-                                </Box>
-                            ) : (
-                                ''
-                            )}
-                        </Grid>
-                        <Grid item xs={6}>
-                            <TextField
-                                id="outlined-select-alvorlighetsgrad"
-                                select
-                                label="Kategori *"
-                                name="kategori"
-                                className={classes.textField}
-                                value={values.setKategori || 'Ingen valgt'}
-                                onChange={handleChange('setKategori')}
-                                InputProps={{
-                                    className: classes.input,
+                                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                                    <Stack direction="row" alignItems="center" spacing={2}>
+                                        <Avatar sx={{
+                                            bgcolor: validateStep(0) ? '#4CAF50' : '#F79B72',
+                                            width: 48,
+                                            height: 48
+                                        }}>
+                                            {validateStep(0) ? <CheckCircle /> : <Assignment />}
+                                        </Avatar>
+                                        <Box>
+                                            <Typography variant="h6" fontWeight="600" color="#2A4759">
+                                                1. Grunnleggende Informasjon
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                Sammendrag, tildeling og prosjekt
+                                            </Typography>
+                                        </Box>
+                                    </Stack>
+                                    {expandedSections.has(0) ?
+                                        <ExpandLess sx={{ color: '#F79B72' }} /> :
+                                        <ExpandMore sx={{ color: '#9E9E9E' }} />
+                                    }
+                                </Stack>
+                            </CardContent>
+
+                            <Collapse in={expandedSections.has(0)}>
+                                <CardContent sx={{ pt: 0, pb: 3 }}>
+
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            label="Sammendrag *"
+                                            value={values.setOppsummering}
+                                            onChange={handleChange('setOppsummering')}
+                                            fullWidth
+                                            placeholder="Kort beskrivelse av problemet..."
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: '#F79B72',
+                                                    },
+                                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: '#F79B72',
+                                                    },
+                                                },
+                                                '& .MuiInputLabel-root.Mui-focused': {
+                                                    color: '#F79B72',
+                                                },
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <Autocomplete
+                                            options={users}
+                                            getOptionLabel={(option) => option.name || ''}
+                                            value={users.find(user => user._id === values.setDelegated) || null}
+                                            onChange={(event, newValue) => {
+                                                setValues({ ...values, setDelegated: newValue?._id || '' })
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Tildel til *"
+                                                    placeholder="Velg en bruker..."
+                                                    sx={{
+                                                        '& .MuiOutlinedInput-root': {
+                                                            borderRadius: 2,
+                                                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                                borderColor: '#F79B72',
+                                                            },
+                                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                                borderColor: '#F79B72',
+                                                            },
+                                                        },
+                                                        '& .MuiInputLabel-root.Mui-focused': {
+                                                            color: '#F79B72',
+                                                        },
+                                                    }}
+                                                />
+                                            )}
+                                            renderOption={(props, option) => (
+                                                <Box component="li" {...props}>
+                                                    <Avatar sx={{ bgcolor: '#F79B72', mr: 2, width: 32, height: 32 }}>
+                                                        <Person fontSize="small" />
+                                                    </Avatar>
+                                                    <Typography>{option.name}</Typography>
+                                                </Box>
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <Autocomplete
+                                            options={projects}
+                                            getOptionLabel={(option) => option.name || ''}
+                                            value={selectedProject}
+                                            onChange={(event, newValue) => setSelectedProject(newValue)}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Prosjekt"
+                                                    placeholder="Velg et prosjekt..."
+                                                    sx={{
+                                                        '& .MuiOutlinedInput-root': {
+                                                            borderRadius: 2,
+                                                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                                borderColor: '#F79B72',
+                                                            },
+                                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                                borderColor: '#F79B72',
+                                                            },
+                                                        },
+                                                        '& .MuiInputLabel-root.Mui-focused': {
+                                                            color: '#F79B72',
+                                                        },
+                                                    }}
+                                                />
+                                            )}
+                                            renderOption={(props, option) => (
+                                                <Box component="li" {...props}>
+                                                    <Avatar sx={{ bgcolor: '#2A4759', mr: 2, width: 32, height: 32 }}>
+                                                        <BusinessCenter fontSize="small" />
+                                                    </Avatar>
+                                                    <Typography>{option.name}</Typography>
+                                                </Box>
+                                            )}
+                                        />
+                                    </Grid>
+                                </Grid>
+                                </CardContent>
+                            </Collapse>
+                        </Card>
+
+                        {/* Step 2: Categorization */}
+                        <Card elevation={0} sx={{
+                            mb: 2,
+                            borderRadius: 3,
+                            border: '1px solid rgba(221, 221, 221, 0.3)',
+                            bgcolor: 'white'
+                        }}>
+                            <CardContent
+                                sx={{
+                                    p: 3,
+                                    cursor: 'pointer',
+                                    '&:hover': { bgcolor: 'rgba(247, 155, 114, 0.02)' }
                                 }}
-                                SelectProps={{
-                                    MenuProps: {
-                                        className: classes.menu,
-                                    },
-                                }}
-                                margin="normal"
-                                variant="outlined"
+                                onClick={() => handleStepClick(1)}
                             >
-                                {Kategori.map((option) => (
-                                    <MenuItem key={option.value} value={option.label}>
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                            {errors.category ? (
-                                <Box
-                                    className={classes.BoxErrorField}
-                                    fontFamily="Monospace"
-                                    color="error.main"
-                                    p={1}
-                                    m={1}
-                                >
-                                    {errors.category} ⚠️
-                                </Box>
-                            ) : (
-                                ''
-                            )}
-                        </Grid>
-                        <Grid item xs={6}>
-                            <TextField
-                                id="outlined-select-alvorlighetsgrad"
-                                select
-                                name="alvorlighetsgrad"
-                                label="Alvorlighetsgrad *"
-                                value={values.setAlvorlighetsgrad || 'Ingen valgt'}
-                                className={classes.textField}
-                                onChange={handleChange('setAlvorlighetsgrad')}
-                                InputProps={{
-                                    className: classes.input,
+                                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                                    <Stack direction="row" alignItems="center" spacing={2}>
+                                        <Avatar sx={{
+                                            bgcolor: validateStep(1) ? '#4CAF50' : '#F79B72',
+                                            width: 48,
+                                            height: 48
+                                        }}>
+                                            {validateStep(1) ? <CheckCircle /> : <Category />}
+                                        </Avatar>
+                                        <Box>
+                                            <Typography variant="h6" fontWeight="600" color="#2A4759">
+                                                2. Kategorisering
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                Prioritet, alvorlighetsgrad og kategori
+                                            </Typography>
+                                        </Box>
+                                    </Stack>
+                                    {expandedSections.has(1) ?
+                                        <ExpandLess sx={{ color: '#F79B72' }} /> :
+                                        <ExpandMore sx={{ color: '#9E9E9E' }} />
+                                    }
+                                </Stack>
+                            </CardContent>
+
+                            <Collapse in={expandedSections.has(1)}>
+                                <CardContent sx={{ pt: 0, pb: 3 }}>
+
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12} md={4}>
+                                        <TextField
+                                            select
+                                            label="Prioritet *"
+                                            value={values.setPrioritet}
+                                            onChange={handleChange('setPrioritet')}
+                                            fullWidth
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: '#F79B72',
+                                                    },
+                                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: '#F79B72',
+                                                    },
+                                                },
+                                                '& .MuiInputLabel-root.Mui-focused': {
+                                                    color: '#F79B72',
+                                                },
+                                            }}
+                                        >
+                                            {prioritet.map((option) => (
+                                                <MenuItem key={option.value} value={option.value}>
+                                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                                        <span>{option.icon}</span>
+                                                        <Typography>{option.label}</Typography>
+                                                        <Chip
+                                                            size="small"
+                                                            sx={{
+                                                                bgcolor: option.color,
+                                                                color: 'white',
+                                                                minWidth: 8,
+                                                                height: 8,
+                                                                '& .MuiChip-label': { px: 0 }
+                                                            }}
+                                                        />
+                                                    </Stack>
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item xs={12} md={4}>
+                                        <TextField
+                                            select
+                                            label="Alvorlighetsgrad"
+                                            value={values.setAlvorlighetsgrad}
+                                            onChange={handleChange('setAlvorlighetsgrad')}
+                                            fullWidth
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: '#F79B72',
+                                                    },
+                                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: '#F79B72',
+                                                    },
+                                                },
+                                                '& .MuiInputLabel-root.Mui-focused': {
+                                                    color: '#F79B72',
+                                                },
+                                            }}
+                                        >
+                                            {alvorlighetsGrad.map((option) => (
+                                                <MenuItem key={option.value} value={option.value}>
+                                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                                        <span>{option.icon}</span>
+                                                        <Typography>{option.label}</Typography>
+                                                        <Chip
+                                                            size="small"
+                                                            sx={{
+                                                                bgcolor: option.color,
+                                                                color: 'white',
+                                                                minWidth: 8,
+                                                                height: 8,
+                                                                '& .MuiChip-label': { px: 0 }
+                                                            }}
+                                                        />
+                                                    </Stack>
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item xs={12} md={4}>
+                                        <TextField
+                                            select
+                                            label="Kategori"
+                                            value={values.setKategori}
+                                            onChange={handleChange('setKategori')}
+                                            fullWidth
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: '#F79B72',
+                                                    },
+                                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: '#F79B72',
+                                                    },
+                                                },
+                                                '& .MuiInputLabel-root.Mui-focused': {
+                                                    color: '#F79B72',
+                                                },
+                                            }}
+                                        >
+                                            {Kategori.map((option) => (
+                                                <MenuItem key={option.value} value={option.value}>
+                                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                                        <span>{option.icon}</span>
+                                                        <Typography>{option.label}</Typography>
+                                                        <Chip
+                                                            size="small"
+                                                            sx={{
+                                                                bgcolor: option.color,
+                                                                color: 'white',
+                                                                minWidth: 8,
+                                                                height: 8,
+                                                                '& .MuiChip-label': { px: 0 }
+                                                            }}
+                                                        />
+                                                    </Stack>
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            select
+                                            label="Reproduserbarhet"
+                                            value={values.setReprodusere}
+                                            onChange={handleChange('setReprodusere')}
+                                            fullWidth
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: '#F79B72',
+                                                    },
+                                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: '#F79B72',
+                                                    },
+                                                },
+                                                '& .MuiInputLabel-root.Mui-focused': {
+                                                    color: '#F79B72',
+                                                },
+                                            }}
+                                        >
+                                            {reprodusere.map((option) => (
+                                                <MenuItem key={option.value} value={option.value}>
+                                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                                        <span>{option.icon}</span>
+                                                        <Typography>{option.label}</Typography>
+                                                        <Chip
+                                                            size="small"
+                                                            sx={{
+                                                                bgcolor: option.color,
+                                                                color: 'white',
+                                                                minWidth: 8,
+                                                                height: 8,
+                                                                '& .MuiChip-label': { px: 0 }
+                                                            }}
+                                                        />
+                                                    </Stack>
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    </Grid>
+                                </Grid>
+                                </CardContent>
+                            </Collapse>
+                        </Card>
+
+                        {/* Step 3: Description */}
+                        <Card elevation={0} sx={{
+                            mb: 2,
+                            borderRadius: 3,
+                            border: '1px solid rgba(221, 221, 221, 0.3)',
+                            bgcolor: 'white'
+                        }}>
+                            <CardContent
+                                sx={{
+                                    p: 3,
+                                    cursor: 'pointer',
+                                    '&:hover': { bgcolor: 'rgba(247, 155, 114, 0.02)' }
                                 }}
-                                SelectProps={{
-                                    MenuProps: {
-                                        className: classes.menu,
-                                    },
-                                }}
-                                margin="normal"
-                                variant="outlined"
+                                onClick={() => handleStepClick(2)}
                             >
-                                {alvorlighetsGrad.map((option) => (
-                                    <MenuItem key={option.value} value={option.label}>
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                            {errors.severity ? (
-                                <Box
-                                    className={classes.BoxErrorField}
-                                    fontFamily="Monospace"
-                                    color="error.main"
-                                    p={1}
-                                    m={1}
-                                >
-                                    {errors.severity} ⚠️
-                                </Box>
-                            ) : (
-                                ''
-                            )}
-                        </Grid>
-                        <Grid item xs={6}>
-                            <TextField
-                                id="outlined-select-prioritet"
-                                select
-                                name="prioritet"
-                                label="Prioritet *"
-                                className={classes.textField}
-                                value={values.setPrioritet || 'Ingen valgt'}
-                                onChange={handleChange('setPrioritet')}
-                                InputProps={{
-                                    className: classes.input,
-                                }}
-                                SelectProps={{
-                                    MenuProps: {
-                                        className: classes.menu,
-                                    },
-                                }}
-                                margin="normal"
-                                variant="outlined"
-                            >
-                                {prioritet.map((option) => (
-                                    <MenuItem key={option.value} value={option.label}>
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                            {errors.priority ? (
-                                <Box
-                                    className={classes.BoxErrorField}
-                                    fontFamily="Monospace"
-                                    color="error.main"
-                                    p={1}
-                                    m={1}
-                                >
-                                    {errors.priority} ⚠️
-                                </Box>
-                            ) : (
-                                ''
-                            )}
-                        </Grid>
-                        <Grid item xs={6}>
-                            <TextField
-                                id="outlined-select-prioritet"
-                                select
-                                name="reprodusere"
-                                label="Reprodusere *"
-                                className={classes.textField}
-                                value={values.setReprodusere || 'Ingen valgt'}
-                                onChange={handleChange('setReprodusere')}
-                                InputProps={{
-                                    className: classes.input,
-                                }}
-                                SelectProps={{
-                                    MenuProps: {
-                                        className: classes.menu,
-                                    },
-                                }}
-                                margin="normal"
-                                variant="outlined"
-                            >
-                                {reprodusere.map((option) => (
-                                    <MenuItem
-                                        key={option.value}
-                                        value={option.label}
-                                        selected
-                                        style={{
-                                            backgroundColor: option.color,
-                                            color: 'white',
-                                        }}
-                                    >
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                            {errors.reproduce ? (
-                                <Box
-                                    className={classes.BoxErrorField}
-                                    fontFamily="Monospace"
-                                    color="error.main"
-                                    p={1}
-                                    m={1}
-                                >
-                                    {errors.reproduce} ⚠️
-                                </Box>
-                            ) : (
-                                ''
-                            )}
-                        </Grid>
-                        <Grid item xs={6} sx={{ mt: 2 }}>
-                            <Autocomplete
-                                name="prosjekt"
-                                className={classes.textField}
-                                options={projects}
-                                getOptionLabel={(option) => option.name || ''}
-                                value={selectedProject}
-                                onChange={(event, newValue) => {
-                                    setSelectedProject(newValue)
-                                }}
-                                renderInput={(params) => (
-                                    <TextField
-                                        className={classes.input}
-                                        {...params}
-                                        label="Select Project"
-                                        variant="outlined"
-                                        required
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                id="outlined-oppsummering"
-                                label="Oppsummering *"
-                                name="oppsummering"
-                                value={[values.setOppsummering]}
-                                onChange={handleChange('setOppsummering')}
-                                className={classes.textField}
-                                InputProps={{
-                                    className: classes.input,
-                                }}
-                                margin="normal"
-                                variant="outlined"
-                            />
-                            {errors.summary ? (
-                                <Box
-                                    className={classes.BoxErrorField}
-                                    fontFamily="Monospace"
-                                    color="error.main"
-                                    p={1}
-                                    m={1}
-                                >
-                                    {errors.summary} ⚠️
-                                </Box>
-                            ) : (
-                                ''
-                            )}
-                        </Grid>
-                        <Grid item xs={12} style={{ paddingLeft: '2rem' }}>
-                            <StyledEngineProvider injectFirst>
-                                <ThemeProvider theme={theme}>
-                                    <Typography variant="body1">Beskrivelse *</Typography>
-                                </ThemeProvider>
-                            </StyledEngineProvider>
-                            <Editor
-                                placeholder="Skriv inn tekst her..."
-                                editorState={editorStateDesc}
-                                editorStyle={{
-                                    backgroundColor: 'white',
-                                    border: '1px solid lightgray',
-                                    borderTop: '0px solid lightgray',
-                                    minHeight: '100%',
-                                    height: '350px',
-                                    padding: '1em',
-                                    borderRadius: '0 0 0.5rem 0.5rem',
-                                }}
-                                toolbarStyle={{
-                                    borderRadius: '0.5rem 0.5rem 0 0',
-                                    marginBottom: '1px',
-                                }}
-                                wrapperClassName="wrapper"
-                                toolbarClassName="toolbar"
-                                editorClassName="editor"
-                                handlePastedFiles={handlePastedFiles}
-                                onEditorStateChange={onEditorStateChangeDesc}
-                                toolbar={{
-                                    link: { inDropdown: true },
-                                    list: { inDropdown: true },
-                                    options: [
-                                        'fontFamily',
-                                        'fontSize',
-                                        'inline',
-                                        'image',
-                                        'blockType',
-                                        'list',
-                                        'image',
-                                        'textAlign',
-                                        'colorPicker',
-                                        'link',
-                                        'embedded',
-                                        'emoji',
-                                        'remove',
-                                        'history',
-                                    ],
-                                    inline: {
-                                        options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace'],
-                                    },
-                                }}
-                                hashtag={{
-                                    separator: ' ',
-                                    trigger: '#',
-                                }}
-                            />
-                            {errors.description ? (
-                                <Box
-                                    className={classes.BoxErrorField}
-                                    fontFamily="Monospace"
-                                    color="error.main"
-                                    p={1}
-                                    m={1}
-                                >
-                                    {errors.description} ⚠️
-                                </Box>
-                            ) : (
-                                ''
-                            )}
-                        </Grid>
-                        <Grid item xs={12} style={{ paddingLeft: '2rem' }}>
-                            <StyledEngineProvider injectFirst>
-                                <ThemeProvider theme={theme}>
-                                    <Typography variant="body1">Steg for å reprodusere</Typography>
-                                </ThemeProvider>
-                            </StyledEngineProvider>
-                            <Editor
-                                placeholder="Skriv inn tekst her..."
-                                editorState={editorStateRep}
-                                editorStyle={{
-                                    backgroundColor: 'white',
-                                    border: '1px solid lightgray',
-                                    borderTop: '0px solid lightgray',
-                                    minHeight: '100%',
-                                    height: '350px',
-                                    padding: '1em',
-                                    borderRadius: '0 0 0.5rem 0.5rem',
-                                }}
-                                onEditorStateChange={onEditorStateChangeRep}
-                                handlePastedText={() => false}
-                                toolbarStyle={{
-                                    borderRadius: '0.5rem 0.5rem 0 0',
-                                    marginBottom: '1px',
-                                }}
-                                wrapperClassName="wrapper"
-                                toolbarClassName="toolbar"
-                                editorClassName="editor"
-                                toolbar={{
-                                    link: { inDropdown: true },
-                                    list: { inDropdown: true },
-                                    options: [
-                                        'fontFamily',
-                                        'fontSize',
-                                        'image',
-                                        'inline',
-                                        'blockType',
-                                        'list',
-                                        'image',
-                                        'textAlign',
-                                        'colorPicker',
-                                        'link',
-                                        'embedded',
-                                        'emoji',
-                                        'remove',
-                                        'history',
-                                    ],
-                                    image: {
-                                        urlEnabled: true,
-                                        uploadEnabled: true,
-                                        alignmentEnabled: true,
-                                        uploadCallback: undefined,
-                                        previewImage: true,
-                                        inputAccept: 'image/gif,image/jpeg,image/jpg,image/png,image/svg',
-                                        alt: { present: false, mandatory: false },
-                                        defaultSize: {
-                                            height: '50%',
-                                            width: '50%',
+                                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                                    <Stack direction="row" alignItems="center" spacing={2}>
+                                        <Avatar sx={{
+                                            bgcolor: validateStep(2) ? '#4CAF50' : '#F79B72',
+                                            width: 48,
+                                            height: 48
+                                        }}>
+                                            {validateStep(2) ? <CheckCircle /> : <Description />}
+                                        </Avatar>
+                                        <Box>
+                                            <Typography variant="h6" fontWeight="600" color="#2A4759">
+                                                3. Detaljert Beskrivelse
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                Beskriv problemet i detalj
+                                            </Typography>
+                                        </Box>
+                                    </Stack>
+                                    {expandedSections.has(2) ?
+                                        <ExpandLess sx={{ color: '#F79B72' }} /> :
+                                        <ExpandMore sx={{ color: '#9E9E9E' }} />
+                                    }
+                                </Stack>
+                            </CardContent>
+
+                            <Collapse in={expandedSections.has(2)}>
+                                <CardContent sx={{ pt: 0, pb: 3 }}>
+                                    <Box sx={{
+                                        border: '1px solid #e0e0e0',
+                                        borderRadius: 2,
+                                        overflow: 'hidden',
+                                        backgroundColor: 'white',
+                                        '&:hover': {
+                                            borderColor: '#F79B72',
                                         },
-                                    },
-                                    inline: {
-                                        options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace'],
-                                    },
-                                }}
-                                hashtag={{
-                                    separator: ' ',
-                                    trigger: '#',
-                                }}
-                            />
-                            {errors.step_reproduce ? (
-                                <Box
-                                    className={classes.BoxErrorField}
-                                    fontFamily="Monospace"
-                                    color="error.main"
-                                    p={1}
-                                    m={1}
-                                >
-                                    {errors.step_reproduce} ⚠️
+                                        '&:focus-within': {
+                                            borderColor: '#F79B72',
+                                        },
+                                        '& .rdw-editor-wrapper': {
+                                            border: 'none',
+                                        },
+                                        '& .rdw-editor-toolbar': {
+                                            borderBottom: '1px solid #e0e0e0',
+                                            marginBottom: 0,
+                                            padding: 1,
+                                        },
+                                        '& .rdw-editor-main': {
+                                            minHeight: 200,
+                                            padding: 2,
+                                            '& .public-DraftEditor-content': {
+                                                minHeight: 150,
+                                            },
+                                        },
+                                    }}>
+                                    <Editor
+                                        editorState={editorStateDesc}
+                                        onEditorStateChange={onEditorStateChangeDesc}
+                                        placeholder="Beskriv problemet i detalj..."
+                                        stripPastedStyles={false}
+                                        toolbar={{
+                                            options: [
+                                                'inline',
+                                                'blockType',
+                                                'fontSize',
+                                                'list',
+                                                'textAlign',
+                                                'colorPicker',
+                                                'link',
+                                                'history'
+                                            ],
+                                            inline: {
+                                                inDropdown: false,
+                                                options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace']
+                                            },
+                                            blockType: {
+                                                inDropdown: true,
+                                                options: ['Normal', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'Blockquote', 'Code']
+                                            },
+                                            link: {
+                                                inDropdown: false,
+                                                showOpenOptionOnHover: true,
+                                                defaultTargetOption: '_self',
+                                                options: ['link', 'unlink']
+                                            },
+                                            history: {
+                                                inDropdown: false,
+                                                options: ['undo', 'redo']
+                                            }
+                                        }}
+                                    />
                                 </Box>
-                            ) : (
-                                ''
-                            )}
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Previews imageBool={false} />
-                        </Grid>
-                        <Grid item xs={12}>
+                                {errors.description && (
+                                    <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+                                        {errors.description} ⚠️
+                                    </Typography>
+                                )}
+                                </CardContent>
+                            </Collapse>
+                        </Card>
+
+                        {/* Step 4: Reproduction Steps */}
+                        <Card elevation={0} sx={{
+                            mb: 2,
+                            borderRadius: 3,
+                            border: '1px solid rgba(221, 221, 221, 0.3)',
+                            bgcolor: 'white'
+                        }}>
+                            <CardContent
+                                sx={{
+                                    p: 3,
+                                    cursor: 'pointer',
+                                    '&:hover': { bgcolor: 'rgba(247, 155, 114, 0.02)' }
+                                }}
+                                onClick={() => handleStepClick(3)}
+                            >
+                                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                                    <Stack direction="row" alignItems="center" spacing={2}>
+                                        <Avatar sx={{ bgcolor: '#2A4759', width: 48, height: 48 }}>
+                                            <ListAlt />
+                                        </Avatar>
+                                        <Box>
+                                            <Typography variant="h6" fontWeight="600" color="#2A4759">
+                                                4. Reproduksjonssteg
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                Hvordan reprodusere problemet (valgfritt)
+                                            </Typography>
+                                        </Box>
+                                    </Stack>
+                                    {expandedSections.has(3) ?
+                                        <ExpandLess sx={{ color: '#F79B72' }} /> :
+                                        <ExpandMore sx={{ color: '#9E9E9E' }} />
+                                    }
+                                </Stack>
+                            </CardContent>
+
+                            <Collapse in={expandedSections.has(3)}>
+                                <CardContent sx={{ pt: 0, pb: 3 }}>
+                                    <Box sx={{
+                                        border: '1px solid #e0e0e0',
+                                        borderRadius: 2,
+                                        overflow: 'hidden',
+                                        backgroundColor: 'white',
+                                        '&:hover': {
+                                            borderColor: '#F79B72',
+                                        },
+                                        '&:focus-within': {
+                                            borderColor: '#F79B72',
+                                        },
+                                        '& .rdw-editor-wrapper': {
+                                            border: 'none',
+                                        },
+                                        '& .rdw-editor-toolbar': {
+                                            borderBottom: '1px solid #e0e0e0',
+                                            marginBottom: 0,
+                                            padding: 1,
+                                        },
+                                        '& .rdw-editor-main': {
+                                            minHeight: 200,
+                                            padding: 2,
+                                            '& .public-DraftEditor-content': {
+                                                minHeight: 150,
+                                            },
+                                        },
+                                    }}>
+                                    <Editor
+                                        editorState={editorStateRep}
+                                        onEditorStateChange={onEditorStateChangeRep}
+                                        placeholder="Beskriv stegene for å reprodusere problemet..."
+                                        stripPastedStyles={false}
+                                        toolbar={{
+                                            options: [
+                                                'inline',
+                                                'blockType',
+                                                'fontSize',
+                                                'list',
+                                                'textAlign',
+                                                'colorPicker',
+                                                'link',
+                                                'history'
+                                            ],
+                                            inline: {
+                                                inDropdown: false,
+                                                options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace']
+                                            },
+                                            blockType: {
+                                                inDropdown: true,
+                                                options: ['Normal', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'Blockquote', 'Code']
+                                            },
+                                            link: {
+                                                inDropdown: false,
+                                                showOpenOptionOnHover: true,
+                                                defaultTargetOption: '_self',
+                                                options: ['link', 'unlink']
+                                            },
+                                            history: {
+                                                inDropdown: false,
+                                                options: ['undo', 'redo']
+                                            }
+                                        }}
+                                    />
+                                </Box>
+                                {errors.step_reproduce && (
+                                    <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+                                        {errors.step_reproduce} ⚠️
+                                    </Typography>
+                                )}
+                                </CardContent>
+                            </Collapse>
+                        </Card>
+
+                        {/* Step 5: Attachments */}
+                        <Card elevation={0} sx={{
+                            mb: 4,
+                            borderRadius: 3,
+                            border: '1px solid rgba(221, 221, 221, 0.3)',
+                            bgcolor: 'white'
+                        }}>
+                            <CardContent
+                                sx={{
+                                    p: 3,
+                                    cursor: 'pointer',
+                                    '&:hover': { bgcolor: 'rgba(247, 155, 114, 0.02)' }
+                                }}
+                                onClick={() => handleStepClick(4)}
+                            >
+                                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                                    <Stack direction="row" alignItems="center" spacing={2}>
+                                        <Avatar sx={{ bgcolor: '#2A4759', width: 48, height: 48 }}>
+                                            <AttachFile />
+                                        </Avatar>
+                                        <Box>
+                                            <Typography variant="h6" fontWeight="600" color="#2A4759">
+                                                5. Vedlegg
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                Last opp skjermbilder eller andre filer (valgfritt)
+                                            </Typography>
+                                        </Box>
+                                    </Stack>
+                                    {expandedSections.has(4) ?
+                                        <ExpandLess sx={{ color: '#F79B72' }} /> :
+                                        <ExpandMore sx={{ color: '#9E9E9E' }} />
+                                    }
+                                </Stack>
+                            </CardContent>
+
+                            <Collapse in={expandedSections.has(4)}>
+                                <CardContent sx={{ pt: 0, pb: 3 }}>
+                                    <Previews imageBool={false} func_image={handleUploadedFiles} />
+                                </CardContent>
+                            </Collapse>
+                        </Card>
+
+                        {/* Submit Button */}
+                        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
                             <Button
-                                //disabled={images.imgUploadState}
                                 type="submit"
-                                value="Submit"
                                 variant="contained"
-                                color="primary"
-                                className={classes.button}
-                                onClick={(e) => createIssue(e)}
-                                style={{
-                                    margin: '0 auto',
-                                    display: 'flex',
-                                    padding: '1rem',
-                                    borderRadius: '1em',
+                                size="large"
+                                disabled={submitting || !validateStep(0) || !validateStep(1) || !validateStep(2)}
+                                startIcon={submitting ? <CircularProgress size={20} color="inherit" /> : <Send />}
+                                sx={{
+                                    borderRadius: 3,
+                                    px: 6,
+                                    py: 2,
+                                    fontSize: '1.1rem',
+                                    fontWeight: 600,
+                                    background: 'linear-gradient(135deg, #F79B72 0%, #2A4759 100%)',
+                                    boxShadow: '0 4px 20px rgba(247, 155, 114, 0.4)',
+                                    '&:hover': {
+                                        background: 'linear-gradient(135deg, #e8895f 0%, #1e3440 100%)',
+                                        boxShadow: '0 6px 25px rgba(247, 155, 114, 0.6)',
+                                        transform: 'translateY(-2px)',
+                                    },
+                                    '&:disabled': {
+                                        background: '#9E9E9E',
+                                        boxShadow: 'none',
+                                        transform: 'none',
+                                    },
+                                    transition: 'all 0.3s ease',
                                 }}
                             >
-                                Send inn sak
-                                <Icon className={classes.rightIcon}>send</Icon>
+                                {submitting ? 'Oppretter sak...' : 'Send inn sak'}
                             </Button>
-                        </Grid>
-                        <Snackbar
-                            open={open}
-                            autohideduration={3000}
-                            onClose={handleClose}
-                            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                        >
-                            <Alert onClose={handleClose} severity="success" variant="standard">
-                                <AlertTitle>Suksess</AlertTitle>
-                                Sak ble opprettet!
-                            </Alert>
-                        </Snackbar>
-                    </Grid>
-                </form>
-            </Container>
-        </div>
-    )
+                        </Box>
+                    </form>
+
+                    <ToastContainer
+                        position="bottom-right"
+                        autoClose={3000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                    />
+                </Container>
+            </Box>
+        )
 }

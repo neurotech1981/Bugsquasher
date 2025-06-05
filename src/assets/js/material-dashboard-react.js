@@ -64,24 +64,24 @@ const defaultFont = {
     lineHeight: '1.5em',
 }
 
-const primaryColor = ['#452650', '#3B2044', '#8e24aa', '#af2cc5']
-const warningColor = ['#ff9800', '#ffa726', '#fb8c00', '#ffa21a']
-const dangerColor = ['#f44336', '#ef5350', '#e53935', '#f55a4e']
-const successColor = ['#4caf50', '#66bb6a', '#43a047', '#5cb860']
-const infoColor = ['#00acc1', '#26c6da', '#00acc1', '#00d3ee']
-const roseColor = ['#e91e63', '#ec407a', '#d81b60', '#eb3573']
+const primaryColor = ['#F79B72', '#e8895f', '#d9774c', '#ca6539'] // Orange shades
+const warningColor = ['#F79B72', '#e8895f', '#d9774c', '#ca6539'] // Orange shades for warnings
+const dangerColor = ['#2A4759', '#1e3440', '#152127', '#0c0f0e'] // Navy shades for danger
+const successColor = ['#F79B72', '#e8895f', '#d9774c', '#ca6539'] // Orange shades for success
+const infoColor = ['#2A4759', '#1e3440', '#152127', '#0c0f0e'] // Navy shades for info
+const roseColor = ['#F79B72', '#e8895f', '#d9774c', '#ca6539'] // Orange shades for rose
 const grayColor = [
-    '#999',
-    '#777',
-    '#3C4858',
+    '#DDDDDD', // Light gray from palette
+    '#EEEEEE', // Very light gray from palette
+    '#2A4759', // Navy for dark text
     '#AAAAAA',
     '#D2D2D2',
-    '#DDD',
+    '#DDDDDD', // Light gray
     '#b4b4b4',
     '#555555',
     '#333',
     '#a9afbb',
-    '#eee',
+    '#EEEEEE', // Very light gray
     '#e7e7e7',
 ]
 const blackColor = '#000'

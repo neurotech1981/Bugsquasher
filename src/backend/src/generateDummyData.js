@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import { faker } from '@faker-js/faker'
-import User from './models/user.js' // Ensure the path is correct
+import User from './models/User.js'
 import Data from './models/issue.js' // Ensure the path is correct
 
 const MONGO_URI = 'mongodb://bakt:946Dypew!@127.0.0.1:27017/yt-tutorial' // Change to your MongoDB URI

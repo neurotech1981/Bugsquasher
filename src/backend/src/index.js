@@ -4,11 +4,11 @@
 import os from 'os'
 import jwt from 'jsonwebtoken'
 import Data from './models/issue.js'
+import Project from './models/project.js'
 import userRoutes from './routes/user.js'
 import authRoutes from './routes/auth.js'
 import issueRoutes from './routes/issue.js'
 import projectRoutes from './routes/project.js'
-//import validateCommentInput from '../../validation/comment-validation.js'
 import config from '../config/index.js'
 import express from 'express'
 import mongoSanitize from 'express-mongo-sanitize'
@@ -17,7 +17,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import mongoose from 'mongoose'
-import User from './models/user.js'
+import User from './models/User.js'
 import Comments from './models/comment.js'
 import path from 'path'
 import logger from 'morgan'
@@ -33,6 +33,12 @@ import crypto from 'crypto'
 import { Server } from 'socket.io'
 import { createServer } from 'http'
 import AccountController from './accounts/account.controller.js'
+import accountService from './controllers/user'
+import { configureServer } from './config/server'
+import { configureSocketServer } from './config/socket'
+import { connectDatabase } from './config/database'
+import { errorHandler } from './middleware/errorHandler'
+import routes from './routes/index'
 
 const totalCPUs = os.cpus().length
 const uniqueID = crypto.randomBytes(16).toString('hex')
@@ -81,24 +87,31 @@ if (cluster.isPrimary) {
         console.log(`⚡: ${socket.id} user just connected!`)
 
         socket.on('msg', function (msg) {
-            console.log('entered!') // <--- It will print now !
+            console.log('entered!')
             console.log('message: ' + msg)
         })
 
         socket.on('user_connect', async (userId) => {
-            const user = await User.findById(userId)
-            if (user) {
-                user.socketId = socket.id
-                await user.save()
+            try {
+                const user = await User.findById(userId)
+                if (user) {
+                    user.socketId = socket.id
+                    await user.save()
+                }
+            } catch (err) {
+                console.error('Error finding or saving user:', err)
             }
         })
 
-        socket.on('new_issue', (issue, userId) => {
-            User.findById(userId).then((user) => {
+        socket.on('new_issue', async (issue, userId) => {
+            try {
+                const user = await User.findById(userId)
                 if (user && user.socketId) {
                     io.to(user.socketId).emit('new_issue', issue, userId)
                 }
-            })
+            } catch (err) {
+                console.error('Error finding user for new_issue:', err)
+            }
         })
 
         socket.on('disconnect', () => {
@@ -190,14 +203,25 @@ if (cluster.isPrimary) {
 
     mongoose.set('strictQuery', true) // or false, depending on your needs
 
-    try {
-        await mongoose.connect(URI, {
-            serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
-            socketTimeoutMS: 45000, // Set socket timeout to 45 seconds
-        })
-    } catch (error) {
-        console.log('MongoDB connection error:', error)
+    // Function to connect to MongoDB
+    const connectWithRetry = async () => {
+        await mongoose
+            .connect(URI, {
+                maxPoolSize: 50,
+                serverSelectionTimeoutMS: 60000,
+                socketTimeoutMS: 60000,
+                connectTimeoutMS: 60000,
+            })
+            .catch((err) => {
+                console.log('MongoDB connection error:', err)
+                setTimeout(connectWithRetry, 5000) // Retry after 5 seconds
+            })
     }
+
+    mongoose.set('debug', true)
+
+    // Connect to MongoDB
+    connectWithRetry()
 
     const db = mongoose.connection
 
@@ -205,8 +229,17 @@ if (cluster.isPrimary) {
         console.log('connected to the database')
     })
 
-    db.on('error', console.error.bind(console, 'MongoDB connection error:'))
-    mongoose.Promise = global.Promise
+    mongoose.connection.on('error', (err) => {
+        console.error('Mongoose connection error:', err)
+    })
+
+    mongoose.connection.on('connected', () => {
+        console.log('Mongoose connected to db')
+    })
+
+    mongoose.connection.on('disconnected', () => {
+        console.log('Mongoose disconnected')
+    })
 
     const ProtectedRoutes = express.Router()
 
@@ -227,6 +260,79 @@ if (cluster.isPrimary) {
     let __dirname = path.resolve()
     app.use(express.static(path.join(__dirname, '../build')))
 
+    // Mount routes in specific order
+    console.log('Mounting routes...')
+
+    // Add request logging middleware for all requests
+    app.use((req, res, next) => {
+        console.log('\n=== Incoming Request ===')
+        console.log(`Time: ${new Date().toISOString()}`)
+        console.log(`Method: ${req.method}`)
+        console.log(`URL: ${req.url}`)
+        console.log('Headers:', JSON.stringify(req.headers, null, 2))
+        console.log('Cookies:', JSON.stringify(req.cookies, null, 2))
+        console.log('Body:', JSON.stringify(req.body, null, 2))
+        console.log('=====================\n')
+        next()
+    })
+
+    console.log('Mounting auth routes...')
+    app.use('/api', authRoutes)  // Auth routes first (login, register, etc.)
+
+    // Add authentication middleware to ProtectedRoutes
+    ProtectedRoutes.use((req, res, next) => {
+        console.log('\n=== Protected Route Access ===')
+        console.log(`Time: ${new Date().toISOString()}`)
+        console.log(`Method: ${req.method}`)
+        console.log(`URL: ${req.url}`)
+        console.log('Headers:', JSON.stringify(req.headers, null, 2))
+        console.log('Cookies:', JSON.stringify(req.cookies, null, 2))
+
+        const token = req.headers.authorization
+        if (!token) {
+            console.log('No token provided')
+            return res.status(401).json({ error: 'No token provided' })
+        }
+
+        try {
+            // Remove 'Bearer ' prefix if present
+            const tokenWithoutBearer = token.startsWith('Bearer ') ? token.slice(7) : token
+            console.log('Token without Bearer:', tokenWithoutBearer)
+
+            const decoded = jwt.verify(tokenWithoutBearer, config.jwtSecret)
+            req.user = decoded
+            console.log('Token verified, user:', decoded)
+            next()
+        } catch (err) {
+            console.error('Token verification failed:', err)
+            console.error('Error details:', {
+                name: err.name,
+                message: err.message,
+                stack: err.stack
+            })
+            return res.status(401).json({
+                error: 'Invalid token',
+                details: err.message
+            })
+        }
+    })
+
+    // Mount all protected routes under ProtectedRoutes
+    console.log('Mounting protected routes...')
+    app.use('/api', ProtectedRoutes)
+
+    // Mount user routes under ProtectedRoutes
+    console.log('Mounting user routes...')
+    ProtectedRoutes.use('/users', userRoutes)
+
+    // Mount other protected routes
+    console.log('Mounting account routes...')
+    ProtectedRoutes.use('/accounts', AccountController)
+    console.log('Mounting issue routes...')
+    ProtectedRoutes.use('/issues', issueRoutes)
+    console.log('Mounting project routes...')
+    ProtectedRoutes.use('/projects', projectRoutes)
+
     app.get('/', function (req, res, next) {
         res.sendFile(path.resolve('../build/index.html'))
     })
@@ -238,643 +344,26 @@ if (cluster.isPrimary) {
     app.use(express.static(__dirname + '/public/'))
     app.use(morgan('combined'))
 
-    app.use('/', authRoutes)
-    app.use('/accounts', AccountController)
-    app.use('/', userRoutes)
-    app.use('/', issueRoutes)
-    app.use('/', projectRoutes)
+    // Add route debugging middleware
+    app.use((req, res, next) => {
+        console.log('\n=== Route Debug ===')
+        console.log(`Time: ${new Date().toISOString()}`)
+        console.log(`Method: ${req.method}`)
+        console.log(`URL: ${req.url}`)
+        console.log('Registered Routes:')
+        console.log('- Auth Routes:', authRoutes.stack.map(r => r.route?.path).filter(Boolean))
+        console.log('- User Routes:', userRoutes.stack.map(r => r.route?.path).filter(Boolean))
+        console.log('- Protected Routes:', ProtectedRoutes.stack.map(r => r.route?.path).filter(Boolean))
+        console.log('=====================\n')
+        next()
+    })
 
+    // Error handling middleware
     app.use((err, req, res, next) => {
         if (err.name === 'UnauthorizedError') {
             res.status(401).json({ error: err.name + ':' + err.message })
         }
     })
-
-    ProtectedRoutes.use((req, res, next) => {
-        var token = req.headers.authorization
-        if (token === undefined) {
-            token = req.body.token
-        }
-        if (token === undefined) {
-            token = req.body.headers.Authorization
-        }
-        if (token) {
-            try {
-                jwt.verify(token, app.get('jwtSecret'), (err, decoded) => {
-                    if (err) {
-                        return res.json({ message: 'invalid token' })
-                    } else {
-                        req.decoded = decoded
-                        next()
-                    }
-                })
-            } catch (err) {
-                console.log('An error occurred: ', err)
-            }
-        } else {
-            res.send({ message: 'No token provided.' })
-        }
-    })
-
-    ProtectedRoutes.route('/uploadimage', multipartMiddleware).post(
-        upload.array('imageData', 12),
-        function (req, res, next) {
-            const file = req.files
-            if (!file) {
-                const error = new Error('En feil oppstod')
-                error.httpStatusCode = 400
-                return next(error)
-            }
-            res.send(file)
-        }
-    )
-
-    ProtectedRoutes.route('/countIssues').get(async function (req, res, next) {
-        Data.countDocuments({}, function (err, result) {
-            if (err) {
-                res.send(err)
-            } else {
-                res.json(result)
-            }
-        })
-    })
-
-    ProtectedRoutes.route('/getLatestCases').get(async function (req, res, next) {
-        Data.find({})
-            .select(['createdAt', 'summary', 'priority', 'severity'])
-            .sort({ createdAt: -1 })
-            .limit(5)
-            .exec(function (err, result) {
-                if (err) {
-                    console.log(err)
-                    res.send(err)
-                } else {
-                    res.json(result)
-                }
-            })
-    })
-
-    ProtectedRoutes.route('/getTodaysIssues').get(async function (req, res, next) {
-        var yesterday = new Date(new Date().getTime() - 24 * 60 * 60 * 1000)
-
-        Data.countDocuments({ createdAt: { $gte: yesterday } }, function (err, result) {
-            if (err) {
-                res.send(err)
-            } else {
-                res.json(result)
-            }
-        })
-    })
-
-    ProtectedRoutes.route('/countSolvedIssues').get(async function (req, res, next) {
-        Data.countDocuments({ status: 'Løst' }, function (err, result) {
-            if (err) {
-                res.send(err)
-            } else {
-                res.json(result)
-            }
-        })
-    })
-
-    ProtectedRoutes.route('/thisWeekIssuesCount').get(async function (req, res, next) {
-        const oneDay = 1000 * 60 * 60 * 24,
-            oneWeek = oneDay * 7
-
-        let d = Date.now()
-        let lastDay = d - (d % oneDay) + oneDay
-        let firstDay = lastDay - oneWeek
-
-        var start = moment().startOf('week').format()
-        var end = moment().endOf('week').format()
-
-        Data.aggregate(
-            [
-                {
-                    $match: {
-                        createdAt: {
-                            $gte: new Date(start),
-                            $lte: new Date(end),
-                        },
-                    },
-                },
-                {
-                    $group: {
-                        _id: {
-                            day: { $dayOfMonth: '$createdAt' },
-                            month: { $month: '$createdAt' },
-                            year: { $year: '$createdAt' },
-                        },
-                        count: { $sum: 1 },
-                    },
-                },
-            ],
-            function (err, result) {
-                if (err) {
-                    res.send(err)
-                } else {
-                    res.json(result)
-                }
-            }
-        )
-    })
-
-    ProtectedRoutes.route('/thisYearIssuesCount').get(async function (req, res) {
-        const oneDay = 1000 * 60 * 60 * 24,
-            oneWeek = oneDay * 7
-
-        let d = Date.now()
-        let lastDay = d - (d % oneDay) + oneDay
-        let firstDay = lastDay - oneWeek
-
-        const FIRST_MONTH = 1
-        const LAST_MONTH = 12
-        const monthsArray = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December',
-        ]
-
-        var start = moment().startOf('year').format()
-        var end = moment().endOf('year').format()
-
-        Data.aggregate(
-            [
-                {
-                    $match: {
-                        createdAt: {
-                            $gte: new Date(start),
-                            $lte: new Date(end),
-                        },
-                    },
-                },
-                {
-                    $group: {
-                        _id: { year_month: { $substrCP: ['$createdAt', 0, 24] } },
-                    },
-                },
-                {
-                    $sort: { '_id.year_month': -1 },
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        count: { $sum: 1 },
-                        month_year: {
-                            $concat: [
-                                {
-                                    $arrayElemAt: [
-                                        monthsArray,
-                                        {
-                                            $subtract: [{ $toInt: { $substrCP: ['$_id.year_month', 5, 2] } }, 1],
-                                        },
-                                    ],
-                                },
-                                '-',
-                                { $substrCP: ['$_id.year_month', 0, 4] },
-                            ],
-                        },
-                    },
-                },
-                {
-                    $group: {
-                        _id: null,
-                        data: { $push: { k: '$month_year', v: '$count' } },
-                    },
-                },
-                {
-                    $addFields: {
-                        start_year: { $substrCP: [start, 0, 4] },
-                        end_year: { $substrCP: [end, 0, 4] },
-                        months1: {
-                            $range: [{ $toInt: { $substrCP: [start, 5, 2] } }, { $add: [LAST_MONTH, 1] }],
-                        },
-                        months2: {
-                            $range: [FIRST_MONTH, { $add: [{ $toInt: { $substrCP: [end, 5, 2] } }, 1] }],
-                        },
-                    },
-                },
-                {
-                    $addFields: {
-                        template_data: {
-                            $concatArrays: [
-                                {
-                                    $map: {
-                                        input: '$months1',
-                                        as: 'm1',
-                                        in: {
-                                            count: 0,
-                                            month_year: {
-                                                $concat: [
-                                                    {
-                                                        $arrayElemAt: [monthsArray, { $subtract: ['$$m1', 1] }],
-                                                    },
-                                                    '-',
-                                                    '$start_year',
-                                                ],
-                                            },
-                                        },
-                                    },
-                                },
-                                {
-                                    $map: {
-                                        input: '$months2',
-                                        as: 'm2',
-                                        in: {
-                                            count: 0,
-                                            month_year: {
-                                                $concat: [
-                                                    {
-                                                        $arrayElemAt: [monthsArray, { $subtract: ['$$m2', 1] }],
-                                                    },
-                                                    '-',
-                                                    '$end_year',
-                                                ],
-                                            },
-                                        },
-                                    },
-                                },
-                            ],
-                        },
-                    },
-                },
-                {
-                    $addFields: {
-                        data: {
-                            $map: {
-                                input: '$template_data',
-                                as: 't',
-                                in: {
-                                    k: '$$t.month_year',
-                                    v: {
-                                        $reduce: {
-                                            input: '$data',
-                                            initialValue: 0,
-                                            in: {
-                                                $cond: [
-                                                    { $eq: ['$$t.month_year', '$$this.k'] },
-                                                    { $add: ['$$this.v', '$$value'] },
-                                                    { $add: [0, '$$value'] },
-                                                ],
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-                {
-                    $project: {
-                        data: { $arrayToObject: '$data' },
-                        _id: 0,
-                    },
-                },
-            ],
-            function (err, result) {
-                if (err) {
-                    res.send(err)
-                } else {
-                    res.json(result)
-                }
-            }
-        )
-    })
-
-    ProtectedRoutes.route('/weekdayIssueCount').get(async function (req, res) {
-        const daysArray = ['Man', 'Tirs', 'Ons', 'Tors', 'Fre', 'Lør', 'Søn']
-
-        const startOfWeek = moment().startOf('isoWeek').toDate()
-        const endOfWeek = moment().endOf('isoWeek').toDate()
-
-        const initialDays = daysArray.reduce((acc, day) => {
-            acc[day] = 0
-            return acc
-        }, {})
-
-        try {
-            const result = await Data.aggregate([
-                {
-                    $match: {
-                        createdAt: {
-                            $gte: startOfWeek,
-                            $lte: endOfWeek,
-                        },
-                    },
-                },
-                {
-                    $project: {
-                        weekDay: {
-                            $isoDayOfWeek: '$createdAt',
-                        },
-                    },
-                },
-                {
-                    $group: {
-                        _id: '$weekDay',
-                        count: {
-                            $sum: 1,
-                        },
-                    },
-                },
-                {
-                    $sort: { _id: 1 },
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        weekDayIndex: '$_id',
-                        count: '$count',
-                    },
-                },
-                {
-                    $addFields: {
-                        weekDay: {
-                            $arrayElemAt: [daysArray, { $subtract: ['$weekDayIndex', 1] }],
-                        },
-                    },
-                },
-                {
-                    $group: {
-                        _id: null,
-                        data: {
-                            $push: {
-                                k: '$weekDay',
-                                v: '$count',
-                            },
-                        },
-                    },
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        data: {
-                            $arrayToObject: '$data',
-                        },
-                    },
-                },
-                {
-                    $addFields: {
-                        data: {
-                            $mergeObjects: [initialDays, '$data'],
-                        },
-                    },
-                },
-            ])
-
-            const responseData = result.length > 0 ? result[0].data : initialDays
-
-            res.json(responseData)
-        } catch (err) {
-            res.status(500).send(err.message)
-        }
-    })
-
-    ProtectedRoutes.route('/dailyIssueCount').get(async function (req, res) {
-        const oneDay = 1000 * 60 * 60 * 24
-        const oneWeek = oneDay * 7
-
-        const timeZone = 'Europe/Oslo'
-
-        const now = moment.tz(timeZone)
-        const endOfToday = now.clone().endOf('day').toDate()
-        const startOfWeek = now.clone().subtract(6, 'days').startOf('day').toDate()
-
-        const hoursArray = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`)
-
-        try {
-            const result = await Data.aggregate([
-                {
-                    $match: {
-                        updatedAt: {
-                            $gte: startOfWeek,
-                            $lte: endOfToday,
-                        },
-                        status: { $eq: 'Løst' },
-                    },
-                },
-                {
-                    $group: {
-                        _id: {
-                            date: { $dateToString: { format: '%Y-%m-%d', date: '$updatedAt', timezone: timeZone } },
-                            hour: { $hour: { date: '$updatedAt', timezone: timeZone } },
-                        },
-                        count: { $sum: 1 },
-                    },
-                },
-                {
-                    $sort: { '_id.date': 1, '_id.hour': 1 },
-                },
-                {
-                    $group: {
-                        _id: '$_id.date',
-                        hourlyData: {
-                            $push: {
-                                k: { $concat: [{ $toString: '$_id.hour' }, ':00'] },
-                                v: '$count',
-                            },
-                        },
-                    },
-                },
-                {
-                    $addFields: {
-                        hourlyData: {
-                            $arrayToObject: '$hourlyData',
-                        },
-                    },
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        date: '$_id',
-                        data: '$hourlyData',
-                    },
-                },
-            ])
-
-            const lastDayData = result.length > 0 ? result[result.length - 1] : null
-
-            if (lastDayData) {
-                const completeHourlyData = hoursArray.reduce((acc, hour) => {
-                    acc[hour] = lastDayData.data[hour] || 0
-                    return acc
-                }, {})
-
-                res.json(completeHourlyData)
-            } else {
-                res.json({})
-            }
-        } catch (err) {
-            res.status(500).send(err.message)
-        }
-    })
-
-    ProtectedRoutes.route('/countOpenIssues').get(async function (req, res) {
-        Data.countDocuments({ status: 'Åpen' }, function (err, result) {
-            if (err) {
-                res.send(err)
-            } else {
-                res.json(result)
-            }
-        })
-    })
-
-    ProtectedRoutes.route('/issue/:issueId/comments/:commentId/replies').post(async function (req, res, next) {
-        const reply = new Comments(req.body)
-
-        reply.author = req.body.user
-        Data.findById(req.params.issueId).then((post) => {
-            Promise.all([reply.save(), Comments.findById(req.params.commentId)])
-                .then(([reply, comment]) => {
-                    comment.comments.unshift(reply._id)
-                    return Promise.all([comment.save()])
-                })
-                .then((response) =>
-                    res.json({
-                        success: true,
-                        data: response,
-                    })
-                )
-                .catch(console.error)
-            return post.save()
-        })
-    })
-
-    ProtectedRoutes.route('/issue/:issueId/comments/:commentId/replies/new').post(async function (req, res) {
-        const reply = new Comments(req)
-        let index = req.body.reply.index
-        reply.author = req.body.reply.userID
-        reply.content = req.body.reply.content
-
-        let comments = []
-
-        Data.findById(req.params.commentId)
-            .lean()
-            .then((issue) => {
-                Promise.all([reply.save(), Comments.findById(req.params.commentId)])
-                    .then(([reply, comment]) => {
-                        comment.comments.splice(index, 0, reply)
-                        comments = comment
-                        return Promise.all([comment.save()])
-                    })
-                    .then((result) => {
-                        Promise.all([
-                            Data.findById(req.params.issueId).populate({
-                                path: 'comments',
-                            }),
-                        ]).then((result) => {
-                            return res.json({
-                                success: true,
-                                response: result,
-                            })
-                        })
-                    })
-                    .catch(console.error)
-            })
-    })
-
-    ProtectedRoutes.route('/get-comments/:id').get(async function (req, res) {
-        const currentUser = req.body.user
-        try {
-            await Data.findById(req.params.id)
-                .populate({
-                    path: 'comments',
-                })
-                .lean()
-                .then((response) => {
-                    res.json({
-                        success: true,
-                        data: { response, currentUser },
-                    })
-                })
-        } catch (e) {
-            res.status(500).send('database error ' + e)
-        }
-    })
-
-    ProtectedRoutes.route('/edituser/:id').post(async function (req, res, next) {
-        const { id } = req.params
-        const { role, update } = req.body
-        const permission = ac.can(role).readAny('editusers')
-        if (permission.granted) {
-            User.findByIdAndUpdate({ _id: id }, update, (err) => {
-                if (err || !update) return res.status(400).json(err)
-                res.json(permission.filter(update))
-            })
-        } else {
-            res.status(403).end()
-        }
-    })
-
-    ProtectedRoutes.route('/removeUser/:id').post(async function (req, res) {
-        const { id } = req.params
-        User.findByIdAndRemove({ _id: id }, (err) => {
-            if (err) return res.status(400).json(err)
-            return res.json({ success: true })
-        })
-    })
-
-    ProtectedRoutes.route('/delete-comment/:id').post(async function (req, res) {
-        const { id } = req.params
-        const { commentId } = req.body
-        Data.findByIdAndUpdate({ _id: id }, { $pullAll: { comments: [commentId] } }, { new: true }, (err, result) => {
-            if (err) return res.send(err)
-            return res.json({ success: true, response: result })
-        }).populate({ path: 'comments' })
-    })
-
-    ProtectedRoutes.route('/delete-reply/:id').post(async function (req, res) {
-        const { id } = req.params
-        const { parentId, childId } = req.body
-        await Comments.findByIdAndUpdate({ _id: parentId }, { $pullAll: { comments: [childId] } }, { new: true })
-            .clone()
-            .then((result) => {
-                Promise.all([Data.findById(id).populate({ path: 'comments' })]).then((result) => {
-                    return res.json({ success: true, response: result })
-                })
-            })
-            .catch(console.error)
-    })
-
-    ProtectedRoutes.route('/update-comment/:id').post(async function (req, res) {
-        const { id } = req.params
-        const { commentId, newContent } = req.body.comment
-        await Comments.findByIdAndUpdate({ _id: commentId }, newContent[0])
-            .clone()
-            .then((result) => {
-                Promise.all([Data.findById(id).populate({ path: 'comments' })]).then((result) => {
-                    return res.json({ success: true, response: result })
-                })
-            })
-            .catch(console.error)
-    })
-
-    ProtectedRoutes.post('/issue/comments/:id', async function (req, res) {
-        const comment = new Comments(req.body)
-        comment
-            .save()
-            .then(() => Promise.all([Data.findById(req.params.id)]))
-            .then(([issue]) => {
-                issue.comments.unshift(comment)
-                return Promise.all([issue.save()])
-            })
-            .then((response) => {
-                res.json({ success: true, data: response })
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-    })
-
-    app.use('/api', ProtectedRoutes)
 
     app.listen(API_PORT, () => {
         console.log(

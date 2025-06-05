@@ -139,7 +139,7 @@ export default function Issues(props) {
 
     useEffect(() => {
         getIssues()
-    }, [!dataset])
+    }, [dataset])
 
     const getIssues = async () => {
         const jwt = auth.isAuthenticated()

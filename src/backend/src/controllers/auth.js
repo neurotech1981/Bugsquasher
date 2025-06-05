@@ -1,40 +1,32 @@
-import User from '../models/user.js'
+import User from '../models/User.js'
 import jwt from 'jsonwebtoken'
 import expressJwt from 'express-jwt'
 import config from '../../config/index.js'
 
-export const signin = (req, res) => {
-    const { email } = req.body
-    User.findOne({ email: email }, (err, user) => {
-        if (err || !user) {
-            return res.status(401).json({
-                error: 'Bruker ikke funnet ' + err,
-            })
-        }
+export const signin = async (req, res) => {
+    try {
+        console.log('Inside Signin', req.body.email)
+        const user = await User.findOne({ email: req.body.email }).select('+hashedPassword +salt')
+        console.log('User:', user)
+
+        if (!user) return res.status(401).json({ error: 'Bruker ikke funnet' })
+
         if (!user.authenticate(req.body.password)) {
-            return res.status(401).json({
-                error: 'Feil E-post eller Passord!',
-            })
+            return res.status(401).json({ error: 'Feil E-post eller Passord!' })
         }
 
-        const token = jwt.sign(
-            {
-                _id: user._id,
-            },
-            config.jwtSecret
-        )
-
+        const token = jwt.sign({ _id: user._id }, config.jwtSecret)
         res.cookie('t', token, {
             expire: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
             SameSite: 'None',
             secure: false,
         })
 
-        return res.json({
-            token,
-            user: { _id: user._id, name: user.name, email: user.email },
-        })
-    }).select('+hashedPassword +salt')
+        return res.json({ token, user: { _id: user._id, name: user.name, email: user.email } })
+    } catch (err) {
+        console.error('Error:', err)
+        return res.status(500).json({ error: 'Internal Server Error' })
+    }
 }
 
 export const signout = (_req, res) => {

@@ -13,16 +13,7 @@
 }
 
 body {
-    background-color: #fbfbfb !important;
-    background: url(./img/pattern6.webp) no-repeat center center fixed;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-    background-blend-mode: soft-light;
-    background-repeat: no-repeat;
-    background-clip: padding-box;
-    background-size: cover;
+    background-color: #EEEEEE !important;
     -webkit-font-smoothing: auto;
     -moz-osx-font-smoothing: auto;
 }

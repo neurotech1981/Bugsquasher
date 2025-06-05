@@ -1,242 +1,343 @@
 import validateInput from '../../../validation/input-validation.mjs'
 import Data from '../models/issue.js'
+import Project from '../models/project.js'
+import mongoose from 'mongoose'
 import fs from 'fs'
 import path from 'path'
 
-export const newIssue = (req, res) => {
-    // this is our create method
-    // this method adds new data in our database
-    //  ProtectedRoutes.post('/new-issue', async function (req, res, uuid) {
-    const { errors, isValid } = validateInput(req.body.data)
-    // Check Validation
-    if (!isValid) {
-        // If any errors, send 400 with errors object
-        return res.status(400).json(errors)
-    }
+console.log('=== JAVASCRIPT ISSUE CONTROLLER LOADED ===');
+console.log('Project model loaded:', Project);
+console.log('Available models after import:', mongoose.modelNames());
 
-    const data = new Data()
-    data.name = req.body.data.name
-    data.delegated = req.body.data.delegated
-    data.reporter = req.body.data.reporter_id
-    data.description = req.body.data.description
-    data.category = req.body.data.category
-    data.environment = req.body.data.environment
-    data.step_reproduce = req.body.data.step_reproduce
-    data.summary = req.body.data.summary
-    data.browser = req.body.data.browser
-    data.visual = req.body.data.visual
-    data.reproduce = req.body.data.reproduce
-    data.severity = req.body.data.severity
-    data.priority = req.body.data.priority
-    data.userid = req.body.data.userid
-    data.project = req.body.data.project
-
-    data.save((err) => {
-        if (err) {
-            return res.status(400).json({
-                success: false,
-                error: err,
-            })
+const createIssue = async (req, res) => {
+    try {
+        console.log('=== JAVASCRIPT createIssue CALLED ===');
+        console.log('REQ.BODY:', JSON.stringify(req.body, null, 2))
+        const { errors, isValid } = validateInput(req.body.data)
+        if (!isValid) {
+            return res.status(400).json(errors)
         }
+
+        // Remove any accidental root-level id field
+        const { id, ...cleanedData } = req.body.data
+
+        // Also, clean id fields from imageName array
+        if (Array.isArray(cleanedData.imageName)) {
+            cleanedData.imageName = cleanedData.imageName.map(({ id, ...rest }) => rest)
+        }
+
+        // Ensure reporter is set - use from cleanedData if provided, otherwise fall back
+        const reporter = cleanedData.reporter
+        console.log('Reporter from request:', reporter)
+
+        const data = new Data({
+            ...cleanedData
+        })
+
+        const savedData = await data.save()
         return res.status(200).json({
             success: true,
-            document: data,
+            document: savedData,
         })
-    })
-}
-
-export const getAllIssues = async (req, res) => {
-    const page = parseInt(req.query.page) || 1 // Default to page 1 if not provided
-    const limit = parseInt(req.query.limit) || 10 // Default to 10 items per page if not provided
-
-    const startIndex = (page - 1) * limit
-
-    await Data.find()
-        .skip(startIndex)
-        .limit(limit)
-        .exec((err, data) => {
-            if (err) {
-                return res.json({
-                    success: false,
-                    error: err,
-                })
-            }
-
-            Data.countDocuments().exec((countError, count) => {
-                if (countError) {
-                    return res.json({
-                        success: false,
-                        error: countError,
-                    })
-                }
-                return res.json({
-                    success: true,
-                    data: data,
-                    page: page,
-                    totalPages: Math.ceil(count / limit),
-                    totalItems: count,
-                })
-            })
-        })
-}
-
-export const updateIssueStatus = (req, res, next) => {
-    //  ProtectedRoutes.route('/upDateIssueStatus/:id/:status').get(async function (req, res, next) {
-    Data.findByIdAndUpdate({ _id: req.params.id }, { status: req.params.status }, function (err, data) {
-        if (err) return next(err)
-        return res.json({
-            success: true,
-            data: data,
-        })
-    })
-    //  })
-}
-
-export const updateDelegated = (req, res, next) => {
-    //ProtectedRoutes.route('/upDateDelegated/:id/:delegated').get(async function (req, res, next) {
-    Data.findByIdAndUpdate({ _id: req.params.id }, { delegated: req.params.delegated }, function (err, data) {
-        if (err) return next(err)
-        return res.json({
-            success: true,
-            data: data,
-        })
-    })
-    //})
-}
-
-export const updateIssue = (req, res, next) => {
-    //ProtectedRoutes.post('/upDateIssue/:id', async function (req, res, next) {
-    const { dataset } = req.body
-    Data.findByIdAndUpdate({ _id: req.params.id }, dataset, function (err, data) {
-        if (err) return next(err)
-        return res.json({
-            success: true,
-            data: data,
-        })
-    })
-    //})
-}
-
-export const getIssueByID = async (req, res) => {
-    //  ProtectedRoutes.route('/getIssueByID/:id').get(async function (req, res) {
-    try {
-        await Data.findOne({ _id: req.params.id })
-            .populate([
-                {
-                    path: 'reporter',
-                    select: 'name',
-                    model: 'User',
-                },
-                {
-                    path: 'delegated',
-                    select: 'name',
-                    model: 'User',
-                },
-                {
-                    path: 'project',
-                    select: 'name',
-                    model: 'Project',
-                },
-            ])
-            .exec()
-            .then((response) => {
-                res.json({
-                    success: true,
-                    data: response,
-                })
-            })
-    } catch (e) {
-        // database error
-        res.status(500).send('database error', e.message)
-    }
-    //  })
-}
-
-export const deleteIssueByID = (req, res) => {
-    let __dirname = path.resolve()
-    // this is our delete method
-    // this method removes existing data in our database
-    //  ProtectedRoutes.get('/deleteIssueByID/:id', async function (req, res, next) {
-    const { id } = req.params
-    Data.findByIdAndDelete(id, (err, result) => {
-        //delete image(s) when deleting an issue
-        result.imageName.forEach((element) => {
-            if (element.path) {
-                fs.unlinkSync(path.join(__dirname, '..', '/assets/uploads/', element.path))
-            }
-        })
-        if (err) return res.send(err)
-        return res.json({
-            success: true,
-        })
-    })
-}
-//  })
-// this is our add image to issue method
-// this method adds new image(s) to existing issue
-export const addImage = async (req, res) => {
-    console.log('Files in Add Image: ', req.body.name.fileArray)
-    try {
-        for (const element of req.body.name.fileArray) {
-            await Data.updateOne({ _id: req.body.issueID }, { $addToSet: { imageName: element } })
-        }
-        res.json({
-            success: true,
-            data: {},
-            error: null,
-        })
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            data: {},
-            error: error.message,
-        })
-    }
-}
-
-// this is our delete method
-// this method removes existing data in our database
-//  ProtectedRoutes.route('/delete-image/:id').post(async function (req, res, next) {
-export const deleteImage = (req, res) => {
-    let __dirname = path.resolve()
-    const { image, name } = req.body
-    const { id } = req.params
-
-    if (!image || !name || !id) {
+    } catch (err) {
         return res.status(400).json({
             success: false,
-            message: 'Missing required fields: image, name, or id',
+            error: err.message,
         })
     }
+}
 
-    //Data.findOneAndUpdate({ _id: id }, { $pull: { imageName: { $elemMatch: { id: image } } } }, (err, result) => {
-    Data.findOneAndUpdate({ _id: id }, { $pull: { imageName: { id: image } } }, (err, result) => {
-        console.log(result)
-        if (err) {
-            return res.status(500).json({
-                success: false,
-                message: err,
-            })
-        } else if (!result) {
+const getAllIssues = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
+        const startIndex = (page - 1) * limit
+
+        const [data, count] = await Promise.all([
+            Data.find().skip(startIndex).limit(limit).exec(),
+            Data.countDocuments()
+        ])
+
+        return res.json({
+            success: true,
+            data,
+            page,
+            totalPages: Math.ceil(count / limit),
+            totalItems: count,
+        })
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+        })
+    }
+}
+
+const updateIssueStatus = async (req, res) => {
+    try {
+        const data = await Data.findByIdAndUpdate(
+            req.params.id,
+            { status: req.body.status },
+            { new: true }
+        )
+
+        if (!data) {
             return res.status(404).json({
                 success: false,
-                issue: 'Issue not found',
-            })
-        }
-
-        try {
-            fs.unlinkSync(path.join(__dirname, '..', '/assets/uploads/', name))
-        } catch (error) {
-            return res.status(500).json({
-                success: false,
-                message: error,
+                error: 'Issue not found'
             })
         }
 
         return res.json({
             success: true,
+            data
         })
-    })
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        })
+    }
 }
 
-//  })
+const updateDelegated = async (req, res) => {
+    try {
+        const data = await Data.findByIdAndUpdate(
+            req.params.id,
+            { delegated: req.body.delegated },
+            { new: true }
+        )
+
+        if (!data) {
+            return res.status(404).json({
+                success: false,
+                error: 'Issue not found'
+            })
+        }
+
+        return res.json({
+            success: true,
+            data
+        })
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        })
+    }
+}
+
+const updateIssue = async (req, res) => {
+    try {
+        const data = await Data.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        ).populate('reporter', 'name')
+         .populate('delegated', 'name')
+         .populate('project', 'name')
+
+        if (!data) {
+            return res.status(404).json({
+                success: false,
+                error: 'Issue not found'
+            })
+        }
+
+        return res.json({
+            success: true,
+            data
+        })
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        })
+    }
+}
+
+const getIssueById = async (req, res) => {
+    try {
+        console.log('=== getIssueById called ===');
+        console.log('Issue ID:', req.params.id);
+
+        // First, let's check what models are available
+        console.log('Available models:', mongoose.modelNames());
+
+        const data = await Data.findById(req.params.id)
+            .populate('reporter', 'name')
+            .populate('delegated', 'name')
+            .populate('project', 'name')
+
+        if (!data) {
+            return res.status(404).json({
+                success: false,
+                error: 'Issue not found'
+            })
+        }
+
+        console.log('Raw issue data:', JSON.stringify(data, null, 2));
+        console.log('Reporter field:', data.reporter);
+        console.log('Reporter name:', data.reporter?.name);
+        console.log('Project field:', data.project);
+        console.log('Project name:', data.project?.name);
+        console.log('Project type:', typeof data.project);
+        console.log('Delegated field:', data.delegated);
+
+        // Let's also try to manually fetch the project
+        if (data.project && typeof data.project === 'string') {
+            console.log('Project is still a string, trying manual fetch...');
+            try {
+                const manualProject = await Project.findById(data.project);
+                console.log('Manual project fetch result:', manualProject);
+                // Manually populate the project if the automatic populate failed
+                if (manualProject) {
+                    data.project = manualProject;
+                    console.log('Manually populated project:', data.project);
+                }
+            } catch (manualErr) {
+                console.error('Manual project fetch error:', manualErr);
+            }
+        }
+
+        return res.json({
+            success: true,
+            data
+        })
+    } catch (err) {
+        console.error('Error in getIssueById:', err);
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        })
+    }
+}
+
+const deleteIssue = async (req, res) => {
+    try {
+        const data = await Data.findByIdAndDelete(req.params.id)
+
+        if (!data) {
+            return res.status(404).json({
+                success: false,
+                error: 'Issue not found'
+            })
+        }
+
+        // Delete associated images
+        for (const image of data.imageName) {
+            if (image.path) {
+                fs.unlinkSync(path.join(path.resolve(), '..', '/assets/uploads/', image.path))
+            }
+        }
+
+        return res.json({
+            success: true
+        })
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        })
+    }
+}
+
+const addImage = async (req, res) => {
+    try {
+        console.log('=== addImage called ===');
+        console.log('req.params.id:', req.params.id);
+        console.log('req.body:', JSON.stringify(req.body, null, 2));
+
+        const issueId = req.params.id;
+        const fileName = req.body.name;
+
+        if (!issueId || !fileName) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing issue ID or file name'
+            });
+        }
+
+        // Create image object to add
+        const imageToAdd = {
+            name: fileName,
+            path: fileName // Using filename as path since that's what frontend expects
+        };
+
+        const data = await Data.findByIdAndUpdate(
+            issueId,
+            { $addToSet: { imageName: imageToAdd } },
+            { new: true }
+        );
+
+        if (!data) {
+            return res.status(404).json({
+                success: false,
+                error: 'Issue not found'
+            });
+        }
+
+        console.log('Image added successfully:', imageToAdd);
+        return res.json({
+            success: true,
+            data: data
+        });
+    } catch (err) {
+        console.error('Error in addImage:', err);
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+}
+
+const deleteImage = async (req, res) => {
+    try {
+        const { image, name } = req.body
+        const { id } = req.params
+
+        if (!image || !name || !id) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required fields: image, name, or id'
+            })
+        }
+
+        const data = await Data.findOneAndUpdate(
+            { _id: id },
+            { $pull: { imageName: { id: image } } },
+            { new: true }
+        )
+
+        if (!data) {
+            return res.status(404).json({
+                success: false,
+                error: 'Issue not found'
+            })
+        }
+
+        fs.unlinkSync(path.join(path.resolve(), '..', '/assets/uploads/', name))
+
+        return res.json({
+            success: true
+        })
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        })
+    }
+}
+
+export {
+    createIssue,
+    createIssue as addIssue,
+    getAllIssues,
+    updateIssueStatus,
+    updateDelegated,
+    updateIssue,
+    getIssueById,
+    deleteIssue,
+    addImage,
+    deleteImage
+}

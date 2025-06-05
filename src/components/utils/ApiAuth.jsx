@@ -1,15 +1,31 @@
 // api-auth.js
-import axios from 'axios'
-const instance = axios.create()
+import api from './api-config'
 
 export default {
     SignIn: async (auth) => {
-        const res = await instance.post('/auth/signin/', auth, { withCredentials: true })
-        return res.data || []
+        try {
+            const res = await api.post('/api/auth/signin', auth)
+            if (res.data.token) {
+                // Store both token and user data
+                const jwt = {
+                    token: res.data.token,
+                    user: res.data.user
+                }
+                localStorage.setItem('jwt', JSON.stringify(jwt))
+            }
+            return res.data
+        } catch (error) {
+            throw error
+        }
     },
     SignOut: async () => {
-        const res = await instance.get('/auth/signout/')
-        return res.data || []
+        try {
+            const res = await api.post('/api/auth/signout')
+            localStorage.removeItem('jwt')
+            return res.data
+        } catch (error) {
+            throw error
+        }
     },
 }
 

@@ -14,6 +14,14 @@ var CommentsSchema = new mongoose.Schema(
         content: { type: String, required: true },
         author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         comments: [{ type: Schema.Types.ObjectId, autopopulate: true, ref: 'Comment' }],
+        // Voting system
+        likes: { type: Number, default: 0 },
+        dislikes: { type: Number, default: 0 },
+        votes: [{
+            user: { type: Schema.Types.ObjectId, ref: 'User' },
+            voteType: { type: String, enum: ['like', 'dislike'] },
+            createdAt: { type: Date, default: Date.now }
+        }]
     },
     { timestamps: true }
 )

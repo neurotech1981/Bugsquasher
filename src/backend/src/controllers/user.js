@@ -1,4 +1,4 @@
-import User from '../models/user.js'
+import User from '../models/User.js'
 import Comment from '../models/comment.js'
 import dbErr from '../../../helpers/dbErrorHandler.mjs'
 import { Admin, Bruker } from '../../../helpers/role.js'
@@ -6,122 +6,187 @@ import { Les, Skriv } from '../../../helpers/rights.js'
 import sendEmail from '../../../helpers/send-email.js'
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import config from '../../config/index.js'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const { getErrorMessage, getUniqueErrorMessage } = dbErr
 
 const accountService = {
     registerUser: async (req, res, next) => {
-        const user = new User(req.body)
-        const isFirstAccount = (await User.countDocuments({})) === 0
-        const Role = isFirstAccount ? Admin : Bruker
-        const Rights = isFirstAccount ? Skriv : Les
-        user.role = Role
-        user.rights = Rights
-        user.verificationToken = randomTokenString()
+        try {
+            console.log('Registration request body:', req.body)
 
-        user.save((err, result) => {
-            if (err) {
+            // Validate password confirmation
+            if (req.body.password !== req.body.passwordConfirmation) {
                 return res.status(400).json({
-                    error: getErrorMessage(err),
+                    error: 'Passordene stemmer ikke overens'
                 })
             }
+
+            // Remove passwordConfirmation from the data before saving
+            const userData = {
+                name: req.body.name,
+                email: req.body.email,
+                password: req.body.password
+            }
+
+            const user = new User(userData)
+            const isFirstAccount = (await User.countDocuments({})) === 0
+            const Role = isFirstAccount ? Admin : Bruker
+            const Rights = isFirstAccount ? Skriv : Les
+            user.role = Role
+            user.rights = Rights
+            user.verificationToken = randomTokenString()
+
+            await user.save()
+
+            // Try to send verification email, but don't fail registration if it fails
+            try {
+                await sendVerificationEmail(user, 'localhost')
+                console.log('Verification email sent successfully')
+            } catch (emailError) {
+                console.error('Failed to send verification email:', emailError)
+                // Continue with successful registration even if email fails
+            }
+
             res.status(200).json({
                 message: 'Ny bruker registrert!',
             })
-        })
 
-        await sendVerificationEmail(user, 'localhost')
-        next()
+            next()
+        } catch (err) {
+            console.error('Registration error:', err)
+            res.status(400).json({
+                error: getErrorMessage(err),
+            })
+        }
     },
 
     addComment: async (req, res, next) => {
-        console.log('inside comment')
+        try {
+            console.log('inside comment')
+            const comment = new Comment(req.body.commentData)
 
-        const comment = new Comment(req.body.commentData)
+            await comment.save()
 
-        comment.save((err, result) => {
-            if (err) {
-                return res.status(400).json({
-                    error: getErrorMessage(err),
-                })
-            }
-            console.log(result)
             res.status(200).json({
                 message: 'Du postet en ny kommentar!',
             })
-        })
-        next()
+
+            next()
+        } catch (err) {
+            res.status(400).json({
+                error: getErrorMessage(err),
+            })
+        }
     },
 
-    getUsers: (req, res, next) => {
-        User.find((err, data) => {
-            if (err) {
-                return res.json({
-                    success: false,
-                    error: err,
-                })
-            }
+    getUsers: async (req, res, next) => {
+        try {
+            console.log('\n=== getUsers Function Called ===')
+            console.log(`Time: ${new Date().toISOString()}`)
+            console.log('Request details:')
+            console.log('- Method:', req.method)
+            console.log('- URL:', req.url)
+            console.log('- Headers:', JSON.stringify(req.headers, null, 2))
+            console.log('- Cookies:', JSON.stringify(req.cookies, null, 2))
+            console.log('- Body:', JSON.stringify(req.body, null, 2))
 
+            console.log('Attempting to fetch users from database...')
+            const data = await User.find().lean()
+            console.log(`Successfully found ${data.length} users`)
+
+            console.log('Sending response...')
             return res.json({
+                success: true,
                 data: data,
             })
-        })
+        } catch (err) {
+            console.error('\n=== Error in getUsers ===')
+            console.error('Error details:', err)
+            console.error('Stack trace:', err.stack)
+            console.error('=====================\n')
+            return res.status(500).json({
+                success: false,
+                error: 'An error occurred while fetching users.',
+            })
+        }
     },
 
-    findUserById: (req, res, next, id) => {
-        User.findById(id).exec((err, user) => {
-            if (err || !user) {
-                return res.status(400).json({
+    findUserById: async (req, res, next, id) => {
+        try {
+            console.log('Finding user by ID:', id)
+            const user = await User.findById(id)
+            if (!user) {
+                console.log('No user found with ID:', id)
+                return res.status(404).json({
                     error: 'Fant ingen brukere med denne ID!',
                 })
             }
+            console.log('User found:', user._id)
             req.profile = user
             next()
-        })
-        next()
+        } catch (err) {
+            console.error('Error in findUserById:', err)
+            res.status(500).json({
+                error: 'Error finding user',
+            })
+        }
     },
 
     findUserProfile: (req, res) => {
+        console.log('findUserProfile called, req.profile:', req.profile ? req.profile._id : 'undefined')
+        if (!req.profile) {
+            return res.status(404).json({
+                error: 'User profile not found',
+            })
+        }
         req.profile.hashedPassword = undefined
         req.profile.salt = undefined
         return res.json(req.profile)
     },
 
     changePassword: async (req, res, next) => {
-        console.log('Inside changePassword')
-        console.log(JSON.stringify(req.body))
-        const account = await User.findById({
-            _id: req.body._id,
-        })
+        try {
+            console.log('Inside changePassword')
+            console.log(JSON.stringify(req.body))
+            const account = await User.findById(req.body._id)
 
-        if (!account) throw 'Invalid ID'
+            if (!account) throw 'Invalid ID'
 
-        account.hashedPassword = hash(req.body.password, account.salt)
-        account.passwordReset = Date.now()
-        account.save((err, result) => {
-            if (err) {
-                return res.status(400).json({
-                    error: getErrorMessage(err),
-                })
-            }
+            account.hashedPassword = hash(req.body.password, account.salt)
+            account.passwordReset = Date.now()
+            await account.save()
+
             return res.status(200).json({
                 message: 'Passord ble endret',
             })
-        })
+        } catch (err) {
+            return res.status(400).json({
+                error: getErrorMessage(err),
+            })
+        }
     },
 
     forgotPassword: async ({ email }, origin) => {
-        const account = await User.findOne({ email })
+        try {
+            const account = await User.findOne({ email })
 
-        if (!account) return
+            if (!account) return
 
-        account.resetToken = {
-            token: randomTokenString(),
-            expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            account.resetToken = {
+                token: randomTokenString(),
+                expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            }
+            await account.save()
+
+            await sendPasswordResetEmail(account, origin)
+        } catch (err) {
+            console.error('Error during password reset:', err)
         }
-        await account.save()
-
-        await sendPasswordResetEmail(account, origin)
     },
 
     refreshToken: async ({ token, ipAddress }) => {
@@ -164,7 +229,147 @@ const accountService = {
         account.resetToken = undefined
         await account.save()
     },
+
+    updateUser: async (req, res) => {
+        try {
+            console.log('Updating user:', req.params.userId)
+            console.log('Update data:', req.body)
+            console.log('Request headers:', req.headers)
+
+            // Get token from Authorization header
+            const token = req.headers.authorization?.split(' ')[1] || req.cookies.token
+            if (!token) {
+                return res.status(401).json({
+                    success: false,
+                    error: 'No token provided'
+                })
+            }
+            // Decode the token to get user information
+            const decoded = jwt.verify(token, config.jwtSecret)
+            console.log('Decoded token:', decoded)
+
+            const user = await User.findById(req.params.userId)
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'User not found'
+                })
+            }
+
+            // Get the requesting user's role from the token
+            const requestingUser = await User.findById(decoded.userId)
+            if (!requestingUser) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Requesting user not found'
+                })
+            }
+
+            // Check if the requesting user has admin role
+            if (requestingUser.role !== 'Admin') {
+                return res.status(403).json({
+                    success: false,
+                    error: 'Only admins can update users'
+                })
+            }
+
+            // Update user fields
+            user.name = req.body.update.name
+            user.email = req.body.update.email
+            user.role = req.body.update.role
+            user.rights = req.body.update.rights
+
+            await user.save()
+
+            return res.json({
+                success: true,
+                data: user
+            })
+        } catch (err) {
+            console.error('Error updating user:', err)
+            return res.status(500).json({
+                success: false,
+                error: 'Failed to update user'
+            })
+        }
+    },
+
+    updateOwnProfile: async (req, res) => {
+        try {
+            console.log('Updating own profile:', req.params.userId)
+            console.log('Update data:', req.body)
+
+            // Get token from Authorization header
+            const token = req.headers.authorization?.split(' ')[1] || req.cookies.token
+            if (!token) {
+                return res.status(401).json({
+                    success: false,
+                    error: 'No token provided'
+                })
+            }
+
+            // Decode the token to get user information
+            const decoded = jwt.verify(token, config.jwtSecret)
+            console.log('Decoded token:', decoded)
+
+            // Check if the user is updating their own profile
+            if (decoded.userId !== req.params.userId) {
+                return res.status(403).json({
+                    success: false,
+                    error: 'You can only update your own profile'
+                })
+            }
+
+            const user = await User.findById(req.params.userId)
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'User not found'
+                })
+            }
+
+            // Update only allowed fields (name and email)
+            if (req.body.name) {
+                user.name = req.body.name.trim()
+            }
+            if (req.body.email) {
+                // Check if email is already taken by another user
+                const existingUser = await User.findOne({
+                    email: req.body.email.toLowerCase().trim(),
+                    _id: { $ne: req.params.userId }
+                })
+                if (existingUser) {
+                    return res.status(400).json({
+                        success: false,
+                        error: 'Email is already in use'
+                    })
+                }
+                user.email = req.body.email.toLowerCase().trim()
+            }
+
+            await user.save()
+
+            // Remove sensitive fields before sending response
+            const responseUser = user.toObject()
+            delete responseUser.hashedPassword
+            delete responseUser.salt
+            delete responseUser.password
+
+            return res.json({
+                success: true,
+                data: responseUser,
+                message: 'Profile updated successfully'
+            })
+        } catch (err) {
+            console.error('Error updating own profile:', err)
+            return res.status(500).json({
+                success: false,
+                error: 'Failed to update profile'
+            })
+        }
+    }
 }
+
 
 function randomTokenString() {
     return crypto.randomBytes(40).toString('hex')

@@ -2,632 +2,569 @@ import {
     Avatar,
     Box,
     Button,
+    Chip,
     Collapse,
     Divider,
-    Grid,
+    FormControl,
     IconButton,
-    Tooltip,
-    List,
-    ListItem,
-    ListItemText,
-    Snackbar,
+    Menu,
+    MenuItem,
+    Select,
+    Stack,
     TextField,
     Typography,
     Zoom,
     Alert,
+    Snackbar,
 } from '@mui/material'
-import { alpha } from '@mui/material/styles'
-import { makeStyles } from '@mui/styles'
-import EditIcon from '@mui/icons-material/Edit'
-import ExpandLess from '@mui/icons-material/ExpandLess'
-import ExpandMore from '@mui/icons-material/ExpandMore'
-import PersonPinIcon from '@mui/icons-material/PersonPin'
-//import QueryBuilderIcon from "@mui/icons-material/QueryBuilder";
-import ReplyIcon from '@mui/icons-material/Reply'
+import {
+    ThumbUp,
+    ThumbDown,
+    ThumbUpOutlined,
+    ThumbDownOutlined,
+    Reply as ReplyIcon,
+    MoreVert as MoreVertIcon,
+    Edit as EditIcon,
+    Delete as DeleteIcon,
+    ExpandMore,
+    ExpandLess,
+    Sort as SortIcon,
+} from '@mui/icons-material'
 import { AlertTitle } from '@mui/lab'
 import { randAvatar } from '@ngneat/falso'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import issueService from '../../services/issueService'
 import auth from '../auth/auth-helper'
-import DeleteCommentDialog from '../Dialogs/DeleteComment'
-import DeleteCommentReplyDialog from '../Dialogs/DeleteCommentReply'
 
-const formattedDate = (value) => moment(value).format('DD/MM-YYYY HH:mm')
+const formattedDate = (value) => {
+    const now = moment()
+    const commentTime = moment(value)
+    const diffMinutes = now.diff(commentTime, 'minutes')
+    const diffHours = now.diff(commentTime, 'hours')
+    const diffDays = now.diff(commentTime, 'days')
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        width: '100%',
-        backgroundColor: theme.palette.background.paper,
-        borderRadius: '1rem',
-    },
-    commentField: {
-        minWidth: '90%',
-        backgroundColor: 'white',
-    },
-    fontName: {
-        fontWeight: 'bold',
-        color: 'black',
-        verticalAlign: 'middle',
-    },
-    fontEmail: {
-        color: 'black',
-        fontSize: '0.8em',
-        verticalAlign: 'middle',
-    },
-    commentIndent: {
-        marginLeft: 20,
-        paddingLeft: '20px',
-        //borderLeft: `2px solid ${alpha(theme.palette.text.primary, 0.4)}`,
-    },
-    indent: {
-        marginLeft: 20,
-        paddingLeft: '12px',
-        borderLeft: `2px solid ${alpha(theme.palette.text.primary, 0.4)}`,
-    },
-    inline: {
-        display: 'inline',
-    },
-    fontBody: {
-        color: 'black',
-        verticalAlign: 'middle',
-        overflowWrap: 'break-word',
-    },
-    iconDate: {
-        fontSize: '1.0rem',
-        verticalAlign: 'sub',
-        fontWeight: 'bold',
-        marginRight: '5px',
-    },
-}))
+    if (diffMinutes < 1) return 'Just now'
+    if (diffMinutes < 60) return `${diffMinutes} minutes ago`
+    if (diffHours < 24) return `${diffHours} hours ago`
+    if (diffDays < 7) return `${diffDays} days ago`
+    return commentTime.format('DD/MM-YYYY')
+}
 
-const Comments = ({ comments, issueID, userID }) => {
+const Comments = ({ comments, issueID, userID, onCommentsUpdated }) => {
     const jwt = auth.isAuthenticated()
-    const [hidden, setHidden] = useState({})
-    const [hiddenEdit, setHiddenEdit] = useState({})
-    const [reply, setReply] = useState('')
     const [comment, setComments] = useState([])
+    const [sortOrder, setSortOrder] = useState('newest') // 'newest', 'oldest', 'popular'
+    const [showReplies, setShowReplies] = useState({})
+    const [showReplyForm, setShowReplyForm] = useState({})
+    const [showEditForm, setShowEditForm] = useState({})
+    const [replyText, setReplyText] = useState('')
+    const [editText, setEditText] = useState('')
+    const [menuAnchor, setMenuAnchor] = useState({})
     const [message, setMessage] = useState('')
     const [open, setOpen] = useState(false)
-    const [collapseComments, setCollapseComments] = useState(true)
-    const [collapseCommentReply, setCollapseCommentReply] = useState('')
-    const [hiddenReply, setHiddenReply] = useState({})
-    //const [commentUpdate, setCommentUpdate] = useState("");
+    const [votes, setVotes] = useState({}) // Store voting state
 
-    const deleteComment = (data) => {
-        setMessage('Kommentaren din ble slettet')
-        setOpen(true)
-        setComments(data)
-    }
-
-    const deleteCommentReply = (data) => {
-        setMessage('Svaret ditt ble slettet')
-        setOpen(true)
-        setComments(data)
-    }
-
-    const toggleHide = (index) => {
-        setHidden({ ...hidden, [index]: !hidden[index] })
-    }
-
-    const toggleHideCommentEdit = (index) => {
-        setHiddenEdit({ ...hiddenEdit, [index]: !hiddenEdit[index] })
-    }
-
-    const toggleHideReply = (index) => {
-        setHiddenReply({ ...hiddenReply, [index]: !hiddenReply[index] })
-    }
-
-    const handleChange = (event) => {
-        setReply(event.target.value)
-    }
-
-    const handleChangeComment = (id, e) => {
-        setComments((prevState) => {
-            // Create an index of comments by their id for quick lookup
-            const commentIndex = {}
-            for (const comment of prevState) {
-                commentIndex[comment._id] = comment
+    // Initialize votes state from comments
+    useEffect(() => {
+        const initialVotes = {}
+        comments?.forEach(comment => {
+            initialVotes[comment._id] = {
+                likes: comment.likes || 0,
+                dislikes: comment.dislikes || 0,
+                userVote: comment.userVote || null // 'like', 'dislike', or null
             }
-
-            // Update the specific comment content
-            if (commentIndex[id]) {
-                commentIndex[id] = { ...commentIndex[id], content: e.target.value }
-            }
-
-            // Convert the indexed comments back to an array
-            return prevState.map((comment) => commentIndex[comment._id])
-        })
-    }
-    const handleChangeCommentReplies = (e, commentChildIndex, commentIndex) => {
-        setComments(
-            comment.map((x, index) => {
-                if (index !== commentIndex) return x
-                x.comments = x.comments.map((subItem, subIndex) => {
-                    if (subIndex !== commentChildIndex) return subItem
-                    return {
-                        ...subItem,
-                        content: e.target.value,
-                    }
-                })
-                return x
+            comment.comments?.forEach(reply => {
+                initialVotes[reply._id] = {
+                    likes: reply.likes || 0,
+                    dislikes: reply.dislikes || 0,
+                    userVote: reply.userVote || null
+                }
             })
-        )
-    }
+        })
+        setVotes(initialVotes)
+    }, [comments])
 
-    const handleClickCommentCollapse = () => {
-        setCollapseComments(!collapseComments)
-    }
+    useEffect(() => {
+        setComments(comments || [])
+    }, [comments])
 
-    const handleClickCommentReplyCollapse = (index) => {
-        if (collapseCommentReply === index) {
-            setCollapseCommentReply('')
+    const handleVote = async (commentId, voteType, isReply = false, parentCommentId = null) => {
+        const currentVote = votes[commentId]?.userVote
+        let newVoteType = null
+
+        // If clicking the same vote type, remove the vote
+        if (currentVote === voteType) {
+            newVoteType = null
         } else {
-            setCollapseCommentReply(index)
+            newVoteType = voteType
+        }
+
+        // Store the previous state for potential rollback
+        const previousVote = { ...votes[commentId] }
+
+        // Optimistically update UI
+        setVotes(prev => ({
+            ...prev,
+            [commentId]: {
+                ...prev[commentId],
+                likes: prev[commentId]?.likes +
+                    (newVoteType === 'like' ? 1 : 0) -
+                    (currentVote === 'like' ? 1 : 0),
+                dislikes: prev[commentId]?.dislikes +
+                    (newVoteType === 'dislike' ? 1 : 0) -
+                    (currentVote === 'dislike' ? 1 : 0),
+                userVote: newVoteType
+            }
+        }))
+
+        // Send vote to backend
+        try {
+            if (isReply && parentCommentId) {
+                await issueService.voteCommentReply(issueID, parentCommentId, commentId, newVoteType, jwt.token, userID)
+            } else {
+                await issueService.voteComment(issueID, commentId, newVoteType, jwt.token, userID)
+            }
+        } catch (error) {
+            console.error('Error voting on comment:', error)
+            // Revert optimistic update on error
+            setVotes(prev => ({
+                ...prev,
+                [commentId]: previousVote
+            }))
+            // Show error message
+            setMessage('Kunne ikke registrere stemme. Prøv igjen.')
+            setOpen(true)
         }
     }
+
+    const toggleReplies = (commentId) => {
+        setShowReplies(prev => ({
+            ...prev,
+            [commentId]: !prev[commentId]
+        }))
+    }
+
+    const toggleReplyForm = (commentId) => {
+        setShowReplyForm(prev => ({
+            ...prev,
+            [commentId]: !prev[commentId]
+        }))
+        setReplyText('')
+    }
+
+    const toggleEditForm = (commentId, currentContent = '') => {
+        setShowEditForm(prev => ({
+            ...prev,
+            [commentId]: !prev[commentId]
+        }))
+        setEditText(currentContent)
+    }
+
+    const handleMenuOpen = (event, commentId) => {
+        setMenuAnchor(prev => ({
+            ...prev,
+            [commentId]: event.currentTarget
+        }))
+    }
+
+    const handleMenuClose = (commentId) => {
+        setMenuAnchor(prev => ({
+            ...prev,
+            [commentId]: null
+        }))
+    }
+
+    const submitReply = async (commentId) => {
+        if (!replyText.trim()) return
+
+        try {
+            await issueService.addCommentReply(userID, replyText, jwt.token, issueID, commentId, 0)
+            setMessage('Svar ble lagt til')
+            setOpen(true)
+            setReplyText('')
+            toggleReplyForm(commentId)
+
+            if (onCommentsUpdated) {
+                await onCommentsUpdated()
+            }
+        } catch (error) {
+            console.error('Error submitting reply:', error)
+        }
+    }
+
+    const submitEdit = async (commentId) => {
+        if (!editText.trim()) return
+
+        try {
+            await issueService.updateComment(editText, issueID, jwt.token, commentId, 0)
+            setMessage('Kommentar ble oppdatert')
+            setOpen(true)
+            setEditText('')
+            toggleEditForm(commentId)
+
+            if (onCommentsUpdated) {
+                await onCommentsUpdated()
+            }
+        } catch (error) {
+            console.error('Error updating comment:', error)
+        }
+    }
+
+    const deleteComment = async (commentId, isReply = false, parentCommentId = null) => {
+        if (window.confirm('Er du sikker på at du vil slette denne kommentaren?')) {
+            try {
+                if (isReply && parentCommentId) {
+                    await issueService.deleteCommentReply(issueID, parentCommentId, commentId, jwt.token)
+                } else {
+                    await issueService.deleteComment(issueID, commentId, jwt.token)
+                }
+
+                setMessage('Kommentar ble slettet')
+                setOpen(true)
+
+                if (onCommentsUpdated) {
+                    await onCommentsUpdated()
+                }
+            } catch (error) {
+                console.error('Error deleting comment:', error)
+                setMessage('Kunne ikke slette kommentar. Prøv igjen.')
+                setOpen(true)
+            }
+        }
+    }
+
+    const sortedComments = [...comment].sort((a, b) => {
+        switch (sortOrder) {
+            case 'oldest':
+                return new Date(a.createdAt) - new Date(b.createdAt)
+            case 'popular':
+                const aScore = (votes[a._id]?.likes || 0) - (votes[a._id]?.dislikes || 0)
+                const bScore = (votes[b._id]?.likes || 0) - (votes[b._id]?.dislikes || 0)
+                return bScore - aScore
+            case 'newest':
+            default:
+                return new Date(b.createdAt) - new Date(a.createdAt)
+        }
+    })
 
     const handleClose = (event, reason) => {
-        if (reason === 'clickaway') {
-            return
-        }
+        if (reason === 'clickaway') return
         setOpen(false)
     }
 
-    const SuccessAlert = () => (
-        <Snackbar
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            open={open}
-            autoHideDuration={3000}
-            onClose={handleClose}
-        >
-            <Alert onClose={handleClose} severity="success" variant="filled">
-                <AlertTitle>Suksess</AlertTitle>
-                {message}
-            </Alert>
-        </Snackbar>
-    )
+    const CommentItem = ({ comment: commentData, isReply = false, parentCommentId = null }) => {
+        const isAuthor = commentData.author._id === jwt.user._id
+        const commentVotes = votes[commentData._id] || { likes: 0, dislikes: 0, userVote: null }
 
-    useEffect(() => {
-        setComments(comments)
-    }, [comments])
+        return (
+            <Box sx={{
+                mb: isReply ? 2 : 3,
+                ml: isReply ? 6 : 0,
+                pb: isReply ? 1 : 2,
+                borderBottom: isReply ? 'none' : '1px solid #f0f0f0'
+            }}>
+                <Stack direction="row" spacing={2}>
+                    {/* Avatar */}
+                    <Avatar
+                        src={randAvatar()}
+                        alt={commentData.author.name}
+                        sx={{ width: isReply ? 32 : 40, height: isReply ? 32 : 40 }}
+                    />
 
-    const submitReply = async (e, commentID, index, indexInput) => {
-        e.preventDefault()
-        e.stopPropagation()
+                    {/* Comment Content */}
+                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                        {/* Header with name, badge, and timestamp */}
+                        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                            <Typography variant="subtitle2" fontWeight="600">
+                                {commentData.author.name}
+                            </Typography>
+                            {/* You could add badges here like "Author", "Verified", etc. */}
+                            <Typography variant="caption" color="text.secondary">
+                                {formattedDate(commentData.updatedAt)}
+                            </Typography>
+                        </Stack>
 
-        const jwt = auth.isAuthenticated()
-        setMessage('Svaret ble lagt til')
+                        {/* Comment Text */}
+                        {!showEditForm[commentData._id] ? (
+                            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.5 }}>
+                                {commentData.content}
+                            </Typography>
+                        ) : (
+                            <Box sx={{ mb: 2 }}>
+                                <TextField
+                                    fullWidth
+                                    multiline
+                                    rows={3}
+                                    value={editText}
+                                    onChange={(e) => setEditText(e.target.value)}
+                                    variant="outlined"
+                                    size="small"
+                                    sx={{ mb: 1 }}
+                                />
+                                <Stack direction="row" spacing={1}>
+                                    <Button
+                                        size="small"
+                                        variant="contained"
+                                        onClick={() => submitEdit(commentData._id)}
+                                        sx={{ bgcolor: '#F79B72', '&:hover': { bgcolor: '#e8895f' } }}
+                                    >
+                                        Lagre
+                                    </Button>
+                                    <Button
+                                        size="small"
+                                        variant="outlined"
+                                        onClick={() => toggleEditForm(commentData._id)}
+                                    >
+                                        Avbryt
+                                    </Button>
+                                </Stack>
+                            </Box>
+                        )}
 
-        try {
-            const data = await issueService.addCommentReply(userID, reply, jwt.token, issueID, commentID, index)
+                        {/* Action Buttons */}
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            {/* Like Button */}
+                            <IconButton
+                                size="small"
+                                onClick={() => handleVote(commentData._id, 'like', isReply, parentCommentId)}
+                                sx={{
+                                    color: commentVotes.userVote === 'like' ? '#F79B72' : 'text.secondary',
+                                    '&:hover': { bgcolor: 'rgba(247, 155, 114, 0.1)' }
+                                }}
+                            >
+                                {commentVotes.userVote === 'like' ? <ThumbUp fontSize="small" /> : <ThumbUpOutlined fontSize="small" />}
+                            </IconButton>
+                            <Typography variant="caption" color="text.secondary" sx={{ minWidth: '20px' }}>
+                                {commentVotes.likes || ''}
+                            </Typography>
 
-            setComments(data?.data?.response?.[0]?.comments || [])
+                            {/* Dislike Button */}
+                            <IconButton
+                                size="small"
+                                onClick={() => handleVote(commentData._id, 'dislike', isReply, parentCommentId)}
+                                sx={{
+                                    color: commentVotes.userVote === 'dislike' ? '#d32f2f' : 'text.secondary',
+                                    '&:hover': { bgcolor: 'rgba(211, 47, 47, 0.1)' }
+                                }}
+                            >
+                                {commentVotes.userVote === 'dislike' ? <ThumbDown fontSize="small" /> : <ThumbDownOutlined fontSize="small" />}
+                            </IconButton>
+                            <Typography variant="caption" color="text.secondary" sx={{ minWidth: '20px' }}>
+                                {commentVotes.dislikes || ''}
+                            </Typography>
 
-            if (data?.data?.success) {
-                setOpen(true)
-                setReply('')
-                toggleHideReply(index - 1)
-                toggleHide(indexInput)
-            }
-        } catch (error) {
-            console.error('Error', error)
-        }
-    }
-
-    const submitCommentEdit = async (e, commentID, newContent, index, reply) => {
-        e.preventDefault()
-        e.stopPropagation()
-
-        const jwt = auth.isAuthenticated()
-        setMessage('Kommentar ble redigert')
-
-        try {
-            const data = await issueService.updateComment(newContent, issueID, jwt.token, commentID, index)
-
-            setComments(data?.data?.response?.[0]?.comments || [])
-
-            if (data?.data?.success) {
-                setOpen(true)
-                setReply('')
-                if (reply) {
-                    toggleHideCommentEdit(commentID)
-                } else {
-                    toggleHideCommentEdit(index)
-                }
-            }
-        } catch (error) {
-            console.error('Error', error)
-        }
-    }
-
-    const classes = useStyles()
-    return (
-        <>
-            <Typography component={'span'} variant={'subtitle1'}>
-                Kommentarer ({comment.length})
-            </Typography>
-            <SuccessAlert />
-            <ListItem button onClick={handleClickCommentCollapse} style={{ minWidth: '100vh', marginBottom: '2em' }}>
-                {collapseComments ? (
-                    <>
-                        <ExpandLess aria-label="Skjul" />
-                        <Typography>{'Skjul kommentarer'}</Typography>
-                    </>
-                ) : (
-                    <>
-                        <ExpandMore aria-label="Vis mer" />
-                        <Typography>{'Vis kommentarer'}</Typography>
-                    </>
-                )}
-            </ListItem>
-            <Collapse in={collapseComments} timeout="auto" unmountOnExit>
-                {comment.map((result, index) => {
-                    let parentId = result._id
-                    let parentIndex = index
-                    return (
-                        <React.Fragment key={index}>
-                            <Grid justifyContent="flex-start" container wrap="nowrap" spacing={1} key={result._id}>
-                                <Grid item>
-                                    <Avatar alt="Profil bilde" src={randAvatar()} />
-                                </Grid>
-                                <Grid item xs zeroMinWidth>
-                                    {result.author.name}
-                                    {result.author._id === jwt.user._id ? (
-                                        <>
-                                            <IconButton size="small" aria-label="delete" color="secondary">
-                                                <DeleteCommentDialog
-                                                    func={deleteComment}
-                                                    commentId={result._id}
-                                                    id={issueID}
-                                                />
-                                            </IconButton>
-                                            <IconButton
-                                                size="small"
-                                                aria-label="edit"
-                                                color="primary"
-                                                style={{ verticalAlign: 'top' }}
-                                            >
-                                                <Tooltip title="Rediger">
-                                                    <EditIcon
-                                                        key={index}
-                                                        onClick={() => toggleHideCommentEdit(index)}
-                                                    />
-                                                </Tooltip>
-                                            </IconButton>
-                                        </>
-                                    ) : (
-                                        <IconButton size="small" aria-label="reply" color="primary">
-                                            <ReplyIcon key={index} onClick={() => toggleHide(index)} />
-                                        </IconButton>
-                                    )}
-                                    {!hiddenEdit[index] && (
-                                        <>
-                                            <p style={{ textAlign: 'left' }}>{result.content} </p>
-                                            <p style={{ textAlign: 'left', color: 'gray' }}>
-                                                postet {formattedDate(result.updatedAt)}
-                                            </p>
-                                        </>
-                                    )}
-                                    {!!hiddenEdit[index] && (
-                                        <Zoom in={hiddenEdit[index]}>
-                                            <div key={index} style={{ textAlign: 'start' }}>
-                                                <TextField
-                                                    id="content"
-                                                    name="content"
-                                                    key={result._id}
-                                                    label="Rediger"
-                                                    className={classes.commentField}
-                                                    multiline={true}
-                                                    rows={2}
-                                                    onChange={(e) => handleChangeComment(result._id, e)}
-                                                    value={comment.find((i) => i._id === result._id).content}
-                                                    variant="outlined"
-                                                />
-                                                <Box mt={1} mb={3}>
-                                                    <Typography component={'p'} variant={'subtitle1'}>
-                                                        <Button
-                                                            style={{ marginRight: '1em' }}
-                                                            variant="contained"
-                                                            color="primary"
-                                                            onClick={(e) =>
-                                                                submitCommentEdit(
-                                                                    e,
-                                                                    result._id,
-                                                                    comment[index],
-                                                                    index,
-                                                                    false
-                                                                )
-                                                            }
-                                                        >
-                                                            Oppdater
-                                                        </Button>
-                                                        <Button
-                                                            key={index}
-                                                            variant="contained"
-                                                            color="secondary"
-                                                            onClick={() => toggleHideCommentEdit(index)}
-                                                        >
-                                                            Avbryt
-                                                        </Button>
-                                                    </Typography>
-                                                </Box>
-                                            </div>
-                                        </Zoom>
-                                    )}
-                                    {!!hidden[index] && (
-                                        <Zoom in={hidden[index]}>
-                                            <div key={index} style={{ textAlign: 'start' }}>
-                                                <TextField
-                                                    id="outlined-basic"
-                                                    key={index}
-                                                    label="Svar"
-                                                    className={classes.commentField}
-                                                    multiline={true}
-                                                    rows={2}
-                                                    variant="outlined"
-                                                    onChange={(e) => handleChange(e)}
-                                                />
-                                                <Box mt={1} mb={3}>
-                                                    <Typography component={'p'} variant={'subtitle1'}>
-                                                        <Button
-                                                            style={{ marginRight: '1em' }}
-                                                            variant="contained"
-                                                            color="primary"
-                                                            onClick={(e) => submitReply(e, result._id, 0, index)}
-                                                        >
-                                                            Svar
-                                                        </Button>
-                                                        <Button
-                                                            key={index}
-                                                            variant="contained"
-                                                            color="secondary"
-                                                            onClick={() => toggleHide(result._id)}
-                                                        >
-                                                            Avbryt
-                                                        </Button>
-                                                    </Typography>
-                                                </Box>
-                                            </div>
-                                        </Zoom>
-                                    )}
-                                </Grid>
-                            </Grid>
-                            {!!result.comments.length > 0 && (
-                                <ListItem
-                                    button
-                                    key={index}
-                                    onClick={() => {
-                                        handleClickCommentReplyCollapse(index)
-                                    }}
-                                    style={{ minWidth: '100vh', marginBottom: '0.5em' }}
+                            {/* Reply Button */}
+                            {!isReply && (
+                                <IconButton
+                                    size="small"
+                                    onClick={() => toggleReplyForm(commentData._id)}
+                                    sx={{ color: 'text.secondary', '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.04)' } }}
                                 >
-                                    {index === collapseCommentReply ? (
-                                        <>
-                                            <ExpandLess aria-label="Skjul" />
-                                            <Typography>
-                                                {'Skjul svar' + ' (' + result.comments.length + ')'}
-                                            </Typography>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <ExpandMore aria-label="Vis mer" />
-                                            <Typography>{'Vis svar' + ' (' + result.comments.length + ')'}</Typography>
-                                        </>
-                                    )}
-                                </ListItem>
+                                    <ReplyIcon fontSize="small" />
+                                </IconButton>
                             )}
-                            <Collapse in={index === collapseCommentReply} timeout="auto" unmountOnExit>
-                                {result.comments?.map((result, index) => {
-                                    return (
-                                        <>
-                                            <Grid
-                                                className={classes.commentIndent}
-                                                item
-                                                xs
-                                                zeroMinWidth
-                                                key={result._id}
-                                            >
-                                                <Grid key={index} item>
-                                                    <List
-                                                        style={{ textAlign: 'left', color: 'gray' }}
-                                                        className={classes.commentIndent}
-                                                    >
-                                                        <PersonPinIcon className={classes.iconDate} />
-                                                        {result.author.name}
-                                                        {result.author._id === jwt.user._id ? (
-                                                            <>
-                                                                <IconButton
-                                                                    size="small"
-                                                                    aria-label="delete"
-                                                                    color="secondary"
-                                                                >
-                                                                    <DeleteCommentReplyDialog
-                                                                        func_reply={deleteCommentReply}
-                                                                        parentId={parentId}
-                                                                        childId={result._id}
-                                                                        id={issueID}
-                                                                    />
-                                                                </IconButton>
-                                                                <IconButton
-                                                                    size="small"
-                                                                    aria-label="delete"
-                                                                    color="primary"
-                                                                    style={{ verticalAlign: 'top' }}
-                                                                >
-                                                                    <EditIcon
-                                                                        key={result._id}
-                                                                        onClick={() =>
-                                                                            toggleHideCommentEdit(result._id)
-                                                                        }
-                                                                    />
-                                                                </IconButton>
-                                                            </>
-                                                        ) : (
-                                                            <IconButton
-                                                                size="small"
-                                                                aria-label="delete"
-                                                                color="primary"
-                                                            >
-                                                                <ReplyIcon
-                                                                    key={result._id}
-                                                                    onClick={() => toggleHideReply(result._id)}
-                                                                />
-                                                            </IconButton>
-                                                        )}
-                                                        <ListItemText>
-                                                            {!hiddenEdit[result._id] && (
-                                                                <>
-                                                                    <p
-                                                                        style={{
-                                                                            textAlign: 'left',
-                                                                            color: 'black',
-                                                                        }}
-                                                                    >
-                                                                        {result.content}{' '}
-                                                                    </p>
-                                                                    <p
-                                                                        style={{
-                                                                            textAlign: 'left',
-                                                                            color: 'gray',
-                                                                            fontSize: '0.875rem',
-                                                                        }}
-                                                                    >
-                                                                        postet {formattedDate(result.updatedAt)}
-                                                                    </p>
-                                                                </>
-                                                            )}
 
-                                                            {!!hiddenEdit[result._id] && (
-                                                                <Zoom in={hiddenEdit[result._id]}>
-                                                                    <div key={index} style={{ textAlign: 'start' }}>
-                                                                        <TextField
-                                                                            id="content"
-                                                                            name="content"
-                                                                            key={result._id}
-                                                                            label="Rediger"
-                                                                            className={classes.commentField}
-                                                                            multiline={true}
-                                                                            minRows={2}
-                                                                            variant="outlined"
-                                                                            value={
-                                                                                comment.find((i) => {
-                                                                                    if (i._id === parentId) {
-                                                                                        return i.comments[0]
-                                                                                    }
-                                                                                }).comments[index].content
-                                                                            }
-                                                                            onChange={(e) =>
-                                                                                handleChangeCommentReplies(
-                                                                                    e,
-                                                                                    index,
-                                                                                    parentIndex
-                                                                                )
-                                                                            }
-                                                                        />
-                                                                        <Box mt={1} mb={3}>
-                                                                            <Typography
-                                                                                component={'p'}
-                                                                                variant={'subtitle1'}
-                                                                            >
-                                                                                <Button
-                                                                                    style={{ marginRight: '1em' }}
-                                                                                    variant="contained"
-                                                                                    color="primary"
-                                                                                    onClick={(e) =>
-                                                                                        submitCommentEdit(
-                                                                                            e,
-                                                                                            result._id,
-                                                                                            comment[parentIndex]
-                                                                                                .comments[index],
-                                                                                            index,
-                                                                                            true
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    Oppdater
-                                                                                </Button>
-                                                                                <Button
-                                                                                    key={result._id}
-                                                                                    variant="contained"
-                                                                                    color="secondary"
-                                                                                    onClick={() =>
-                                                                                        toggleHideCommentEdit(
-                                                                                            result._id
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    Avbryt
-                                                                                </Button>
-                                                                            </Typography>
-                                                                        </Box>
-                                                                    </div>
-                                                                </Zoom>
-                                                            )}
-                                                            {!!hiddenReply[result._id] && (
-                                                                <Zoom in={hiddenReply[result._id]}>
-                                                                    <div key={index} style={{ paddingTop: '1em' }}>
-                                                                        <TextField
-                                                                            id="outlined-basic"
-                                                                            key={index}
-                                                                            label="Svar"
-                                                                            className={classes.commentField}
-                                                                            variant="outlined"
-                                                                            multiline={true}
-                                                                            rows={2}
-                                                                            defaultValue={
-                                                                                '@' + result.author.name + ' '
-                                                                            }
-                                                                            onChange={(e) => handleChange(e)}
-                                                                        />
-                                                                        <Box mt={1}>
-                                                                            <Typography
-                                                                                component={'p'}
-                                                                                variant={'subtitle'}
-                                                                            >
-                                                                                <Button
-                                                                                    style={{ marginRight: '1em' }}
-                                                                                    variant="contained"
-                                                                                    color="primary"
-                                                                                    onClick={(e) =>
-                                                                                        submitReply(
-                                                                                            e,
-                                                                                            parentId,
-                                                                                            index + 1
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    Svar
-                                                                                </Button>
-                                                                                <Button
-                                                                                    key={index}
-                                                                                    variant="contained"
-                                                                                    color="secondary"
-                                                                                    onClick={() =>
-                                                                                        toggleHideReply(result._id)
-                                                                                    }
-                                                                                >
-                                                                                    Avbryt
-                                                                                </Button>
-                                                                            </Typography>
-                                                                        </Box>
-                                                                    </div>
-                                                                </Zoom>
-                                                            )}
-                                                        </ListItemText>
-                                                    </List>
-                                                </Grid>
-                                            </Grid>
-                                        </>
-                                    )
-                                })}
-                            </Collapse>
-                            <Divider variant="fullWidth" style={{ margin: '10px 0' }} />
-                        </React.Fragment>
-                    )
-                })}
-            </Collapse>
-        </>
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{ cursor: 'pointer', '&:hover': { color: 'text.primary' } }}
+                                onClick={() => !isReply && toggleReplyForm(commentData._id)}
+                            >
+                                {!isReply ? 'Reply' : ''}
+                            </Typography>
+
+                            {/* More Actions Menu */}
+                            <IconButton
+                                size="small"
+                                onClick={(e) => handleMenuOpen(e, commentData._id)}
+                                sx={{ color: 'text.secondary', ml: 'auto !important' }}
+                            >
+                                <MoreVertIcon fontSize="small" />
+                            </IconButton>
+
+                            <Menu
+                                anchorEl={menuAnchor[commentData._id]}
+                                open={Boolean(menuAnchor[commentData._id])}
+                                onClose={() => handleMenuClose(commentData._id)}
+                            >
+                                {isAuthor && [
+                                    <MenuItem
+                                        key="edit"
+                                        onClick={() => {
+                                            toggleEditForm(commentData._id, commentData.content)
+                                            handleMenuClose(commentData._id)
+                                        }}
+                                    >
+                                        <EditIcon fontSize="small" sx={{ mr: 1 }} />
+                                        Rediger
+                                    </MenuItem>,
+                                    <MenuItem
+                                        key="delete"
+                                        onClick={() => {
+                                            deleteComment(commentData._id, isReply, parentCommentId)
+                                            handleMenuClose(commentData._id)
+                                        }}
+                                        sx={{ color: 'error.main' }}
+                                    >
+                                        <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+                                        Slett
+                                    </MenuItem>
+                                ]}
+                                {!isAuthor && (
+                                    <MenuItem onClick={() => handleMenuClose(commentData._id)}>
+                                        Rapporter
+                                    </MenuItem>
+                                )}
+                            </Menu>
+                        </Stack>
+
+                        {/* Reply Form */}
+                        {showReplyForm[commentData._id] && (
+                            <Zoom in={showReplyForm[commentData._id]}>
+                                <Box sx={{ mt: 2, pl: 2, borderLeft: '2px solid #f0f0f0' }}>
+                                    <TextField
+                                        fullWidth
+                                        multiline
+                                        rows={2}
+                                        placeholder="Skriv et svar..."
+                                        value={replyText}
+                                        onChange={(e) => setReplyText(e.target.value)}
+                                        variant="outlined"
+                                        size="small"
+                                        sx={{ mb: 1 }}
+                                    />
+                                    <Stack direction="row" spacing={1}>
+                                        <Button
+                                            size="small"
+                                            variant="contained"
+                                            onClick={() => submitReply(commentData._id)}
+                                            sx={{ bgcolor: '#F79B72', '&:hover': { bgcolor: '#e8895f' } }}
+                                        >
+                                            Svar
+                                        </Button>
+                                        <Button
+                                            size="small"
+                                            variant="outlined"
+                                            onClick={() => toggleReplyForm(commentData._id)}
+                                        >
+                                            Avbryt
+                                        </Button>
+                                    </Stack>
+                                </Box>
+                            </Zoom>
+                        )}
+
+                        {/* Replies Toggle and List */}
+                        {!isReply && commentData.comments && commentData.comments.length > 0 && (
+                            <>
+                                <Button
+                                    size="small"
+                                    startIcon={showReplies[commentData._id] ? <ExpandLess /> : <ExpandMore />}
+                                    onClick={() => toggleReplies(commentData._id)}
+                                    sx={{
+                                        mt: 1,
+                                        color: '#F79B72',
+                                        textTransform: 'none',
+                                        '&:hover': { bgcolor: 'rgba(247, 155, 114, 0.1)' }
+                                    }}
+                                >
+                                    {showReplies[commentData._id] ? 'Skjul' : 'Vis'} {commentData.comments.length} svar
+                                </Button>
+
+                                <Collapse in={showReplies[commentData._id]}>
+                                    <Box sx={{ mt: 2 }}>
+                                        {commentData.comments.map((reply) => (
+                                            <CommentItem
+                                                key={reply._id}
+                                                comment={reply}
+                                                isReply={true}
+                                                parentCommentId={commentData._id}
+                                            />
+                                        ))}
+                                    </Box>
+                                </Collapse>
+                            </>
+                        )}
+                    </Box>
+                </Stack>
+            </Box>
+        )
+    }
+
+    return (
+        <Box>
+            {/* Comments Header */}
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+                <Typography variant="h6" fontWeight="600">
+                    Comments {comment.length > 0 && (
+                        <Chip
+                            label={comment.length}
+                            size="small"
+                            sx={{
+                                ml: 1,
+                                bgcolor: '#F79B72',
+                                color: 'white',
+                                fontWeight: 600
+                            }}
+                        />
+                    )}
+                </Typography>
+
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                    <Select
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value)}
+                        startAdornment={<SortIcon fontSize="small" sx={{ mr: 1 }} />}
+                        sx={{
+                            '& .MuiSelect-select': {
+                                display: 'flex',
+                                alignItems: 'center'
+                            }
+                        }}
+                    >
+                        <MenuItem value="newest">Most recent</MenuItem>
+                        <MenuItem value="oldest">Oldest first</MenuItem>
+                        <MenuItem value="popular">Most popular</MenuItem>
+                    </Select>
+                </FormControl>
+            </Stack>
+
+            {/* Comments List */}
+            {sortedComments.length > 0 ? (
+                sortedComments.map((commentData) => (
+                    <CommentItem key={commentData._id} comment={commentData} />
+                ))
+            ) : (
+                <Box sx={{
+                    textAlign: 'center',
+                    py: 6,
+                    color: 'text.secondary',
+                    border: '2px dashed #e0e0e0',
+                    borderRadius: 2
+                }}>
+                    <Typography variant="body1">Ingen kommentarer enda</Typography>
+                    <Typography variant="body2">Bli den første til å kommentere!</Typography>
+                </Box>
+            )}
+
+            {/* Notification Snackbar */}
+            <Snackbar
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                open={open}
+                autoHideDuration={3000}
+                onClose={handleClose}
+            >
+                <Alert
+                    onClose={handleClose}
+                    severity={message.includes('Kunne ikke') ? 'error' : 'success'}
+                    variant="filled"
+                >
+                    <AlertTitle>{message.includes('Kunne ikke') ? 'Feil' : 'Suksess'}</AlertTitle>
+                    {message}
+                </Alert>
+            </Snackbar>
+        </Box>
     )
 }
 

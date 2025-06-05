@@ -199,8 +199,8 @@ export default function Users() {
             },
         }
 
-        axios.post(`/api/edituser/${idToBeUpdated}`, data, {
-            headers: { Authorization: jwt.token },
+        axios.post(`/api/users/edit/${idToBeUpdated}`, data, {
+            headers: { token: jwt.token },
         })
     }
 

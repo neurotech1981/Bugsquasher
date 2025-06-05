@@ -27,9 +27,12 @@ yarn-error.log*
 *.jpg
 *.jpg
 *.png
+.cursorrules*
+*.pdf
 *.rpf
 *.db
 *.sfl
 src/backend/config/index.js
 config.json
 .p10k.zsh
+.cursorrules copy

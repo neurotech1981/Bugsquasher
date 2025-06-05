@@ -1,0 +1,13 @@
+
+
+"webhook": {
+    "enabled": true,
+    "url": "https://api.freqsignals.com/api/async/freqtrade_webhook/?token=62303d35ef5146cd99f85e8bff306b58",
+    "retries": 3,
+    "retry_delay": 0.2,
+    "allow_custom_messages": true,
+    "format": "json",
+    "strategy_msg": {
+        "data": "{msg}"
+    }
+}

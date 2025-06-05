@@ -2,18 +2,28 @@ import validator from 'validator'
 // eslint-disable-next-line no-underscore-dangle
 import _isEmpty from './is-empty.js'
 
+// Helper function to check if value is empty or "Ingen valgt" (None selected)
+const isEmptyOrNoneSelected = (value) => {
+    return _isEmpty(value) || value === 'Ingen valgt'
+}
+
 // eslint-disable-next-line no-undef
 const validateInput = (data) => {
     const errors = {}
 
     data.name = !_isEmpty(data.name) ? data.name : ''
     data.description = !_isEmpty(data.description) ? data.description : ''
-    data.category = !_isEmpty(data.category) ? data.category : ''
+    data.category = !isEmptyOrNoneSelected(data.category) ? data.category : ''
     data.step_reproduce = !_isEmpty(data.step_reproduce) ? data.step_reproduce : ''
     data.summary = !_isEmpty(data.summary) ? data.summary : ''
-    data.reproduce = !_isEmpty(data.reproduce) ? data.reproduce : ''
-    data.severity = !_isEmpty(data.severity) ? data.severity : ''
-    data.priority = !_isEmpty(data.priority) ? data.priority : ''
+    data.reproduce = !isEmptyOrNoneSelected(data.reproduce) ? data.reproduce : ''
+    data.severity = !isEmptyOrNoneSelected(data.severity) ? data.severity : ''
+    data.priority = !isEmptyOrNoneSelected(data.priority) ? data.priority : ''
+
+    // Don't validate imageName - it's optional
+    if (!data.imageName) {
+        data.imageName = []
+    }
 
     if (validator.isEmpty(data.name)) {
         errors.name = 'Fornavn og etternavn påkrevd'

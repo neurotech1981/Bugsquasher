@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Orange and Navy Theme */
+@layer components {
+  /* Button Components */
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary-900 hover:bg-secondary-800 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl;
+  }
+
+  .btn-outline-primary {
+    @apply border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white px-6 py-3 rounded-xl font-medium transition-all duration-200;
+  }
+
+  .btn-outline-secondary {
+    @apply border-2 border-secondary-900 text-secondary-900 hover:bg-secondary-900 hover:text-white px-6 py-3 rounded-xl font-medium transition-all duration-200;
+  }
+
+  /* Card Components */
+  .card-primary {
+    @apply bg-white border border-neutral-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200;
+  }
+
+  .card-header-primary {
+    @apply bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-4 rounded-t-xl;
+  }
+
+  .card-header-secondary {
+    @apply bg-gradient-to-r from-secondary-900 to-secondary-800 text-white px-6 py-4 rounded-t-xl;
+  }
+
+  /* Form Components */
+  .input-primary {
+    @apply w-full px-4 py-3 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200;
+  }
+
+  .input-secondary {
+    @apply w-full px-4 py-3 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary-900 focus:border-secondary-900 transition-all duration-200;
+  }
+
+  /* Alert Components */
+  .alert-primary {
+    @apply bg-primary-50 border border-primary-200 text-primary-800 px-4 py-3 rounded-xl;
+  }
+
+  .alert-secondary {
+    @apply bg-secondary-50 border border-secondary-200 text-secondary-800 px-4 py-3 rounded-xl;
+  }
+
+  .alert-warning {
+    @apply bg-primary-50 border border-primary-300 text-primary-700 px-4 py-3 rounded-xl;
+  }
+
+  /* Badge Components */
+  .badge-primary {
+    @apply bg-primary-500 text-white px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .badge-secondary {
+    @apply bg-secondary-900 text-white px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .badge-outline-primary {
+    @apply border border-primary-500 text-primary-500 px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  /* Navigation Components */
+  .nav-item {
+    @apply flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 hover:bg-neutral-100;
+  }
+
+  .nav-item-active {
+    @apply flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 bg-overlay-primary-20 border border-primary-300;
+  }
+
+  /* Text Utilities */
+  .text-primary {
+    @apply text-primary-500;
+  }
+
+  .text-secondary {
+    @apply text-secondary-900;
+  }
+
+  .text-muted {
+    @apply text-neutral-600;
+  }
+
+  /* Background Utilities */
+  .bg-primary-gradient {
+    background: linear-gradient(135deg, #F79B72, #e8895f);
+  }
+
+  .bg-secondary-gradient {
+    background: linear-gradient(135deg, #2A4759, #1e3440);
+  }
+
+  .bg-mixed-gradient {
+    background: linear-gradient(135deg, #F79B72, #2A4759);
+  }
+
+  /* Shadow Utilities */
+  .shadow-primary {
+    box-shadow: 0 10px 25px rgba(247, 155, 114, 0.2);
+  }
+
+  .shadow-secondary {
+    box-shadow: 0 10px 25px rgba(42, 71, 89, 0.2);
+  }
+
+  /* Hover Effects */
+  .hover-lift {
+    @apply transition-transform duration-200 hover:-translate-y-1;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+}
+
+/* Custom CSS Variables for consistent theming */
+:root {
+  --color-primary: #F79B72;
+  --color-primary-light: #fad5b8;
+  --color-primary-dark: #ca6539;
+  --color-secondary: #2A4759;
+  --color-secondary-light: #d3dce5;
+  --color-secondary-dark: #152127;
+  --color-neutral-light: #EEEEEE;
+  --color-neutral: #DDDDDD;
+  --color-white: #ffffff;
+  --color-text-primary: #2A4759;
+  --color-text-secondary: #F79B72;
+  --color-text-muted: #999999;
+}
+
+/* Global Base Styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', 'Roboto', system-ui, sans-serif;
+  background-color: var(--color-neutral-light);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-neutral);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-dark);
+}
+
+/* Selection Colors */
+::selection {
+  background-color: var(--color-primary);
+  color: white;
+}

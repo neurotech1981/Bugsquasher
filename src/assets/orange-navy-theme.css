@@ -1,0 +1,329 @@
+/* Orange and Navy Theme Overrides for Material-UI Components */
+
+/* Primary Color Overrides */
+.MuiButton-containedPrimary {
+  background-color: #F79B72 !important;
+  color: white !important;
+}
+
+.MuiButton-containedPrimary:hover {
+  background-color: #e8895f !important;
+}
+
+.MuiButton-outlinedPrimary {
+  border-color: #F79B72 !important;
+  color: #F79B72 !important;
+}
+
+.MuiButton-outlinedPrimary:hover {
+  background-color: rgba(247, 155, 114, 0.04) !important;
+  border-color: #e8895f !important;
+}
+
+/* Secondary Color Overrides */
+.MuiButton-containedSecondary {
+  background-color: #2A4759 !important;
+  color: white !important;
+}
+
+.MuiButton-containedSecondary:hover {
+  background-color: #1e3440 !important;
+}
+
+/* TextField Focus Colors */
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #F79B72 !important;
+}
+
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #F79B72 !important;
+}
+
+.MuiInputLabel-root.Mui-focused {
+  color: #F79B72 !important;
+}
+
+/* Select and FormControl Colors */
+.MuiSelect-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #F79B72 !important;
+}
+
+.MuiSelect-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #F79B72 !important;
+}
+
+/* Checkbox Colors */
+.MuiCheckbox-colorPrimary.Mui-checked {
+  color: #F79B72 !important;
+}
+
+.MuiCheckbox-colorPrimary:hover {
+  background-color: rgba(247, 155, 114, 0.04) !important;
+}
+
+/* Radio Button Colors */
+.MuiRadio-colorPrimary.Mui-checked {
+  color: #F79B72 !important;
+}
+
+.MuiRadio-colorPrimary:hover {
+  background-color: rgba(247, 155, 114, 0.04) !important;
+}
+
+/* Switch Colors */
+.MuiSwitch-colorPrimary.Mui-checked {
+  color: #F79B72 !important;
+}
+
+.MuiSwitch-colorPrimary.Mui-checked + .MuiSwitch-track {
+  background-color: #F79B72 !important;
+}
+
+/* Tabs Colors */
+.MuiTab-textColorPrimary.Mui-selected {
+  color: #F79B72 !important;
+}
+
+.MuiTabs-indicator {
+  background-color: #F79B72 !important;
+}
+
+/* Slider Colors */
+.MuiSlider-colorPrimary {
+  color: #F79B72 !important;
+}
+
+/* Progress Colors */
+.MuiLinearProgress-colorPrimary .MuiLinearProgress-bar {
+  background-color: #F79B72 !important;
+}
+
+.MuiCircularProgress-colorPrimary {
+  color: #F79B72 !important;
+}
+
+/* Chip Colors */
+.MuiChip-colorPrimary {
+  background-color: #F79B72 !important;
+  color: white !important;
+}
+
+.MuiChip-colorSecondary {
+  background-color: #2A4759 !important;
+  color: white !important;
+}
+
+/* AppBar Colors */
+.MuiAppBar-colorPrimary {
+  background-color: #2A4759 !important;
+}
+
+/* Fab Colors */
+.MuiFab-primary {
+  background-color: #F79B72 !important;
+  color: white !important;
+}
+
+.MuiFab-primary:hover {
+  background-color: #e8895f !important;
+}
+
+.MuiFab-secondary {
+  background-color: #2A4759 !important;
+  color: white !important;
+}
+
+.MuiFab-secondary:hover {
+  background-color: #1e3440 !important;
+}
+
+/* Badge Colors */
+.MuiBadge-colorPrimary {
+  background-color: #F79B72 !important;
+  color: white !important;
+}
+
+.MuiBadge-colorSecondary {
+  background-color: #2A4759 !important;
+  color: white !important;
+}
+
+/* Alert Colors */
+.MuiAlert-standardInfo {
+  background-color: rgba(42, 71, 89, 0.1) !important;
+  color: #2A4759 !important;
+}
+
+.MuiAlert-standardWarning {
+  background-color: rgba(247, 155, 114, 0.1) !important;
+  color: #d9774c !important;
+}
+
+/* Stepper Colors */
+.MuiStepIcon-active {
+  color: #F79B72 !important;
+}
+
+.MuiStepIcon-completed {
+  color: #2A4759 !important;
+}
+
+/* Link Colors */
+.MuiLink-root {
+  color: #F79B72 !important;
+}
+
+.MuiLink-root:hover {
+  color: #e8895f !important;
+}
+
+/* Table Header Colors */
+.MuiTableHead-root .MuiTableCell-head {
+  background-color: #2A4759 !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+/* Hover effects for table rows */
+.MuiTableRow-hover:hover {
+  background-color: rgba(247, 155, 114, 0.04) !important;
+}
+
+/* Menu Item Hover */
+.MuiMenuItem-root:hover {
+  background-color: rgba(247, 155, 114, 0.08) !important;
+}
+
+/* List Item Button Hover */
+.MuiListItemButton-root:hover {
+  background-color: rgba(247, 155, 114, 0.04) !important;
+}
+
+/* Paper with elevation for cards */
+.MuiPaper-elevation1 {
+  box-shadow: 0 2px 8px rgba(42, 71, 89, 0.1) !important;
+}
+
+.MuiPaper-elevation2 {
+  box-shadow: 0 4px 12px rgba(42, 71, 89, 0.15) !important;
+}
+
+.MuiPaper-elevation4 {
+  box-shadow: 0 6px 20px rgba(42, 71, 89, 0.15) !important;
+}
+
+/* Tooltip Colors */
+.MuiTooltip-tooltip {
+  background-color: #2A4759 !important;
+  color: white !important;
+}
+
+.MuiTooltip-arrow {
+  color: #2A4759 !important;
+}
+
+/* Accordion Colors */
+.MuiAccordionSummary-root:hover {
+  background-color: rgba(247, 155, 114, 0.04) !important;
+}
+
+.MuiAccordionSummary-expandIconWrapper.Mui-expanded {
+  color: #F79B72 !important;
+}
+
+/* Breadcrumb Colors */
+.MuiBreadcrumbs-root .MuiLink-root {
+  color: #2A4759 !important;
+}
+
+.MuiBreadcrumbs-root .MuiLink-root:hover {
+  color: #F79B72 !important;
+}
+
+/* Speed Dial Colors */
+.MuiSpeedDial-fab {
+  background-color: #F79B72 !important;
+  color: white !important;
+}
+
+.MuiSpeedDial-fab:hover {
+  background-color: #e8895f !important;
+}
+
+/* Rating Colors */
+.MuiRating-iconFilled {
+  color: #F79B72 !important;
+}
+
+.MuiRating-iconHover {
+  color: #e8895f !important;
+}
+
+/* Pagination Colors */
+.MuiPaginationItem-page.Mui-selected {
+  background-color: #F79B72 !important;
+  color: white !important;
+}
+
+.MuiPaginationItem-page.Mui-selected:hover {
+  background-color: #e8895f !important;
+}
+
+/* Toggle Button Colors */
+.MuiToggleButton-root.Mui-selected {
+  background-color: rgba(247, 155, 114, 0.12) !important;
+  color: #F79B72 !important;
+}
+
+.MuiToggleButton-root.Mui-selected:hover {
+  background-color: rgba(247, 155, 114, 0.2) !important;
+}
+
+/* Bottom Navigation Colors */
+.MuiBottomNavigationAction-root.Mui-selected {
+  color: #F79B72 !important;
+}
+
+/* Global Background Override */
+body {
+  background-color: #EEEEEE !important;
+}
+
+/* Card backgrounds for better contrast */
+.MuiCard-root {
+  background-color: white !important;
+  border: 1px solid rgba(221, 221, 221, 0.3) !important;
+}
+
+/* Status badges for issues */
+.status-badge-open {
+  background-color: #F79B72 !important;
+  color: white !important;
+}
+
+.status-badge-closed {
+  background-color: #2A4759 !important;
+  color: white !important;
+}
+
+.status-badge-in-progress {
+  background-color: #e8895f !important;
+  color: white !important;
+}
+
+/* Priority indicators */
+.priority-high {
+  color: #F79B72 !important;
+}
+
+.priority-critical {
+  color: #d9774c !important;
+}
+
+.priority-medium {
+  color: #2A4759 !important;
+}
+
+.priority-low {
+  color: #1e3440 !important;
+}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -14,9 +14,14 @@ import Tooltip from '@mui/material/Tooltip'
 import { makeStyles } from '@mui/styles'
 
 function PaperComponent(props) {
+    const nodeRef = useRef(null)
     return (
-        <Draggable handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"]'}>
-            <Paper {...props} />
+        <Draggable
+            handle="#draggable-dialog-title"
+            cancel={'[class*="MuiDialogContent-root"]'}
+            nodeRef={nodeRef}
+        >
+            <Paper ref={nodeRef} {...props} />
         </Draggable>
     )
 }
@@ -45,7 +50,7 @@ export default function DraggableDialog(props) {
     const [open, setOpen] = useState(false)
 
     const removeImage = (imageIndex) => {
-        console.log('Image ID', images[imageIndex].id)
+        console.log('Image to remove:', images[imageIndex])
         //let array = [...images]
         if (imageIndex !== -1) {
             //array = images.filter((_, index) => index !== imageIndex)
@@ -59,14 +64,21 @@ export default function DraggableDialog(props) {
     const deleteImage = async () => {
         const jwt = auth.isAuthenticated()
         console.log('Images to delete: ', images[imageIndex])
-        console.log(issueID, images[imageIndex].id, jwt.token)
+
+        // Use the path as the identifier since that's what we store in MongoDB
+        const imageToDelete = images[imageIndex]
+        const imagePath = imageToDelete.path || imageToDelete.name || name
+
+        console.log('Deleting image with path:', imagePath)
+        console.log('Issue ID:', issueID)
+
         await issueService
-            .deleteImage(issueID, images[imageIndex].id, name, jwt.token)
+            .deleteImage(issueID, imagePath, name, jwt.token)
             .then((response) => {
-                console.log(response)
+                console.log('Delete response:', response)
             })
             .catch((e) => {
-                console.log('error: ', e)
+                console.log('Delete error: ', e)
             })
     }
 

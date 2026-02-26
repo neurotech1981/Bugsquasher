@@ -39,57 +39,6 @@ const totalCPUs = OS.cpus().length
 const uniqueID = crypto.randomBytes(16).toString('hex')
 // define the Express app
 const app = express()
-const httpServer = createServer(app)
-const io = new Server(httpServer, {
-  cors: {
-    origin: '*',
-    methods: ['GET', 'POST'],
-    transports: ['websocket', 'polling'],
-    credentials: true,
-    forceNew: false,
-    secure: true,
-  },
-  allowEIO3: true,
-})
-
-let eventList = []
-
-io.on('connection', (socket) => {
-  console.log(`⚡: ${socket.id} user just connected!`)
-
-  socket.on('msg', function (msg) {
-    console.log('entered!') // <--- It will print now !
-    console.log('message: ' + msg)
-  })
-
-  socket.on('user_connect', async (userId) => {
-    const user = await User.findById(userId)
-    if (user) {
-      user.socketId = socket.id
-      await user.save()
-    }
-  })
-
-  /*
-      The event listener adds the new event
-          to the top of the array, and
-          sends the array to the React app
-      */
-  socket.on('new_issue', (issue, userId) => {
-    User.findById(userId).then((user) => {
-      if (user && user.socketId) {
-        io.to(user.socketId).emit('new_issue', issue, userId)
-      }
-    })
-  })
-
-  socket.on('disconnect', () => {
-    console.log(`⚡: ${socket.id} user just disconnected!`)
-    socket.disconnect()
-  })
-})
-
-httpServer.listen(4000)
 
 process.on('unhandledRejection', (rejectionErr) => {
   // Won't execute
@@ -219,6 +168,53 @@ function isValidId(id) {
 if (cluster.isPrimary) {
   console.log(`Number of CPUs is ${totalCPUs}`)
   console.log(`Master ${process.pid} is running`)
+
+  const socketServer = createServer()
+  const io = new Server(socketServer, {
+    cors: {
+      origin: '*',
+      methods: ['GET', 'POST'],
+      transports: ['websocket', 'polling'],
+      credentials: true,
+      forceNew: false,
+      secure: true,
+    },
+    allowEIO3: true,
+  })
+
+  io.on('connection', (socket) => {
+    console.log(`⚡: ${socket.id} user just connected!`)
+
+    socket.on('msg', function (msg) {
+      console.log('entered!')
+      console.log('message: ' + msg)
+    })
+
+    socket.on('user_connect', async (userId) => {
+      const user = await User.findById(userId)
+      if (user) {
+        user.socketId = socket.id
+        await user.save()
+      }
+    })
+
+    socket.on('new_issue', (issue, userId) => {
+      User.findById(userId).then((user) => {
+        if (user && user.socketId) {
+          io.to(user.socketId).emit('new_issue', issue, userId)
+        }
+      })
+    })
+
+    socket.on('disconnect', () => {
+      console.log(`⚡: ${socket.id} user just disconnected!`)
+      socket.disconnect()
+    })
+  })
+
+  socketServer.listen(4000, () => {
+    console.log('Socket.IO server listening on port 4000')
+  })
 
   // Fork workers.
   for (let i = 0; i < totalCPUs; i++) {

@@ -15,13 +15,13 @@ The frontend proxies API calls to the backend via `"proxy": "http://localhost:30
 
 1. **MongoDB**: `sudo mongod --dbpath /data/db --fork --logpath /var/log/mongod.log`
 2. **Backend**: `cd src/backend && npm run start:dev` (uses nodemon + babel-node)
-3. **Frontend**: `ESLINT_NO_DEV_ERRORS=true GENERATE_SOURCEMAP=false BROWSER=none npx react-scripts start` from the workspace root
+3. **Frontend**: `GENERATE_SOURCEMAP=false BROWSER=none npx react-scripts start` from the workspace root (or `npm start`)
 
 ### Non-obvious caveats
 
 - **Node version**: The project requires Node 18 (`engines` in `package.json`). Use `nvm use 18`.
 - **Legacy peer deps**: Frontend `npm install` requires `--legacy-peer-deps` due to peer dependency conflicts (chartist/react-chartist).
-- **ESLint errors in dev**: The codebase has pre-existing ESLint/Prettier errors. React-scripts treats these as build failures. You must set `ESLINT_NO_DEV_ERRORS=true` when running the frontend dev server.
+- **ESLint/Prettier**: All ESLint/Prettier formatting errors have been fixed. The frontend builds cleanly without workarounds. Run `npx prettier --write 'src/**/*.js' 'src/**/*.jsx'` after making changes to auto-format.
 - **MongoDB IPv6**: On systems where `localhost` resolves to `::1`, MongoDB connections fail. The backend config (`src/backend/config/index.js`) must use `127.0.0.1` instead of `localhost`.
 - **Backend config**: `src/backend/config/index.js` is gitignored. Copy from `config/index_example.js` and set `mongoURI` to `mongodb://127.0.0.1:27017/bugsquasher`.
 - **Email config**: `src/helpers/config.json` is gitignored. Create it with stub SMTP settings (email features are optional). Example:
@@ -30,7 +30,8 @@ The frontend proxies API calls to the backend via `"proxy": "http://localhost:30
   ```
 - **Uploads directory**: Create `assets/uploads` at the workspace root for multer image uploads.
 - **Socket.IO port conflicts**: The backend uses Node.js clustering and forks multiple workers. Only one worker can bind port 4000 for Socket.IO — `EADDRINUSE` errors on port 4000 from other workers are expected and harmless.
-- **No automated tests**: The project has no test files; `CI=true npm test -- --passWithNoTests` exits cleanly.
+- **Backend tests**: Run `cd src/backend && npm test` — 17 tests covering auth and issues API using Jest + Supertest + mongodb-memory-server.
+- **Frontend tests**: `CI=true npm test -- --watchAll=false --passWithNoTests` — no frontend tests exist yet.
 
 ### Lint / Test / Build
 

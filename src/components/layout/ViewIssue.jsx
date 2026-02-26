@@ -319,11 +319,13 @@ export default function ViewIssue(props) {
     await issueService
       .upDateDelegated(id, { delegated: data }, jwt.token)
       .then((response) => {
+        const selectedUser = users.find((u) => u._id === data)
         setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true })
-        setData({ ...dataset, delegated: data })
+        setData({ ...dataset, delegated: selectedUser || { _id: data, name: '' } })
       })
       .catch((e) => {
         console.error('Update delegated user error: ', e)
+        setErrors({ ...errors, delegated: 'Kunne ikke oppdatere delegering' })
       })
   }
 
@@ -500,7 +502,7 @@ export default function ViewIssue(props) {
             <div className="item2">
               <TextField
                 label="Priority"
-                value={[dataset.priority ? dataset.priority : '']}
+                value={dataset.priority ? dataset.priority : ''}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -531,7 +533,7 @@ export default function ViewIssue(props) {
             <div className="item4">
               <TextField
                 label="Kategori"
-                value={[dataset.category ? dataset.category : '']}
+                value={dataset.category ? dataset.category : ''}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -548,7 +550,7 @@ export default function ViewIssue(props) {
             <div className="item7">
               <TextField
                 label="Alvorlighetsgrad"
-                value={[dataset.severity ? dataset.severity : '']}
+                value={dataset.severity ? dataset.severity : ''}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -560,7 +562,7 @@ export default function ViewIssue(props) {
             <div className="item8">
               <TextField
                 label="Mulighet å reprodusere"
-                value={[dataset.reproduce ? dataset.reproduce : '']}
+                value={dataset.reproduce ? dataset.reproduce : ''}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -572,7 +574,7 @@ export default function ViewIssue(props) {
             <div className="item15">
               <TextField
                 label="Delegert til"
-                value={[dataset.delegated != null ? dataset.delegated.name : 'Laster...']}
+                value={dataset.delegated != null ? dataset.delegated.name : 'Ikke delegert'}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -585,7 +587,7 @@ export default function ViewIssue(props) {
               <TextField
                 multiline
                 label="Oppsummering"
-                value={[dataset.summary ? dataset.summary : '']}
+                value={dataset.summary ? dataset.summary : ''}
                 className={classes.textField}
                 margin="normal"
                 variant="standard"
@@ -743,7 +745,7 @@ export default function ViewIssue(props) {
                     label="Status"
                     variant="outlined"
                     name="Status"
-                    value={[dataset.status ? dataset.status : 'Åpen']}
+                    value={dataset.status ? dataset.status : 'Åpen'}
                     InputProps={{
                       className: classes.input,
                     }}
@@ -764,7 +766,7 @@ export default function ViewIssue(props) {
                   <TextField
                     id="outlined-select-delegert"
                     select
-                    value={[dataset.delegated != null ? dataset.delegated._id : 0]}
+                    value={dataset.delegated != null ? dataset.delegated._id : ''}
                     label="Deleger til"
                     name="delegert"
                     onChange={(e) => upDateDelegated(dataset._id, e.target.value)}

@@ -1,183 +1,161 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect, useCallback } from "react";
-import moment from "moment";
-import PropTypes from "prop-types";
-import "../../App.css";
-import ChartistGraph from "react-chartist";
-import { makeStyles } from "@material-ui/core/styles";
-import Icon from "@material-ui/core/Icon";
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import DateRange from "@material-ui/icons/DateRange";
-import LocalOffer from "@material-ui/icons/LocalOffer";
-import Accessibility from "@material-ui/icons/Accessibility";
-import Update from "@material-ui/icons/Update";
-import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
-import BugReport from "@material-ui/icons/BugReport";
-import Code from "@material-ui/icons/Code";
-import Cloud from "@material-ui/icons/Cloud";
-import ArrowUpward from "@material-ui/icons/ArrowUpward";
-import AccessTime from "@material-ui/icons/AccessTime";
-import CustomTabs from "../CustomTabs/CustomTabs.js";
-import Table from "../Table/Table.js";
-import Tasks from "../Tasks/Tasks.js";
-import GridContainer from "../grid/GridContainer.js";
-import GridItem from "../grid/GridItem.js";
-import Card from "../Card/Card.js";
-import CardHeader from "../Card/CardHeader.js";
-import CardIcon from "../Card/CardIcon.js";
-import CardBody from "../Card/CardBody.js";
-import CardFooter from "../Card/CardFooter.js";
-import issueService from "../../services/issueService";
-import auth from "../auth/auth-helper";
+import React, { useState, useEffect, useCallback } from 'react'
+import moment from 'moment'
+import PropTypes from 'prop-types'
+import '../../App.css'
+import ChartistGraph from 'react-chartist'
+import { makeStyles } from '@material-ui/core/styles'
+import Icon from '@material-ui/core/Icon'
+import CheckCircleIcon from '@material-ui/icons/CheckCircle'
+import DateRange from '@material-ui/icons/DateRange'
+import LocalOffer from '@material-ui/icons/LocalOffer'
+import Accessibility from '@material-ui/icons/Accessibility'
+import Update from '@material-ui/icons/Update'
+import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd'
+import BugReport from '@material-ui/icons/BugReport'
+import Code from '@material-ui/icons/Code'
+import Cloud from '@material-ui/icons/Cloud'
+import ArrowUpward from '@material-ui/icons/ArrowUpward'
+import AccessTime from '@material-ui/icons/AccessTime'
+import CustomTabs from '../CustomTabs/CustomTabs.js'
+import Table from '../Table/Table.js'
+import Tasks from '../Tasks/Tasks.js'
+import GridContainer from '../grid/GridContainer.js'
+import GridItem from '../grid/GridItem.js'
+import Card from '../Card/Card.js'
+import CardHeader from '../Card/CardHeader.js'
+import CardIcon from '../Card/CardIcon.js'
+import CardBody from '../Card/CardBody.js'
+import CardFooter from '../Card/CardFooter.js'
+import issueService from '../../services/issueService'
+import auth from '../auth/auth-helper'
 
-import {
-  dailySalesChart,
-  emailsSubscriptionChart,
-  completedTasksChart,
-} from "../../variables/charts.js";
+import { dailySalesChart, emailsSubscriptionChart, completedTasksChart } from '../../variables/charts.js'
 
-import styles from "../../assets/styles/dashboardStyle.js";
+import styles from '../../assets/styles/dashboardStyle.js'
 
-const useStyles = makeStyles(styles);
+const useStyles = makeStyles(styles)
 
 function Landing() {
-  const classes = useStyles();
-  const [issueCount, setIssueCount] = useState(0);
-  const [todaysIssues, setTodaysIssues] = useState(0);
-  const [solvedIssues, setSolvedIssues] = useState(0);
-  const [openIssues, setOpenIssues] = useState(0);
-  const [latestCases, setLatestCases] = useState([]);
-  const [thisYearCases, setThisYearCases] = useState([]);
+  const classes = useStyles()
+  const [issueCount, setIssueCount] = useState(0)
+  const [todaysIssues, setTodaysIssues] = useState(0)
+  const [solvedIssues, setSolvedIssues] = useState(0)
+  const [openIssues, setOpenIssues] = useState(0)
+  const [latestCases, setLatestCases] = useState([])
+  const [thisYearCases, setThisYearCases] = useState([])
 
   const [yearlyCountIssues, setYearlyCountIssues] = useState({
-    labels: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "Mai",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Okt",
-      "Nov",
-      "Des",
-    ],
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'],
     series: [[]],
-  });
+  })
 
   const [weeklyCountIssues, setThisWeekCountIssues] = useState({
-    labels: ["Man", "Tirs", "Ons", "Tors", "Fre", "Lør", "Søn"],
+    labels: ['Man', 'Tirs', 'Ons', 'Tors', 'Fre', 'Lør', 'Søn'],
     series: [[0, 0, 0, 0, 0, 0, 0]],
-  });
+  })
 
   const [dailyCountIssues, setDailyCountIssues] = useState({
     labels: [
-      "00:00",
-      "",
-      "",
-      "03:00",
-      "",
-      "",
-      "06:00",
-      "",
-      "",
-      "09:00",
-      "",
-      "",
-      "12:00",
-      "",
-      "",
-      "15:00",
-      "",
-      "",
-      "",
-      "19:00",
-      "",
-      "",
-      "",
-      "23:59",
+      '00:00',
+      '',
+      '',
+      '03:00',
+      '',
+      '',
+      '06:00',
+      '',
+      '',
+      '09:00',
+      '',
+      '',
+      '12:00',
+      '',
+      '',
+      '15:00',
+      '',
+      '',
+      '',
+      '19:00',
+      '',
+      '',
+      '',
+      '23:59',
     ],
     series: [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
-  });
-
+  })
 
   useEffect(() => {
-    let isSubscribed = true;
+    let isSubscribed = true
     if (isSubscribed) {
-      getIssueCount();
-      getTodaysIssueCount();
-      getSolvedIssues();
-      getOpenIssues();
-      getLatestCases();
-      getThisYearIssueCount();
-      getThisWeekIssueCount();
-      getDailyIssueCount();
+      getIssueCount()
+      getTodaysIssueCount()
+      getSolvedIssues()
+      getOpenIssues()
+      getLatestCases()
+      getThisYearIssueCount()
+      getThisWeekIssueCount()
+      getDailyIssueCount()
     }
-    return () => (isSubscribed = false);
-  }, []);
+    return () => (isSubscribed = false)
+  }, [])
 
   const getIssueCount = async () => {
-    const jwt = auth.isAuthenticated();
-    const res = await issueService.countIssues(jwt.token);
-    setIssueCount(res.data);
-  };
+    const jwt = auth.isAuthenticated()
+    const res = await issueService.countIssues(jwt.token)
+    setIssueCount(res.data)
+  }
 
   const getTodaysIssueCount = async () => {
-    const jwt = auth.isAuthenticated();
-    const res = await issueService.getTodaysIssues(jwt.token);
-    setTodaysIssues(res.data);
-  };
+    const jwt = auth.isAuthenticated()
+    const res = await issueService.getTodaysIssues(jwt.token)
+    setTodaysIssues(res.data)
+  }
 
   const getSolvedIssues = async () => {
-    const jwt = auth.isAuthenticated();
-    const res = await issueService.countSolvedIssues(jwt.token);
-    setSolvedIssues(res.data);
-  };
+    const jwt = auth.isAuthenticated()
+    const res = await issueService.countSolvedIssues(jwt.token)
+    setSolvedIssues(res.data)
+  }
 
   const getOpenIssues = async () => {
-    const jwt = auth.isAuthenticated();
-    const res = await issueService.countOpenIssues(jwt.token);
-    setOpenIssues(res.data);
-  };
+    const jwt = auth.isAuthenticated()
+    const res = await issueService.countOpenIssues(jwt.token)
+    setOpenIssues(res.data)
+  }
 
   const getLatestCases = async () => {
-    const jwt = auth.isAuthenticated();
-    const res = await issueService.getLatestCases(jwt.token);
+    const jwt = auth.isAuthenticated()
+    const res = await issueService.getLatestCases(jwt.token)
     if (Object.values(res.data).length !== 0) {
       var valueArr = res.data.map((element, key) => {
         return [
-          moment(element.createdAt).format("DD/MM-YYYY HH:mm"),
-          <a
-            href={"http://localhost:3000/vis-sak/" + element._id}
-            className="link underline"
-            key={key}
-          >
+          moment(element.createdAt).format('DD/MM-YYYY HH:mm'),
+          <a href={'http://localhost:3000/vis-sak/' + element._id} className="link underline" key={key}>
             {element.summary}
           </a>,
           element.priority,
           element.severity,
-        ];
-      });
-      setLatestCases(valueArr);
+        ]
+      })
+      setLatestCases(valueArr)
     }
-  };
+  }
 
   const getThisYearIssueCount = async () => {
-    const jwt = auth.isAuthenticated();
-    const res = await issueService.getThisYearCaseCount(jwt.token);
-    console.log("This year: ", res);
+    const jwt = auth.isAuthenticated()
+    const res = await issueService.getThisYearCaseCount(jwt.token)
+    console.log('This year: ', res)
 
     if (Object.values(res.data).length !== 0) {
       var valueArr = Object.values(res.data[0].data).map((element) => {
-        return element;
-      });
+        return element
+      })
     } else {
-      return null;
+      return null
     }
-    setYearlyCountIssues({ ...yearlyCountIssues, series: [valueArr] });
-  };
+    setYearlyCountIssues({ ...yearlyCountIssues, series: [valueArr] })
+  }
 
   const getThisWeekIssueCount = async () => {
     const jwt = auth.isAuthenticated()
@@ -196,17 +174,17 @@ function Landing() {
       return acc
     }, [])
 
-    let daysArray = [{"Man": 0, "Tirs": 0, "Ons": 0, "Tors": 0, "Fre": 0, "Lør": 0, "Søn": 0}];
+    let daysArray = [{ Man: 0, Tirs: 0, Ons: 0, Tors: 0, Fre: 0, Lør: 0, Søn: 0 }]
 
     daysArray.forEach((dayObject) => {
       Object.keys(dayObject).forEach((day) => {
-        if(Object.prototype.hasOwnProperty.call(combinedData[0], "key")) {
+        if (Object.prototype.hasOwnProperty.call(combinedData[0], 'key')) {
           dayObject[day] = combinedData[0][day]
         }
       })
     })
 
-    let valueArr = [];
+    let valueArr = []
     if (Object.values(combinedData[0].data).length !== 0) {
       valueArr = Object.values(combinedData[0].data).map((element) => {
         return element
@@ -216,19 +194,19 @@ function Landing() {
     }
 
     setThisWeekCountIssues({ ...weeklyCountIssues, series: [valueArr] })
-  };
+  }
 
   const getDailyIssueCount = async () => {
-    const jwt = auth.isAuthenticated();
-    const res = await issueService.getDailyIssueCount(jwt.token);
-    console.log(res);
+    const jwt = auth.isAuthenticated()
+    const res = await issueService.getDailyIssueCount(jwt.token)
+    console.log(res)
     if (Object.values(res.data).length !== 0) {
       var valueArr = Object.values(res.data[0].data).map((element) => {
-        return element;
-      });
-      setDailyCountIssues({ ...dailyCountIssues, series: [valueArr] });
+        return element
+      })
+      setDailyCountIssues({ ...dailyCountIssues, series: [valueArr] })
     }
-  };
+  }
 
   return (
     <div className={classes.root}>
@@ -411,6 +389,6 @@ Landing.propTypes = {
   // Injected by the documentation to work in an iframe.
   // You won't need it on your project.
   container: PropTypes.object,
-};
+}
 
-export default Landing;
+export default Landing

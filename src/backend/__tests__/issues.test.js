@@ -53,9 +53,20 @@ describe('Issues API', () => {
     })
 
     it('should reject issue missing required fields', async () => {
-      const res = await request(app).post('/api/new-issue').send({
-        data: { name: 'Test', description: '', category: '', summary: '', reproduce: '', severity: '', priority: '', step_reproduce: '' },
-      })
+      const res = await request(app)
+        .post('/api/new-issue')
+        .send({
+          data: {
+            name: 'Test',
+            description: '',
+            category: '',
+            summary: '',
+            reproduce: '',
+            severity: '',
+            priority: '',
+            step_reproduce: '',
+          },
+        })
       expect(res.status).toBe(400)
     })
   })
@@ -104,9 +115,11 @@ describe('Issues API', () => {
     it('should update issue fields', async () => {
       const createRes = await request(app).post('/api/new-issue').send(makeIssue())
       const issueId = createRes.body.document._id
-      const res = await request(app).post(`/api/upDateIssue/${issueId}`).send({
-        dataset: { summary: 'Updated summary', priority: 'Høy' },
-      })
+      const res = await request(app)
+        .post(`/api/upDateIssue/${issueId}`)
+        .send({
+          dataset: { summary: 'Updated summary', priority: 'Høy' },
+        })
       expect(res.status).toBe(200)
       expect(res.body.success).toBe(true)
 

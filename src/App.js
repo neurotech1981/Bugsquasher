@@ -5,7 +5,7 @@ import Landing from './components/layout/Landing'
 import Issues from './components/layout/Issues'
 import Users from './components/user/Users'
 import CreateIssue from './components/layout/CreateIssue'
-import EditIssue from "./components/layout/EditIssue";
+import EditIssue from './components/layout/EditIssue'
 import ViewIssue from './components/layout/ViewIssue'
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import PrivateRoute from './components/auth/PrivateRoute'
@@ -16,10 +16,10 @@ import ResetPassword from './components/auth/ResetPassword'
 import ChangePassword from './components/auth/ChangePassword'
 import { Provider } from 'react-redux'
 import { store } from './redux/store'
-import './App.css';
-import { Typography, Button } from '@material-ui/core';
-import { createTheme } from '@material-ui/core/styles';
-import { ThemeProvider } from '@material-ui/styles';
+import './App.css'
+import { Typography, Button } from '@material-ui/core'
+import { createTheme } from '@material-ui/core/styles'
+import { ThemeProvider } from '@material-ui/styles'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import socketIO from 'socket.io-client'
@@ -46,10 +46,9 @@ const theme = createTheme({
   },
 })
 
-
 const App = () => {
-  const jwt = auth.isAuthenticated();
-  if(jwt) {
+  const jwt = auth.isAuthenticated()
+  if (jwt) {
     let userId = auth.isAuthenticated().user._id
     // Socket IO user connection
     socket.emit('user_connect', userId)
@@ -60,7 +59,8 @@ const App = () => {
       <Typography variant="body2" color="textSecondary" component="p">
         A new issue has been created and delegated to you by reporter: {reporter}
       </Typography>
-      <Button variant="contained" href={'/vis-sak/' + issue_id}>Gå til sak
+      <Button variant="contained" href={'/vis-sak/' + issue_id}>
+        Gå til sak
       </Button>
     </div>
   )

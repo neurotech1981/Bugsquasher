@@ -1,19 +1,10 @@
-// ##############################
-// // // javascript library for creating charts
-// #############################
+/* eslint-env node */
 var Chartist = require('chartist')
 
-// ##############################
-// // // variables used to create animation on charts
-// #############################
 var delays = 80,
   durations = 500
 var delays2 = 80,
   durations2 = 500
-
-// ##############################
-// // // Daily Sales
-// #############################
 
 const dailySalesChart = {
   options: {
@@ -21,7 +12,7 @@ const dailySalesChart = {
       tension: 0,
     }),
     low: 0,
-    high: 30, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
+    high: 30,
     chartPadding: {
       top: 0,
       right: 20,
@@ -29,7 +20,6 @@ const dailySalesChart = {
       left: 0,
     },
   },
-  // for animation
   animation: {
     draw: function (data) {
       if (data.type === 'line' || data.type === 'area') {
@@ -56,10 +46,6 @@ const dailySalesChart = {
     },
   },
 }
-
-// ##############################
-// // // Email Subscriptions
-// #############################
 
 const emailsSubscriptionChart = {
   options: {
@@ -105,17 +91,13 @@ const emailsSubscriptionChart = {
   },
 }
 
-// ##############################
-// // // Completed Tasks
-// #############################
-
 const completedTasksChart = {
   options: {
     lineSmooth: Chartist.Interpolation.simple({
       divisor: 4,
     }),
     low: 0,
-    high: 6, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
+    high: 6,
     chartPadding: {
       top: 0,
       right: 10,

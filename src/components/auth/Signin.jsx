@@ -1,44 +1,44 @@
-import React, { useState } from "react";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import { CardActions } from "@material-ui/core";
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
-import Icon from "@material-ui/core/Icon";
-import { makeStyles } from "@material-ui/core/styles";
-import auth from "./auth-helper";
-import { Redirect, Link, useLocation } from "react-router-dom";
-import ApiAuth from "../utils/ApiAuth";
-import useReactRouter from "use-react-router";
-import VpnKeyIcon from "@material-ui/icons/VpnKey";
-import Box from "@material-ui/core/Box";
-import PersonAddRoundedIcon from "@material-ui/icons/PersonAddTwoTone";
-import Visibility from "@material-ui/icons/Visibility";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import IconButton from "@material-ui/core/IconButton";
+import React, { useState } from 'react'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import { CardActions } from '@material-ui/core'
+import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
+import Icon from '@material-ui/core/Icon'
+import { makeStyles } from '@material-ui/core/styles'
+import auth from './auth-helper'
+import { Redirect, Link, useLocation } from 'react-router-dom'
+import ApiAuth from '../utils/ApiAuth'
+import useReactRouter from 'use-react-router'
+import VpnKeyIcon from '@material-ui/icons/VpnKey'
+import Box from '@material-ui/core/Box'
+import PersonAddRoundedIcon from '@material-ui/icons/PersonAddTwoTone'
+import Visibility from '@material-ui/icons/Visibility'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
+import IconButton from '@material-ui/core/IconButton'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    margin: "0 auto",
+    margin: '0 auto',
   },
   button: {
     margin: theme.spacing(1),
-    "&:hover": {
-      transition: theme.transitions.create("margin", {
+    '&:hover': {
+      transition: theme.transitions.create('margin', {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
       }),
-      backgroundColor: "#FFF00",
-      color: "white",
+      backgroundColor: '#FFF00',
+      color: 'white',
     },
   },
   extendedIcon: {
     marginRight: theme.spacing(1),
   },
   passwordLink: {
-    "&:hover": {
-      transition: theme.transitions.create("margin", {
+    '&:hover': {
+      transition: theme.transitions.create('margin', {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
       }),
@@ -46,13 +46,13 @@ const useStyles = makeStyles((theme) => ({
   },
   card: {
     maxWidth: 600,
-    margin: "auto",
-    textAlign: "center",
+    margin: 'auto',
+    textAlign: 'center',
     marginTop: theme.spacing(15),
     paddingBottom: theme.spacing(2),
   },
   error: {
-    verticalAlign: "middle",
+    verticalAlign: 'middle',
   },
   title: {
     marginTop: theme.spacing(2),
@@ -64,39 +64,39 @@ const useStyles = makeStyles((theme) => ({
     width: 300,
   },
   submit: {
-    margin: "auto",
+    margin: 'auto',
     marginBottom: theme.spacing(2),
   },
   forgottenPassword: {
     paddingLeft: theme.spacing(2),
   },
-}));
+}))
 
 export default function Signin() {
-  const { location } = useLocation();
+  const { location } = useLocation()
   const initialState = {
-    email: "",
-    password: "",
-    error: "",
+    email: '',
+    password: '',
+    error: '',
     redirectToReferrer: false,
     showPassword: false,
-  };
+  }
 
-  const [values, setValues] = useState(initialState);
+  const [values, setValues] = useState(initialState)
 
   const handleClickShowPassword = () => {
-    setValues({ ...values, showPassword: !values.showPassword });
-  };
+    setValues({ ...values, showPassword: !values.showPassword })
+  }
 
   const handleMouseDownPassword = (event) => {
-    event.preventDefault();
-  };
+    event.preventDefault()
+  }
 
   const clickSubmit = () => {
     const user = {
       email: values.email || undefined,
       password: values.password || undefined,
-    };
+    }
 
     ApiAuth.SignIn(user).then((data) => {
       if (data.error) {
@@ -104,43 +104,38 @@ export default function Signin() {
           error: data.error,
           email: user.email,
           password: user.password,
-        });
+        })
       } else {
         auth.authenticate(data, () => {
-          setValues({ redirectToReferrer: true });
-        });
+          setValues({ redirectToReferrer: true })
+        })
       }
-    });
-  };
+    })
+  }
 
   const handleChange = (name) => (event) => {
     setValues({
       ...values,
       [name]: event.target.value,
-    });
-  };
+    })
+  }
 
-  const classes = useStyles();
+  const classes = useStyles()
 
   const { from } = location || {
     from: {
-      pathname: "/",
+      pathname: '/',
     },
-  };
+  }
   if (values.redirectToReferrer) {
-    return <Redirect to={from} />;
+    return <Redirect to={from} />
   }
 
   return (
     <form className={classes.root} noValidate>
       <Card className={classes.card}>
         <CardContent>
-          <Typography
-            type="headline"
-            variant="h3"
-            gutterBottom
-            className={classes.title}
-          >
+          <Typography type="headline" variant="h3" gutterBottom className={classes.title}>
             Logg inn
           </Typography>
           <TextField
@@ -149,7 +144,7 @@ export default function Signin() {
             label="E-Post"
             className={classes.textField}
             value={values.email}
-            onChange={handleChange("email")}
+            onChange={handleChange('email')}
             margin="normal"
             autoComplete="email"
             variant="outlined"
@@ -157,20 +152,16 @@ export default function Signin() {
           <br />
           <TextField
             id="password"
-            type={values.showPassword ? "text" : "password"}
+            type={values.showPassword ? 'text' : 'password'}
             label="Passord"
             className={classes.textField}
-            onChange={handleChange("password")}
+            onChange={handleChange('password')}
             margin="normal"
             variant="outlined"
             autoComplete="current-password"
             InputProps={{
               endAdornment: (
-                <IconButton
-                  variant="outlined"
-                  onClick={handleClickShowPassword}
-                  onMouseDown={handleMouseDownPassword}
-                >
+                <IconButton variant="outlined" onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword}>
                   {values.showPassword ? <Visibility /> : <VisibilityOff />}
                 </IconButton>
               ),
@@ -179,7 +170,7 @@ export default function Signin() {
               },
             }}
           />
-          <br />{" "}
+          <br />{' '}
           {values.error && (
             <Typography component="p" color="error">
               <Icon color="error" className={classes.error}>
@@ -213,7 +204,7 @@ export default function Signin() {
               Ny bruker
             </Button>
             <p>
-              <Link className={classes.passwordLink} to={"/resett-passord/"}>
+              <Link className={classes.passwordLink} to={'/resett-passord/'}>
                 Glemt passord?
               </Link>
             </p>
@@ -221,7 +212,7 @@ export default function Signin() {
         </CardActions>
       </Card>
     </form>
-  );
+  )
 }
 
 // export default withStyles(styles)(Signin);

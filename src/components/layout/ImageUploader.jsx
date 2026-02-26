@@ -210,7 +210,7 @@ function Previews(props) {
                 clearStoreImage(clearAction)
                 setProgress(0)
                 setFiles([])
-                setOpen(false);
+                setOpen(false)
               }, 2000)
             }
           }

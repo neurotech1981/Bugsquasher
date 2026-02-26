@@ -72,7 +72,12 @@
   "proxy": "http://localhost:3001",
   "secure": false,
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "settings": {
+      "react": {
+        "version": "detect"
+      }
+    }
   },
   "browserslist": {
     "production": [

@@ -20,19 +20,23 @@ export const registerUser = async (req, res, next) => {
   user.rights = isFirstAccount ? Rights.Skriv : Rights.Les
   user.verificationToken = randomTokenString()
 
-  user.save((err, result) => {
+  user.save(async (err, result) => {
     if (err) {
       return res.status(400).json({
         error: getErrorMessage(err),
       })
     }
+
+    try {
+      await sendVerificationEmail(user, 'localhost')
+    } catch (emailErr) {
+      console.warn('Failed to send verification email:', emailErr.message)
+    }
+
     res.status(200).json({
       message: 'Ny bruker registrert!',
     })
   })
-
-  await sendVerificationEmail(user, 'localhost')
-  next()
 }
 
 export const addComment = async (req, res, next) => {

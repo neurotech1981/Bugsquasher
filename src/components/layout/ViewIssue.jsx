@@ -263,7 +263,7 @@ export default function ViewIssue(props) {
   }
 
   const handleStatusUpdateClose = () => {
-    setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: false })
+    setOpenStatusUpdate((prev) => ({ ...prev, openStatusSnackbar: false }))
   }
 
   const handleConfirmDelete = () => {
@@ -304,28 +304,28 @@ export default function ViewIssue(props) {
 
     await issueService
       .upDateIssueStatus(id, { status: data }, jwt.token)
-      .then((response) => {
-        setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true })
-        setData({ ...dataset, status: data })
+      .then(() => {
+        setOpenStatusUpdate((prev) => ({ ...prev, openStatusSnackbar: true }))
+        setData((prev) => ({ ...prev, status: data }))
       })
       .catch((e) => {
         console.error('Update issue error: ', e)
       })
   }
 
-  const upDateDelegated = async (id, data) => {
+  const upDateDelegated = async (id, delegatedUserId) => {
     const jwt = auth.isAuthenticated()
 
     await issueService
-      .upDateDelegated(id, { delegated: data }, jwt.token)
-      .then((response) => {
-        const selectedUser = users.find((u) => u._id === data)
-        setOpenStatusUpdate({ ...openStatusUpdate, openStatusSnackbar: true })
-        setData({ ...dataset, delegated: selectedUser || { _id: data, name: '' } })
+      .upDateDelegated(id, { delegated: delegatedUserId }, jwt.token)
+      .then(() => {
+        const selectedUser = users.find((u) => u._id === delegatedUserId)
+        setOpenStatusUpdate((prev) => ({ ...prev, openStatusSnackbar: true }))
+        setData((prev) => ({ ...prev, delegated: selectedUser || { _id: delegatedUserId, name: '' } }))
       })
       .catch((e) => {
         console.error('Update delegated user error: ', e)
-        setErrors({ ...errors, delegated: 'Kunne ikke oppdatere delegering' })
+        setErrors((prev) => ({ ...prev, delegated: 'Kunne ikke oppdatere delegering' }))
       })
   }
 
@@ -796,7 +796,7 @@ export default function ViewIssue(props) {
                   )}
                   <Snackbar
                     open={openStatusSnackbar}
-                    autohideduration={3000}
+                    autoHideDuration={3000}
                     onClose={handleStatusUpdateClose}
                     anchorOrigin={{
                       vertical: verticalStatusUpdate,

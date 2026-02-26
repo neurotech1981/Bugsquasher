@@ -21,7 +21,8 @@ export const signin = (req, res) => {
       {
         _id: user._id,
       },
-      config.jwtSecret
+      config.jwtSecret,
+      { expiresIn: '7d' }
     )
 
     res.cookie('t', token, {
@@ -47,7 +48,7 @@ export const signout = (_req, res) => {
 export const requireSignin = expressJwt({
   secret: config.jwtSecret,
   userProperty: 'auth',
-  algorithms: ['RS256'],
+  algorithms: ['HS256'],
 })
 
 export const hasAuthorization = (req, res) => {

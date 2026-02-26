@@ -8,6 +8,8 @@ import CreateIssue from './components/layout/CreateIssue'
 import EditIssue from './components/layout/EditIssue'
 import ViewIssue from './components/layout/ViewIssue'
 import Messages from './components/layout/Messages'
+import ProjectOverview from './components/layout/ProjectOverview'
+import CreateProject from './components/layout/CreateProject'
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import PrivateRoute from './components/auth/PrivateRoute'
 import Signin from './components/auth/Signin'
@@ -97,6 +99,8 @@ const App = () => {
             <PrivateRoute path="/bruker-admin/:userId" component={Users} />
             <PrivateRoute path="/edit-issue/:id" component={EditIssue} />
             <PrivateRoute path="/meldinger" component={Messages} />
+            <PrivateRoute path="/prosjekt-oversikt/:userId" component={ProjectOverview} />
+            <PrivateRoute path="/opprett-prosjekt/:userId" component={CreateProject} />
             <Route path="/resett-passord" component={ResetPassword} />
             <Route path="/tilbakestill-passord/:token" component={ChangePassword} />
             <Route path="/signup" component={Signup} />

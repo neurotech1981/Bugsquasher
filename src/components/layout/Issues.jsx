@@ -216,7 +216,7 @@ export default function Issues(props) {
             previousTooltip: 'Forrige side',
             lastTooltip: 'Siste side',
             firstTooltip: 'Første side',
-            labelDisplayedRows: 'oppføringer',
+            labelRowsSelect: 'oppføringer',
           },
         }}
         options={{

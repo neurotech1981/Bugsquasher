@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'
 import authRoutes from '../src/routes/auth.js'
 import userRoutes from '../src/routes/user.js'
 import issueRoutes from '../src/routes/issue.js'
+import messageRoutes from '../src/routes/message.js'
 import config from '../config/index.js'
 
 const app = express()
@@ -20,6 +21,7 @@ app.use(cors())
 app.use('/', authRoutes)
 app.use('/', userRoutes)
 app.use('/', issueRoutes)
+app.use('/', messageRoutes)
 
 app.use((err, req, res, next) => {
   if (err.name === 'UnauthorizedError') {

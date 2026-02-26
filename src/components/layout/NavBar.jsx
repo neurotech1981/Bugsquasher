@@ -1,6 +1,7 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import auth from '../auth/auth-helper'
 import { Link, useLocation, withRouter } from 'react-router-dom'
+import messageService from '../../services/messageService'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import useReactRouter from 'use-react-router'
 import Divider from '@material-ui/core/Divider'
@@ -208,8 +209,24 @@ function NavBar(props) {
 
   const location = useLocation()
   const { container } = props
-  //const [mobileOpen, setMobileOpen] = React.useState(false)
   const [open, setOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      if (!auth.isAuthenticated()) return
+      try {
+        const jwt = auth.isAuthenticated()
+        const data = await messageService.getUnreadCount(jwt.user._id, jwt.token)
+        if (data.success) setUnreadCount(data.count)
+      } catch (e) {
+        /* ignore */
+      }
+    }
+    fetchUnread()
+    const interval = setInterval(fetchUnread, 30000)
+    return () => clearInterval(interval)
+  }, [])
   //const isActive = (value) => (location.pathname + "/" + auth.isAuthenticated().user._id == value ? true : false)
 
   // This is an example script - don't forget to change it!
@@ -296,13 +313,13 @@ function NavBar(props) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem>
+      <MenuItem component={Link} to="/meldinger">
         <IconButton color="inherit">
-          <Badge overlap="rectangular" badgeContent={4} color="secondary">
+          <Badge overlap="rectangular" badgeContent={unreadCount} color="secondary">
             <MailIcon />
           </Badge>
         </IconButton>
-        <p>Messages</p>
+        <p>Meldinger</p>
       </MenuItem>
       <MenuItem component={Link} to={'/user/' + auth.isAuthenticated().user._id}>
         <IconButton color="inherit">
@@ -332,13 +349,13 @@ function NavBar(props) {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
+      <MenuItem component={Link} to="/meldinger">
         <IconButton color="inherit">
-          <Badge overlap="rectangular" badgeContent={4} color="secondary">
+          <Badge overlap="rectangular" badgeContent={unreadCount} color="secondary">
             <MailIcon />
           </Badge>
         </IconButton>
-        <p>Messages</p>
+        <p>Meldinger</p>
       </MenuItem>
       <MenuItem onClick={handleMenuClose}>
         <IconButton color="inherit">
@@ -425,8 +442,8 @@ function NavBar(props) {
             </div>
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
-              <IconButton color="inherit">
-                <Badge overlap="rectangular" badgeContent={0} color="secondary">
+              <IconButton color="inherit" component={Link} to="/meldinger">
+                <Badge overlap="rectangular" badgeContent={unreadCount} color="secondary">
                   <MailIcon />
                 </Badge>
               </IconButton>
